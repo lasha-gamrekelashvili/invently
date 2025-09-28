@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String
+  firstName    String
+  lastName     String
+  role         UserRole   @default(STORE_OWNER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  auditLogs    AuditLog[]
+  ownedTenants Tenant[]
+
+  @@map("users")
+}
+
+model Tenant {
+  id            String         @id @default(uuid())
+  name          String
+  subdomain     String         @unique
+  description   String?
+  ownerId       String
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+  auditLogs     AuditLog[]
+  categories    Category[]
+  productImages ProductImage[]
+  products      Product[]
+  owner         User           @relation(fields: [ownerId], references: [id])
+
+  @@map("tenants")
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String
+  slug        String
+  description String?
+  parentId    String?
+  tenantId    String
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+  products    Product[]
+
+  @@unique([slug, tenantId])
+  @@map("categories")
+}
+
+model Product {
+  id            String         @id @default(uuid())
+  title         String
+  description   String?
+  slug          String
+  price         Float
+  stockQuantity Int            @default(0)
+  status        ProductStatus  @default(DRAFT)
+  tenantId      String
+  categoryId    String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+  images        ProductImage[]
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+
+  @@unique([slug, tenantId])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String    @id @default(uuid())
+  url       String
+  altText   String?
+  filename  String
+  productId String
+  tenantId  String
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("product_images")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  resource   String
+  resourceId String?
+  userId     String
+  tenantId   String?
+  oldData    Json?
+  newData    Json?
+  createdAt  DateTime @default(now())
+  tenant     Tenant?  @relation(fields: [tenantId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  STORE_OWNER
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  DELETED
+}

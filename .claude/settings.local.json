@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(dotnet new:*)",
+      "Bash(npx create-react-app:*)",
+      "Bash(dotnet build)",
+      "Bash(dotnet add package:*)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npm start)",
+      "Bash(curl:*)",
+      "Bash(node server.js)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(node:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(taskkill:*)",
+      "Bash(del \"C:\\Users\\lashg\\Desktop\\invently\\backend\\prisma\\dev.db\")",
+      "Bash(docker-compose up:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
