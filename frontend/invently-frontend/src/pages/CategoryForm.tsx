@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { categoriesAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CustomDropdown from '../components/CustomDropdown';
+import FormSkeleton from '../components/FormSkeleton';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const CategoryForm = () => {
@@ -25,9 +26,10 @@ const CategoryForm = () => {
   const queryClient = useQueryClient();
 
   // Fetch categories for parent selection
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoriesAPI.list({ limit: 100 }),
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch existing category when editing
@@ -49,8 +51,8 @@ const CategoryForm = () => {
     }
   }, [existingCategory, isEditing]);
 
-  // Build flat list of categories for parent selection (excluding current category when editing)
-  const buildFlatCategoryList = (categories: any[], parentId: string | null = null, level = 0): any[] => {
+  // Memoized function to build flat list of categories for parent selection
+  const buildFlatCategoryList = useCallback((categories: any[], parentId: string | null = null, level = 0): any[] => {
     const result: any[] = [];
     
     categories
@@ -63,9 +65,13 @@ const CategoryForm = () => {
       });
     
     return result;
-  };
+  }, [isEditing, id]);
 
-  const categoryList = categoriesData?.categories ? buildFlatCategoryList(categoriesData.categories) : [];
+  // Memoized category list to prevent unnecessary recalculations
+  const categoryList = useMemo(() => {
+    if (!categoriesData?.categories) return [];
+    return buildFlatCategoryList(categoriesData.categories);
+  }, [categoriesData?.categories, buildFlatCategoryList]);
 
   const createCategoryMutation = useMutation({
     mutationFn: (data: any) => categoriesAPI.create(data),
@@ -94,19 +100,19 @@ const CategoryForm = () => {
     }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
-  const generateSlug = (name: string) => {
+  const generateSlug = useCallback((name: string) => {
     return name.toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '-')
       .substring(0, 50);
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -124,18 +130,19 @@ const CategoryForm = () => {
     } else {
       createCategoryMutation.mutate(categoryData);
     }
-  };
+  }, [formData, generateSlug, isEditing, updateCategoryMutation, createCategoryMutation]);
 
-  if (isEditing && isLoadingCategory) {
-    return <LoadingSpinner size="lg" className="py-12" />;
+  // Show skeleton while loading categories or existing category
+  if (isLoadingCategories || (isEditing && isLoadingCategory)) {
+    return <FormSkeleton />;
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Link
           to="/admin/categories"
-          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Back to Categories

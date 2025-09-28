@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { productsAPI, categoriesAPI, mediaAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CustomDropdown from '../components/CustomDropdown';
+import FormSkeleton from '../components/FormSkeleton';
 import { ArrowLeftIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const ProductForm = () => {
@@ -27,9 +28,10 @@ const ProductForm = () => {
   const queryClient = useQueryClient();
 
   // Fetch categories for the dropdown
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoriesAPI.list({ limit: 100 }),
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch existing product when editing
@@ -66,6 +68,19 @@ const ProductForm = () => {
       setImages(existingImages);
     }
   }, [existingImages]);
+
+  // Memoized category options to prevent unnecessary recalculations
+  const categoryOptions = useMemo(() => {
+    if (!categoriesData?.categories) return [{ value: '', label: 'Select a category' }];
+    
+    return [
+      { value: '', label: 'Select a category' },
+      ...categoriesData.categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      }))
+    ];
+  }, [categoriesData?.categories]);
 
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -107,12 +122,12 @@ const ProductForm = () => {
     }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -142,9 +157,9 @@ const ProductForm = () => {
     } finally {
       setUploadingImages(false);
     }
-  };
+  }, [isEditing, id]);
 
-  const handleRemoveImage = async (imageId: string) => {
+  const handleRemoveImage = useCallback(async (imageId: string) => {
     try {
       if (isEditing && !imageId.startsWith('temp-')) {
         await mediaAPI.deleteProductImage(imageId);
@@ -154,16 +169,16 @@ const ProductForm = () => {
     } catch (error) {
       handleApiError(error, 'Failed to remove image');
     }
-  };
+  }, [isEditing]);
 
-  const generateSlug = (title: string) => {
+  const generateSlug = useCallback((title: string) => {
     return title.toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '-')
       .substring(0, 50);
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -183,18 +198,19 @@ const ProductForm = () => {
     } else {
       createProductMutation.mutate(productData);
     }
-  };
+  }, [formData, generateSlug, isEditing, updateProductMutation, createProductMutation]);
 
-  if (isEditing && isLoadingProduct) {
-    return <LoadingSpinner size="lg" className="py-12" />;
+  // Show skeleton while loading categories, product, or images
+  if (isLoadingCategories || (isEditing && isLoadingProduct)) {
+    return <FormSkeleton />;
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Link
           to="/admin/products"
-          className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Back to Products
@@ -239,13 +255,7 @@ const ProductForm = () => {
                 name="categoryId"
                 value={formData.categoryId}
                 onChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
-                options={[
-                  { value: '', label: 'Select a category' },
-                  ...(categoriesData?.categories?.map((category) => ({
-                    value: category.id,
-                    label: category.name,
-                  })) || [])
-                ]}
+                options={categoryOptions}
                 placeholder="Select a category"
               />
             </div>

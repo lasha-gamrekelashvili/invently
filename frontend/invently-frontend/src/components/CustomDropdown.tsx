@@ -17,18 +17,19 @@ interface CustomDropdownProps {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  size?: 'default' | 'compact';
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({
+const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
   id,
   name,
   value,
   onChange,
   options,
   placeholder = 'Select an option',
-  required = false,
   disabled = false,
   className = '',
+  size = 'default',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -122,16 +123,16 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
         id={id}
         name={name}
         disabled={disabled}
-        required={required}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         className={`
-          w-full px-4 py-3 pr-10 bg-white/90 backdrop-blur-sm border border-gray-200 
-          rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-300/50 focus:border-blue-400 
-          shadow-sm hover:shadow-md transition-all duration-200 appearance-none cursor-pointer
+          w-full bg-white border border-gray-300 
+          rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+          hover:border-gray-400 appearance-none cursor-pointer
           text-left flex items-center justify-between
+          ${size === 'compact' ? 'px-2 py-1 pr-5 text-xs' : 'px-4 py-3 pr-10'}
           ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-          ${isOpen ? 'ring-4 ring-blue-300/50 border-blue-400' : ''}
+          ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
         `}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -141,15 +142,16 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDownIcon 
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-            isOpen ? 'rotate-180' : ''
-          }`} 
+          className={`text-gray-600 ${
+            size === 'compact' ? 'w-3 h-3' : 'w-5 h-5'
+          } ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto custom-dropdown-scroll">
-          {options.map((option, index) => (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+          <div className="max-h-60 overflow-y-auto">
+            {options.map((option, index) => (
             <button
               key={option.value}
               type="button"
@@ -158,7 +160,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
               onMouseEnter={() => handleMouseEnter(index)}
               disabled={option.disabled}
               className={`
-                w-full px-4 py-3 text-left transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl
+                block w-full text-left whitespace-nowrap overflow-hidden
+                ${size === 'compact' ? 'px-2 py-1 text-xs' : 'px-4 py-3'}
                 ${index === highlightedIndex 
                   ? 'bg-blue-50 text-blue-900' 
                   : 'text-gray-900 hover:bg-gray-50'
@@ -167,17 +170,21 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
                   ? 'opacity-50 cursor-not-allowed text-gray-400' 
                   : 'cursor-pointer'
                 }
-                ${index === 0 ? 'rounded-t-xl' : ''}
-                ${index === options.length - 1 ? 'rounded-b-xl' : ''}
+                ${index === 0 ? 'rounded-t-lg' : ''}
+                ${index === options.length - 1 ? 'rounded-b-lg' : ''}
+                ${index > 0 && index < options.length - 1 ? 'rounded-none' : ''}
               `}
             >
               {option.label}
             </button>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
-};
+});
+
+CustomDropdown.displayName = 'CustomDropdown';
 
 export default CustomDropdown;
