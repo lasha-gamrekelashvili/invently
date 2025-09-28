@@ -137,3 +137,106 @@ export interface LoginData {
   email: string;
   password: string;
 }
+
+export interface CartItem {
+  id: string;
+  cartId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  createdAt: string;
+  updatedAt: string;
+  product: Product;
+}
+
+export interface Cart {
+  id: string;
+  sessionId: string;
+  tenantId: string;
+  customerEmail?: string;
+  createdAt: string;
+  updatedAt: string;
+  items: CartItem[];
+  total: number;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  tenantId: string;
+  customerEmail: string;
+  customerName: string;
+  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  totalAmount: number;
+  paymentStatus: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+  shippingAddress?: any;
+  billingAddress?: any;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  items: OrderItem[];
+}
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  title: string;
+  createdAt: string;
+  product: Product;
+}
+
+export interface OrderStats {
+  totalOrders: number;
+  monthlyOrders: number;
+  weeklyOrders: number;
+  monthlyRevenue: number;
+  recentOrders: Order[];
+  ordersByStatus: Array<{
+    status: string;
+    _count: { status: number };
+  }>;
+}
+
+export interface CreateOrderData {
+  sessionId: string;
+  customerEmail: string;
+  customerName: string;
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  billingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  notes?: string;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  resource: string;
+  resourceId?: string;
+  userId?: string;
+  tenantId?: string;
+  oldData?: any;
+  newData?: any;
+  createdAt: string;
+  anonymousUserEmail?: string;
+  anonymousUserName?: string;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}

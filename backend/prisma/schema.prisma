@@ -37,6 +37,8 @@ model Tenant {
   categories    Category[]
   productImages ProductImage[]
   products      Product[]
+  carts         Cart[]
+  orders        Order[]
   owner         User           @relation(fields: [ownerId], references: [id])
 
   @@map("tenants")
@@ -78,6 +80,8 @@ model Product {
   images        ProductImage[]
   category      Category?      @relation(fields: [categoryId], references: [id])
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
 
   @@unique([slug, tenantId])
   @@map("products")
@@ -105,13 +109,16 @@ model AuditLog {
   action     String
   resource   String
   resourceId String?
-  userId     String
+  userId     String?
   tenantId   String?
   oldData    Json?
   newData    Json?
   createdAt  DateTime @default(now())
+  // For anonymous users
+  anonymousUserEmail String?
+  anonymousUserName  String?
   tenant     Tenant?  @relation(fields: [tenantId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
 }
@@ -121,8 +128,87 @@ enum UserRole {
   STORE_OWNER
 }
 
+model Cart {
+  id          String     @id @default(uuid())
+  sessionId   String     @unique
+  tenantId    String
+  customerEmail String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+  items       CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  orderNumber   String      @unique
+  tenantId      String
+  customerEmail String
+  customerName  String
+  status        OrderStatus @default(PENDING)
+  totalAmount   Float
+  paymentStatus PaymentStatus @default(PENDING)
+  shippingAddress Json?
+  billingAddress  Json?
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  items         OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+  title     String
+  createdAt DateTime @default(now())
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
 enum ProductStatus {
   ACTIVE
   DRAFT
   DELETED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }

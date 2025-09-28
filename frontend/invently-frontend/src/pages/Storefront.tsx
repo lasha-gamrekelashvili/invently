@@ -4,10 +4,15 @@ import { storefrontAPI } from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
-import { FolderIcon, CubeIcon } from '@heroicons/react/24/outline';
+import Cart from '../components/Cart';
+import Checkout from '../components/Checkout';
+import { CartProvider, useCart } from '../contexts/CartContext';
+import { FolderIcon, CubeIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 
-const Storefront = () => {
+const StorefrontContent = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
+  const [showCheckout, setShowCheckout] = useState(false);
+  const { addToCart, getCartItemQuantity } = useCart();
 
   const { data: storeInfo, error: storeInfoError } = useQuery({
     queryKey: ['store-info'],
@@ -41,6 +46,10 @@ const Storefront = () => {
 
   const handleAllProductsClick = () => {
     setSelectedCategoryId(undefined);
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    await addToCart(productId, 1);
   };
 
   const selectedCategory = categories?.find(cat => cat.id === selectedCategoryId);
@@ -115,10 +124,40 @@ const Storefront = () => {
                           {product.description}
                         </p>
                       )}
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-sm mb-3">
                         <span className="text-gray-500">{product.stockQuantity} in stock</span>
                         {product.category && (
                           <span className="text-blue-600 font-medium">{product.category.name}</span>
+                        )}
+                      </div>
+
+                      {/* Add to Cart Button */}
+                      <div className="flex items-center space-x-2">
+                        {getCartItemQuantity(product.id) > 0 ? (
+                          <div className="flex items-center space-x-2 text-sm">
+                            <span className="text-green-600 font-medium">
+                              {getCartItemQuantity(product.id)} in cart
+                            </span>
+                            <button
+                              onClick={() => handleAddToCart(product.id)}
+                              className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm font-medium hover:bg-green-200 transition-colors"
+                            >
+                              Add More
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleAddToCart(product.id)}
+                            disabled={product.stockQuantity === 0}
+                            className={`w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                              product.stockQuantity === 0
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            }`}
+                          >
+                            <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                            {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                          </button>
                         )}
                       </div>
                     </div>
@@ -150,7 +189,24 @@ const Storefront = () => {
           )}
         </div>
       </div>
+
+      {/* Cart */}
+      <Cart onCheckout={() => setShowCheckout(true)} />
+
+      {/* Checkout Modal */}
+      <Checkout
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+      />
     </StorefrontLayout>
+  );
+};
+
+const Storefront = () => {
+  return (
+    <CartProvider>
+      <StorefrontContent />
+    </CartProvider>
   );
 };
 

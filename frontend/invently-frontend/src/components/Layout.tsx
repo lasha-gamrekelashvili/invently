@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { isOnSubdomain } from '../utils/api';
 import {
-  HomeIcon,
+  ChartBarIcon,
   FolderIcon,
   CubeIcon,
   CogIcon,
@@ -11,6 +11,8 @@ import {
   BuildingStorefrontIcon,
   Bars3Icon,
   XMarkIcon,
+  ShoppingBagIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 
 const Layout = () => {
@@ -20,9 +22,11 @@ const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, section: 'Store' },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: ChartBarIcon, section: 'Store' },
     { name: 'Categories', href: '/admin/categories', icon: FolderIcon, section: 'Store' },
     { name: 'Products', href: '/admin/products', icon: CubeIcon, section: 'Store' },
+    { name: 'Orders', href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
+    { name: 'Logs', href: '/admin/logs', icon: DocumentTextIcon, section: 'Store' },
   ];
 
   if (user?.role === 'PLATFORM_ADMIN') {
@@ -46,17 +50,17 @@ const Layout = () => {
   }, [tenants]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col h-screen ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         {/* Header */}
@@ -173,9 +177,9 @@ const Layout = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Mobile menu button */}
-        <div className="lg:hidden sticky top-0 z-30 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+        <div className="lg:hidden flex-shrink-0 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
           <div className="px-4 py-4">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -186,8 +190,8 @@ const Layout = () => {
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
+        {/* Page content - scrollable */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
           <Outlet />
         </main>
       </div>

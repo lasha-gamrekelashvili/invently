@@ -16,6 +16,9 @@ import Categories from './pages/Categories';
 import CategoryForm from './pages/CategoryForm';
 import Products from './pages/Products';
 import ProductForm from './pages/ProductForm';
+import Orders from './pages/Orders';
+import OrderDetails from './pages/OrderDetails';
+import Logs from './pages/Logs';
 import Storefront from './pages/Storefront';
 import PlatformAdmin from './pages/PlatformAdmin';
 
@@ -65,6 +68,9 @@ const AppRoutes = () => {
         <Route path="products" element={<Products />} />
         <Route path="products/new" element={<ProductForm />} />
         <Route path="products/:id/edit" element={<ProductForm />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="orders/:id" element={<OrderDetails />} />
+        <Route path="logs" element={<Logs />} />
 
         {/* Platform Admin Routes */}
         {user?.role === 'PLATFORM_ADMIN' && (
@@ -84,7 +90,7 @@ const App = () => {
       <div className="min-h-screen">
         <AppRoutes />
         <Toaster
-          position="top-right"
+          position="bottom-right"
           toastOptions={{
             duration: 4000,
             style: {

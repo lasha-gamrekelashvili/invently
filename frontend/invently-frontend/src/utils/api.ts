@@ -9,8 +9,24 @@ import type {
   CreateCategoryData,
   CreateProductData,
   PaginatedResponse,
-  PaginationParams
+  PaginationParams,
+  Cart,
+  Order,
+  OrderStats,
+  CreateOrderData
 } from '../types';
+
+// Debounce utility function
+export const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  let timeoutId: number;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 const api = axios.create({
   baseURL: '/api',
@@ -26,26 +42,6 @@ export const setAuthToken = (token: string | null) => {
   authToken = token;
 };
 
-// Function to get the current subdomain
-const getCurrentSubdomain = () => {
-  const hostname = window.location.hostname;
-  
-  // For localhost development, check if it's a subdomain
-  if (hostname.includes('localhost')) {
-    const localhostParts = hostname.split('.');
-    if (localhostParts.length > 1 && localhostParts[0] !== 'localhost') {
-      return localhostParts[0];
-    }
-  } else {
-    // For production, subdomain is the first part
-    const parts = hostname.split('.');
-    if (parts.length > 2) {
-      return parts[0];
-    }
-  }
-  
-  return null;
-};
 
 // Function to check if we're on a subdomain
 export const isOnSubdomain = () => {
@@ -123,7 +119,7 @@ export const categoriesAPI = {
 
 // Products API
 export const productsAPI = {
-  list: (params?: PaginationParams & { categoryId?: string; status?: string }): Promise<PaginatedResponse<Product>> =>
+  list: (params?: PaginationParams & { categoryId?: string; status?: string; search?: string; minPrice?: number; maxPrice?: number }): Promise<PaginatedResponse<Product>> =>
     api.get('/products', { params }).then(res => res.data),
 
   create: (data: CreateProductData): Promise<Product> =>
@@ -203,6 +199,51 @@ export const adminAPI = {
 
   getStats: (): Promise<any> =>
     api.get('/admin/stats').then(res => res.data),
+};
+
+// Cart API
+export const cartAPI = {
+  getCart: (sessionId: string): Promise<Cart> =>
+    api.get(`/cart/${sessionId}`).then(res => res.data.data),
+
+  addToCart: (sessionId: string, productId: string, quantity: number = 1): Promise<any> =>
+    api.post(`/cart/${sessionId}/items`, { productId, quantity }).then(res => res.data),
+
+  updateCartItem: (sessionId: string, itemId: string, quantity: number): Promise<any> =>
+    api.put(`/cart/${sessionId}/items/${itemId}`, { quantity }).then(res => res.data),
+
+  removeFromCart: (sessionId: string, itemId: string): Promise<void> =>
+    api.delete(`/cart/${sessionId}/items/${itemId}`).then(res => res.data),
+
+  clearCart: (sessionId: string): Promise<void> =>
+    api.delete(`/cart/${sessionId}/clear`).then(res => res.data),
+};
+
+// Orders API
+export const ordersAPI = {
+  createOrder: (data: CreateOrderData): Promise<Order> =>
+    api.post('/orders', data).then(res => res.data.data),
+
+  getOrders: (params?: PaginationParams & { status?: string; search?: string; dateFilter?: string; startDate?: string; endDate?: string }): Promise<PaginatedResponse<Order>> =>
+    api.get('/orders', { params }).then(res => res.data),
+
+  getOrder: (id: string): Promise<Order> =>
+    api.get(`/orders/${id}`).then(res => res.data.data),
+
+  updateOrderStatus: (id: string, status: string): Promise<Order> =>
+    api.put(`/orders/${id}/status`, { status }).then(res => res.data.data),
+
+  getOrderStats: (): Promise<OrderStats> =>
+    api.get('/orders/stats').then(res => res.data.data),
+};
+
+// Audit Logs API
+export const auditLogsAPI = {
+  getAuditLogs: (params?: PaginationParams & { action?: string; resource?: string; userId?: string; search?: string; startDate?: string; endDate?: string }): Promise<PaginatedResponse<any>> =>
+    api.get('/audit-logs', { params }).then(res => res.data),
+
+  getAuditLogStats: (): Promise<any> =>
+    api.get('/audit-logs/stats').then(res => res.data.data),
 };
 
 export default api;

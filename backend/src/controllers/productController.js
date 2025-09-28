@@ -2,6 +2,28 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+// Helper function to get all child category IDs recursively
+const getAllChildCategoryIds = async (categoryId, tenantId) => {
+  const category = await prisma.category.findFirst({
+    where: { id: categoryId, tenantId, deletedAt: null },
+    include: {
+      children: true
+    }
+  });
+
+  if (!category) return [];
+
+  let allIds = [categoryId];
+
+  // Recursively get IDs from all children
+  for (const child of category.children) {
+    const childIds = await getAllChildCategoryIds(child.id, tenantId);
+    allIds = [...allIds, ...childIds];
+  }
+
+  return allIds;
+};
+
 const createProduct = async (req, res) => {
   try {
     const { title, description, slug, price, stockQuantity, status, categoryId } = req.validatedData;
@@ -52,21 +74,43 @@ const createProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
     const tenantId = req.tenantId;
-    const { page, limit, sortBy = 'createdAt', sortOrder, search } = req.validatedQuery;
-    const { categoryId, status } = req.query;
+    const { page, limit, sortBy = 'createdAt', sortOrder, search, categoryId, status, minPrice, maxPrice } = req.validatedQuery;
+
+    // Handle hierarchical category filtering
+    let categoryFilter = {};
+    if (categoryId) {
+      const allCategoryIds = await getAllChildCategoryIds(categoryId, tenantId);
+      categoryFilter = {
+        categoryId: {
+          in: allCategoryIds
+        }
+      };
+    }
 
     const where = {
       tenantId,
       deletedAt: null,
-      ...(categoryId && { categoryId }),
+      ...categoryFilter,
       ...(status && { status }),
       ...(search && {
         OR: [
-          { title: { contains: search } },
-          { description: { contains: search } }
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
         ]
       })
     };
+
+    // Handle price range filter properly
+    if (minPrice && maxPrice) {
+      where.price = {
+        gte: parseFloat(minPrice),
+        lte: parseFloat(maxPrice)
+      };
+    } else if (minPrice) {
+      where.price = { gte: parseFloat(minPrice) };
+    } else if (maxPrice) {
+      where.price = { lte: parseFloat(maxPrice) };
+    }
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({

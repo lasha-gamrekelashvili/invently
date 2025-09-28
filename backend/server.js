@@ -11,6 +11,9 @@ const productRoutes = require('./src/routes/products');
 const mediaRoutes = require('./src/routes/media');
 const storefrontRoutes = require('./src/routes/storefront');
 const adminRoutes = require('./src/routes/admin');
+const cartRoutes = require('./src/routes/cart');
+const orderRoutes = require('./src/routes/orders');
+const auditLogRoutes = require('./src/routes/auditLogs');
 
 // Import swagger config
 const swagger = require('./src/config/swagger');
@@ -88,6 +91,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/storefront', storefrontRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/audit-logs', auditLogRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

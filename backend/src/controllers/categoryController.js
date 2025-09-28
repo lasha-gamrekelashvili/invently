@@ -7,12 +7,15 @@ const calculateRecursiveProductCount = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
     where: { id: categoryId, tenantId, deletedAt: null },
     include: {
-      children: true,
+      children: {
+        where: {
+          deletedAt: null
+        }
+      },
       _count: {
         select: {
           products: {
             where: {
-              status: 'ACTIVE',
               deletedAt: null
             }
           }
@@ -49,7 +52,11 @@ const getRecursiveProducts = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
     where: { id: categoryId, tenantId, deletedAt: null },
     include: {
-      children: true
+      children: {
+        where: {
+          deletedAt: null
+        }
+      }
     }
   });
 
@@ -60,7 +67,6 @@ const getRecursiveProducts = async (categoryId, tenantId) => {
     where: {
       categoryId: categoryId,
       tenantId,
-      status: 'ACTIVE',
       deletedAt: null
     },
     include: {
@@ -155,8 +161,16 @@ const getCategories = async (req, res) => {
       prisma.category.findMany({
         where,
         include: {
-          parent: true,
-          children: true,
+          parent: {
+            where: {
+              deletedAt: null
+            }
+          },
+          children: {
+            where: {
+              deletedAt: null
+            }
+          },
           _count: {
             select: { 
               products: {
@@ -205,19 +219,25 @@ const getCategoryById = async (req, res) => {
         deletedAt: null
       },
       include: {
-        parent: true,
-        children: true,
+        parent: {
+          where: {
+            deletedAt: null
+          }
+        },
+        children: {
+          where: {
+            deletedAt: null
+          }
+        },
         products: {
           where: {
-            deletedAt: null,
-            status: 'ACTIVE'
+            deletedAt: null
           }
         },
         _count: {
           select: { 
             products: {
               where: {
-                status: 'ACTIVE',
                 deletedAt: null
               }
             }
@@ -320,8 +340,16 @@ const deleteCategory = async (req, res) => {
         deletedAt: null
       },
       include: {
-        children: true,
-        products: true
+        children: {
+          where: {
+            deletedAt: null
+          }
+        },
+        products: {
+          where: {
+            deletedAt: null
+          }
+        }
       }
     });
 

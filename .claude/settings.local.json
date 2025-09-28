@@ -19,7 +19,8 @@
       "Bash(npx tailwindcss init:*)",
       "Bash(taskkill:*)",
       "Bash(del \"C:\\Users\\lashg\\Desktop\\invently\\backend\\prisma\\dev.db\")",
-      "Bash(docker-compose up:*)"
+      "Bash(docker-compose up:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

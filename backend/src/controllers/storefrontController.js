@@ -7,7 +7,11 @@ const calculateRecursiveProductCount = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
     where: { id: categoryId, tenantId, deletedAt: null },
     include: {
-      children: true,
+      children: {
+        where: {
+          deletedAt: null
+        }
+      },
       _count: {
         select: {
           products: {

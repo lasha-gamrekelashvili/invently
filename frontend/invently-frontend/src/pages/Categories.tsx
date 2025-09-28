@@ -56,6 +56,7 @@ const Categories = () => {
     mutationFn: (id: string) => categoriesAPI.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['category', selectedCategoryId] });
       setDeleteModal({ isOpen: false, category: null, product: null, type: null });
       if (selectedCategoryId === deleteModal.category?.id) {
         setSelectedCategoryId('');
@@ -71,6 +72,7 @@ const Categories = () => {
     mutationFn: (id: string) => productsAPI.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['category', selectedCategoryId] });
       setDeleteModal({ isOpen: false, category: null, product: null, type: null });
       handleSuccess('Product deleted successfully');
     },
@@ -139,6 +141,7 @@ const Categories = () => {
 
       await productsAPI.update(editingProduct, productData);
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['category', selectedCategoryId] });
       setEditingProduct(null);
       handleSuccess('Product updated successfully');
     } catch (error) {
@@ -165,7 +168,10 @@ const Categories = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+            <FolderIcon className="h-8 w-8 mr-3 text-blue-600" />
+            Categories
+          </h1>
           <p className="text-sm text-gray-600 mt-1">
             {categoriesData?.pagination.total || 0} categories in your store
           </p>

@@ -59,7 +59,11 @@ const schemas = {
     limit: Joi.number().integer().min(1).max(1000).default(20),
     sortBy: Joi.string().optional(),
     sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
-    search: Joi.string().max(100).optional()
+    search: Joi.string().max(100).optional(),
+    categoryId: Joi.string().uuid().optional(),
+    status: Joi.string().valid('ACTIVE', 'DRAFT', 'DELETED').optional(),
+    minPrice: Joi.number().min(0).optional(),
+    maxPrice: Joi.number().min(0).optional()
   })
 };
 
