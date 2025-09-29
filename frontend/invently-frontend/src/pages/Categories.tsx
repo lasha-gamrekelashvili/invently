@@ -7,8 +7,11 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import CategoryTree from '../components/CategoryTree';
 import CategoryBreadcrumb from '../components/CategoryBreadcrumb';
 import ConfirmationModal from '../components/ConfirmationModal';
-import CustomDropdown from '../components/CustomDropdown';
-import { PlusIcon, FolderIcon, PencilIcon, TrashIcon, CubeIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import PageHeader from '../components/PageHeader';
+import StatusBadge from '../components/StatusBadge';
+import ActionButtonGroup from '../components/ActionButtonGroup';
+import InlineEditField from '../components/InlineEditField';
+import { PlusIcon, FolderIcon, PencilIcon, TrashIcon, CubeIcon } from '@heroicons/react/24/outline';
 import type { Category } from '../types';
 
 const Categories = () => {
@@ -165,22 +168,15 @@ const Categories = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-            <FolderIcon className="h-8 w-8 mr-3 text-blue-600" />
-            Categories
-          </h1>
-          <p className="text-sm text-gray-600 mt-1">
-            {categoriesData?.pagination.total || 0} categories in your store
-          </p>
-        </div>
-        <Link to="/admin/categories/new" className="btn-primary flex items-center">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Category
-        </Link>
-      </div>
+      <PageHeader
+        title="Categories"
+        subtitle={`${categoriesData?.pagination.total || 0} categories in your store`}
+        icon={FolderIcon}
+        actionButton={{
+          label: 'Add Category',
+          href: '/admin/categories/new'
+        }}
+      />
 
       {/* Breadcrumb */}
       <CategoryBreadcrumb
@@ -364,36 +360,28 @@ const Categories = () => {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  {editingProduct === product.id ? (
-                                    <div className="flex items-center">
-                                      <span className="text-sm text-gray-500 mr-1">$</span>
-                                      <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        value={editValues.price}
-                                        onChange={(e) => handleEditValueChange('price', e.target.value)}
-                                        className="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
-                                        onClick={(e) => e.stopPropagation()}
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div className="text-sm font-medium text-gray-900">${product.price}</div>
-                                  )}
+                                  <InlineEditField
+                                    type="number"
+                                    value={editingProduct === product.id ? editValues.price : product.price.toString()}
+                                    onChange={(value) => handleEditValueChange('price', value)}
+                                    isEditing={editingProduct === product.id}
+                                    displayValue={`$${product.price}`}
+                                    prefix="$"
+                                    step="0.01"
+                                    min="0"
+                                    inputClassName="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
+                                  />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  {editingProduct === product.id ? (
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      value={editValues.stockQuantity}
-                                      onChange={(e) => handleEditValueChange('stockQuantity', e.target.value)}
-                                      className="text-sm text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                  ) : (
-                                    <div className="text-sm text-gray-900">{product.stockQuantity}</div>
-                                  )}
+                                  <InlineEditField
+                                    type="number"
+                                    value={editingProduct === product.id ? editValues.stockQuantity : product.stockQuantity.toString()}
+                                    onChange={(value) => handleEditValueChange('stockQuantity', value)}
+                                    isEditing={editingProduct === product.id}
+                                    displayValue={product.stockQuantity.toString()}
+                                    min="0"
+                                    inputClassName="text-sm text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
+                                  />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   {product.category ? (
@@ -406,74 +394,44 @@ const Categories = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   {editingProduct === product.id ? (
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                      <CustomDropdown
-                                        value={editValues.status}
-                                        onChange={(value) => handleEditValueChange('status', value)}
-                                        options={[
-                                          { value: 'ACTIVE', label: 'ACTIVE' },
-                                          { value: 'DRAFT', label: 'DRAFT' },
-                                        ]}
-                                        size="compact"
-                                        className="w-16"
-                                      />
-                                    </div>
+                                    <InlineEditField
+                                      type="dropdown"
+                                      value={editValues.status}
+                                      onChange={(value) => handleEditValueChange('status', value)}
+                                      isEditing={true}
+                                      options={[
+                                        { value: 'ACTIVE', label: 'ACTIVE' },
+                                        { value: 'DRAFT', label: 'DRAFT' },
+                                      ]}
+                                    />
                                   ) : (
-                                    <span
-                                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        product.status === 'ACTIVE'
-                                          ? 'bg-green-100 text-green-800'
-                                          : 'bg-yellow-100 text-yellow-800'
-                                      }`}
-                                    >
-                                      {product.status}
-                                    </span>
+                                    <StatusBadge status={product.status} type="product" />
                                   )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                  <div className="flex items-center justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
-                                    {editingProduct === product.id ? (
-                                      <>
-                                        <button 
-                                          onClick={handleSaveEdit}
-                                          className="text-green-600 hover:text-green-700 p-1 rounded"
-                                          title="Save changes"
-                                        >
-                                          <CheckIcon className="h-4 w-4" />
-                                        </button>
-                                        <button 
-                                          onClick={handleCancelEdit}
-                                          className="text-gray-400 hover:text-gray-600 p-1 rounded"
-                                          title="Cancel editing"
-                                        >
-                                          <XMarkIcon className="h-4 w-4" />
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <button 
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleStartEdit(product);
-                                          }}
-                                          className="text-gray-400 hover:text-blue-600 p-1 rounded"
-                                          title="Edit product inline"
-                                        >
-                                          <PencilIcon className="h-4 w-4" />
-                                        </button>
-                                        <button 
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteProduct(product);
-                                          }}
-                                          className="text-gray-400 hover:text-red-600 p-1 rounded"
-                                          title="Delete product"
-                                        >
-                                          <TrashIcon className="h-4 w-4" />
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
+                                  {editingProduct === product.id ? (
+                                    <ActionButtonGroup
+                                      actions={[
+                                        { type: 'save', onClick: handleSaveEdit },
+                                        { type: 'cancel', onClick: handleCancelEdit }
+                                      ]}
+                                    />
+                                  ) : (
+                                    <ActionButtonGroup
+                                      actions={[
+                                        {
+                                          type: 'edit',
+                                          onClick: () => handleStartEdit(product),
+                                          title: 'Edit product inline'
+                                        },
+                                        {
+                                          type: 'delete',
+                                          onClick: () => handleDeleteProduct(product),
+                                          title: 'Delete product'
+                                        }
+                                      ]}
+                                    />
+                                  )}
                                 </td>
                               </tr>
                             ))}

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { categoriesAPI, productsAPI, ordersAPI } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
+import StatusBadge from '../components/StatusBadge';
 import {
   PlusIcon,
   EyeIcon,
@@ -12,10 +13,7 @@ import {
   ShoppingBagIcon,
   CurrencyDollarIcon,
   ClockIcon,
-  CheckCircleIcon,
   ChartBarIcon,
-  TruckIcon,
-  XCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
@@ -100,39 +98,6 @@ const Dashboard = () => {
     },
   ];
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return <ClockIcon className="h-4 w-4 text-yellow-600" />;
-      case 'CONFIRMED':
-        return <CheckCircleIcon className="h-4 w-4 text-blue-600" />;
-      case 'SHIPPED':
-        return <TruckIcon className="h-4 w-4 text-purple-600" />;
-      case 'DELIVERED':
-        return <CheckCircleIcon className="h-4 w-4 text-green-600" />;
-      case 'CANCELLED':
-        return <XCircleIcon className="h-4 w-4 text-red-600" />;
-      default:
-        return <ClockIcon className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'CONFIRMED':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'SHIPPED':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'DELIVERED':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   return (
     <div className="space-y-8 bg-gray-50 min-h-screen p-6 -m-6">
@@ -274,12 +239,7 @@ const Dashboard = () => {
                   </div>
                   <div className="text-right ml-4 flex-shrink-0">
                     <div className="flex items-center justify-end">
-                      {getStatusIcon(order.status)}
-                      <span
-                        className={`ml-2 inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(order.status)}`}
-                      >
-                        {order.status}
-                      </span>
+                      <StatusBadge status={order.status} type="order" showIcon={true} size="sm" />
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       {new Date(order.createdAt).toLocaleDateString()}

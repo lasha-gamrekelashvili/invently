@@ -20,7 +20,10 @@
       "Bash(taskkill:*)",
       "Bash(del \"C:\\Users\\lashg\\Desktop\\invently\\backend\\prisma\\dev.db\")",
       "Bash(docker-compose up:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
