@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  FolderIcon, 
-  CubeIcon, 
-  ShoppingBagIcon,
-  Bars3Icon,
-  XMarkIcon
+import {
+  FolderIcon,
+  CubeIcon,
+  XMarkIcon,
+  FunnelIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import CategoryTree from './CategoryTree';
+import StorefrontHeader from './StorefrontHeader';
+import StorefrontFooter from './StorefrontFooter';
 
 interface StorefrontLayoutProps {
   children: React.ReactNode;
@@ -14,122 +16,233 @@ interface StorefrontLayoutProps {
     name: string;
     description?: string;
   };
+  storeSettings?: any;
   categories?: any[];
   selectedCategoryId?: string;
   onCategorySelect?: (categoryId: string) => void;
   onAllProductsClick?: () => void;
+  onCartClick: () => void;
+  onSearchChange?: (query: string) => void;
+  onPriceRangeChange?: (min: string, max: string) => void;
+  priceRange?: { min: string; max: string };
 }
 
 const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   children,
   storeInfo,
+  storeSettings,
   categories = [],
   selectedCategoryId,
   onCategorySelect,
-  onAllProductsClick
+  onAllProductsClick,
+  onCartClick,
+  onSearchChange,
+  onPriceRangeChange,
+  priceRange: externalPriceRange,
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const handlePriceChange = (field: 'min' | 'max', value: string) => {
+    // Call the parent callback immediately to update local state (no lag)
+    if (onPriceRangeChange) {
+      const newMin = field === 'min' ? value : (externalPriceRange?.min || '');
+      const newMax = field === 'max' ? value : (externalPriceRange?.max || '');
+      onPriceRangeChange(newMin, newMax);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex">
-      {/* Mobile sidebar backdrop */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <StorefrontHeader
+        storeInfo={storeInfo}
+        onMenuClick={() => setSidebarOpen(true)}
+        onCartClick={onCartClick}
+        onSearchChange={onSearchChange}
+      />
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                <ShoppingBagIcon className="w-5 h-5 text-white" />
-              </div>
-              <span className="ml-2 text-lg font-bold text-gray-900">
-                {storeInfo?.name || 'Shop'}
-              </span>
-            </div>
+      <div className="flex-1 flex">
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-gray-900/50 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Desktop Sidebar - Filters */}
+        <aside className="hidden lg:block w-72 bg-white border-r border-gray-200 overflow-y-auto">
+          <div className="p-6 space-y-6">
+            {/* All Products Button */}
             <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              onClick={onAllProductsClick}
+              className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${
+                !selectedCategoryId
+                  ? 'bg-blue-50 text-blue-700 shadow-sm'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
             >
-              <XMarkIcon className="w-5 h-5" />
+              <CubeIcon className="w-5 h-5 mr-3" />
+              All Products
             </button>
-          </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            <div className="space-y-1">
-              <button
-                onClick={onAllProductsClick}
-                className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 w-full text-left"
-              >
-                <CubeIcon className="w-5 h-5 mr-3 text-gray-400 group-hover:text-blue-500" />
-                All Products
-              </button>
-            </div>
-
-            {/* Categories Section */}
-            <div className="mt-8">
-              <div className="flex items-center px-3 py-2">
-                <FolderIcon className="w-5 h-5 mr-2 text-gray-400" />
+            {/* Categories */}
+            <div>
+              <div className="flex items-center mb-3 px-2">
+                <FolderIcon className="w-5 h-5 mr-2 text-gray-500" />
                 <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
                   Categories
                 </h3>
               </div>
-              
               {categories && categories.length > 0 ? (
-                <div className="mt-2">
+                <CategoryTree
+                  categories={categories}
+                  onSelect={onCategorySelect}
+                  selectedCategoryId={selectedCategoryId}
+                  showProductCounts={true}
+                  compact={true}
+                />
+              ) : (
+                <p className="text-sm text-gray-500 px-2">
+                  {categories === undefined ? 'Loading...' : 'No categories'}
+                </p>
+              )}
+            </div>
+
+            {/* Price Filter */}
+            <div className="pt-6 border-t border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider px-2">
+                Price Range
+              </h3>
+              <div className="space-y-3">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={externalPriceRange?.min || ''}
+                  onChange={(e) => handlePriceChange('min', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={externalPriceRange?.max || ''}
+                  onChange={(e) => handlePriceChange('max', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* Mobile Sidebar - Filter Drawer */}
+        <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <div className="flex flex-col h-full">
+            {/* Mobile Sidebar Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div className="flex items-center">
+                <FunnelIcon className="w-5 h-5 mr-2 text-gray-600" />
+                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Mobile Sidebar Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* All Products Button */}
+              <button
+                onClick={() => {
+                  onAllProductsClick?.();
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${
+                  !selectedCategoryId
+                    ? 'bg-blue-50 text-blue-700 shadow-sm'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <CubeIcon className="w-5 h-5 mr-3" />
+                All Products
+              </button>
+
+              {/* Categories */}
+              <div>
+                <div className="flex items-center mb-3 px-2">
+                  <FolderIcon className="w-5 h-5 mr-2 text-gray-500" />
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                    Categories
+                  </h3>
+                </div>
+                {categories && categories.length > 0 ? (
                   <CategoryTree
                     categories={categories}
-                    onSelect={onCategorySelect}
+                    onSelect={(id) => {
+                      onCategorySelect?.(id);
+                      setSidebarOpen(false);
+                    }}
                     selectedCategoryId={selectedCategoryId}
                     showProductCounts={true}
                     compact={true}
                   />
-                </div>
-              ) : (
-                <div className="px-3 py-2 text-sm text-gray-500">
-                  {categories === undefined ? 'Loading categories...' : 'No categories available'}
-                </div>
-              )}
-            </div>
-          </nav>
+                ) : (
+                  <p className="text-sm text-gray-500 px-2">
+                    {categories === undefined ? 'Loading...' : 'No categories'}
+                  </p>
+                )}
+              </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="text-xs text-gray-500 text-center">
-              Powered by Invently
+              {/* Price Filter */}
+              <div className="pt-6 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider px-2">
+                  Price Range
+                </h3>
+                <div className="space-y-3">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={externalPriceRange?.min || ''}
+                    onChange={(e) => handlePriceChange('min', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={externalPriceRange?.max || ''}
+                    onChange={(e) => handlePriceChange('max', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Apply Button */}
+            <div className="p-4 border-t border-gray-200">
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-blue-700 transition-colors"
+              >
+                Apply Filters
+              </button>
             </div>
           </div>
-        </div>
-      </div>
+        </aside>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Mobile menu button */}
-        <div className="lg:hidden sticky top-0 z-30 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-          <div className="px-4 py-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-            >
-              <Bars3Icon className="w-6 h-6" />
-            </button>
+        {/* Main content */}
+        <main className="flex-1 flex flex-col">
+          <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full">
+            {children}
           </div>
-        </div>
-
-        {/* Page content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
-          {children}
         </main>
       </div>
+
+      {/* Footer */}
+      <StorefrontFooter settings={storeSettings} />
     </div>
   );
 };

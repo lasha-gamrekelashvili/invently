@@ -240,3 +240,81 @@ export interface AuditLog {
     email: string;
   };
 }
+
+export interface StoreSettings {
+  id: string;
+  tenantId: string;
+  aboutUs?: {
+    title: string;
+    content: string;
+  };
+  contact?: {
+    title: string;
+    content: string;
+  };
+  privacyPolicy?: {
+    title: string;
+    content: string;
+  };
+  termsOfService?: {
+    title: string;
+    content: string;
+  };
+  shippingInfo?: {
+    title: string;
+    content: string;
+  };
+  returns?: {
+    title: string;
+    content: string;
+  };
+  faq?: {
+    title: string;
+    content: string;
+  };
+  facebookUrl?: string;
+  twitterUrl?: string;
+  instagramUrl?: string;
+  linkedinUrl?: string;
+  youtubeUrl?: string;
+  trackOrderUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateStoreSettingsData {
+  aboutUs?: {
+    title: string;
+    content: string;
+  };
+  contact?: {
+    title: string;
+    content: string;
+  };
+  privacyPolicy?: {
+    title: string;
+    content: string;
+  };
+  termsOfService?: {
+    title: string;
+    content: string;
+  };
+  shippingInfo?: {
+    title: string;
+    content: string;
+  };
+  returns?: {
+    title: string;
+    content: string;
+  };
+  faq?: {
+    title: string;
+    content: string;
+  };
+  facebookUrl?: string;
+  twitterUrl?: string;
+  instagramUrl?: string;
+  linkedinUrl?: string;
+  youtubeUrl?: string;
+  trackOrderUrl?: string;
+}

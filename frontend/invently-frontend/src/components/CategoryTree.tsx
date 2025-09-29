@@ -60,17 +60,36 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
       .sort((a, b) => a.name.localeCompare(b.name));
   };
 
-  const renderCategoryNode = (category: Category, level: number = 0) => {
+  // Check if category or any of its children are in draft status
+  const isCategoryOrChildrenDraft = (category: Category): boolean => {
+    if (!category.isActive) return true;
+    if (category.children && category.children.length > 0) {
+      return category.children.some(child => isCategoryOrChildrenDraft(child));
+    }
+    return false;
+  };
+
+  // Check if a category should be styled as draft (either itself is draft OR parent has draft children)
+  const shouldStyleAsDraft = (category: Category, parentIsDraft: boolean = false): boolean => {
+    return !category.isActive || parentIsDraft;
+  };
+
+  const renderCategoryNode = (category: Category, level: number = 0, parentIsDraft: boolean = false) => {
     const hasChildren = category.children && category.children.length > 0;
     const isExpanded = expandedNodes.has(category.id);
     const isSelected = selectedCategoryId === category.id;
+    const isDraft = shouldStyleAsDraft(category, parentIsDraft);
 
     if (compact) {
       return (
         <div key={category.id} className="select-none">
           <div
-            className={`flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 group ${
-              isSelected ? 'bg-blue-50 border border-blue-200' : ''
+            className={`flex items-center py-2 px-3 rounded-lg group ${
+              isSelected 
+                ? 'bg-blue-50 border border-blue-200' 
+                : isDraft 
+                  ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
+                  : 'hover:bg-gray-50'
             }`}
             style={{ marginLeft: `${level * 12}px` }}
           >
@@ -96,8 +115,8 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
               className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
             >
               <div className="flex items-center">
-                <FolderIcon className="w-4 h-4 mr-2 text-gray-500" />
-                <span className="text-sm font-medium text-gray-900 truncate">
+                <FolderIcon className={`w-4 h-4 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`} />
+                <span className={`text-sm font-medium truncate ${isDraft ? 'text-yellow-800' : 'text-gray-900'}`}>
                   {category.name}
                 </span>
                 {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
@@ -116,7 +135,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           {/* Children in compact mode */}
           {hasChildren && isExpanded && (
             <div>
-              {category.children!.map(child => renderCategoryNode(child, level + 1))}
+              {category.children!.map(child => renderCategoryNode(child, level + 1, !category.isActive))}
             </div>
           )}
         </div>
@@ -126,8 +145,12 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
     return (
       <div key={category.id} className="select-none">
         <div
-          className={`flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 group ${
-            isSelected ? 'bg-blue-50 border border-blue-200' : ''
+          className={`flex items-center py-2 px-3 rounded-lg group ${
+            isSelected 
+              ? 'bg-blue-50 border border-blue-200' 
+              : isDraft 
+                ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
+                : 'hover:bg-gray-50'
           }`}
           style={{ marginLeft: `${level * 16}px` }}
         >
@@ -148,7 +171,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           </button>
 
           {/* Category Icon */}
-          <div className="w-5 h-5 mr-2 text-gray-500">
+          <div className={`w-5 h-5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
             <FolderIcon className="w-5 h-5" />
           </div>
 
@@ -158,7 +181,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
             className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
           >
             <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-900 truncate">
+              <span className={`text-sm font-medium truncate ${isDraft ? 'text-yellow-800' : 'text-gray-900'}`}>
                 {category.name}
               </span>
               {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
@@ -172,7 +195,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
               )}
             </div>
             {category.description && (
-              <div className="text-xs text-gray-500 truncate">
+              <div className={`text-xs truncate ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
                 {category.description}
               </div>
             )}
@@ -207,7 +230,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
         {/* Children */}
         {hasChildren && isExpanded && (
           <div>
-            {category.children!.map(child => renderCategoryNode(child, level + 1))}
+            {category.children!.map(child => renderCategoryNode(child, level + 1, !category.isActive))}
           </div>
         )}
       </div>
@@ -224,7 +247,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           <p className="text-sm">No categories yet</p>
         </div>
       ) : (
-        tree.map(category => renderCategoryNode(category))
+        tree.map(category => renderCategoryNode(category, 0, false))
       )}
     </div>
   );

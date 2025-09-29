@@ -13,7 +13,9 @@ import type {
   Cart,
   Order,
   OrderStats,
-  CreateOrderData
+  CreateOrderData,
+  StoreSettings,
+  UpdateStoreSettingsData
 } from '../types';
 
 // Debounce utility function
@@ -170,7 +172,7 @@ export const storefrontAPI = {
   getCategories: (): Promise<Category[]> =>
     api.get('/storefront/categories').then(res => res.data),
 
-  getProducts: (params?: PaginationParams & { categoryId?: string; search?: string }): Promise<PaginatedResponse<Product>> =>
+  getProducts: (params?: PaginationParams & { categoryId?: string; search?: string; minPrice?: number; maxPrice?: number }): Promise<PaginatedResponse<Product>> =>
     api.get('/storefront/products', { params }).then(res => res.data),
 
   getProduct: (slug: string): Promise<Product> =>
@@ -178,6 +180,9 @@ export const storefrontAPI = {
 
   getProductsByCategory: (categorySlug: string, params?: PaginationParams): Promise<{ category: Category; products: Product[]; pagination: any }> =>
     api.get(`/storefront/categories/${categorySlug}/products`, { params }).then(res => res.data),
+
+  getSettings: (): Promise<StoreSettings | null> =>
+    api.get('/storefront/settings').then(res => res.data),
 };
 
 // Admin API (platform admin)
@@ -199,6 +204,15 @@ export const adminAPI = {
 
   getStats: (): Promise<any> =>
     api.get('/admin/stats').then(res => res.data),
+};
+
+// Settings API
+export const settingsAPI = {
+  getSettings: (): Promise<{ data: StoreSettings }> =>
+    api.get('/settings').then(res => res.data),
+
+  updateSettings: (data: UpdateStoreSettingsData): Promise<{ data: StoreSettings; message: string }> =>
+    api.put('/settings', data).then(res => res.data),
 };
 
 // Cart API

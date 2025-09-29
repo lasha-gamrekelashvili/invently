@@ -39,6 +39,7 @@ model Tenant {
   products      Product[]
   carts         Cart[]
   orders        Order[]
+  settings      StoreSettings?
   owner         User           @relation(fields: [ownerId], references: [id])
 
   @@map("tenants")
@@ -211,4 +212,30 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+model StoreSettings {
+  id                String    @id @default(uuid())
+  tenantId          String    @unique
+  // Footer page content (stored as JSON with title and content)
+  aboutUs           Json?
+  contact           Json?
+  privacyPolicy     Json?
+  termsOfService    Json?
+  shippingInfo      Json?
+  returns           Json?
+  faq               Json?
+  // Social media URLs
+  facebookUrl       String?
+  twitterUrl        String?
+  instagramUrl      String?
+  linkedinUrl       String?
+  youtubeUrl        String?
+  // Other settings
+  trackOrderUrl     String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("store_settings")
 }

@@ -26,6 +26,7 @@ const Layout = () => {
     { name: 'Categories', href: '/admin/categories', icon: FolderIcon, section: 'Store' },
     { name: 'Products', href: '/admin/products', icon: CubeIcon, section: 'Store' },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
+    { name: 'Settings', href: '/admin/settings', icon: CogIcon, section: 'Store' },
     { name: 'Logs', href: '/admin/logs', icon: DocumentTextIcon, section: 'Store' },
   ];
 

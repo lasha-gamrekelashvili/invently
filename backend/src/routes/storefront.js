@@ -6,6 +6,7 @@ const {
   getPublicProductBySlug,
   getProductsByCategory
 } = require('../controllers/storefrontController');
+const { getPublicSettings } = require('../controllers/settingsController');
 const tenantResolver = require('../middleware/tenantResolver');
 
 const router = express.Router();
@@ -314,5 +315,6 @@ router.get('/categories', getPublicCategories);
 router.get('/products', getPublicProducts);
 router.get('/products/:slug', getPublicProductBySlug);
 router.get('/categories/:categorySlug/products', getProductsByCategory);
+router.get('/settings', getPublicSettings);
 
 module.exports = router;

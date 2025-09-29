@@ -129,7 +129,7 @@ const getPublicProducts = async (req, res) => {
       return res.status(404).json({ error: 'Store not found' });
     }
 
-    const { page = 1, limit = 20, categoryId, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const { page = 1, limit = 20, categoryId, search, minPrice, maxPrice, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
     let categoryIds = null;
     if (categoryId) {
@@ -143,10 +143,13 @@ const getPublicProducts = async (req, res) => {
       ...(categoryIds && { categoryId: { in: categoryIds } }),
       ...(search && {
         OR: [
-          { title: { contains: search } },
-          { description: { contains: search } }
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
         ]
-      })
+      }),
+      ...(minPrice && { price: { gte: parseFloat(minPrice) } }),
+      ...(maxPrice && { price: { lte: parseFloat(maxPrice) } }),
+      ...((minPrice && maxPrice) && { price: { gte: parseFloat(minPrice), lte: parseFloat(maxPrice) } })
     };
 
     const [products, total] = await Promise.all([
@@ -258,8 +261,8 @@ const getProductsByCategory = async (req, res) => {
       deletedAt: null,
       ...(search && {
         OR: [
-          { title: { contains: search } },
-          { description: { contains: search } }
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
         ]
       })
     };

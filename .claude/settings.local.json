@@ -23,7 +23,8 @@
       "Bash(npm run build:*)",
       "Bash(npm run lint)",
       "Bash(npm run:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

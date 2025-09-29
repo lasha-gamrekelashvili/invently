@@ -19,6 +19,7 @@ import ProductForm from './pages/ProductForm';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
 import Logs from './pages/Logs';
+import Settings from './pages/Settings';
 import Storefront from './pages/Storefront';
 import PlatformAdmin from './pages/PlatformAdmin';
 
@@ -50,6 +51,7 @@ const AppRoutes = () => {
       {/* Public Storefront Routes */}
       <Route path="/" element={<Storefront />} />
       <Route path="/store" element={<Storefront />} />
+      <Route path="/category/*" element={<Storefront />} />
 
       {/* Protected Admin Routes */}
       <Route
@@ -71,6 +73,7 @@ const AppRoutes = () => {
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<OrderDetails />} />
         <Route path="logs" element={<Logs />} />
+        <Route path="settings" element={<Settings />} />
 
         {/* Platform Admin Routes */}
         {user?.role === 'PLATFORM_ADMIN' && (
