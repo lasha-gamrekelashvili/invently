@@ -12,9 +12,14 @@ const options = {
     servers: [
       {
         url: 'http://localhost:3001/api',
-        description: 'Development server'
-      }
+        description: 'Development server',
+      },
+      {
+        url: 'https://momigvare.onrender.com/api',
+        description: 'Production server',
+      },
     ],
+    
     tags: [
       {
         name: 'Products',

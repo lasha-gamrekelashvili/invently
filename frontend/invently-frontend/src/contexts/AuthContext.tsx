@@ -100,7 +100,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           window.location.href = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
           // For production - redirect to admin dashboard with token
-          const base = currentHost.split('.').slice(1).join('.');
+          // Handle both localhost and production domains properly
+          const base = currentHost === 'localhost' ? 'localhost' : currentHost;
           window.location.href = `https://${tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
         return;
@@ -132,7 +133,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           window.location.href = `http://${response.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
           // For production - redirect to admin dashboard with token
-          const base = currentHost.split('.').slice(1).join('.');
+          // Handle both localhost and production domains properly
+          const base = currentHost === 'localhost' ? 'localhost' : currentHost;
           window.location.href = `https://${response.tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
         return;
@@ -156,7 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (isOnSubdomain()) {
       const mainDomain = window.location.hostname.endsWith('.localhost')
         ? `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}`
-        : `${window.location.protocol}//${window.location.hostname.split('.').slice(1).join('.')}`;
+        : `${window.location.protocol}//${window.location.hostname.endsWith('.momigvare.ge') ? 'momigvare.ge' : window.location.hostname.split('.').slice(1).join('.')}`;
       window.location.href = mainDomain;
     }
   };
