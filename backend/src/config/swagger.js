@@ -4,29 +4,6 @@ const swaggerUi = require('swagger-ui-express');
 const options = {
   definition: {
     openapi: '3.0.0',
-    info: {
-      title: 'Invently Multi-Tenant Shop API',
-      version: '1.0.0',
-      description: 'A comprehensive SaaS platform API that enables sellers to instantly create and manage their online shops with multi-tenant architecture. Features include multi-tenant architecture, role-based access control, complete product management, public storefront API, audit logging, and file upload support.',
-      contact: {
-        name: 'API Support',
-        email: 'support@invently.com'
-      },
-      license: {
-        name: 'MIT',
-        url: 'https://opensource.org/licenses/MIT'
-      }
-    },
-    servers: [
-      {
-        url: 'http://localhost:3001/api',
-        description: 'Development server'
-      },
-      {
-        url: 'https://api.invently.com/api',
-        description: 'Production server'
-      }
-    ],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -367,8 +344,5 @@ const specs = swaggerJsdoc(options);
 
 module.exports = {
   serve: swaggerUi.serve,
-  setup: swaggerUi.setup(specs, {
-    explorer: true,
-    customCssUrl: 'https://cdn.jsdelivr.net/npm/swagger-ui-themes@3.0.0/themes/3.x/theme-outline.css'
-  })
+  setup: swaggerUi.setup(specs)
 };
