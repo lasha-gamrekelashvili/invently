@@ -36,13 +36,27 @@ export const debounce = <T extends (...args: any[]) => any>(
 // Determine the correct API base URL based on environment
 const getApiBaseUrl = () => {
   const hostname = window.location.hostname;
+  const port = window.location.port;
   
-  // For localhost development
-  if (hostname === 'localhost' || hostname.includes('127.0.0.1')) {
+  // Debug logging
+  console.log('Current hostname:', hostname);
+  console.log('Current port:', port);
+  console.log('Current origin:', window.location.origin);
+  
+  // For localhost development - check for localhost in any form
+  if (hostname === 'localhost' || 
+      hostname === '127.0.0.1' || 
+      hostname.includes('127.0.0.1') ||
+      hostname.endsWith('.localhost') ||  // This covers subdomains like nucushop.localhost
+      hostname.includes('localhost') ||
+      port === '3000' ||
+      window.location.origin.includes('localhost')) {
+    console.log('Using localhost API URL');
     return 'http://localhost:3001/api';
   }
   
   // For production - use the actual backend URL
+  console.log('Using production API URL');
   return 'https://momigvare.onrender.com/api';
 };
 
