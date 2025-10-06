@@ -25,7 +25,36 @@ const prisma = new PrismaClient();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (origin.includes('localhost')) return callback(null, true);
+    
+    // Allow your main domain and all subdomains
+    const allowedDomains = [
+      'https://momigvare.ge',
+      'http://momigvare.ge',
+      /^https:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/,
+      /^http:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/
+    ];
+    
+    const isAllowed = allowedDomains.some(domain => {
+      if (typeof domain === 'string') {
+        return origin === domain;
+      } else if (domain instanceof RegExp) {
+        return domain.test(origin);
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 

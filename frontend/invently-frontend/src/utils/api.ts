@@ -50,11 +50,13 @@ export const setAuthToken = (token: string | null) => {
 
 // Function to check if we're on a subdomain
 export const isOnSubdomain = () => {
-  const host = window.location.hostname; // furniture.localhost OR furniture.shop.ge
+  const host = window.location.hostname; // furniture.localhost OR furniture.momigvare.ge
   if (host === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return false;
   // localhost special-case: foo.localhost is treated as subdomain
   if (host.endsWith('.localhost')) return true;
   // real domains: at least 3 labels = subdomain
+  // Also check if it's a subdomain of momigvare.ge
+  if (host.endsWith('.momigvare.ge') && host !== 'momigvare.ge') return true;
   return host.split('.').length >= 3;
 };
 
