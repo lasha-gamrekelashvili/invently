@@ -16,7 +16,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
-import type { Product, ProductVariant } from '../types';
+import type { ProductVariant } from '../types';
 
 const ProductDetailContent: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -241,7 +241,7 @@ const ProductDetailContent: React.FC = () => {
                     { value: '', label: 'Choose variant...' },
                     ...activeVariants.map((variant) => ({
                       value: variant.id,
-                      label: `${Object.entries(variant.options).map(([key, value]) => `${value}`).join(' / ')}${variant.price ? ` - $${variant.price.toFixed(2)}` : ''}${variant.stockQuantity === 0 ? ' (Out of stock)' : ''}`,
+                      label: `${Object.entries(variant.options).map(([, value]) => `${value}`).join(' / ')}${variant.price ? ` - $${variant.price.toFixed(2)}` : ''}${variant.stockQuantity === 0 ? ' (Out of stock)' : ''}`,
                       disabled: variant.stockQuantity === 0
                     }))
                   ]}

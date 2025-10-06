@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { ProductVariant, CreateVariantData } from '../types';
 import { productsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';

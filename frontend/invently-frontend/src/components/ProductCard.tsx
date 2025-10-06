@@ -146,7 +146,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
                     .filter(v => v.isActive)
                     .map((variant) => ({
                       value: variant.id,
-                      label: `${Object.entries(variant.options).map(([key, value]) => `${value}`).join(' / ')}${variant.price ? ` - $${variant.price.toFixed(2)}` : ''}${variant.stockQuantity === 0 ? ' (Out of stock)' : ''}`,
+                      label: `${Object.entries(variant.options).map(([, value]) => `${value}`).join(' / ')}${variant.price ? ` - $${variant.price.toFixed(2)}` : ''}${variant.stockQuantity === 0 ? ' (Out of stock)' : ''}`,
                       disabled: variant.stockQuantity === 0
                     }))
                 ]}
