@@ -4,11 +4,16 @@ const prisma = new PrismaClient();
 
 const tenantResolver = async (req, res, next) => {
   try {
-    const host = req.get('host');
+    // Check for X-Original-Host header first (for cross-domain deployments)
+    // This allows frontend on momigvare.ge to communicate with backend on momigvare.onrender.com
+    let host = req.get('x-original-host') || req.get('host');
 
     if (!host) {
       return res.status(400).json({ error: 'Host header is required' });
     }
+
+    // Remove port if present
+    host = host.split(':')[0];
 
     // Handle localhost subdomains (e.g., shopname.localhost:3000)
     let subdomain;
@@ -21,7 +26,7 @@ const tenantResolver = async (req, res, next) => {
         return next();
       }
     } else {
-      // Handle production subdomains (e.g., shopname.example.com)
+      // Handle production subdomains (e.g., shopname.example.com or shopname.momigvare.ge)
       const parts = host.split('.');
       if (parts.length > 2) {
         subdomain = parts[0];
@@ -35,6 +40,14 @@ const tenantResolver = async (req, res, next) => {
       req.tenant = null;
       return next();
     }
+
+    // Log subdomain resolution for debugging
+    console.log('Tenant Resolution:', {
+      originalHost: req.get('x-original-host'),
+      requestHost: req.get('host'),
+      resolvedHost: host,
+      subdomain
+    });
 
     const tenant = await prisma.tenant.findUnique({
       where: {

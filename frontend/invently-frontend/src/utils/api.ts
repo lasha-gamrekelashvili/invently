@@ -73,12 +73,16 @@ export const isOnSubdomain = () => {
   return host.split('.').length >= 3;
 };
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and original host
 api.interceptors.request.use((config) => {
   const token = authToken || localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Add the original hostname for tenant resolution
+  config.headers['X-Original-Host'] = window.location.hostname;
+  
   return config;
 });
 
