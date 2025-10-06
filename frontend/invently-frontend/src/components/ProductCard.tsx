@@ -1,21 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCartIcon, CubeIcon } from '@heroicons/react/24/outline';
-import { ProductVariant } from '../types';
+import { Product, ProductVariant } from '../types';
 import CustomDropdown from './CustomDropdown';
 
 interface ProductCardProps {
-  product: {
-    id: string;
-    title: string;
-    description?: string;
-    price: number;
-    stockQuantity: number;
-    images?: Array<{ url: string; altText?: string }>;
-    category?: { name: string };
-    variants?: ProductVariant[];
-    attributes?: Record<string, any>;
-  };
+  product: Product;
   cartQuantity: number;
   onAddToCart: (productId: string, variantId?: string) => void;
 }
