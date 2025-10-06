@@ -179,11 +179,11 @@ const Register = () => {
                     title="Only lowercase letters and numbers allowed"
                   />
                   <span className="inline-flex items-center px-4 bg-gray-50 border border-l-0 border-gray-300 text-gray-700 text-sm font-medium">
-                    .example.com
+                    .momigvare.ge
                   </span>
                 </div>
                 <p className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                  Your shop will be available at {formData.subdomain || 'yourshop'}.example.com
+                  Your shop will be available at {formData.subdomain || 'yourshop'}.momigvare.ge
                 </p>
               </div>
 
