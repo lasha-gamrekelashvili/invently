@@ -33,8 +33,25 @@ export const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
+// Determine the correct API base URL based on environment
+const getApiBaseUrl = () => {
+  const hostname = window.location.hostname;
+  
+  // For localhost development
+  if (hostname === 'localhost' || hostname.includes('127.0.0.1')) {
+    const url = 'http://localhost:3001/api';
+    console.log('Using localhost API URL:', url);
+    return url;
+  }
+  
+  // For production - use the actual backend URL
+  const url = 'https://momigvare.onrender.com/api';
+  console.log('Using production API URL:', url);
+  return url;
+};
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
