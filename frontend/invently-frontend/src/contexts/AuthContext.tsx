@@ -89,42 +89,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.user));
 
       // Only redirect to subdomain if we're on the main domain
-      console.log('Login redirect check:', {
-        isOnSubdomain: isOnSubdomain(),
-        currentHost: window.location.hostname,
-        tenants: response.tenants,
-        tenantsLength: response.tenants?.length
-      });
-      
       if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
 
-        console.log('Redirecting to subdomain:', {
-          tenant: tenant.subdomain,
-          currentHost,
-          port,
-          token: token.substring(0, 10) + '...'
-        });
-
         if (currentHost.includes('localhost')) {
           // For localhost development - redirect to admin dashboard with token
-          const redirectUrl = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
-          console.log('Localhost redirect URL:', redirectUrl);
-          window.location.href = redirectUrl;
+          window.location.href = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
           // For production - redirect to admin dashboard with token
           // Handle both localhost and production domains properly
           const base = currentHost === 'localhost' ? 'localhost' : currentHost;
-          const redirectUrl = `https://${tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
-          console.log('Production redirect URL:', redirectUrl);
-          window.location.href = redirectUrl;
+          window.location.href = `https://${tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
         return;
-      } else {
-        console.log('No redirect - conditions not met');
       }
     } catch (error) {
       throw error;
@@ -143,40 +123,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.user));
 
       // Only redirect to subdomain if we're on the main domain
-      console.log('Register redirect check:', {
-        isOnSubdomain: isOnSubdomain(),
-        currentHost: window.location.hostname,
-        tenant: response.tenant
-      });
-      
       if (!isOnSubdomain() && response.tenant) {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
 
-        console.log('Redirecting to subdomain:', {
-          tenant: response.tenant.subdomain,
-          currentHost,
-          port,
-          token: token.substring(0, 10) + '...'
-        });
-
         if (currentHost.includes('localhost')) {
           // For localhost development - redirect to admin dashboard with token
-          const redirectUrl = `http://${response.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
-          console.log('Localhost redirect URL:', redirectUrl);
-          window.location.href = redirectUrl;
+          window.location.href = `http://${response.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
           // For production - redirect to admin dashboard with token
           // Handle both localhost and production domains properly
           const base = currentHost === 'localhost' ? 'localhost' : currentHost;
-          const redirectUrl = `https://${response.tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
-          console.log('Production redirect URL:', redirectUrl);
-          window.location.href = redirectUrl;
+          window.location.href = `https://${response.tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
         return;
-      } else {
-        console.log('No redirect - conditions not met');
       }
     } catch (error) {
       throw error;
