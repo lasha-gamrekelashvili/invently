@@ -28,6 +28,7 @@ const cartController = {
                   },
                 },
               },
+              variant: true,
             },
           },
         },
@@ -51,6 +52,7 @@ const cartController = {
                     },
                   },
                 },
+                variant: true,
               },
             },
           },
@@ -80,7 +82,7 @@ const cartController = {
   async addToCart(req, res) {
     try {
       const { sessionId } = req.params;
-      const { productId, quantity = 1 } = req.body;
+      const { productId, variantId, quantity = 1 } = req.body;
       const tenantId = req.tenantId;
 
       // Validate product exists and is active
@@ -100,13 +102,37 @@ const cartController = {
         });
       }
 
-      // Check stock
-      if (product.stockQuantity < quantity) {
+      // If variantId provided, validate variant
+      let variant = null;
+      if (variantId) {
+        variant = await prisma.productVariant.findFirst({
+          where: {
+            id: variantId,
+            productId,
+            isActive: true,
+            deletedAt: null,
+          },
+        });
+
+        if (!variant) {
+          return res.status(404).json({
+            success: false,
+            message: 'Product variant not found or not available',
+          });
+        }
+      }
+
+      // Check stock (variant stock takes priority if variant selected)
+      const availableStock = variant ? variant.stockQuantity : product.stockQuantity;
+      if (availableStock < quantity) {
         return res.status(400).json({
           success: false,
           message: 'Insufficient stock available',
         });
       }
+
+      // Determine price (variant price takes priority if available)
+      const itemPrice = variant?.price ?? product.price;
 
       // Get or create cart
       let cart = await prisma.cart.findFirst({
@@ -126,11 +152,12 @@ const cartController = {
         });
       }
 
-      // Check if item already exists in cart
+      // Check if item already exists in cart (including variant)
       const existingItem = await prisma.cartItem.findFirst({
         where: {
           cartId: cart.id,
           productId,
+          variantId: variantId || null,
         },
       });
 
@@ -139,7 +166,7 @@ const cartController = {
         const newQuantity = existingItem.quantity + quantity;
 
         // Check total stock
-        if (product.stockQuantity < newQuantity) {
+        if (availableStock < newQuantity) {
           return res.status(400).json({
             success: false,
             message: 'Insufficient stock available',
@@ -150,7 +177,7 @@ const cartController = {
           where: { id: existingItem.id },
           data: {
             quantity: newQuantity,
-            price: product.price,
+            price: itemPrice,
           },
           include: {
             product: {
@@ -162,6 +189,7 @@ const cartController = {
                 },
               },
             },
+            variant: true,
           },
         });
       } else {
@@ -169,8 +197,9 @@ const cartController = {
           data: {
             cartId: cart.id,
             productId,
+            variantId: variantId || null,
             quantity,
-            price: product.price,
+            price: itemPrice,
           },
           include: {
             product: {
@@ -182,6 +211,7 @@ const cartController = {
                 },
               },
             },
+            variant: true,
           },
         });
       }
@@ -220,6 +250,7 @@ const cartController = {
         },
         include: {
           product: true,
+          variant: true,
         },
       });
 
@@ -230,20 +261,24 @@ const cartController = {
         });
       }
 
-      // Check stock
-      if (cartItem.product.stockQuantity < quantity) {
+      // Check stock (variant stock takes priority if variant selected)
+      const availableStock = cartItem.variant ? cartItem.variant.stockQuantity : cartItem.product.stockQuantity;
+      if (availableStock < quantity) {
         return res.status(400).json({
           success: false,
           message: 'Insufficient stock available',
         });
       }
 
+      // Determine price (variant price takes priority if available)
+      const itemPrice = cartItem.variant?.price ?? cartItem.product.price;
+
       // Update quantity
       const updatedItem = await prisma.cartItem.update({
         where: { id: itemId },
         data: {
           quantity,
-          price: cartItem.product.price,
+          price: itemPrice,
         },
         include: {
           product: {
@@ -255,6 +290,7 @@ const cartController = {
               },
             },
           },
+          variant: true,
         },
       });
 

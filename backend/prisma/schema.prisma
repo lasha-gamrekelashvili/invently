@@ -34,11 +34,11 @@ model Tenant {
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
   auditLogs     AuditLog[]
+  carts         Cart[]
   categories    Category[]
+  orders        Order[]
   productImages ProductImage[]
   products      Product[]
-  carts         Cart[]
-  orders        Order[]
   settings      StoreSettings?
   owner         User           @relation(fields: [ownerId], references: [id])
 
@@ -66,23 +66,26 @@ model Category {
 }
 
 model Product {
-  id            String         @id @default(uuid())
+  id            String           @id @default(uuid())
   title         String
   description   String?
   slug          String
-  price         Float
-  stockQuantity Int            @default(0)
-  status        ProductStatus  @default(DRAFT)
+  price         Float            // Base price (can be overridden by variants)
+  stockQuantity Int              @default(0) // Base stock (can be overridden by variants)
+  status        ProductStatus    @default(DRAFT)
   tenantId      String
   categoryId    String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  // Custom attributes stored as JSON (e.g., {"material": "Cotton", "brand": "Nike"})
+  attributes    Json?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
-  images        ProductImage[]
-  category      Category?      @relation(fields: [categoryId], references: [id])
-  tenant        Tenant         @relation(fields: [tenantId], references: [id])
   cartItems     CartItem[]
   orderItems    OrderItem[]
+  images        ProductImage[]
+  variants      ProductVariant[]
+  category      Category?        @relation(fields: [categoryId], references: [id])
+  tenant        Tenant           @relation(fields: [tenantId], references: [id])
 
   @@unique([slug, tenantId])
   @@map("products")
@@ -105,92 +108,139 @@ model ProductImage {
   @@map("product_images")
 }
 
+model ProductVariant {
+  id            String     @id @default(uuid())
+  productId     String
+  sku           String?    @unique // Stock Keeping Unit
+  // Variant options stored as JSON (e.g., {"size": "Medium", "color": "Red"})
+  options       Json
+  price         Float?     // Override product base price (null = use product price)
+  stockQuantity Int        @default(0)
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@map("product_variants")
+}
+
 model AuditLog {
-  id         String   @id @default(uuid())
-  action     String
-  resource   String
-  resourceId String?
-  userId     String?
-  tenantId   String?
-  oldData    Json?
-  newData    Json?
-  createdAt  DateTime @default(now())
-  // For anonymous users
+  id                 String   @id @default(uuid())
+  action             String
+  resource           String
+  resourceId         String?
+  userId             String?
+  tenantId           String?
+  oldData            Json?
+  newData            Json?
+  createdAt          DateTime @default(now())
   anonymousUserEmail String?
   anonymousUserName  String?
-  tenant     Tenant?  @relation(fields: [tenantId], references: [id])
-  user       User?    @relation(fields: [userId], references: [id])
+  tenant             Tenant?  @relation(fields: [tenantId], references: [id])
+  user               User?    @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
 }
 
-enum UserRole {
-  PLATFORM_ADMIN
-  STORE_OWNER
-}
-
 model Cart {
-  id          String     @id @default(uuid())
-  sessionId   String     @unique
-  tenantId    String
+  id            String     @id @default(uuid())
+  sessionId     String     @unique
+  tenantId      String
   customerEmail String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  deletedAt   DateTime?
-  tenant      Tenant     @relation(fields: [tenantId], references: [id])
-  items       CartItem[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+  items         CartItem[]
+  tenant        Tenant     @relation(fields: [tenantId], references: [id])
 
   @@map("carts")
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   cartId    String
   productId String
-  quantity  Int      @default(1)
+  variantId String?         // Optional: if customer selected a specific variant
+  quantity  Int             @default(1)
   price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  cart      Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product         @relation(fields: [productId], references: [id])
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
 
-  @@unique([cartId, productId])
+  @@unique([cartId, productId, variantId])
   @@map("cart_items")
 }
 
 model Order {
-  id            String      @id @default(uuid())
-  orderNumber   String      @unique
-  tenantId      String
-  customerEmail String
-  customerName  String
-  status        OrderStatus @default(PENDING)
-  totalAmount   Float
-  paymentStatus PaymentStatus @default(PENDING)
+  id              String        @id @default(uuid())
+  orderNumber     String        @unique
+  tenantId        String
+  customerEmail   String
+  customerName    String
+  status          OrderStatus   @default(PENDING)
+  totalAmount     Float
+  paymentStatus   PaymentStatus @default(PENDING)
   shippingAddress Json?
   billingAddress  Json?
-  notes         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  deletedAt     DateTime?
-  tenant        Tenant      @relation(fields: [tenantId], references: [id])
-  items         OrderItem[]
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+  items           OrderItem[]
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  quantity  Int
-  price     Float
-  title     String
-  createdAt DateTime @default(now())
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  id          String          @id @default(uuid())
+  orderId     String
+  productId   String
+  variantId   String?         // Optional: if customer ordered a specific variant
+  quantity    Int
+  price       Float
+  title       String
+  // Snapshot of variant options at time of order (e.g., {"size": "M", "color": "Red"})
+  variantData Json?
+  createdAt   DateTime        @default(now())
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product         @relation(fields: [productId], references: [id])
+  variant     ProductVariant? @relation(fields: [variantId], references: [id])
 
   @@map("order_items")
+}
+
+model StoreSettings {
+  id             String   @id @default(uuid())
+  tenantId       String   @unique
+  aboutUs        Json?
+  contact        Json?
+  privacyPolicy  Json?
+  termsOfService Json?
+  shippingInfo   Json?
+  returns        Json?
+  faq            Json?
+  facebookUrl    String?
+  twitterUrl     String?
+  instagramUrl   String?
+  linkedinUrl    String?
+  youtubeUrl     String?
+  trackOrderUrl  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("store_settings")
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  STORE_OWNER
 }
 
 enum ProductStatus {
@@ -212,30 +262,4 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
-}
-
-model StoreSettings {
-  id                String    @id @default(uuid())
-  tenantId          String    @unique
-  // Footer page content (stored as JSON with title and content)
-  aboutUs           Json?
-  contact           Json?
-  privacyPolicy     Json?
-  termsOfService    Json?
-  shippingInfo      Json?
-  returns           Json?
-  faq               Json?
-  // Social media URLs
-  facebookUrl       String?
-  twitterUrl        String?
-  instagramUrl      String?
-  linkedinUrl       String?
-  youtubeUrl        String?
-  // Other settings
-  trackOrderUrl     String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@map("store_settings")
 }

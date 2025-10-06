@@ -32,7 +32,17 @@ const schemas = {
     price: Joi.number().positive().precision(2).required(),
     stockQuantity: Joi.number().integer().min(0).required(),
     status: Joi.string().valid('ACTIVE', 'DRAFT').required(),
-    categoryId: Joi.string().uuid().optional().allow(null)
+    categoryId: Joi.string().uuid().optional().allow(null),
+    // Custom attributes as JSON (e.g., {"material": "Cotton", "brand": "Nike"})
+    attributes: Joi.object().optional(),
+    // Variants array for creating product with variants
+    variants: Joi.array().items(Joi.object({
+      sku: Joi.string().max(100).optional(),
+      options: Joi.object().required(), // e.g., {"size": "M", "color": "Red"}
+      price: Joi.number().positive().precision(2).optional().allow(null),
+      stockQuantity: Joi.number().integer().min(0).optional(),
+      isActive: Joi.boolean().optional()
+    })).optional()
   }),
 
   productUpdate: Joi.object({
@@ -42,7 +52,24 @@ const schemas = {
     price: Joi.number().positive().precision(2).optional(),
     stockQuantity: Joi.number().integer().min(0).optional(),
     status: Joi.string().valid('ACTIVE', 'DRAFT').optional(),
-    categoryId: Joi.string().uuid().optional().allow(null)
+    categoryId: Joi.string().uuid().optional().allow(null),
+    attributes: Joi.object().optional().allow(null)
+  }),
+
+  variant: Joi.object({
+    sku: Joi.string().max(100).optional(),
+    options: Joi.object().required(), // e.g., {"size": "M", "color": "Red"}
+    price: Joi.number().positive().precision(2).optional().allow(null),
+    stockQuantity: Joi.number().integer().min(0).optional(),
+    isActive: Joi.boolean().optional()
+  }),
+
+  variantUpdate: Joi.object({
+    sku: Joi.string().max(100).optional(),
+    options: Joi.object().optional(),
+    price: Joi.number().positive().precision(2).optional().allow(null),
+    stockQuantity: Joi.number().integer().min(0).optional(),
+    isActive: Joi.boolean().optional()
   }),
 
   pagination: Joi.object({

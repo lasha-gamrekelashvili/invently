@@ -7,11 +7,11 @@ import toast from 'react-hot-toast';
 interface CartContextType {
   cart: Cart | null;
   isLoading: boolean;
-  addToCart: (productId: string, quantity?: number) => Promise<void>;
+  addToCart: (productId: string, quantity?: number, variantId?: string) => Promise<void>;
   updateCartItem: (itemId: string, quantity: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  getCartItemQuantity: (productId: string) => number;
+  getCartItemQuantity: (productId: string, variantId?: string) => number;
   cartItemCount: number;
   cartTotal: number;
   sessionId: string;
@@ -47,8 +47,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const addToCartMutation = useMutation({
-    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) =>
-      cartAPI.addToCart(sessionId, productId, quantity),
+    mutationFn: ({ productId, quantity, variantId }: { productId: string; quantity: number; variantId?: string }) =>
+      cartAPI.addToCart(sessionId, productId, quantity, variantId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
       toast.success('Item added to cart!');
@@ -92,8 +92,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
   });
 
-  const addToCart = async (productId: string, quantity: number = 1) => {
-    await addToCartMutation.mutateAsync({ productId, quantity });
+  const addToCart = async (productId: string, quantity: number = 1, variantId?: string) => {
+    await addToCartMutation.mutateAsync({ productId, quantity, variantId });
   };
 
   const updateCartItem = async (itemId: string, quantity: number) => {
@@ -108,8 +108,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await clearCartMutation.mutateAsync();
   };
 
-  const getCartItemQuantity = (productId: string): number => {
-    const item = cart?.items.find(item => item.productId === productId);
+  const getCartItemQuantity = (productId: string, variantId?: string): number => {
+    const item = cart?.items.find(item => {
+      if (variantId) {
+        return item.productId === productId && item.variantId === variantId;
+      }
+      return item.productId === productId && !item.variantId;
+    });
     return item?.quantity || 0;
   };
 

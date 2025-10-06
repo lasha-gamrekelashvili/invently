@@ -97,6 +97,18 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
                       <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2">
                         {item.product.title}
                       </h3>
+                      {item.variant && (
+                        <div className="flex flex-wrap gap-1 mb-1">
+                          {Object.entries(item.variant.options).map(([key, value]) => (
+                            <span
+                              key={key}
+                              className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                            >
+                              {key}: {value}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       <p className="text-sm text-gray-600 mb-3">${item.price.toFixed(2)} each</p>
 
                       {/* Quantity Controls */}

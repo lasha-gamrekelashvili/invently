@@ -237,7 +237,6 @@ const Products = () => {
           onChange={(value) => handleEditValueChange('price', value)}
           isEditing={editingProduct === product.id}
           displayValue={`$${product.price}`}
-          prefix="$"
           step="0.01"
           min="0"
         />

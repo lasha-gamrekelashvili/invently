@@ -6,8 +6,11 @@ import type {
   User,
   Category,
   Product,
+  ProductVariant,
   CreateCategoryData,
   CreateProductData,
+  CreateVariantData,
+  UpdateVariantData,
   PaginatedResponse,
   PaginationParams,
   Cart,
@@ -138,6 +141,16 @@ export const productsAPI = {
 
   getBySlug: (slug: string): Promise<Product> =>
     api.get(`/products/slug/${slug}`).then(res => res.data),
+
+  // Variant management
+  createVariant: (productId: string, data: CreateVariantData): Promise<ProductVariant> =>
+    api.post(`/products/${productId}/variants`, data).then(res => res.data),
+
+  updateVariant: (productId: string, variantId: string, data: UpdateVariantData): Promise<ProductVariant> =>
+    api.put(`/products/${productId}/variants/${variantId}`, data).then(res => res.data),
+
+  deleteVariant: (productId: string, variantId: string): Promise<void> =>
+    api.delete(`/products/${productId}/variants/${variantId}`).then(res => res.data),
 };
 
 // Media API
@@ -220,8 +233,8 @@ export const cartAPI = {
   getCart: (sessionId: string): Promise<Cart> =>
     api.get(`/cart/${sessionId}`).then(res => res.data.data),
 
-  addToCart: (sessionId: string, productId: string, quantity: number = 1): Promise<any> =>
-    api.post(`/cart/${sessionId}/items`, { productId, quantity }).then(res => res.data),
+  addToCart: (sessionId: string, productId: string, quantity: number = 1, variantId?: string): Promise<any> =>
+    api.post(`/cart/${sessionId}/items`, { productId, quantity, variantId }).then(res => res.data),
 
   updateCartItem: (sessionId: string, itemId: string, quantity: number): Promise<any> =>
     api.put(`/cart/${sessionId}/items/${itemId}`, { quantity }).then(res => res.data),

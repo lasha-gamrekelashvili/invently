@@ -36,16 +36,29 @@ export interface Category {
   _recursiveCount?: number;
 }
 
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  sku?: string;
+  options: Record<string, string>; // e.g., { "size": "M", "color": "Red" }
+  price?: number; // Overrides product base price if set
+  stockQuantity: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Product {
   id: string;
   title: string;
   description?: string;
   slug: string;
-  price: number;
-  stockQuantity: number;
+  price: number; // Base price (can be overridden by variants)
+  stockQuantity: number; // Base stock (can be overridden by variants)
   status: 'ACTIVE' | 'DRAFT' | 'DELETED';
   tenantId: string;
   categoryId?: string;
+  attributes?: Record<string, any>; // Custom product attributes e.g., { "material": "Cotton", "brand": "Nike" }
   createdAt: string;
   updatedAt: string;
   category?: {
@@ -54,6 +67,7 @@ export interface Product {
     slug: string;
   };
   images?: ProductImage[];
+  variants?: ProductVariant[];
 }
 
 export interface ProductImage {
@@ -114,6 +128,30 @@ export interface CreateProductData {
   stockQuantity: number;
   status: 'ACTIVE' | 'DRAFT';
   categoryId?: string;
+  attributes?: Record<string, any>;
+  variants?: Array<{
+    sku?: string;
+    options: Record<string, string>;
+    price?: number;
+    stockQuantity?: number;
+    isActive?: boolean;
+  }>;
+}
+
+export interface CreateVariantData {
+  sku?: string;
+  options: Record<string, string>;
+  price?: number;
+  stockQuantity?: number;
+  isActive?: boolean;
+}
+
+export interface UpdateVariantData {
+  sku?: string;
+  options?: Record<string, string>;
+  price?: number;
+  stockQuantity?: number;
+  isActive?: boolean;
 }
 
 export interface CreateCategoryData {
@@ -142,11 +180,13 @@ export interface CartItem {
   id: string;
   cartId: string;
   productId: string;
+  variantId?: string;
   quantity: number;
   price: number;
   createdAt: string;
   updatedAt: string;
   product: Product;
+  variant?: ProductVariant;
 }
 
 export interface Cart {
@@ -181,11 +221,14 @@ export interface OrderItem {
   id: string;
   orderId: string;
   productId: string;
+  variantId?: string;
   quantity: number;
   price: number;
   title: string;
+  variantData?: Record<string, string>; // Snapshot of variant options at time of order
   createdAt: string;
   product: Product;
+  variant?: ProductVariant;
 }
 
 export interface OrderStats {

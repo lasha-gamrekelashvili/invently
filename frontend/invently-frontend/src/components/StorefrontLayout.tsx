@@ -4,7 +4,6 @@ import {
   CubeIcon,
   XMarkIcon,
   FunnelIcon,
-  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import CategoryTree from './CategoryTree';
 import StorefrontHeader from './StorefrontHeader';
@@ -25,6 +24,8 @@ interface StorefrontLayoutProps {
   onSearchChange?: (query: string) => void;
   onPriceRangeChange?: (min: string, max: string) => void;
   priceRange?: { min: string; max: string };
+  gridLayout?: number;
+  onGridLayoutChange?: (layout: number) => void;
 }
 
 const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
@@ -39,6 +40,8 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   onSearchChange,
   onPriceRangeChange,
   priceRange: externalPriceRange,
+  gridLayout = 3,
+  onGridLayoutChange,
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -59,6 +62,8 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         onMenuClick={() => setSidebarOpen(true)}
         onCartClick={onCartClick}
         onSearchChange={onSearchChange}
+        gridLayout={gridLayout}
+        onGridLayoutChange={onGridLayoutChange}
       />
 
       <div className="flex-1 flex">
@@ -108,6 +113,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                 </p>
               )}
             </div>
+
 
             {/* Price Filter */}
             <div className="pt-6 border-t border-gray-200">
@@ -196,6 +202,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                   </p>
                 )}
               </div>
+
 
               {/* Price Filter */}
               <div className="pt-6 border-t border-gray-200">

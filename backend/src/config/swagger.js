@@ -4,6 +4,39 @@ const swaggerUi = require('swagger-ui-express');
 const options = {
   definition: {
     openapi: '3.0.0',
+    info: {
+      title: 'Invently Multi-Tenant E-Commerce API',
+      version: '1.0.0',
+      description: 'Multi-tenant e-commerce platform API with customizable product variants and attributes',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3001/api',
+        description: 'Development server'
+      }
+    ],
+    tags: [
+      {
+        name: 'Products',
+        description: 'Product management endpoints'
+      },
+      {
+        name: 'Product Variants',
+        description: 'Product variant management (sizes, colors, etc.)'
+      },
+      {
+        name: 'Categories',
+        description: 'Category management endpoints'
+      },
+      {
+        name: 'Cart',
+        description: 'Shopping cart endpoints'
+      },
+      {
+        name: 'Orders',
+        description: 'Order management endpoints'
+      }
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -146,10 +179,72 @@ const options = {
             title: { type: 'string' },
             description: { type: 'string' },
             slug: { type: 'string' },
-            price: { type: 'number' },
-            stockQuantity: { type: 'integer' },
+            price: { type: 'number', description: 'Base price (can be overridden by variants)' },
+            stockQuantity: { type: 'integer', description: 'Base stock (can be overridden by variants)' },
             status: { type: 'string', enum: ['ACTIVE', 'DRAFT', 'DELETED'] },
+            attributes: {
+              type: 'object',
+              description: 'Custom product attributes (e.g., {"material": "Cotton", "brand": "Nike"})',
+              nullable: true,
+              additionalProperties: true
+            },
             createdAt: { type: 'string', format: 'date-time' }
+          }
+        },
+        ProductVariant: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Variant identifier'
+            },
+            productId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Parent product ID'
+            },
+            sku: {
+              type: 'string',
+              description: 'Stock Keeping Unit (unique identifier)',
+              nullable: true
+            },
+            options: {
+              type: 'object',
+              description: 'Variant options (e.g., {"size": "M", "color": "Red"})',
+              additionalProperties: true
+            },
+            price: {
+              type: 'number',
+              description: 'Variant price (overrides product base price if set)',
+              nullable: true
+            },
+            stockQuantity: {
+              type: 'integer',
+              description: 'Available stock for this variant'
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Whether variant is active and available for purchase'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Variant creation timestamp'
+            }
+          },
+          example: {
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d484',
+            productId: 'f47ac10b-58cc-4372-a567-0e02b2c3d482',
+            sku: 'TSHIRT-RED-M',
+            options: {
+              size: 'Medium',
+              color: 'Red'
+            },
+            price: 29.99,
+            stockQuantity: 50,
+            isActive: true,
+            createdAt: '2023-09-27T10:30:00Z'
           }
         },
         ProductImage: {

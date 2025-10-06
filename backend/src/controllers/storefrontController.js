@@ -167,6 +167,10 @@ const getPublicProducts = async (req, res) => {
             where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' },
             take: 1
+          },
+          variants: {
+            where: { deletedAt: null, isActive: true },
+            orderBy: { createdAt: 'asc' }
           }
         },
         orderBy: { [sortBy]: sortOrder },
@@ -217,6 +221,10 @@ const getPublicProductBySlug = async (req, res) => {
         images: {
           where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
+        },
+        variants: {
+          where: { deletedAt: null, isActive: true },
+          orderBy: { createdAt: 'asc' }
         }
       }
     });
@@ -282,6 +290,10 @@ const getProductsByCategory = async (req, res) => {
             where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' },
             take: 1
+          },
+          variants: {
+            where: { deletedAt: null, isActive: true },
+            orderBy: { createdAt: 'asc' }
           }
         },
         orderBy: { [sortBy]: sortOrder },

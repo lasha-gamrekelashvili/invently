@@ -21,6 +21,7 @@ import OrderDetails from './pages/OrderDetails';
 import Logs from './pages/Logs';
 import Settings from './pages/Settings';
 import Storefront from './pages/Storefront';
+import ProductDetail from './pages/ProductDetail';
 import PlatformAdmin from './pages/PlatformAdmin';
 
 const AppRoutes = () => {
@@ -52,6 +53,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Storefront />} />
       <Route path="/store" element={<Storefront />} />
       <Route path="/category/*" element={<Storefront />} />
+      <Route path="/product/:slug" element={<ProductDetail />} />
 
       {/* Protected Admin Routes */}
       <Route

@@ -23,6 +23,7 @@ const StorefrontContent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [priceInput, setPriceInput] = useState({ min: '', max: '' }); // User's input
   const [priceRange, setPriceRange] = useState({ min: '', max: '' }); // Debounced price range
+  const [gridLayout, setGridLayout] = useState(3); // Default to 3 items per row
   const pageSize = 12; // Products per page
   const { addToCart, getCartItemQuantity } = useCart();
 
@@ -165,8 +166,8 @@ const StorefrontContent = () => {
     setCurrentPage(1); // Reset to first page
   };
 
-  const handleAddToCart = async (productId: string) => {
-    await addToCart(productId, 1);
+  const handleAddToCart = async (productId: string, variantId?: string) => {
+    await addToCart(productId, 1, variantId);
   };
 
   const handleSearchChange = (query: string) => {
@@ -183,6 +184,10 @@ const StorefrontContent = () => {
     document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleGridLayoutChange = (layout: number) => {
+    setGridLayout(layout);
+  };
+
   return (
     <StorefrontLayout
       storeInfo={storeInfo}
@@ -195,6 +200,8 @@ const StorefrontContent = () => {
       onSearchChange={handleSearchChange}
       onPriceRangeChange={handlePriceRangeChange}
       priceRange={priceInput}
+      gridLayout={gridLayout}
+      onGridLayoutChange={handleGridLayoutChange}
     >
       <div className="space-y-8">
         {/* Hero Section - Only show when no category is selected */}
@@ -232,7 +239,13 @@ const StorefrontContent = () => {
             </div>
           ) : displayProducts?.products?.length ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className={`grid gap-6 ${
+                gridLayout === 2 
+                  ? 'grid-cols-1 sm:grid-cols-2' 
+                  : gridLayout === 3 
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+              }`}>
                 {displayProducts.products.map((product) => (
                   <ProductCard
                     key={product.id}

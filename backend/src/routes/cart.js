@@ -13,6 +13,7 @@ router.use(tenantResolver);
 const addToCartSchema = Joi.object({
   productId: Joi.string().uuid().required(),
   quantity: Joi.number().integer().min(1).default(1),
+  variantId: Joi.string().uuid().optional(),
 });
 
 const updateCartItemSchema = Joi.object({
@@ -94,6 +95,9 @@ router.get('/:sessionId', cartController.getCart);
  *                 type: integer
  *                 minimum: 1
  *                 default: 1
+ *               variantId:
+ *                 type: string
+ *                 format: uuid
  *             required:
  *               - productId
  *     responses:

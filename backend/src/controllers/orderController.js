@@ -27,6 +27,7 @@ const orderController = {
           items: {
             include: {
               product: true,
+              variant: true,
             },
           },
         },
@@ -41,7 +42,8 @@ const orderController = {
 
       // Validate stock for all items
       for (const item of cart.items) {
-        if (item.product.stockQuantity < item.quantity) {
+        const availableStock = item.variant ? item.variant.stockQuantity : item.product.stockQuantity;
+        if (availableStock < item.quantity) {
           return res.status(400).json({
             success: false,
             message: `Insufficient stock for ${item.product.title}`,
@@ -79,21 +81,35 @@ const orderController = {
             data: {
               orderId: newOrder.id,
               productId: item.productId,
+              variantId: item.variantId,
               quantity: item.quantity,
               price: item.price,
               title: item.product.title,
+              // Store variant options snapshot at time of order
+              variantData: item.variant ? item.variant.options : null,
             },
           });
 
-          // Update product stock
-          await tx.product.update({
-            where: { id: item.productId },
-            data: {
-              stockQuantity: {
-                decrement: item.quantity,
+          // Update stock (variant stock takes priority if variant selected)
+          if (item.variantId) {
+            await tx.productVariant.update({
+              where: { id: item.variantId },
+              data: {
+                stockQuantity: {
+                  decrement: item.quantity,
+                },
               },
-            },
-          });
+            });
+          } else {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: {
+                stockQuantity: {
+                  decrement: item.quantity,
+                },
+              },
+            });
+          }
         }
 
         // Clear cart items
@@ -128,6 +144,7 @@ const orderController = {
                   },
                 },
               },
+              variant: true,
             },
           },
         },
@@ -247,6 +264,7 @@ const orderController = {
                     slug: true,
                   },
                 },
+                variant: true,
               },
             },
           },
@@ -301,6 +319,7 @@ const orderController = {
                   },
                 },
               },
+              variant: true,
             },
           },
         },
@@ -365,6 +384,7 @@ const orderController = {
           items: {
             include: {
               product: true,
+              variant: true,
             },
           },
         },

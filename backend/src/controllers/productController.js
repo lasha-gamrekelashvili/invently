@@ -26,7 +26,7 @@ const getAllChildCategoryIds = async (categoryId, tenantId) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { title, description, slug, price, stockQuantity, status, categoryId } = req.validatedData;
+    const { title, description, slug, price, stockQuantity, status, categoryId, attributes, variants } = req.validatedData;
     const tenantId = req.tenantId;
 
     if (categoryId) {
@@ -52,11 +52,33 @@ const createProduct = async (req, res) => {
         stockQuantity,
         status,
         categoryId,
-        tenantId
+        tenantId,
+        ...(attributes && { attributes }),
+        ...(variants && variants.length > 0 && {
+          variants: {
+            create: variants.map(v => {
+              const variantData = {
+                options: v.options,
+                stockQuantity: v.stockQuantity || 0,
+                isActive: v.isActive !== undefined ? v.isActive : true
+              };
+
+              // Only add optional fields if they have values
+              if (v.sku) variantData.sku = v.sku;
+              if (v.price !== undefined && v.price !== null) variantData.price = v.price;
+
+              return variantData;
+            })
+          }
+        })
       },
       include: {
         category: true,
-        images: true
+        images: true,
+        variants: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'asc' }
+        }
       }
     });
 
@@ -67,7 +89,8 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ error: 'Product slug already exists in this store' });
     }
     console.error('Create product error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
 
@@ -119,6 +142,10 @@ const getProducts = async (req, res) => {
           category: true,
           images: {
             orderBy: { sortOrder: 'asc' }
+          },
+          variants: {
+            where: { deletedAt: null, isActive: true },
+            orderBy: { createdAt: 'asc' }
           }
         },
         orderBy: { [sortBy]: sortOrder },
@@ -158,6 +185,10 @@ const getProductById = async (req, res) => {
         category: true,
         images: {
           orderBy: { sortOrder: 'asc' }
+        },
+        variants: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'asc' }
         }
       }
     });
@@ -189,6 +220,10 @@ const getProductBySlug = async (req, res) => {
         category: true,
         images: {
           orderBy: { sortOrder: 'asc' }
+        },
+        variants: {
+          where: { deletedAt: null, isActive: true },
+          orderBy: { createdAt: 'asc' }
         }
       }
     });
@@ -207,7 +242,7 @@ const getProductBySlug = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, slug, price, stockQuantity, status, categoryId } = req.validatedData;
+    const { title, description, slug, price, stockQuantity, status, categoryId, attributes } = req.validatedData;
     const tenantId = req.tenantId;
 
     const existingProduct = await prisma.product.findFirst({
@@ -244,6 +279,7 @@ const updateProduct = async (req, res) => {
     if (stockQuantity !== undefined) updateData.stockQuantity = stockQuantity;
     if (status !== undefined) updateData.status = status;
     if (categoryId !== undefined) updateData.categoryId = categoryId;
+    if (attributes !== undefined) updateData.attributes = attributes;
 
     const product = await prisma.product.update({
       where: { id },
@@ -252,6 +288,10 @@ const updateProduct = async (req, res) => {
         category: true,
         images: {
           orderBy: { sortOrder: 'asc' }
+        },
+        variants: {
+          where: { deletedAt: null },
+          orderBy: { createdAt: 'asc' }
         }
       }
     });
@@ -297,11 +337,152 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+// Variant management functions
+const createVariant = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { sku, options, price, stockQuantity, isActive } = req.validatedData;
+    const tenantId = req.tenantId;
+
+    // Verify product exists and belongs to tenant
+    const product = await prisma.product.findFirst({
+      where: {
+        id: productId,
+        tenantId,
+        deletedAt: null
+      }
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const variant = await prisma.productVariant.create({
+      data: {
+        productId,
+        sku,
+        options,
+        price,
+        stockQuantity: stockQuantity || 0,
+        isActive: isActive !== undefined ? isActive : true
+      }
+    });
+
+    res.status(201).json(variant);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'SKU already exists' });
+    }
+    console.error('Create variant error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const updateVariant = async (req, res) => {
+  try {
+    const { productId, variantId } = req.params;
+    const { sku, options, price, stockQuantity, isActive } = req.validatedData;
+    const tenantId = req.tenantId;
+
+    // Verify product exists and belongs to tenant
+    const product = await prisma.product.findFirst({
+      where: {
+        id: productId,
+        tenantId,
+        deletedAt: null
+      }
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verify variant exists and belongs to product
+    const existingVariant = await prisma.productVariant.findFirst({
+      where: {
+        id: variantId,
+        productId,
+        deletedAt: null
+      }
+    });
+
+    if (!existingVariant) {
+      return res.status(404).json({ error: 'Variant not found' });
+    }
+
+    const updateData = {};
+    if (sku !== undefined) updateData.sku = sku;
+    if (options !== undefined) updateData.options = options;
+    if (price !== undefined) updateData.price = price;
+    if (stockQuantity !== undefined) updateData.stockQuantity = stockQuantity;
+    if (isActive !== undefined) updateData.isActive = isActive;
+
+    const variant = await prisma.productVariant.update({
+      where: { id: variantId },
+      data: updateData
+    });
+
+    res.json(variant);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'SKU already exists' });
+    }
+    console.error('Update variant error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const deleteVariant = async (req, res) => {
+  try {
+    const { productId, variantId } = req.params;
+    const tenantId = req.tenantId;
+
+    // Verify product exists and belongs to tenant
+    const product = await prisma.product.findFirst({
+      where: {
+        id: productId,
+        tenantId,
+        deletedAt: null
+      }
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verify variant exists and belongs to product
+    const variant = await prisma.productVariant.findFirst({
+      where: {
+        id: variantId,
+        productId,
+        deletedAt: null
+      }
+    });
+
+    if (!variant) {
+      return res.status(404).json({ error: 'Variant not found' });
+    }
+
+    await prisma.productVariant.update({
+      where: { id: variantId },
+      data: { deletedAt: new Date() }
+    });
+
+    res.json({ message: 'Variant deleted successfully' });
+  } catch (error) {
+    console.error('Delete variant error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
   getProductById,
   getProductBySlug,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  createVariant,
+  updateVariant,
+  deleteVariant
 };

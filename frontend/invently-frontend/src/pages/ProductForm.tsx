@@ -6,6 +6,9 @@ import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CustomDropdown from '../components/CustomDropdown';
 import FormSkeleton from '../components/FormSkeleton';
+import AttributesEditor from '../components/AttributesEditor';
+import VariantManager from '../components/VariantManager';
+import { ProductVariant } from '../types';
 import { ArrowLeftIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const ProductForm = () => {
@@ -23,6 +26,8 @@ const ProductForm = () => {
   const [error, setError] = useState('');
   const [images, setImages] = useState<any[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [attributes, setAttributes] = useState<Record<string, any>>({});
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
   
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -59,6 +64,8 @@ const ProductForm = () => {
         categoryId: existingProduct.categoryId || '',
         status: existingProduct.status as 'ACTIVE' | 'DRAFT',
       });
+      setAttributes(existingProduct.attributes || {});
+      setVariants(existingProduct.variants || []);
     }
   }, [existingProduct, isEditing]);
 
@@ -183,22 +190,34 @@ const ProductForm = () => {
     setError('');
 
     const slug = generateSlug(formData.title);
-    const productData = {
+    const productData: any = {
       title: formData.title,
       description: formData.description || undefined,
       slug,
       price: parseFloat(formData.price),
       stockQuantity: parseInt(formData.stockQuantity),
       status: formData.status,
-      categoryId: formData.categoryId || undefined
+      categoryId: formData.categoryId || undefined,
+      attributes: Object.keys(attributes).length > 0 ? attributes : undefined
     };
+
+    // For new products, include variants in create request
+    if (!isEditing && variants.length > 0) {
+      productData.variants = variants.map(v => ({
+        sku: v.sku,
+        options: v.options,
+        price: v.price,
+        stockQuantity: v.stockQuantity,
+        isActive: v.isActive
+      }));
+    }
 
     if (isEditing) {
       updateProductMutation.mutate(productData);
     } else {
       createProductMutation.mutate(productData);
     }
-  }, [formData, generateSlug, isEditing, updateProductMutation, createProductMutation]);
+  }, [formData, attributes, variants, generateSlug, isEditing, updateProductMutation, createProductMutation]);
 
   // Show skeleton while loading categories, product, or images
   if (isLoadingCategories || (isEditing && isLoadingProduct)) {
@@ -333,7 +352,7 @@ const ProductForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
-                Price ($) *
+                Base Price ($) *
               </label>
               <input
                 id="price"
@@ -347,11 +366,12 @@ const ProductForm = () => {
                 className="input-field"
                 placeholder="0.00"
               />
+              <p className="text-xs text-gray-500 mt-1">Can be overridden by variant prices</p>
             </div>
 
             <div>
               <label htmlFor="stockQuantity" className="block text-sm font-semibold text-gray-700 mb-2">
-                Stock Quantity *
+                Base Stock Quantity *
               </label>
               <input
                 id="stockQuantity"
@@ -364,6 +384,7 @@ const ProductForm = () => {
                 className="input-field"
                 placeholder="0"
               />
+              <p className="text-xs text-gray-500 mt-1">Use 0 if managing stock via variants</p>
             </div>
 
             <div>
@@ -383,6 +404,24 @@ const ProductForm = () => {
                 required
               />
             </div>
+          </div>
+
+          {/* Custom Attributes */}
+          <div className="border-t pt-6">
+            <AttributesEditor
+              attributes={attributes}
+              onChange={setAttributes}
+            />
+          </div>
+
+          {/* Product Variants */}
+          <div className="border-t pt-6">
+            <VariantManager
+              productId={id}
+              variants={variants}
+              onVariantsChange={setVariants}
+              isCreating={!isEditing}
+            />
           </div>
 
           <div className="flex items-center justify-end space-x-4 pt-6">

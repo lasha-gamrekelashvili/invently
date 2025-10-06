@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingCartIcon, CubeIcon } from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { ProductVariant } from '../types';
+import CustomDropdown from './CustomDropdown';
 
 interface ProductCardProps {
   product: {
@@ -11,18 +13,44 @@ interface ProductCardProps {
     stockQuantity: number;
     images?: Array<{ url: string; altText?: string }>;
     category?: { name: string };
+    variants?: ProductVariant[];
+    attributes?: Record<string, any>;
   };
   cartQuantity: number;
-  onAddToCart: (productId: string) => void;
+  onAddToCart: (productId: string, variantId?: string) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddToCart }) => {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
-  // Simulate ratings (in real app, this would come from backend)
-  const rating = 4.5;
-  const reviewCount = Math.floor(Math.random() * 100) + 10;
+  // Calculate price range and stock for products with variants
+  const priceInfo = useMemo(() => {
+    const activeVariants = product.variants?.filter(v => v.isActive) || [];
+
+    if (activeVariants.length === 0) {
+      return {
+        minPrice: product.price,
+        maxPrice: product.price,
+        totalStock: product.stockQuantity,
+        hasVariants: false
+      };
+    }
+
+    const prices = activeVariants.map(v => v.price || product.price);
+    const totalStock = activeVariants.reduce((sum, v) => sum + v.stockQuantity, 0);
+
+    return {
+      minPrice: Math.min(...prices),
+      maxPrice: Math.max(...prices),
+      totalStock,
+      hasVariants: true
+    };
+  }, [product]);
+
+  const displayPrice = selectedVariant?.price || product.price;
+  const displayStock = selectedVariant?.stockQuantity ?? priceInfo.totalStock;
 
   const handleImageChange = () => {
     if (product.images && product.images.length > 1) {
@@ -32,17 +60,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
 
   const currentImage = product.images?.[currentImageIndex];
 
+  const handleProductClick = () => {
+    navigate(`/product/${product.slug || product.id}`);
+  };
+
+  const handleAddToCartClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent product click when clicking add to cart
+    onAddToCart(product.id, selectedVariant?.id);
+  };
+
   return (
     <div
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200 hover:-translate-y-2"
-      onMouseEnter={() => {
-        setIsHovered(true);
-        handleImageChange();
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setCurrentImageIndex(0);
-      }}
+      className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200 hover:-translate-y-2 cursor-pointer"
+      onMouseEnter={handleImageChange}
+      onMouseLeave={() => setCurrentImageIndex(0)}
+      onClick={handleProductClick}
     >
       {/* Product Image */}
       <div className="relative aspect-square bg-gray-50 overflow-hidden">
@@ -59,15 +91,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
         )}
 
         {/* Stock Badge */}
-        {product.stockQuantity === 0 && (
+        {displayStock === 0 && (
           <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
             Out of Stock
           </div>
         )}
 
-        {product.stockQuantity > 0 && product.stockQuantity <= 5 && (
+        {displayStock > 0 && displayStock <= 5 && (
           <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-            Only {product.stockQuantity} left
+            Only {displayStock} left
           </div>
         )}
 
@@ -96,7 +128,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
         )}
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 leading-snug min-h-[3.5rem]">
+        <h3 className="text-lg font-bold text-gray-900 line-clamp-2">
           {product.title}
         </h3>
 
@@ -107,32 +139,51 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
           </p>
         )}
 
-        {/* Rating */}
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <StarIcon
-                key={i}
-                className={`w-4 h-4 ${
-                  i < Math.floor(rating)
-                    ? 'text-yellow-400'
-                    : i < rating
-                    ? 'text-yellow-400 opacity-50'
-                    : 'text-gray-300'
-                }`}
+        {/* Variant Selector */}
+        {priceInfo.hasVariants && product.variants && product.variants.length > 0 && (
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-gray-700">Select Option:</label>
+            <div onClick={(e) => e.stopPropagation()}>
+              <CustomDropdown
+                value={selectedVariant?.id || ''}
+                onChange={(value) => {
+                  const variant = product.variants?.find(v => v.id === value);
+                  setSelectedVariant(variant || null);
+                }}
+                options={[
+                  { value: '', label: 'Choose variant...' },
+                  ...product.variants
+                    .filter(v => v.isActive)
+                    .map((variant) => ({
+                      value: variant.id,
+                      label: `${Object.entries(variant.options).map(([key, value]) => `${value}`).join(' / ')}${variant.price ? ` - $${variant.price.toFixed(2)}` : ''}${variant.stockQuantity === 0 ? ' (Out of stock)' : ''}`,
+                      disabled: variant.stockQuantity === 0
+                    }))
+                ]}
+                placeholder="Choose variant..."
+                size="compact"
               />
-            ))}
+            </div>
           </div>
-          <span className="text-xs text-gray-500">
-            {rating} ({reviewCount})
-          </span>
-        </div>
+        )}
 
         {/* Price and Stock */}
         <div className="flex items-end justify-between pt-2 border-t border-gray-100">
           <div>
-            <p className="text-2xl font-bold text-gray-900">${product.price.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{product.stockQuantity} in stock</p>
+            {priceInfo.hasVariants && !selectedVariant ? (
+              <>
+                <p className="text-2xl font-bold text-gray-900">
+                  ${priceInfo.minPrice.toFixed(2)}
+                  {priceInfo.minPrice !== priceInfo.maxPrice && ` - $${priceInfo.maxPrice.toFixed(2)}`}
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">{priceInfo.totalStock} total in stock</p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-gray-900">${displayPrice.toFixed(2)}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{displayStock} in stock</p>
+              </>
+            )}
           </div>
         </div>
 
@@ -153,24 +204,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
                 </svg>
               </div>
               <button
-                onClick={() => onAddToCart(product.id)}
-                className="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-green-700 transition-all hover:shadow-lg active:scale-95"
+                onClick={handleAddToCartClick}
+                disabled={priceInfo.hasVariants && !selectedVariant}
+                className="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-green-700 transition-all hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add More
               </button>
             </div>
           ) : (
             <button
-              onClick={() => onAddToCart(product.id)}
-              disabled={product.stockQuantity === 0}
+              onClick={handleAddToCartClick}
+              disabled={displayStock === 0 || (priceInfo.hasVariants && !selectedVariant)}
               className={`w-full flex items-center justify-center font-semibold py-3 px-4 rounded-xl transition-all hover:shadow-lg active:scale-95 ${
-                product.stockQuantity === 0
+                displayStock === 0 || (priceInfo.hasVariants && !selectedVariant)
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
               <ShoppingCartIcon className="w-5 h-5 mr-2" />
-              {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+              {displayStock === 0 ? 'Out of Stock' : priceInfo.hasVariants && !selectedVariant ? 'Select Variant' : 'Add to Cart'}
             </button>
           )}
         </div>

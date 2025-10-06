@@ -15,6 +15,8 @@ interface StorefrontHeaderProps {
   onMenuClick: () => void;
   onCartClick: () => void;
   onSearchChange?: (query: string) => void;
+  gridLayout?: number;
+  onGridLayoutChange?: (layout: number) => void;
 }
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
@@ -22,6 +24,8 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   onMenuClick,
   onCartClick,
   onSearchChange,
+  gridLayout = 3,
+  onGridLayoutChange,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { cartItemCount } = useCart();
@@ -63,19 +67,63 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </div>
           </div>
 
-          {/* Center: Search Bar */}
+          {/* Center: Search Bar with Grid Layout */}
           <div className="flex-1 max-w-2xl mx-4 hidden md:block">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            <div className="flex items-center space-x-3">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
+              
+              {/* Grid Layout Selector */}
+              <div className="flex items-center space-x-1">
+                {[
+                  { layout: 2, icon: 'grid-2' },
+                  { layout: 3, icon: 'grid-3' },
+                  { layout: 4, icon: 'grid-4' }
+                ].map(({ layout, icon }) => (
+                  <button
+                    key={layout}
+                    onClick={() => onGridLayoutChange?.(layout)}
+                    className={`p-2 rounded-lg transition-all ${
+                      gridLayout === layout
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                    title={`${layout} items per row`}
+                  >
+                    {icon === 'grid-2' && (
+                      <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+                        <div className="bg-current rounded-sm"></div>
+                        <div className="bg-current rounded-sm"></div>
+                      </div>
+                    )}
+                    {icon === 'grid-3' && (
+                      <div className="w-4 h-4 grid grid-cols-3 gap-0.5">
+                        <div className="bg-current rounded-sm"></div>
+                        <div className="bg-current rounded-sm"></div>
+                        <div className="bg-current rounded-sm"></div>
+                      </div>
+                    )}
+                    {icon === 'grid-4' && (
+                      <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+                        <div className="bg-current rounded-sm"></div>
+                        <div className="bg-current rounded-sm"></div>
+                        <div className="bg-current rounded-sm"></div>
+                        <div className="bg-current rounded-sm"></div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

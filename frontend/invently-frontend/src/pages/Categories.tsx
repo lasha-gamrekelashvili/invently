@@ -366,7 +366,6 @@ const Categories = () => {
                                     onChange={(value) => handleEditValueChange('price', value)}
                                     isEditing={editingProduct === product.id}
                                     displayValue={`$${product.price}`}
-                                    prefix="$"
                                     step="0.01"
                                     min="0"
                                     inputClassName="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
