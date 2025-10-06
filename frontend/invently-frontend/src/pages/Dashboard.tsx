@@ -151,7 +151,7 @@ const Dashboard = () => {
           </Link>
 
           <a
-            href={`http://${currentTenant?.subdomain || 'demo'}.${window.location.hostname.includes('localhost') ? 'localhost:3000' : 'example.com'}/store`}
+            href={`http://${currentTenant?.subdomain || 'demo'}.${window.location.hostname.includes('localhost') ? 'localhost:3000' : 'momigvare.ge'}/store`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
