@@ -41,14 +41,6 @@ const tenantResolver = async (req, res, next) => {
       return next();
     }
 
-    // Log subdomain resolution for debugging
-    console.log('Tenant Resolution:', {
-      originalHost: req.get('x-original-host'),
-      requestHost: req.get('host'),
-      resolvedHost: host,
-      subdomain
-    });
-
     const tenant = await prisma.tenant.findUnique({
       where: {
         subdomain,
