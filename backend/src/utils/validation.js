@@ -1,6 +1,7 @@
 const Joi = require('joi');
 
-const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Updated regex to support Georgian characters and other Unicode letters
+const slugRegex = /^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u;
 
 const schemas = {
   register: Joi.object({
