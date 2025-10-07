@@ -4,8 +4,7 @@ import { T } from './Translation';
 import { 
   GlobeAltIcon, 
   ChevronDownIcon, 
-  CheckIcon,
-  LanguageIcon 
+  CheckIcon
 } from '@heroicons/react/24/outline';
 
 interface LanguageSelectorProps {

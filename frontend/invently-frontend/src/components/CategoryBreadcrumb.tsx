@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
-import { useLanguage } from '../contexts/LanguageContext';
 import { T } from './Translation';
 
 interface Category {
@@ -22,7 +21,6 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
   currentCategoryId,
   onCategorySelect
 }) => {
-  const { t } = useLanguage();
   const buildBreadcrumb = (): Category[] => {
     if (!currentCategoryId) return [];
     
