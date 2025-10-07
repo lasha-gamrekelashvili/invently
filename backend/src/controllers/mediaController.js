@@ -141,6 +141,57 @@ const updateProductImage = async (req, res) => {
   }
 };
 
+const addProductImageByUrl = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const { url, altText, sortOrder = 0 } = req.body;
+    const tenantId = req.tenantId;
+
+    if (!url) {
+      return res.status(400).json({ error: 'Image URL is required' });
+    }
+
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid URL format' });
+    }
+
+    const product = await prisma.product.findFirst({
+      where: {
+        id: productId,
+        tenantId,
+        deletedAt: null
+      }
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Extract filename from URL for storage purposes
+    const urlParts = url.split('/');
+    const filename = urlParts[urlParts.length - 1] || `image-${Date.now()}`;
+
+    const productImage = await prisma.productImage.create({
+      data: {
+        url: url,
+        altText: altText || '',
+        filename: filename,
+        productId,
+        tenantId,
+        sortOrder: parseInt(sortOrder)
+      }
+    });
+
+    res.status(201).json(productImage);
+  } catch (error) {
+    console.error('Add image by URL error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 const deleteProductImage = async (req, res) => {
   try {
     const { imageId } = req.params;
@@ -173,6 +224,7 @@ const deleteProductImage = async (req, res) => {
 module.exports = {
   upload,
   uploadProductImage,
+  addProductImageByUrl,
   getProductImages,
   updateProductImage,
   deleteProductImage

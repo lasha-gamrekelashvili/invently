@@ -74,7 +74,10 @@ const createProduct = async (req, res) => {
       },
       include: {
         category: true,
-        images: true,
+        images: {
+          where: { deletedAt: null },
+          orderBy: { sortOrder: 'asc' }
+        },
         variants: {
           where: { deletedAt: null },
           orderBy: { createdAt: 'asc' }
@@ -141,6 +144,7 @@ const getProducts = async (req, res) => {
         include: {
           category: true,
           images: {
+            where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' }
           },
           variants: {
@@ -184,6 +188,7 @@ const getProductById = async (req, res) => {
       include: {
         category: true,
         images: {
+          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
@@ -219,6 +224,7 @@ const getProductBySlug = async (req, res) => {
       include: {
         category: true,
         images: {
+          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
@@ -287,6 +293,7 @@ const updateProduct = async (req, res) => {
       include: {
         category: true,
         images: {
+          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {

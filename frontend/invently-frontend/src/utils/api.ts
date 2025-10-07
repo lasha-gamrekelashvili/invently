@@ -200,6 +200,13 @@ export const mediaAPI = {
     }).then(res => res.data);
   },
 
+  addProductImageByUrl: (productId: string, url: string, altText?: string, sortOrder?: number): Promise<any> =>
+    api.post(`/media/products/${productId}/images/url`, {
+      url,
+      altText,
+      sortOrder
+    }).then(res => res.data),
+
   getProductImages: (productId: string): Promise<any[]> =>
     api.get(`/media/products/${productId}/images`).then(res => res.data),
 

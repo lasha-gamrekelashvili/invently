@@ -8,9 +8,7 @@ import CategoryTree from '../components/CategoryTree';
 import CategoryBreadcrumb from '../components/CategoryBreadcrumb';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PageHeader from '../components/PageHeader';
-import StatusBadge from '../components/StatusBadge';
-import ActionButtonGroup from '../components/ActionButtonGroup';
-import InlineEditField from '../components/InlineEditField';
+import ProductsList from '../components/ProductsList';
 import CustomDropdown from '../components/CustomDropdown';
 import { PlusIcon, FolderIcon, PencilIcon, TrashIcon, CubeIcon } from '@heroicons/react/24/outline';
 import type { Category } from '../types';
@@ -31,18 +29,6 @@ const Categories = () => {
 
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string>('');
-
-  // Inline editing state
-  const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<{
-    price: string;
-    stockQuantity: string;
-    status: string;
-  }>({
-    price: '',
-    stockQuantity: '',
-    status: '',
-  });
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -128,63 +114,6 @@ const Categories = () => {
     navigate(`/admin/categories/new?parentId=${parentId}`);
   };
 
-  // Navigate to full product edit page (kept for comprehensive editing)
-  const handleEditProduct = (product: any) => {
-    navigate(`/admin/products/${product.id}/edit`);
-  };
-
-  const handleDeleteProduct = (product: any) => {
-    setDeleteModal({ isOpen: true, category: null, product, type: 'product' });
-  };
-
-  // Inline editing functions
-  const handleStartEdit = (product: any) => {
-    setEditingProduct(product.id);
-    setEditValues({
-      price: product.price.toString(),
-      stockQuantity: product.stockQuantity.toString(),
-      status: product.status,
-    });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingProduct(null);
-    setEditValues({
-      price: '',
-      stockQuantity: '',
-      status: '',
-    });
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingProduct) return;
-
-    try {
-      const productData = {
-        price: parseFloat(editValues.price),
-        stockQuantity: parseInt(editValues.stockQuantity),
-        status: editValues.status as 'ACTIVE' | 'DRAFT',
-      };
-
-      await productsAPI.update(editingProduct, productData);
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['category', selectedCategoryId] });
-      setEditingProduct(null);
-      handleSuccess('Product updated successfully');
-    } catch (error) {
-      handleApiError(error, 'Failed to update product');
-    }
-  };
-
-  const handleEditValueChange = (field: string, value: string) => {
-    setEditValues(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleProductClick = (product: any) => {
-    if (editingProduct !== product.id) {
-      handleEditProduct(product);
-    }
-  };
 
   if (isLoading) {
     return <LoadingSpinner size="lg" className="py-12" />;
@@ -333,142 +262,14 @@ const Categories = () => {
                 {/* Products Table */}
                 {selectedCategory.allProducts && selectedCategory.allProducts.length > 0 && (
                   <div className="mt-8">
-                    <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Product
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Price
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Stock
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                              </th>
-                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {selectedCategory.allProducts.slice(0, 10).map((product) => (
-                              <tr 
-                                key={product.id} 
-                                className={`hover:bg-gray-50 ${editingProduct !== product.id ? 'cursor-pointer' : ''}`}
-                                onClick={() => handleProductClick(product)}
-                              >
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="flex items-center">
-                                    <div className="flex-shrink-0 h-10 w-10">
-                                      {product.images?.[0] ? (
-                                        <img
-                                          className="h-10 w-10 rounded-lg object-cover"
-                                          src={product.images[0].url}
-                                          alt={product.images[0].altText || product.title}
-                                        />
-                                      ) : (
-                                        <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                                          <CubeIcon className="h-5 w-5 text-gray-500" />
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="ml-4">
-                                      <div className="text-sm font-medium text-gray-900 hover:text-blue-600 cursor-pointer">
-                                        {product.title}
-                                      </div>
-                                      {product.description && (
-                                        <div className="text-sm text-gray-500 line-clamp-1">{product.description}</div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <InlineEditField
-                                    type="number"
-                                    value={editingProduct === product.id ? editValues.price : product.price.toString()}
-                                    onChange={(value) => handleEditValueChange('price', value)}
-                                    isEditing={editingProduct === product.id}
-                                    displayValue={`$${product.price}`}
-                                    step="0.01"
-                                    min="0"
-                                    inputClassName="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
-                                  />
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <InlineEditField
-                                    type="number"
-                                    value={editingProduct === product.id ? editValues.stockQuantity : product.stockQuantity.toString()}
-                                    onChange={(value) => handleEditValueChange('stockQuantity', value)}
-                                    isEditing={editingProduct === product.id}
-                                    displayValue={product.stockQuantity.toString()}
-                                    min="0"
-                                    inputClassName="text-sm text-gray-900 border border-gray-300 rounded px-2 py-1 w-16"
-                                  />
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {product.category ? (
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                      {product.category.name}
-                                    </span>
-                                  ) : (
-                                    <span className="text-sm text-gray-400">No category</span>
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  {editingProduct === product.id ? (
-                                    <InlineEditField
-                                      type="dropdown"
-                                      value={editValues.status}
-                                      onChange={(value) => handleEditValueChange('status', value)}
-                                      isEditing={true}
-                                      options={[
-                                        { value: 'ACTIVE', label: 'ACTIVE' },
-                                        { value: 'DRAFT', label: 'DRAFT' },
-                                      ]}
-                                    />
-                                  ) : (
-                                    <StatusBadge status={product.status} type="product" />
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                  {editingProduct === product.id ? (
-                                    <ActionButtonGroup
-                                      actions={[
-                                        { type: 'save', onClick: handleSaveEdit },
-                                        { type: 'cancel', onClick: handleCancelEdit }
-                                      ]}
-                                    />
-                                  ) : (
-                                    <ActionButtonGroup
-                                      actions={[
-                                        {
-                                          type: 'edit',
-                                          onClick: () => handleStartEdit(product),
-                                          title: 'Edit product inline'
-                                        },
-                                        {
-                                          type: 'delete',
-                                          onClick: () => handleDeleteProduct(product),
-                                          title: 'Delete product'
-                                        }
-                                      ]}
-                                    />
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    <ProductsList
+                      products={selectedCategory.allProducts.slice(0, 10)}
+                      emptyState={{
+                        title: 'No products in this category',
+                        description: 'Add products to this category to see them here.'
+                      }}
+                      invalidateQueries={[['categories'], ['category', selectedCategoryId]]}
+                    />
                   </div>
                 )}
               </div>

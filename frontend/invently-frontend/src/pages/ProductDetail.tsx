@@ -12,12 +12,8 @@ import Checkout from '../components/Checkout';
 import {
   ShoppingCartIcon,
   ArrowLeftIcon,
-  HeartIcon,
-  ShareIcon,
   CheckIcon,
-  XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import type { ProductVariant } from '../types';
 
 const ProductDetailContent: React.FC = () => {

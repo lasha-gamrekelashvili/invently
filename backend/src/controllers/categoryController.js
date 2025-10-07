@@ -81,6 +81,10 @@ const getRecursiveProducts = async (categoryId, tenantId) => {
         where: { deletedAt: null },
         orderBy: { sortOrder: 'asc' },
         take: 1
+      },
+      variants: {
+        where: { deletedAt: null, isActive: true },
+        orderBy: { createdAt: 'asc' }
       }
     }
   });

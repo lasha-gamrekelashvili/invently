@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCartIcon, CubeIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Product, ProductVariant } from '../types';
-import CustomDropdown from './CustomDropdown';
 
 interface ProductCardProps {
   product: Product;
@@ -13,7 +12,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddToCart }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [selectedVariant] = useState<ProductVariant | null>(null);
 
   // Calculate price range and stock for products with variants
   const priceInfo = useMemo(() => {
@@ -42,11 +41,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
   const displayPrice = selectedVariant?.price || product.price;
   const displayStock = selectedVariant?.stockQuantity ?? priceInfo.totalStock;
 
-  const handleImageChange = () => {
-    if (product.images && product.images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % product.images!.length);
-    }
-  };
 
   const currentImage = product.images?.[currentImageIndex];
 

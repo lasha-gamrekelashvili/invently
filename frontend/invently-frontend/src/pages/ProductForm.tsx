@@ -8,8 +8,9 @@ import CustomDropdown from '../components/CustomDropdown';
 import FormSkeleton from '../components/FormSkeleton';
 import AttributesEditor from '../components/AttributesEditor';
 import VariantManager from '../components/VariantManager';
+import ImageUploader from '../components/ImageUploader';
 import { ProductVariant } from '../types';
-import { ArrowLeftIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const ProductForm = () => {
   const { id } = useParams();
@@ -97,9 +98,16 @@ const ProductForm = () => {
       
       // Upload images for new product
       if (images.length > 0) {
-        const uploadPromises = images
-          .filter(img => img.file) // Only upload temp images with files
-          .map(img => mediaAPI.uploadProductImage(product.id, img.file));
+        const uploadPromises = images.map(async (img) => {
+          if (img.file) {
+            // Upload file-based images
+            return await mediaAPI.uploadProductImage(product.id, img.file);
+          } else if (img.isUrl) {
+            // Add URL-based images
+            return await mediaAPI.addProductImageByUrl(product.id, img.url, img.altText);
+          }
+          return null;
+        }).filter(Boolean);
         
         await Promise.all(uploadPromises);
       }
@@ -136,22 +144,19 @@ const ProductForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
+  const handleImageUpload = useCallback(async (files: FileList, altText?: string) => {
     setUploadingImages(true);
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
         if (isEditing && id) {
           // Upload to existing product
-          return await mediaAPI.uploadProductImage(id, file);
+          return await mediaAPI.uploadProductImage(id, file, altText);
         } else {
           // For new products, we'll store the file temporarily
           return {
             id: `temp-${Date.now()}-${Math.random()}`,
             url: URL.createObjectURL(file),
-            altText: '',
+            altText: altText || '',
             filename: file.name,
             file: file
           };
@@ -160,25 +165,67 @@ const ProductForm = () => {
 
       const uploadedImages = await Promise.all(uploadPromises);
       setImages(prev => [...prev, ...uploadedImages]);
+      
+      // Invalidate product queries to refresh the products list
+      if (isEditing && id) {
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['product', id] });
+        queryClient.invalidateQueries({ queryKey: ['product-images', id] });
+      }
+      
       handleSuccess('Images uploaded successfully');
     } catch (error) {
       handleApiError(error, 'Failed to upload images');
     } finally {
       setUploadingImages(false);
     }
-  }, [isEditing, id]);
+  }, [isEditing, id, queryClient]);
+
+  const handleImageAddByUrl = useCallback(async (url: string, altText?: string) => {
+    try {
+      if (isEditing && id) {
+        // Add to existing product
+        const newImage = await mediaAPI.addProductImageByUrl(id, url, altText);
+        setImages(prev => [...prev, newImage]);
+        
+        // Invalidate product queries to refresh the products list
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['product', id] });
+        queryClient.invalidateQueries({ queryKey: ['product-images', id] });
+        
+        handleSuccess('Image added successfully');
+      } else {
+        // For new products, add temporarily
+        const tempImage = {
+          id: `temp-url-${Date.now()}-${Math.random()}`,
+          url: url,
+          altText: altText || '',
+          filename: url.split('/').pop() || 'image',
+          isUrl: true
+        };
+        setImages(prev => [...prev, tempImage]);
+        handleSuccess('Image added successfully');
+      }
+    } catch (error) {
+      handleApiError(error, 'Failed to add image by URL');
+    }
+  }, [isEditing, id, queryClient]);
 
   const handleRemoveImage = useCallback(async (imageId: string) => {
     try {
       if (isEditing && !imageId.startsWith('temp-')) {
         await mediaAPI.deleteProductImage(imageId);
+        // Invalidate product queries to refresh the products list
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['product', id] });
+        queryClient.invalidateQueries({ queryKey: ['product-images', id] });
       }
       setImages(prev => prev.filter(img => img.id !== imageId));
       handleSuccess('Image removed successfully');
     } catch (error) {
       handleApiError(error, 'Failed to remove image');
     }
-  }, [isEditing]);
+  }, [isEditing, id, queryClient]);
 
   const generateSlug = useCallback((title: string) => {
     return title.toLowerCase()
@@ -298,58 +345,13 @@ const ProductForm = () => {
           </div>
 
           {/* Image Upload Section */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Product Images
-            </label>
-            
-            {/* Upload Button */}
-            <div className="mb-4">
-              <input
-                type="file"
-                id="image-upload"
-                multiple
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                disabled={uploadingImages}
-              />
-              <label
-                htmlFor="image-upload"
-                className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                  uploadingImages ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                <PhotoIcon className="w-5 h-5 mr-2" />
-                {uploadingImages ? 'Uploading...' : 'Upload Images'}
-              </label>
-              <p className="text-xs text-gray-500 mt-1">
-                Upload JPEG, PNG, GIF, or WebP images (max 5MB each)
-              </p>
-            </div>
-
-            {/* Image Preview Grid */}
-            {images.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {images.map((image) => (
-                  <div key={image.id} className="relative group">
-                    <img
-                      src={image.url}
-                      alt={image.altText || 'Product image'}
-                      className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(image.id)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <XMarkIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ImageUploader
+            images={images}
+            onImageUpload={handleImageUpload}
+            onImageAddByUrl={handleImageAddByUrl}
+            onImageRemove={handleRemoveImage}
+            isUploading={uploadingImages}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>

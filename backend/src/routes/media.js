@@ -2,6 +2,7 @@ const express = require('express');
 const {
   upload,
   uploadProductImage,
+  addProductImageByUrl,
   getProductImages,
   updateProductImage,
   deleteProductImage
@@ -250,6 +251,12 @@ router.post(
   upload.single('image'),
   auditMiddleware('CREATE', 'PRODUCT_IMAGE'),
   uploadProductImage
+);
+
+router.post(
+  '/products/:productId/images/url',
+  auditMiddleware('CREATE', 'PRODUCT_IMAGE'),
+  addProductImageByUrl
 );
 
 router.get('/products/:productId/images', getProductImages);
