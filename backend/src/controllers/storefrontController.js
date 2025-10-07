@@ -165,8 +165,7 @@ const getPublicProducts = async (req, res) => {
           },
           images: {
             where: { deletedAt: null },
-            orderBy: { sortOrder: 'asc' },
-            take: 1
+            orderBy: { sortOrder: 'asc' }
           },
           variants: {
             where: { deletedAt: null, isActive: true },
@@ -288,8 +287,7 @@ const getProductsByCategory = async (req, res) => {
           },
           images: {
             where: { deletedAt: null },
-            orderBy: { sortOrder: 'asc' },
-            take: 1
+            orderBy: { sortOrder: 'asc' }
           },
           variants: {
             where: { deletedAt: null, isActive: true },

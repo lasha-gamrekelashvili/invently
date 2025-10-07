@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { productsAPI, categoriesAPI, mediaAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
@@ -13,14 +13,16 @@ import { ArrowLeftIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline
 
 const ProductForm = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isEditing = !!id;
-  
+  const categoryIdFromUrl = searchParams.get('categoryId');
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     price: '',
     stockQuantity: '',
-    categoryId: '',
+    categoryId: categoryIdFromUrl || '',
     status: 'DRAFT' as 'ACTIVE' | 'DRAFT'
   });
   const [error, setError] = useState('');

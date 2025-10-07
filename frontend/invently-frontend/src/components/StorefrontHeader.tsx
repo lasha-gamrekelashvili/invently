@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ShoppingBagIcon,
   MagnifyingGlassIcon,
-  UserCircleIcon,
   Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { useCart } from '../contexts/CartContext';
@@ -27,6 +27,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   gridLayout = 3,
   onGridLayoutChange,
 }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { cartItemCount } = useCart();
 
@@ -38,9 +39,9 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Left: Logo and Mobile Menu */}
+          {/* Left: Mobile Menu and Logo */}
           <div className="flex items-center space-x-4">
             {/* Mobile Menu Button */}
             <button
@@ -52,7 +53,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </button>
 
             {/* Logo */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.location.reload()}>
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-shadow">
                 <ShoppingBagIcon className="w-6 h-6 text-white" />
               </div>
@@ -68,7 +69,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           </div>
 
           {/* Center: Search Bar with Grid Layout */}
-          <div className="flex-1 max-w-2xl mx-4 hidden md:block">
+          <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-4 hidden md:block">
             <div className="flex items-center space-x-3">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -82,7 +83,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                   className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
-              
+
               {/* Grid Layout Selector */}
               <div className="flex items-center space-x-1">
                 {[
@@ -127,7 +128,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
             </div>
           </div>
 
-          {/* Right: Cart Icon and User Account */}
+          {/* Right: Cart Icon */}
           <div className="flex items-center space-x-2">
             {/* Cart Button */}
             <button
@@ -141,14 +142,6 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
                   {cartItemCount > 99 ? '99+' : cartItemCount}
                 </span>
               )}
-            </button>
-
-            {/* User Account Button */}
-            <button
-              className="p-2.5 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all"
-              aria-label="User account"
-            >
-              <UserCircleIcon className="h-6 w-6" />
             </button>
           </div>
         </div>

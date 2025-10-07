@@ -51,7 +51,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cartAPI.addToCart(sessionId, productId, quantity, variantId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
-      toast.success('Item added to cart!');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to add item to cart');
@@ -63,7 +62,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cartAPI.updateCartItem(sessionId, itemId, quantity),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
-      toast.success('Cart updated!');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to update cart');
@@ -74,7 +72,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     mutationFn: (itemId: string) => cartAPI.removeFromCart(sessionId, itemId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
-      toast.success('Item removed from cart!');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to remove item');
@@ -85,7 +82,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     mutationFn: () => cartAPI.clearCart(sessionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
-      toast.success('Cart cleared!');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to clear cart');

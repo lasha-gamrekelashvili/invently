@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCartIcon, CubeIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, CubeIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Product, ProductVariant } from '../types';
 import CustomDropdown from './CustomDropdown';
 
@@ -61,9 +61,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
 
   return (
     <div
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200 hover:-translate-y-2 cursor-pointer"
-      onMouseEnter={handleImageChange}
-      onMouseLeave={() => setCurrentImageIndex(0)}
+      className="group bg-white rounded-xl overflow-hidden border border-gray-200/60 hover:border-gray-300 transition-all duration-200 cursor-pointer flex flex-col h-full"
       onClick={handleProductClick}
     >
       {/* Product Image */}
@@ -72,35 +70,66 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
           <img
             src={currentImage.url}
             alt={currentImage.altText || product.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-            <CubeIcon className="w-20 h-20 text-gray-300" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <CubeIcon className="w-16 h-16 text-gray-300" />
           </div>
+        )}
+
+        {/* Navigation Arrows */}
+        {product.images && product.images.length > 1 && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length);
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/60 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-sm z-10 opacity-0 group-hover:opacity-100"
+            >
+              <ChevronLeftIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex((prev) => (prev + 1) % product.images!.length);
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/60 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-sm z-10 opacity-0 group-hover:opacity-100"
+            >
+              <ChevronRightIcon className="w-4 h-4" />
+            </button>
+          </>
         )}
 
         {/* Stock Badge */}
         {displayStock === 0 && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-            Out of Stock
+          <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-md">
+            Sold out
           </div>
         )}
 
         {displayStock > 0 && displayStock <= 5 && (
-          <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+          <div className="absolute top-2 left-2 bg-orange-500/90 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-md">
             Only {displayStock} left
+          </div>
+        )}
+
+        {/* Cart Quantity Badge */}
+        {cartQuantity > 0 && (
+          <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
+            {cartQuantity} in cart
           </div>
         )}
 
         {/* Image Indicator Dots */}
         {product.images && product.images.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
             {product.images.map((_, index) => (
               <div
                 key={index}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                  index === currentImageIndex ? 'bg-white w-4' : 'bg-white/50'
+                className={`h-1 rounded-full transition-all ${
+                  index === currentImageIndex ? 'bg-white w-4' : 'bg-white/60 w-1'
                 }`}
               />
             ))}
@@ -109,110 +138,58 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
       </div>
 
       {/* Product Details */}
-      <div className="p-5 space-y-3">
+      <div className="p-4 flex flex-col flex-1">
         {/* Category */}
         {product.category && (
-          <span className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
+          <span className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">
             {product.category.name}
           </span>
         )}
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-gray-900 line-clamp-2">
+        <h3 className="text-base font-semibold text-gray-900 line-clamp-2 mb-2">
           {product.title}
         </h3>
 
         {/* Description */}
         {product.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 min-h-[2.5rem]">
+          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
             {product.description}
           </p>
         )}
 
-        {/* Variant Selector */}
+        {/* Variant indicator */}
         {priceInfo.hasVariants && product.variants && product.variants.length > 0 && (
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-gray-700">Select Option:</label>
-            <div onClick={(e) => e.stopPropagation()}>
-              <CustomDropdown
-                value={selectedVariant?.id || ''}
-                onChange={(value) => {
-                  const variant = product.variants?.find(v => v.id === value);
-                  setSelectedVariant(variant || null);
-                }}
-                options={[
-                  { value: '', label: 'Choose variant...' },
-                  ...product.variants
-                    .filter(v => v.isActive)
-                    .map((variant) => ({
-                      value: variant.id,
-                      label: `${Object.entries(variant.options).map(([, value]) => `${value}`).join(' / ')}${variant.price ? ` - $${variant.price.toFixed(2)}` : ''}${variant.stockQuantity === 0 ? ' (Out of stock)' : ''}`,
-                      disabled: variant.stockQuantity === 0
-                    }))
-                ]}
-                placeholder="Choose variant..."
-                size="compact"
-              />
-            </div>
+          <div className="mb-2">
+            <span className="text-xs text-gray-500">
+              {product.variants.filter(v => v.isActive).length} options available
+            </span>
           </div>
         )}
 
-        {/* Price and Stock */}
-        <div className="flex items-end justify-between pt-2 border-t border-gray-100">
+        {/* Spacer to push price to bottom */}
+        <div className="flex-1"></div>
+
+        {/* Price and Add to Cart */}
+        <div className="flex items-center justify-between mt-auto pt-3">
           <div>
             {priceInfo.hasVariants && !selectedVariant ? (
-              <>
-                <p className="text-2xl font-bold text-gray-900">
-                  ${priceInfo.minPrice.toFixed(2)}
-                  {priceInfo.minPrice !== priceInfo.maxPrice && ` - $${priceInfo.maxPrice.toFixed(2)}`}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">{priceInfo.totalStock} total in stock</p>
-              </>
+              <p className="text-xl font-bold text-gray-900">
+                ${priceInfo.minPrice.toFixed(2)}
+                {priceInfo.minPrice !== priceInfo.maxPrice && <span className="text-sm font-normal text-gray-500"> +</span>}
+              </p>
             ) : (
-              <>
-                <p className="text-2xl font-bold text-gray-900">${displayPrice.toFixed(2)}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{displayStock} in stock</p>
-              </>
+              <p className="text-xl font-bold text-gray-900">${displayPrice.toFixed(2)}</p>
             )}
           </div>
-        </div>
 
-        {/* Add to Cart Button */}
-        <div className="pt-3">
-          {cartQuantity > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between bg-green-50 px-4 py-2.5 rounded-xl">
-                <span className="text-sm font-semibold text-green-700">
-                  {cartQuantity} in cart
-                </span>
-                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <button
-                onClick={handleAddToCartClick}
-                disabled={priceInfo.hasVariants && !selectedVariant}
-                className="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-green-700 transition-all hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Add More
-              </button>
-            </div>
-          ) : (
+          {/* Add to Cart Button */}
+          {displayStock > 0 && !priceInfo.hasVariants && (
             <button
               onClick={handleAddToCartClick}
-              disabled={displayStock === 0 || (priceInfo.hasVariants && !selectedVariant)}
-              className={`w-full flex items-center justify-center font-semibold py-3 px-4 rounded-xl transition-all hover:shadow-lg active:scale-95 ${
-                displayStock === 0 || (priceInfo.hasVariants && !selectedVariant)
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
+              className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors active:scale-95"
             >
-              <ShoppingCartIcon className="w-5 h-5 mr-2" />
-              {displayStock === 0 ? 'Out of Stock' : priceInfo.hasVariants && !selectedVariant ? 'Select Variant' : 'Add to Cart'}
+              <ShoppingCartIcon className="w-5 h-5" />
             </button>
           )}
         </div>

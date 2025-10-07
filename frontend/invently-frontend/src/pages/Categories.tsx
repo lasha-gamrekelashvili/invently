@@ -11,14 +11,15 @@ import PageHeader from '../components/PageHeader';
 import StatusBadge from '../components/StatusBadge';
 import ActionButtonGroup from '../components/ActionButtonGroup';
 import InlineEditField from '../components/InlineEditField';
+import CustomDropdown from '../components/CustomDropdown';
 import { PlusIcon, FolderIcon, PencilIcon, TrashIcon, CubeIcon } from '@heroicons/react/24/outline';
 import type { Category } from '../types';
 
 const Categories = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
-  const [deleteModal, setDeleteModal] = useState<{ 
-    isOpen: boolean; 
-    category: Category | null; 
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    category: Category | null;
     product: any | null;
     type: 'category' | 'product' | null;
   }>({
@@ -27,6 +28,9 @@ const Categories = () => {
     product: null,
     type: null,
   });
+
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
 
   // Inline editing state
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
@@ -54,6 +58,11 @@ const Categories = () => {
     enabled: !!selectedCategoryId,
   });
 
+  const { data: allProductsData } = useQuery({
+    queryKey: ['all-products'],
+    queryFn: () => productsAPI.list({ limit: 1000 }),
+    enabled: showAddProductModal,
+  });
 
   const deleteCategoryMutation = useMutation({
     mutationFn: (id: string) => categoriesAPI.delete(id),
@@ -81,6 +90,21 @@ const Categories = () => {
     },
     onError: (error: any) => {
       handleApiError(error, 'Failed to delete product');
+    },
+  });
+
+  const assignProductMutation = useMutation({
+    mutationFn: ({ productId, categoryId }: { productId: string; categoryId: string }) =>
+      productsAPI.update(productId, { categoryId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['category', selectedCategoryId] });
+      setShowAddProductModal(false);
+      setSelectedProductId('');
+      handleSuccess('Product added to category successfully');
+    },
+    onError: (error: any) => {
+      handleApiError(error, 'Failed to add product to category');
     },
   });
 
@@ -213,6 +237,13 @@ const Categories = () => {
                   Category Details
                 </h3>
                   <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setShowAddProductModal(true)}
+                      className="inline-flex items-center px-3 py-2 border border-blue-300 shadow-sm text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      <CubeIcon className="h-4 w-4 mr-2" />
+                      Add Product
+                    </button>
                     <button
                       onClick={() => handleAddChild(selectedCategory.id)}
                       className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -455,6 +486,83 @@ const Categories = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Product Modal */}
+      {showAddProductModal && selectedCategory && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Add Product to {selectedCategory.name}
+            </h3>
+            <div className="space-y-4">
+              <button
+                onClick={() => {
+                  setShowAddProductModal(false);
+                  navigate(`/admin/products/new?categoryId=${selectedCategory.id}`);
+                }}
+                className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <PlusIcon className="w-5 h-5 mr-2" />
+                Create New Product
+              </button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Existing Product
+                </label>
+                <CustomDropdown
+                  value={selectedProductId}
+                  onChange={setSelectedProductId}
+                  options={[
+                    { value: '', label: 'Choose a product...' },
+                    ...(allProductsData?.products || []).map((product: any) => ({
+                      value: product.id,
+                      label: `${product.title} ${product.category?.name ? `(${product.category.name})` : ''}`,
+                    }))
+                  ]}
+                  placeholder="Choose a product..."
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  if (selectedProductId) {
+                    assignProductMutation.mutate({
+                      productId: selectedProductId,
+                      categoryId: selectedCategory.id
+                    });
+                  }
+                }}
+                disabled={!selectedProductId || assignProductMutation.isPending}
+                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CubeIcon className="w-5 h-5 mr-2" />
+                {assignProductMutation.isPending ? 'Adding...' : 'Add Selected Product'}
+              </button>
+            </div>
+            <div className="mt-4">
+              <button
+                onClick={() => {
+                  setShowAddProductModal(false);
+                  setSelectedProductId('');
+                }}
+                className="w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal

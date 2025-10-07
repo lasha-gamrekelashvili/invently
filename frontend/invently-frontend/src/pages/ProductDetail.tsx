@@ -7,6 +7,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
 import CustomDropdown from '../components/CustomDropdown';
+import Cart from '../components/Cart';
+import Checkout from '../components/Checkout';
 import {
   ShoppingCartIcon,
   ArrowLeftIcon,
@@ -26,8 +28,8 @@ const ProductDetailContent: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [showAddedToCart, setShowAddedToCart] = useState(false);
+  const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product-detail', slug],
@@ -64,7 +66,7 @@ const ProductDetailContent: React.FC = () => {
         storeInfo={storeInfo}
         storeSettings={storeSettings}
         categories={categories}
-        onCartClick={() => {}}
+        onCartClick={() => setShowCart(true)}
       >
         <div className="flex justify-center py-12">
           <LoadingSpinner />
@@ -79,7 +81,7 @@ const ProductDetailContent: React.FC = () => {
         storeInfo={storeInfo}
         storeSettings={storeSettings}
         categories={categories}
-        onCartClick={() => {}}
+        onCartClick={() => setShowCart(true)}
       >
         <div className="text-center py-16">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
@@ -107,10 +109,8 @@ const ProductDetailContent: React.FC = () => {
 
   const handleAddToCart = async () => {
     if (!isInStock) return;
-    
+
     await addToCart(product.id, quantity, selectedVariant?.id);
-    setShowAddedToCart(true);
-    setTimeout(() => setShowAddedToCart(false), 3000);
   };
 
   const handleVariantChange = (variantId: string) => {
@@ -122,11 +122,12 @@ const ProductDetailContent: React.FC = () => {
   const currentImage = product.images?.[currentImageIndex];
 
   return (
-    <StorefrontLayout
+    <>
+      <StorefrontLayout
       storeInfo={storeInfo}
       storeSettings={storeSettings}
       categories={categories}
-      onCartClick={() => {}}
+      onCartClick={() => setShowCart(true)}
     >
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
@@ -205,28 +206,26 @@ const ProductDetailContent: React.FC = () => {
               )}
             </div>
 
-            {/* Stock Status */}
-            <div className="flex items-center space-x-2">
-              {isInStock ? (
-                <>
-                  <CheckIcon className="w-5 h-5 text-green-500" />
-                  <span className="text-green-700 font-medium">
-                    {displayStock} in stock
-                  </span>
-                </>
-              ) : (
-                <>
-                  <XMarkIcon className="w-5 h-5 text-red-500" />
-                  <span className="text-red-700 font-medium">Out of stock</span>
-                </>
-              )}
-            </div>
-
             {/* Description */}
             {product.description && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
                 <p className="text-gray-600 leading-relaxed">{product.description}</p>
+              </div>
+            )}
+
+            {/* Product Attributes */}
+            {product.attributes && Object.keys(product.attributes).length > 0 && (
+              <div className="pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Details</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {Object.entries(product.attributes).map(([key, value]) => (
+                    <div key={key} className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="font-medium text-gray-700 capitalize">{key}:</span>
+                      <span className="text-gray-600">{String(value)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -290,67 +289,41 @@ const ProductDetailContent: React.FC = () => {
                 </div>
               )}
 
-              <div className="flex space-x-4">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!isInStock || (hasVariants && !selectedVariant)}
-                  className={`flex-1 flex items-center justify-center py-4 px-6 rounded-xl font-semibold transition-all ${
-                    !isInStock || (hasVariants && !selectedVariant)
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl active:scale-95'
-                  }`}
-                >
-                  <ShoppingCartIcon className="w-5 h-5 mr-2" />
-                  {!isInStock ? 'Out of Stock' : hasVariants && !selectedVariant ? 'Select Variant' : 'Add to Cart'}
-                </button>
-
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`p-4 rounded-xl transition-all ${
-                    isWishlisted
-                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {isWishlisted ? (
-                    <HeartSolidIcon className="w-6 h-6" />
-                  ) : (
-                    <HeartIcon className="w-6 h-6" />
-                  )}
-                </button>
-
-                <button className="p-4 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl transition-colors">
-                  <ShareIcon className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Added to Cart Notification */}
-              {showAddedToCart && (
-                <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2 animate-slide-in">
-                  <CheckIcon className="w-5 h-5" />
-                  <span>Added to cart!</span>
-                </div>
-              )}
+              <button
+                onClick={handleAddToCart}
+                disabled={!isInStock || (hasVariants && !selectedVariant)}
+                className={`w-full flex items-center justify-center py-4 px-6 rounded-xl font-semibold transition-all ${
+                  !isInStock || (hasVariants && !selectedVariant)
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl active:scale-95'
+                }`}
+              >
+                <ShoppingCartIcon className="w-5 h-5 mr-2" />
+                {!isInStock ? 'Out of Stock' : hasVariants && !selectedVariant ? 'Select Variant' : 'Add to Cart'}
+              </button>
             </div>
-
-            {/* Product Attributes */}
-            {product.attributes && Object.keys(product.attributes).length > 0 && (
-              <div className="pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Details</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Object.entries(product.attributes).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="font-medium text-gray-700 capitalize">{key}:</span>
-                      <span className="text-gray-600">{String(value)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </StorefrontLayout>
+      </StorefrontLayout>
+
+      {/* Cart */}
+      {showCart && (
+        <Cart
+          onCheckout={() => {
+            setShowCart(false);
+            setShowCheckout(true);
+          }}
+          onClose={() => setShowCart(false)}
+        />
+      )}
+
+      {/* Checkout Modal */}
+      <Checkout
+        isOpen={showCheckout}
+        onClose={() => setShowCheckout(false)}
+      />
+    </>
   );
 };
 

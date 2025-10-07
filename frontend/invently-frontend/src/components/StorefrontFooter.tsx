@@ -48,90 +48,94 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
             {/* Quick Links and Customer Service */}
             <div className="flex flex-col sm:flex-row gap-8 sm:gap-12 w-full lg:w-auto">
               {/* Quick Links */}
-              <div className="flex-1 sm:flex-none">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Links</h3>
-                <ul className="space-y-2">
-                  {settings?.aboutUs?.content && (
-                    <li>
-                      <button 
-                        onClick={() => handlePopupOpen('aboutUs')}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        About Us
-                      </button>
-                    </li>
-                  )}
-                  {settings?.privacyPolicy?.content && (
-                    <li>
-                      <button 
-                        onClick={() => handlePopupOpen('privacyPolicy')}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        Privacy Policy
-                      </button>
-                    </li>
-                  )}
-                  {settings?.termsOfService?.content && (
-                    <li>
-                      <button 
-                        onClick={() => handlePopupOpen('termsOfService')}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        Terms of Service
-                      </button>
-                    </li>
-                  )}
-                </ul>
-              </div>
+              {(settings?.aboutUs?.content || settings?.privacyPolicy?.content || settings?.termsOfService?.content) && (
+                <div className="flex-1 sm:flex-none">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Links</h3>
+                  <ul className="space-y-2">
+                    {settings?.aboutUs?.content && (
+                      <li>
+                        <button
+                          onClick={() => handlePopupOpen('aboutUs')}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          About Us
+                        </button>
+                      </li>
+                    )}
+                    {settings?.privacyPolicy?.content && (
+                      <li>
+                        <button
+                          onClick={() => handlePopupOpen('privacyPolicy')}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          Privacy Policy
+                        </button>
+                      </li>
+                    )}
+                    {settings?.termsOfService?.content && (
+                      <li>
+                        <button
+                          onClick={() => handlePopupOpen('termsOfService')}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          Terms of Service
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
 
               {/* Customer Service */}
-              <div className="flex-1 sm:flex-none">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Customer Service</h3>
-                <ul className="space-y-2">
-                  {settings?.shippingInfo?.content && (
-                    <li>
-                      <button 
-                        onClick={() => handlePopupOpen('shippingInfo')}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        Shipping Info
-                      </button>
-                    </li>
-                  )}
-                  {settings?.returns?.content && (
-                    <li>
-                      <button 
-                        onClick={() => handlePopupOpen('returns')}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        Returns
-                      </button>
-                    </li>
-                  )}
-                  {settings?.faq?.content && (
-                    <li>
-                      <button 
-                        onClick={() => handlePopupOpen('faq')}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        FAQ
-                      </button>
-                    </li>
-                  )}
-                  {settings?.trackOrderUrl && (
-                    <li>
-                      <a 
-                        href={settings.trackOrderUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
-                      >
-                        Track Order
-                      </a>
-                    </li>
-                  )}
-                </ul>
-              </div>
+              {(settings?.shippingInfo?.content || settings?.returns?.content || settings?.faq?.content || settings?.trackOrderUrl) && (
+                <div className="flex-1 sm:flex-none">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Customer Service</h3>
+                  <ul className="space-y-2">
+                    {settings?.shippingInfo?.content && (
+                      <li>
+                        <button
+                          onClick={() => handlePopupOpen('shippingInfo')}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          Shipping Info
+                        </button>
+                      </li>
+                    )}
+                    {settings?.returns?.content && (
+                      <li>
+                        <button
+                          onClick={() => handlePopupOpen('returns')}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          Returns
+                        </button>
+                      </li>
+                    )}
+                    {settings?.faq?.content && (
+                      <li>
+                        <button
+                          onClick={() => handlePopupOpen('faq')}
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          FAQ
+                        </button>
+                      </li>
+                    )}
+                    {settings?.trackOrderUrl && (
+                      <li>
+                        <a
+                          href={settings.trackOrderUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                        >
+                          Track Order
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Social Media and Contact */}

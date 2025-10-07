@@ -40,7 +40,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 animate-fade-in"
+        className="fixed inset-0 bg-gray-900/60 z-50 animate-fade-in"
         onClick={onClose}
       />
 
