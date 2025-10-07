@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -20,11 +21,12 @@ const ConfirmationModal = ({
   onConfirm,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   isLoading = false,
   type = 'danger'
 }: ConfirmationModalProps) => {
+  const { t } = useLanguage();
   const getButtonStyles = () => {
     switch (type) {
       case 'danger':
@@ -102,7 +104,7 @@ const ConfirmationModal = ({
                     onClick={onClose}
                     disabled={isLoading}
                   >
-                    {cancelText}
+                    {cancelText || t('common.cancel')}
                   </button>
                   <button
                     type="button"
@@ -110,7 +112,7 @@ const ConfirmationModal = ({
                     onClick={onConfirm}
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Loading...' : confirmText}
+                    {isLoading ? t('common.loading') : (confirmText || t('common.confirm'))}
                   </button>
                 </div>
               </Dialog.Panel>

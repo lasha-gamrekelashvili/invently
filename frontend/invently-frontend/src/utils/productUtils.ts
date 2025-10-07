@@ -83,7 +83,7 @@ export const hasActiveVariants = (product: Product): boolean => {
 /**
  * Get variant summary for display (e.g., "3 variants", "2 sizes, 4 colors")
  */
-export const getVariantSummary = (product: Product): string | null => {
+export const getVariantSummary = (product: Product, t?: (key: string, params?: any) => string): string | null => {
   if (!product.variants || product.variants.length === 0) {
     return null;
   }
@@ -91,11 +91,17 @@ export const getVariantSummary = (product: Product): string | null => {
   const activeVariants = product.variants.filter(variant => variant.isActive === true);
   
   if (activeVariants.length === 0) {
-    return 'No active variants';
+    return t ? t('products.variants.noActive') : 'No active variants';
   }
 
   if (activeVariants.length === 1) {
-    return '1 variant';
+    return t ? t('products.variants.single') : '1 variant';
+  }
+
+  if (t) {
+    const translated = t('products.variants.count', { count: activeVariants.length });
+    console.log('Translation result:', translated, 'for key: products.variants.count with params:', { count: activeVariants.length });
+    return translated;
   }
 
   return `${activeVariants.length} variants`;

@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { isOnSubdomain } from '../utils/api';
+import { T } from './Translation';
+import LanguageSelector from './LanguageSelector';
 import {
   ChartBarIcon,
   FolderIcon,
@@ -17,21 +20,22 @@ import {
 
 const Layout = () => {
   const { user, tenants, logout } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const [currentTenant, setCurrentTenant] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: ChartBarIcon, section: 'Store' },
-    { name: 'Categories', href: '/admin/categories', icon: FolderIcon, section: 'Store' },
-    { name: 'Products', href: '/admin/products', icon: CubeIcon, section: 'Store' },
-    { name: 'Orders', href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
-    { name: 'Settings', href: '/admin/settings', icon: CogIcon, section: 'Store' },
-    { name: 'Logs', href: '/admin/logs', icon: DocumentTextIcon, section: 'Store' },
+    { name: t('navigation.dashboard'), href: '/admin/dashboard', icon: ChartBarIcon, section: 'Store' },
+    { name: t('navigation.categories'), href: '/admin/categories', icon: FolderIcon, section: 'Store' },
+    { name: t('navigation.products'), href: '/admin/products', icon: CubeIcon, section: 'Store' },
+    { name: t('navigation.orders'), href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
+    { name: t('navigation.settings'), href: '/admin/settings', icon: CogIcon, section: 'Store' },
+    { name: t('navigation.logs'), href: '/admin/logs', icon: DocumentTextIcon, section: 'Store' },
   ];
 
   if (user?.role === 'PLATFORM_ADMIN') {
-    navigation.push({ name: 'Platform Admin', href: '/admin/platform', icon: CogIcon, section: 'Admin' });
+    navigation.push({ name: t('navigation.admin'), href: '/admin/platform', icon: CogIcon, section: 'Admin' });
   }
 
   // Handle tenant resolution
@@ -74,7 +78,9 @@ const Layout = () => {
               <h1 className="text-lg font-bold text-gray-900">
                 {currentTenant?.name || 'Invently'}
               </h1>
-              <p className="text-xs text-gray-500">Admin Panel</p>
+              <p className="text-xs text-gray-500">
+                <T tKey="navigation.admin" />
+              </p>
             </div>
           </div>
           <button
@@ -90,7 +96,9 @@ const Layout = () => {
           <nav className="flex-1 p-4 overflow-y-auto">
             {/* Store Section */}
             <div className="mb-6">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Store</h3>
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                <T tKey="navigation.storefront" />
+              </h3>
               <div className="space-y-1">
                 {navigation.filter(item => item.section === 'Store').map((item) => {
                   const isActive = location.pathname === item.href;
@@ -115,7 +123,9 @@ const Layout = () => {
             {/* Admin Section */}
             {navigation.filter(item => item.section === 'Admin').length > 0 && (
               <div className="mb-6">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Admin</h3>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  <T tKey="navigation.admin" />
+                </h3>
                 <div className="space-y-1">
                   {navigation.filter(item => item.section === 'Admin').map((item) => {
                     const isActive = location.pathname === item.href;
@@ -155,6 +165,7 @@ const Layout = () => {
               </div>
             </div>
             
+            
             {/* View Store Link */}
             <a
               href="/"
@@ -163,7 +174,7 @@ const Layout = () => {
               className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors mb-3"
             >
               <BuildingStorefrontIcon className="h-4 w-4 mr-2" />
-              View Public Store
+              <T tKey="navigation.storefront" />
             </a>
             
             <button
@@ -171,7 +182,7 @@ const Layout = () => {
               className="flex items-center text-sm text-gray-600 hover:text-red-600 transition-colors"
             >
               <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-              Logout
+              <T tKey="navigation.logout" />
             </button>
           </div>
         </div>
@@ -179,15 +190,21 @@ const Layout = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Mobile menu button */}
-        <div className="lg:hidden flex-shrink-0 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-          <div className="px-4 py-4">
+        {/* Top Header with Language Selector */}
+        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 py-4">
+            {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
             >
               <Bars3Icon className="w-6 h-6" />
             </button>
+            
+            {/* Language Selector - Top Right */}
+            <div className="ml-auto">
+              <LanguageSelector variant="micro" showLabel={false} />
+            </div>
           </div>
         </div>
 

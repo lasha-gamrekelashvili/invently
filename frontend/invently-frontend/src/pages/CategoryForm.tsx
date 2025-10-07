@@ -3,12 +3,14 @@ import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { categoriesAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
+import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CustomDropdown from '../components/CustomDropdown';
 import FormSkeleton from '../components/FormSkeleton';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const CategoryForm = () => {
+  const { t } = useLanguage();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const parentId = searchParams.get('parentId') || '';
@@ -77,11 +79,11 @@ const CategoryForm = () => {
     mutationFn: (data: any) => categoriesAPI.create(data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
-      handleSuccess(`Category "${data.name}" created successfully`);
+      handleSuccess(t('categories.createSuccess', { name: data.name }));
       navigate('/admin/categories');
     },
     onError: (error: any) => {
-      const errorMessage = handleApiError(error, 'Failed to create category');
+      const errorMessage = handleApiError(error, t('categories.createError'));
       setError(errorMessage);
     }
   });
@@ -91,11 +93,11 @@ const CategoryForm = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['category', id] });
-      handleSuccess(`Category "${data.name}" updated successfully`);
+      handleSuccess(t('categories.updateSuccess', { name: data.name }));
       navigate('/admin/categories');
     },
     onError: (error: any) => {
-      const errorMessage = handleApiError(error, 'Failed to update category');
+      const errorMessage = handleApiError(error, t('categories.updateError'));
       setError(errorMessage);
     }
   });
@@ -159,13 +161,13 @@ const CategoryForm = () => {
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
-          Back to Categories
+{t('common.back')} {t('navigation.categories')}
         </Link>
       </div>
 
       <div className="card p-8">
         <h1 className="text-3xl font-bold gradient-text mb-8">
-          {isEditing ? 'Edit Category' : 'Create New Category'}
+{isEditing ? t('categories.actions.edit') : t('categories.actions.create')}
         </h1>
 
         {error && (
@@ -178,7 +180,7 @@ const CategoryForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                Category Name *
+{t('categories.form.name')} *
               </label>
               <input
                 id="name"
@@ -188,13 +190,13 @@ const CategoryForm = () => {
                 value={formData.name}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="Enter category name"
+placeholder={t('categories.form.namePlaceholder')}
               />
             </div>
 
             <div>
               <label htmlFor="parentId" className="block text-sm font-semibold text-gray-700 mb-2">
-                Parent Category
+{t('categories.form.parentCategory')}
               </label>
               <CustomDropdown
                 id="parentId"
@@ -202,17 +204,17 @@ const CategoryForm = () => {
                 value={formData.parentId}
                 onChange={(value) => setFormData(prev => ({ ...prev, parentId: value }))}
                 options={[
-                  { value: '', label: 'None (Top Level Category)' },
+                  { value: '', label: t('categories.form.noParent') },
                   ...categoryList.map((category) => ({
                     value: category.id,
                     label: '  '.repeat(category.level) + category.name,
                   }))
                 ]}
-                placeholder="Select parent category"
+placeholder={t('categories.form.selectParent')}
               />
               {formData.parentId && (
                 <p className="mt-2 text-sm text-blue-600">
-                  This category will be created under the selected parent category.
+{t('categories.form.parentCategoryHelp')}
                 </p>
               )}
             </div>
@@ -220,7 +222,7 @@ const CategoryForm = () => {
 
           <div>
             <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
-              Description
+{t('categories.form.description')}
             </label>
             <textarea
               id="description"
@@ -229,13 +231,13 @@ const CategoryForm = () => {
               value={formData.description}
               onChange={handleChange}
               className="input-field resize-none"
-              placeholder="Enter category description"
+placeholder={t('categories.form.descriptionPlaceholder')}
             />
           </div>
 
           <div>
             <label htmlFor="isActive" className="block text-sm font-semibold text-gray-700 mb-2">
-              Status *
+{t('categories.form.status')} *
             </label>
             <CustomDropdown
               id="isActive"
@@ -243,14 +245,14 @@ const CategoryForm = () => {
               value={formData.isActive.toString()}
               onChange={(value) => setFormData(prev => ({ ...prev, isActive: value === 'true' }))}
               options={[
-                { value: 'true', label: 'Active' },
-                { value: 'false', label: 'Draft' },
+                { value: 'true', label: t('categories.form.active') },
+                { value: 'false', label: t('categories.form.draft') },
               ]}
-              placeholder="Select status"
+placeholder={t('categories.form.selectStatus')}
               required
             />
             <p className="mt-1 text-sm text-gray-500">
-              Draft categories won't be visible in the public store
+{t('categories.form.statusHelp')}
             </p>
           </div>
 
@@ -262,9 +264,9 @@ const CategoryForm = () => {
                 </div>
               </div>
               <div className="text-sm">
-                <p className="text-blue-800 font-medium mb-1">Category URL Preview</p>
+                <p className="text-blue-800 font-medium mb-1">{t('categories.form.urlPreview')}</p>
                 <p className="text-blue-700">
-                  Your category will be accessible at: <span className="font-mono bg-blue-100 px-2 py-1 rounded">
+                  {t('categories.form.urlPreviewText')} <span className="font-mono bg-blue-100 px-2 py-1 rounded">
                     /store/category/{formData.name ? generateSlug(formData.name) : 'category-slug'}
                   </span>
                 </p>
@@ -277,7 +279,7 @@ const CategoryForm = () => {
               to="/admin/categories"
               className="btn-outline"
             >
-              Cancel
+{t('common.cancel')}
             </Link>
             <button
               type="submit"
@@ -287,7 +289,7 @@ const CategoryForm = () => {
               {(createCategoryMutation.isPending || updateCategoryMutation.isPending) ? (
                 <LoadingSpinner size="sm" />
               ) : (
-                isEditing ? 'Update Category' : 'Create Category'
+isEditing ? t('categories.actions.update') : t('categories.actions.create')
               )}
             </button>
           </div>

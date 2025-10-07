@@ -1,5 +1,6 @@
 import React from 'react';
 import { PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ActionButton {
   type: 'edit' | 'delete' | 'save' | 'cancel' | 'custom';
@@ -21,6 +22,7 @@ const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
   onStopPropagation = true,
   className = ''
 }) => {
+  const { t } = useLanguage();
   const getDefaultIcon = (type: string) => {
     switch (type) {
       case 'edit':
@@ -54,13 +56,13 @@ const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
   const getDefaultTitle = (type: string) => {
     switch (type) {
       case 'edit':
-        return 'Edit';
+        return t('common.edit');
       case 'delete':
-        return 'Delete';
+        return t('common.delete');
       case 'save':
-        return 'Save changes';
+        return t('common.saveChanges');
       case 'cancel':
-        return 'Cancel';
+        return t('common.cancel');
       default:
         return '';
     }

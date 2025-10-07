@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
+import { T } from './Translation';
 
 interface Category {
   id: string;
@@ -20,6 +22,7 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
   currentCategoryId,
   onCategorySelect
 }) => {
+  const { t } = useLanguage();
   const buildBreadcrumb = (): Category[] => {
     if (!currentCategoryId) return [];
     
@@ -41,7 +44,7 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
     return (
       <nav className="flex items-center space-x-2 text-sm text-gray-500">
         <HomeIcon className="w-4 h-4" />
-        <span>All Categories</span>
+        <span><T tKey="categories.breadcrumb.allCategories" /></span>
       </nav>
     );
   }
@@ -54,7 +57,7 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
         onClick={() => onCategorySelect?.('')}
       >
         <HomeIcon className="w-4 h-4 mr-1" />
-        Root
+        <T tKey="categories.breadcrumb.root" />
       </Link>
       
       {breadcrumb.map((category, index) => (

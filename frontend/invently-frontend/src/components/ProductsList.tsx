@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
+import { useLanguage } from '../contexts/LanguageContext';
 import { getProductPriceRange, getProductTotalStock, formatPriceRange, hasActiveVariants, getVariantSummary } from '../utils/productUtils';
 import DataTable, { Column } from './DataTable';
 import ConfirmationModal from './ConfirmationModal';
 import StatusBadge from './StatusBadge';
 import ActionButtonGroup from './ActionButtonGroup';
 import InlineEditField from './InlineEditField';
+import { T } from '../components/Translation';
 import { CubeIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import type { Product } from '../types';
 
@@ -34,6 +36,7 @@ const ProductsList = ({
   onRowClick,
   invalidateQueries = []
 }: ProductsListProps) => {
+  const { t } = useLanguage();
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: Product | null }>({
     isOpen: false,
     product: null,
@@ -63,10 +66,10 @@ const ProductsList = ({
         queryClient.invalidateQueries({ queryKey });
       });
       setDeleteModal({ isOpen: false, product: null });
-      handleSuccess('Product deleted successfully');
+      handleSuccess(t('products.deleteSuccess'));
     },
     onError: (error: any) => {
-      handleApiError(error, 'Failed to delete product');
+      handleApiError(error, t('products.deleteError'));
     },
   });
 
@@ -125,9 +128,9 @@ const ProductsList = ({
         queryClient.invalidateQueries({ queryKey });
       });
       setEditingProduct(null);
-      handleSuccess('Product updated successfully');
+      handleSuccess(t('products.updateSuccess'));
     } catch (error) {
-      handleApiError(error, 'Failed to update product');
+      handleApiError(error, t('products.updateError'));
     }
   };
 
@@ -154,7 +157,7 @@ const ProductsList = ({
   const columns: Column<Product>[] = [
     {
       key: 'product',
-      header: 'Product',
+      header: t('products.columns.name'),
       render: (product) => (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
@@ -178,7 +181,7 @@ const ProductsList = ({
               {hasActiveVariants(product) && (
                 <div className="ml-2 flex items-center text-xs text-blue-600">
                   <Squares2X2Icon className="h-3 w-3 mr-1" />
-                  Variants
+                  {t('products.variants.label')}
                 </div>
               )}
             </div>
@@ -191,7 +194,7 @@ const ProductsList = ({
     },
     {
       key: 'price',
-      header: 'Price',
+      header: t('common.price'),
       render: (product) => {
         const priceRange = getProductPriceRange(product);
         const hasVariants = hasActiveVariants(product);
@@ -204,7 +207,7 @@ const ProductsList = ({
               </div>
               <div className="text-xs text-gray-500 flex items-center">
                 <Squares2X2Icon className="h-3 w-3 mr-1" />
-                {getVariantSummary(product)}
+                {getVariantSummary(product, t)}
               </div>
             </div>
           );
@@ -225,7 +228,7 @@ const ProductsList = ({
     },
     {
       key: 'stockQuantity',
-      header: 'Stock',
+      header: t('products.columns.stock'),
       render: (product) => {
         const stockInfo = getProductTotalStock(product);
         const hasVariants = hasActiveVariants(product);
@@ -234,11 +237,11 @@ const ProductsList = ({
           return (
             <div className="flex flex-col">
               <div className="text-sm font-medium text-gray-900">
-                {stockInfo.total} total
+                {stockInfo.total} <T tKey="common.total" />
               </div>
               <div className="text-xs text-gray-500 flex items-center">
                 <Squares2X2Icon className="h-3 w-3 mr-1" />
-                {getVariantSummary(product)}
+                {getVariantSummary(product, t)}
               </div>
             </div>
           );
@@ -258,20 +261,20 @@ const ProductsList = ({
     },
     {
       key: 'category',
-      header: 'Category',
+      header: t('products.columns.category'),
       render: (product) => (
         product.category ? (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
             {product.category.name}
           </span>
         ) : (
-          <span className="text-sm text-gray-400">No category</span>
+          <span className="text-sm text-gray-400"><T tKey="products.noCategory" /></span>
         )
       )
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('common.status'),
       render: (product) => (
         editingProduct === product.id ? (
           <InlineEditField
@@ -280,8 +283,8 @@ const ProductsList = ({
             onChange={(value) => handleEditValueChange('status', value)}
             isEditing={true}
             options={[
-              { value: 'ACTIVE', label: 'ACTIVE' },
-              { value: 'DRAFT', label: 'DRAFT' },
+              { value: 'ACTIVE', label: t('products.status.active') },
+              { value: 'DRAFT', label: t('products.status.draft') },
             ]}
           />
         ) : (
@@ -291,7 +294,7 @@ const ProductsList = ({
     },
     {
       key: 'actions',
-      header: 'Actions',
+      header: t('common.actions'),
       headerClassName: 'text-right',
       className: 'text-right',
       render: (product) => {
@@ -325,13 +328,13 @@ const ProductsList = ({
               {
                 type: 'edit',
                 onClick: () => handleStartEdit(product),
-                title: hasVariants ? 'Edit product (variants managed separately)' : 'Edit product inline',
+                title: hasVariants ? t('products.inlineEdit.editProductVariants') : t('products.inlineEdit.editProductInline'),
                 disabled: hasVariants
               },
               {
                 type: 'delete',
                 onClick: () => handleDeleteProduct(product),
-                title: 'Delete product'
+                title: t('products.inlineEdit.deleteProduct')
               }
             ]}
           />
@@ -359,14 +362,14 @@ const ProductsList = ({
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, product: null })}
         onConfirm={handleConfirmDelete}
-        title="Delete Product"
+        title={t('products.deleteConfirm.title')}
         message={
           deleteModal.product
-            ? `Are you sure you want to delete "${deleteModal.product.title}"? This action cannot be undone.`
+            ? t('products.deleteConfirm.message', { title: deleteModal.product.title })
             : ''
         }
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         isLoading={deleteMutation.isPending}
         type="danger"
       />

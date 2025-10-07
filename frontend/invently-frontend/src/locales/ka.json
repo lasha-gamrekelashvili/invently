@@ -1,0 +1,849 @@
+{
+  "common": {
+    "loading": "იტვირთება...",
+    "save": "შენახვა",
+    "cancel": "გაუქმება",
+    "delete": "წაშლა",
+    "edit": "რედაქტირება",
+    "add": "დამატება",
+    "create": "შექმნა",
+    "update": "განახლება",
+    "search": "ძებნა",
+    "filter": "ფილტრი",
+    "clear": "გასუფთავება",
+    "close": "დახურვა",
+    "back": "უკან",
+    "next": "შემდეგი",
+    "previous": "წინა",
+    "confirm": "დადასტურება",
+    "yes": "კი",
+    "no": "არა",
+    "ok": "კარგი",
+    "error": "შეცდომა",
+    "success": "წარმატება",
+    "warning": "გაფრთხილება",
+    "info": "ინფორმაცია",
+    "required": "სავალდებულო",
+    "optional": "ოფციონალური",
+    "name": "სახელი",
+    "description": "აღწერა",
+    "price": "ფასი",
+    "quantity": "რაოდენობა",
+    "status": "სტატუსი",
+    "active": "აქტიური",
+    "inactive": "არააქტიური",
+    "draft": "ჩანაწერი",
+    "published": "გამოქვეყნებული",
+    "date": "თარიღი",
+    "created": "შექმნის თარიღი",
+    "actions": "მოქმედებები",
+    "total": "სულ",
+    "subtotal": "ქვეჯამი",
+    "tax": "გადასახადი",
+    "shipping": "მიწოდება",
+    "discount": "ფასდაკლება",
+    "grandTotal": "საბოლოო ჯამი",
+    "items": "ნივთი",
+    "from": "დან",
+    "to": "მდე",
+    "minPrice": "მინ. $",
+    "maxPrice": "მაქს. $",
+    "clearFilters": "ფილტრების გასუფთავება",
+    "selectOption": "აირჩიეთ ვარიანტი",
+    "saveChanges": "ცვლილებების შენახვა",
+    "showingPage": "ნაჩვენებია გვერდი",
+    "of": "დან"
+  },
+  "navigation": {
+    "dashboard": "დაფა",
+    "products": "პროდუქტები",
+    "categories": "კატეგორიები",
+    "orders": "შეკვეთები",
+    "settings": "პარამეტრები",
+    "logs": "ლოგები",
+    "storefront": "მაღაზია",
+    "admin": "ადმინისტრატორი",
+    "logout": "გასვლა",
+    "login": "შესვლა",
+    "register": "რეგისტრაცია"
+  },
+  "auth": {
+    "login": {
+      "title": "შესვლა",
+      "subtitle": "კეთილი იყოს თქვენი დაბრუნება! გთხოვთ შეხვიდეთ თქვენს ანგარიშში.",
+      "email": "ელფოსტის მისამართი",
+      "password": "პაროლი",
+      "rememberMe": "დამახსოვრება",
+      "forgotPassword": "დაგავიწყდათ პაროლი?",
+      "signInButton": "შესვლა",
+      "noAccount": "არ გაქვთ ანგარიში?",
+      "signUpLink": "დარეგისტრირდით აქ",
+      "successMessage": "შესვლა წარმატებულია! კეთილი იყოს თქვენი დაბრუნება."
+    },
+    "register": {
+      "title": "ანგარიშის შექმნა",
+      "subtitle": "დაიწყეთ თქვენი ახალი მაღაზიით",
+      "firstName": "სახელი",
+      "lastName": "გვარი",
+      "email": "ელფოსტის მისამართი",
+      "password": "პაროლი",
+      "confirmPassword": "პაროლის დადასტურება",
+      "tenantName": "მაღაზიის სახელი",
+      "subdomain": "მაღაზიის URL",
+      "subdomainPlaceholder": "თქვენი-მაღაზია",
+      "subdomainHelp": "ეს იქნება თქვენი მაღაზიის ვებ-მისამართი: თქვენი-მაღაზია.invently.com",
+      "createAccountButton": "ანგარიშის შექმნა",
+      "hasAccount": "უკვე გაქვთ ანგარიში?",
+      "signInLink": "შედით აქ",
+      "termsAgreement": "ანგარიშის შექმნით, თქვენ ეთანხმებით ჩვენს მომსახურების პირობებს და კონფიდენციალურობის პოლიტიკას"
+    },
+    "errors": {
+      "invalidCredentials": "არასწორი ელფოსტა ან პაროლი",
+      "emailRequired": "ელფოსტა სავალდებულოა",
+      "passwordRequired": "პაროლი სავალდებულოა",
+      "passwordTooShort": "პაროლი უნდა იყოს მინიმუმ 8 სიმბოლო",
+      "passwordsDoNotMatch": "პაროლები არ ემთხვევა",
+      "emailInvalid": "გთხოვთ შეიყვანოთ სწორი ელფოსტის მისამართი",
+      "firstNameRequired": "სახელი სავალდებულოა",
+      "lastNameRequired": "გვარი სავალდებულოა",
+      "tenantNameRequired": "მაღაზიის სახელი სავალდებულოა",
+      "subdomainRequired": "მაღაზიის URL სავალდებულოა",
+      "subdomainInvalid": "მაღაზიის URL შეიძლება შეიცავდეს მხოლოდ ასოებს, ციფრებს და ტირეებს",
+      "subdomainTaken": "ეს მაღაზიის URL უკვე დაკავებულია",
+      "accountExists": "ამ ელფოსტით ანგარიში უკვე არსებობს",
+      "loginFailed": "შესვლა ჩავარდა. გთხოვთ სცადოთ კვლავ."
+    }
+  },
+  "dashboard": {
+    "title": "დაფა",
+    "welcome": "კეთილი იყოს თქვენი დაბრუნება, {{name}}!",
+    "overview": "მაღაზიის მიმოხილვა",
+    "stats": {
+      "totalProducts": "სულ პროდუქტები",
+      "totalOrders": "სულ შეკვეთები",
+      "pendingOrders": "მოლოდინში შეკვეთები",
+      "totalRevenue": "სულ შემოსავალი",
+      "thisMonth": "ამ თვეში",
+      "thisWeek": "ამ კვირაში",
+      "today": "დღეს"
+    },
+    "recentOrders": "ბოლო შეკვეთები",
+    "viewAll": "ყველას ნახვა",
+    "noOrdersYet": "შეკვეთები ჯერ არ არის",
+    "noOrdersDescription": "შეკვეთები გამოჩნდება აქ, როდესაც მომხმარებლები დაიწყებენ ყიდვას თქვენი მაღაზიიდან.",
+    "quickActions": "სწრაფი მოქმედებები",
+    "addProduct": "პროდუქტის დამატება",
+    "viewStorefront": "მაღაზიის ნახვა",
+    "manageOrders": "შეკვეთების მართვა",
+    "viewAnalytics": "ანალიტიკის ნახვა"
+  },
+  "products": {
+    "title": "პროდუქტები",
+    "subtitle": "{{count}} პროდუქტი თქვენს მაღაზიაში",
+    "addProduct": "პროდუქტის დამატება",
+    "editProduct": "პროდუქტის რედაქტირება",
+    "productDetails": "პროდუქტის დეტალები",
+    "noProducts": "პროდუქტები ვერ მოიძებნა",
+    "noProductsYet": "პროდუქტები ჯერ არ არის",
+    "noProductsFiltered": "სცადეთ თქვენი ძებნის კრიტერიუმების ან ფილტრების შეცვლა.",
+    "noProductsDescription": "დაიწყეთ თქვენი პირველი პროდუქტის დამატებით მაღაზიაში.",
+    "searchPlaceholder": "პროდუქტების ძებნა...",
+    "filterByCategory": "ფილტრი კატეგორიით",
+    "filterByStatus": "ფილტრი სტატუსით",
+    "allCategories": "ყველა კატეგორია",
+    "allStatuses": "ყველა სტატუსი",
+    "columns": {
+      "name": "პროდუქტის სახელი",
+      "category": "კატეგორია",
+      "price": "ფასი",
+      "stock": "მარაგი",
+      "status": "სტატუსი",
+      "createdAt": "შექმნის თარიღი",
+      "actions": "მოქმედებები"
+    },
+    "form": {
+      "basicInfo": "ძირითადი ინფორმაცია",
+      "title": "პროდუქტის სათაური",
+      "titlePlaceholder": "შეიყვანეთ პროდუქტის სათაური",
+      "slug": "URL Slug",
+      "slugPlaceholder": "პროდუქტის-url-slug",
+      "slugHelp": "ეს გამოყენებული იქნება პროდუქტის URL-ში",
+      "description": "აღწერა",
+      "descriptionPlaceholder": "აღწერეთ თქვენი პროდუქტი...",
+      "category": "კატეგორია",
+      "selectCategory": "აირჩიეთ კატეგორია",
+      "pricing": "ფასი და ინვენტარი",
+      "basePrice": "ძირითადი ფასი",
+      "basePricePlaceholder": "0.00",
+      "stockQuantity": "მარაგის რაოდენობა",
+      "stockQuantityPlaceholder": "0",
+      "status": "სტატუსი",
+      "active": "აქტიური",
+      "draft": "ჩანაწერი",
+      "images": "პროდუქტის სურათები",
+      "uploadImages": "სურათების ატვირთვა",
+      "addImageUrl": "სურათის URL-ის დამატება",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "altText": "Alt ტექსტი",
+      "altTextPlaceholder": "აღწერეთ ეს სურათი",
+      "variants": "პროდუქტის ვარიანტები",
+      "addVariant": "ვარიანტის დამატება",
+      "variantSku": "SKU",
+      "variantPrice": "ფასის გადაწერა",
+      "variantStock": "მარაგის გადაწერა",
+      "variantOptions": "ვარიანტის ოფციები",
+      "addOption": "ოფციის დამატება",
+      "optionKey": "ოფციის სახელი (მაგ. ზომა)",
+      "optionValue": "ოფციის მნიშვნელობა (მაგ. დიდი)",
+      "attributes": "მომხმარებლის ატრიბუტები",
+      "addAttribute": "ატრიბუტის დამატება",
+      "attributeKey": "ატრიბუტის სახელი",
+      "attributeValue": "ატრიბუტის მნიშვნელობა"
+    },
+    "actions": {
+      "create": "ახალი პროდუქტის შექმნა",
+      "edit": "პროდუქტის რედაქტირება",
+      "update": "პროდუქტის განახლება",
+      "delete": "პროდუქტის წაშლა",
+      "duplicate": "დუბლირება",
+      "view": "დეტალების ნახვა",
+      "activate": "აქტივაცია",
+      "deactivate": "დეაქტივაცია"
+    },
+    "deleteConfirm": {
+      "title": "პროდუქტის წაშლა",
+      "message": "დარწმუნებული ხართ, რომ გსურთ \"{{title}}\" პროდუქტის წაშლა? ეს მოქმედება ვერ გაუქმდება.",
+      "confirm": "პროდუქტის წაშლა",
+      "cancel": "გაუქმება"
+    },
+    "inlineEdit": {
+      "editProductInline": "პროდუქტის ინლაინ რედაქტირება",
+      "editProductVariants": "პროდუქტის რედაქტირება (ვარიანტები ცალკე მართება)",
+      "deleteProduct": "პროდუქტის წაშლა"
+    },
+    "status": {
+      "active": "აქტიური",
+      "draft": "ჩანაწერი",
+      "deleted": "წაშლილი"
+    },
+    "deleteSuccess": "პროდუქტი წარმატებით წაიშალა",
+    "deleteError": "პროდუქტის წაშლა ჩავარდა",
+    "updateSuccess": "პროდუქტი წარმატებით განახლდა",
+    "updateError": "პროდუქტის განახლება ჩავარდა",
+    "createSuccess": "პროდუქტი \"{{title}}\" წარმატებით შეიქმნა",
+    "createError": "პროდუქტის შექმნა ვერ მოხერხდა",
+    "noCategory": "კატეგორია არ არის",
+    "images": {
+      "uploadSuccess": "სურათები წარმატებით აიტვირთა",
+      "uploadError": "სურათების ატვირთვა ვერ მოხერხდა",
+      "addSuccess": "სურათი წარმატებით დაემატა",
+      "addError": "სურათის URL-ით დამატება ვერ მოხერხდა",
+      "removeSuccess": "სურათი წარმატებით წაიშალა",
+      "removeError": "სურათის წაშლა ვერ მოხერხდა"
+    },
+    "form": {
+      "basicInfo": "ძირითადი ინფორმაცია",
+      "title": "პროდუქტის სახელი",
+      "titlePlaceholder": "შეიყვანეთ პროდუქტის სახელი",
+      "slug": "URL Slug",
+      "slugPlaceholder": "product-url-slug",
+      "slugHelp": "ეს გამოყენებული იქნება პროდუქტის URL-ში",
+      "description": "აღწერა",
+      "descriptionPlaceholder": "აღწერეთ თქვენი პროდუქტი...",
+      "category": "კატეგორია",
+      "selectCategory": "აირჩიეთ კატეგორია",
+      "pricing": "ფასი და ინვენტარი",
+      "basePrice": "ძირითადი ფასი ($)",
+      "basePricePlaceholder": "0.00",
+      "basePriceHelp": "შეიძლება გადაწეროს ვარიანტების ფასებით",
+      "stockQuantity": "ძირითადი მარაგი",
+      "stockQuantityPlaceholder": "0",
+      "stockQuantityHelp": "გამოიყენეთ 0 თუ მარაგს ვარიანტებით მართავთ",
+      "status": "სტატუსი",
+      "active": "აქტიური",
+      "draft": "ჩანაწერი",
+      "selectStatus": "აირჩიეთ სტატუსი",
+      "images": "პროდუქტის სურათები",
+      "uploadImages": "სურათების ატვირთვა",
+      "addImageUrl": "სურათის URL-ის დამატება",
+      "imageUrlPlaceholder": "https://example.com/image.jpg",
+      "altText": "Alt ტექსტი",
+      "altTextPlaceholder": "აღწერეთ ეს სურათი",
+      "variants": "პროდუქტის ვარიანტები",
+      "addVariant": "ვარიანტის დამატება",
+      "variantSku": "SKU",
+      "variantPrice": "ფასის გადაწერა",
+      "variantStock": "მარაგის გადაწერა",
+      "variantOptions": "ვარიანტის ოფციები",
+      "addOption": "ოფციის დამატება",
+      "optionKey": "ოფციის სახელი (მაგ., ზომა)",
+      "optionValue": "ოფციის მნიშვნელობა (მაგ., დიდი)",
+      "attributes": "მომხმარებლის ატრიბუტები",
+      "addAttribute": "ატრიბუტის დამატება",
+      "attributeKey": "ატრიბუტის სახელი",
+      "attributeValue": "ატრიბუტის მნიშვნელობა"
+    },
+    "imageUploader": {
+      "title": "პროდუქტის სურათები",
+      "uploadMethod": {
+        "file": "ფაილების ატვირთვა",
+        "url": "URL-ით დამატება"
+      },
+      "fileUpload": {
+        "altTextLabel": "Alt ტექსტი (ოფციონალური)",
+        "altTextPlaceholder": "აღწერეთ სურათები ხელმისაწვდომობისთვის",
+        "uploadButton": "სურათების ატვირთვა",
+        "uploadingButton": "იტვირთება...",
+        "helpText": "ატვირთეთ JPEG, PNG, GIF, ან WebP სურათები (მაქს. 5MB თითოეული)"
+      },
+      "urlUpload": {
+        "urlLabel": "სურათის URL *",
+        "urlPlaceholder": "https://example.com/image.jpg",
+        "altTextLabel": "Alt ტექსტი (ოფციონალური)",
+        "altTextPlaceholder": "აღწერეთ სურათი ხელმისაწვდომობისთვის",
+        "addButton": "სურათის დამატება",
+        "addingButton": "დამატება..."
+      },
+      "preview": {
+        "title": "მიმდინარე სურათები ({{count}})",
+        "altTextFallback": "პროდუქტის სურათი"
+      }
+    },
+    "variants": {
+      "title": "პროდუქტის ვარიანტები",
+      "description": "შექმენით ვარიანტები სხვადასხვა ზომის, ფერის ან კონფიგურაციისთვის",
+      "addVariant": "ვარიანტის დამატება",
+      "editVariant": "ვარიანტის რედაქტირება",
+      "newVariant": "ახალი ვარიანტი",
+      "options": "ოფციები (მაგ., ზომა, ფერი) *",
+      "optionKeyPlaceholder": "სახელი (მაგ., ზომა)",
+      "optionValuePlaceholder": "მნიშვნელობა (მაგ., საშუალო)",
+      "addOption": "+ ოფციის დამატება",
+      "sku": "SKU (ოფციონალური)",
+      "skuPlaceholder": "მაგ., TSHIRT-RED-M",
+      "priceOverride": "ფასის გადაწერა (ოფციონალური)",
+      "priceOverridePlaceholder": "დატოვეთ ცარიელი ძირითადი ფასისთვის",
+      "stockQuantity": "მარაგის რაოდენობა *",
+      "status": "სტატუსი",
+      "active": "აქტიური",
+      "inactive": "არააქტიური",
+      "basePrice": "ძირითადი ფასი",
+      "price": "ფასი",
+      "stock": "მარაგი",
+      "cancel": "გაუქმება",
+      "update": "განახლება",
+      "saving": "შენახვა...",
+      "addVariantButton": "ვარიანტის დამატება",
+      "noVariants": "ვარიანტები ჯერ არ არის. დაამატეთ ვარიანტები სხვადასხვა ზომის, ფერის ან კონფიგურაციისთვის.",
+      "validationError": "მინიმუმ ერთი ოფცია სავალდებულოა",
+      "label": "ვარიანტები",
+      "count": "{{count}} ვარიანტი",
+      "single": "1 ვარიანტი",
+      "noActive": "აქტიური ვარიანტები არ არის",
+      "success": {
+        "added": "ვარიანტი დაემატა",
+        "updated": "ვარიანტი განახლდა",
+        "removed": "ვარიანტი წაიშალა",
+        "created": "ვარიანტი წარმატებით შეიქმნა",
+        "deleted": "ვარიანტი წარმატებით წაიშალა"
+      },
+      "errors": {
+        "saveFailed": "ვარიანტის შენახვა ვერ მოხერხდა",
+        "deleteFailed": "ვარიანტის წაშლა ვერ მოხერხდა"
+      }
+    },
+    "attributes": {
+      "title": "მომხმარებლის ატრიბუტები",
+      "description": "დაამატეთ პროდუქტის სპეციფიკური თვისებები (მაგ., მასალა, ბრენდი, მოვლის ინსტრუქციები)",
+      "keyPlaceholder": "სახელი (მაგ., მასალა)",
+      "valuePlaceholder": "მნიშვნელობა (მაგ., ბამბა)",
+      "addValuePlaceholder": "მნიშვნელობა (მაგ., 100% ბამბა)",
+      "noAttributes": "მომხმარებლის ატრიბუტები ჯერ არ არის. დაამატეთ ატრიბუტები როგორიცაა მასალა, ბრენდი, ზომები და ა.შ."
+    }
+  },
+  "categories": {
+    "title": "კატეგორიები",
+    "subtitle": "{{count}} კატეგორია თქვენს მაღაზიაში",
+    "details": "კატეგორიის დეტალები",
+    "addCategory": "კატეგორიის დამატება",
+    "addProduct": "პროდუქტის დამატება",
+    "addChild": "ქვეკატეგორიის დამატება",
+    "editCategory": "კატეგორიის რედაქტირება",
+    "noCategories": "კატეგორიები ვერ მოიძებნა",
+    "noCategoriesDescription": "შექმენით კატეგორიები პროდუქტების ორგანიზებისთვის.",
+    "searchPlaceholder": "კატეგორიების ძებნა...",
+    "deleteSuccess": "კატეგორია წარმატებით წაიშალა",
+    "deleteError": "კატეგორიის წაშლა ჩავარდა",
+    "addProductSuccess": "პროდუქტი წარმატებით დაემატა კატეგორიას",
+    "addProductError": "პროდუქტის კატეგორიაში დამატება ჩავარდა",
+    "createSuccess": "კატეგორია \"{{name}}\" წარმატებით შეიქმნა",
+    "createError": "კატეგორიის შექმნა ვერ მოხერხდა",
+    "updateSuccess": "კატეგორია \"{{name}}\" წარმატებით განახლდა",
+    "updateError": "კატეგორიის განახლება ვერ მოხერხდა",
+    "columns": {
+      "name": "კატეგორიის სახელი",
+      "slug": "URL Slug",
+      "parent": "მშობელი კატეგორია",
+      "products": "პროდუქტები",
+      "status": "სტატუსი",
+      "createdAt": "შექმნის თარიღი",
+      "actions": "მოქმედებები"
+    },
+    "form": {
+      "basicInfo": "ძირითადი ინფორმაცია",
+      "name": "კატეგორიის სახელი",
+      "namePlaceholder": "შეიყვანეთ კატეგორიის სახელი",
+      "slug": "URL Slug",
+      "slugPlaceholder": "კატეგორიის-url-slug",
+      "slugHelp": "ეს გამოყენებული იქნება კატეგორიის URL-ში",
+      "description": "აღწერა",
+      "descriptionPlaceholder": "აღწერეთ ეს კატეგორია...",
+      "parentCategory": "მშობელი კატეგორია",
+      "selectParent": "აირჩიეთ მშობელი კატეგორია (ოფციონალური)",
+      "noParent": "მშობელი არა (ზედა დონის კატეგორია)",
+      "parentCategoryHelp": "ეს კატეგორია შეიქმნება არჩეული მშობელი კატეგორიის ქვეშ.",
+      "status": "სტატუსი",
+      "active": "აქტიური",
+      "draft": "ჩანაწერი",
+      "selectStatus": "აირჩიეთ სტატუსი",
+      "statusHelp": "ჩანაწერი კატეგორიები არ იქნება ხილული საჯარო მაღაზიაში",
+      "urlPreview": "კატეგორიის URL-ის წინასწარი ნახვა",
+      "urlPreviewText": "თქვენი კატეგორია იქნება ხელმისაწვდომი:"
+    },
+    "actions": {
+      "create": "ახალი კატეგორიის შექმნა",
+      "edit": "კატეგორიის რედაქტირება",
+      "update": "კატეგორიის განახლება",
+      "delete": "კატეგორიის წაშლა",
+      "addProduct": "პროდუქტის დამატება",
+      "addChild": "ქვეკატეგორიის დამატება",
+      "view": "დეტალების ნახვა"
+    },
+    "deleteConfirm": {
+      "title": "კატეგორიის წაშლა",
+      "message": "დარწმუნებული ხართ, რომ გსურთ ამ კატეგორიის წაშლა? ყველა ქვეკატეგორია და პროდუქტი გადავა მშობელ კატეგორიაში.",
+      "confirm": "კატეგორიის წაშლა",
+      "cancel": "გაუქმება"
+    },
+    "tree": {
+      "expandAll": "ყველას გაშლა",
+      "collapseAll": "ყველას დახურვა",
+      "noSubcategories": "ქვეკატეგორიები არ არის"
+    },
+    "breadcrumb": {
+      "allCategories": "ყველა კატეგორია",
+      "root": "ძირი"
+    },
+    "status": {
+      "active": "აქტიური",
+      "draft": "ჩანაწერი"
+    },
+    "products": {
+      "countInCategory": "{{count}} პროდუქტი ამ კატეგორიაში და ყველა ქვეკატეგორიაში",
+      "viewAllProducts": "ყველა პროდუქტის ნახვა →",
+      "noProductsInCategory": "ამ კატეგორიაში პროდუქტები არ არის",
+      "noProductsInCategoryDescription": "დაამატეთ პროდუქტები ამ კატეგორიაში, რომ იხილოთ ისინი აქ."
+    },
+    "emptyState": {
+      "selectCategory": "აირჩიეთ კატეგორია",
+      "selectCategoryDescription": "აირჩიეთ კატეგორია ხის სიიდან დეტალების ნახვისა და მართვისთვის."
+    },
+    "modals": {
+      "addProduct": {
+        "title": "პროდუქტის დამატება {{categoryName}}-ში",
+        "createNewProduct": "ახალი პროდუქტის შექმნა",
+        "or": "ან",
+        "selectExistingProduct": "არსებული პროდუქტის არჩევა",
+        "chooseProduct": "აირჩიეთ პროდუქტი...",
+        "addSelectedProduct": "არჩეული პროდუქტის დამატება",
+        "adding": "დამატება...",
+        "cancel": "გაუქმება"
+      },
+      "deleteConfirm": {
+        "deleteCategory": "კატეგორიის წაშლა",
+        "deleteProduct": "პროდუქტის წაშლა",
+        "deleteCategoryMessage": "დარწმუნებული ხართ, რომ გსურთ \"{{categoryName}}\" კატეგორიის წაშლა? ეს მოქმედება ვერ გაუქმდება.",
+        "deleteProductMessage": "დარწმუნებული ხართ, რომ გსურთ \"{{productName}}\" პროდუქტის წაშლა? ეს მოქმედება ვერ გაუქმდება.",
+        "delete": "წაშლა",
+        "cancel": "გაუქმება"
+      }
+    }
+  },
+  "orders": {
+    "title": "შეკვეთები",
+    "subtitle": "მართეთ და თვალყურს ადევნეთ თქვენს მაღაზიის შეკვეთებს",
+    "orderDetails": "შეკვეთის დეტალები",
+    "noOrders": "შეკვეთები ვერ მოიძებნა",
+    "noOrdersFiltered": "სცადეთ თქვენი ფილტრების შეცვლა.",
+    "noOrdersDescription": "შეკვეთები გამოჩნდება აქ, როდესაც მომხმარებლები ყიდულობენ.",
+    "searchPlaceholder": "შეკვეთების ძებნა...",
+    "filterByStatus": "ფილტრი სტატუსით",
+    "allStatuses": "ყველა სტატუსი",
+    "columns": {
+      "orderNumber": "შეკვეთა #",
+      "customer": "მომხმარებელი",
+      "email": "ელფოსტა",
+      "total": "სულ",
+      "status": "სტატუსი",
+      "paymentStatus": "გადახდა",
+      "date": "თარიღი",
+      "actions": "მოქმედებები"
+    },
+    "status": {
+      "pending": "მოლოდინში",
+      "confirmed": "დადასტურებული",
+      "shipped": "გაგზავნილი",
+      "delivered": "მიწოდებული",
+      "cancelled": "გაუქმებული"
+    },
+    "paymentStatus": {
+      "pending": "მოლოდინში",
+      "paid": "გადახდილი",
+      "failed": "ჩავარდნილი",
+      "refunded": "დაბრუნებული"
+    },
+    "details": {
+      "orderInfo": "შეკვეთის ინფორმაცია",
+      "customerInfo": "მომხმარებლის ინფორმაცია",
+      "shippingAddress": "მიწოდების მისამართი",
+      "billingAddress": "გადახდის მისამართი",
+      "orderItems": "შეკვეთის ნივთები",
+      "notes": "შეკვეთის შენიშვნები",
+      "timeline": "შეკვეთის ქრონოლოგია",
+      "updateStatus": "სტატუსის განახლება",
+      "markAsShipped": "გაგზავნილად მონიშვნა",
+      "markAsDelivered": "მიწოდებულად მონიშვნა",
+      "cancelOrder": "შეკვეთის გაუქმება"
+    },
+    "actions": {
+      "view": "დეტალების ნახვა",
+      "edit": "შეკვეთის რედაქტირება",
+      "print": "ინვოისის დაბეჭდვა",
+      "email": "მომხმარებლის ელფოსტა"
+    },
+    "orderDetails": {
+      "notFound": {
+        "title": "შეკვეთა ვერ მოიძებნა",
+        "description": "შეკვეთა, რომელსაც ეძებთ, არ არსებობს ან წაიშალა.",
+        "backButton": "შეკვეთებზე დაბრუნება"
+      },
+      "header": {
+        "orderNumber": "შეკვეთა {{number}}",
+        "placedOn": "გაფორმდა {{date}}-ზე"
+      },
+      "sections": {
+        "orderItems": {
+          "title": "შეკვეთის ნივთები",
+          "quantity": "რაოდენობა",
+          "unitPrice": "ერთეულის ფასი",
+          "totalAmount": "სულ ჯამი"
+        },
+        "customerInfo": {
+          "title": "მომხმარებლის ინფორმაცია",
+          "name": "სახელი",
+          "email": "ელფოსტა"
+        },
+        "addresses": {
+          "title": "მისამართები",
+          "shippingAddress": "მიწოდების მისამართი",
+          "billingAddress": "გადახდის მისამართი"
+        },
+        "orderNotes": {
+          "title": "შეკვეთის შენიშვნები"
+        },
+        "payment": {
+          "title": "გადახდა",
+          "paymentStatus": "გადახდის სტატუსი",
+          "totalAmount": "სულ ჯამი"
+        },
+        "statusManagement": {
+          "title": "შეკვეთის სტატუსის განახლება",
+          "updating": "განახლება..."
+        },
+        "timeline": {
+          "title": "შეკვეთის ქრონოლოგია",
+          "orderPlaced": "შეკვეთა გაფორმდა",
+          "lastUpdated": "ბოლო განახლება"
+        }
+      }
+    }
+  },
+  "settings": {
+    "title": "მაღაზიის პარამეტრები",
+    "subtitle": "მართეთ თქვენი მაღაზიის ფუტერის შინაარსი, სოციალური მედიის ბმულები და სწრაფი ბმულები",
+    "pages": "გვერდის შინაარსი",
+    "pagesDescription": "მართეთ თქვენი მაღაზიის ფუტერის გვერდების შინაარსი. ეს გამოჩნდება მაღაზიის ფუტერში.",
+    "pageContent": "შინაარსი",
+    "aboutUsPlaceholder": "მოგვიყევით თქვენი მაღაზიის შესახებ...",
+    "general": "ძირითადი პარამეტრები",
+    "storeInfo": "მაღაზიის ინფორმაცია",
+    "storeName": "მაღაზიის სახელი",
+    "storeDescription": "მაღაზიის აღწერა",
+    "contactEmail": "საკონტაქტო ელფოსტა",
+    "phone": "ტელეფონის ნომერი",
+    "address": "მისამართი",
+    "socialMedia": "სოციალური მედია",
+    "facebook": "Facebook URL",
+    "twitter": "Twitter URL",
+    "instagram": "Instagram URL",
+    "linkedin": "LinkedIn URL",
+    "youtube": "YouTube URL",
+    "pages": "მაღაზიის გვერდები",
+    "aboutUs": "ჩვენ შესახებ",
+    "contact": "კონტაქტი",
+    "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
+    "termsOfService": "მომსახურების პირობები",
+    "shippingInfo": "მიწოდების ინფორმაცია",
+    "returns": "დაბრუნება და გაცვლა",
+    "faq": "ხშირად დასმული კითხვები",
+    "trackOrder": "შეკვეთის მოძებნის URL",
+    "saveChanges": "ცვლილებების შენახვა",
+    "changesSaved": "ცვლილებები წარმატებით შენახულია",
+    "pageTitle": "გვერდის სათაური",
+    "pageContent": "გვერდის შინაარსი",
+    "addPage": "ახალი გვერდის დამატება",
+    "editPage": "გვერდის რედაქტირება",
+    "deletePage": "გვერდის წაშლა",
+    "tabs": {
+      "content": "გვერდის შინაარსი",
+      "social": "სოციალური მედია",
+      "links": "სწრაფი ბმულები"
+    },
+    "content": {
+      "title": "გვერდის შინაარსი",
+      "description": "მართეთ თქვენი მაღაზიის ფუტერის გვერდების შინაარსი. ეს გამოჩნდება მაღაზიის ფუტერში.",
+      "aboutUs": {
+        "title": "ჩვენ შესახებ",
+        "contentLabel": "შინაარსი",
+        "placeholder": "მოგვიყევით თქვენი მაღაზიის შესახებ..."
+      },
+      "contact": {
+        "title": "კონტაქტის ინფორმაცია",
+        "contentLabel": "შინაარსი",
+        "placeholder": "თქვენი კონტაქტის ინფორმაცია..."
+      },
+      "privacyPolicy": {
+        "title": "კონფიდენციალურობის პოლიტიკა",
+        "contentLabel": "შინაარსი",
+        "placeholder": "თქვენი კონფიდენციალურობის პოლიტიკის შინაარსი..."
+      },
+      "termsOfService": {
+        "title": "მომსახურების პირობები",
+        "contentLabel": "შინაარსი",
+        "placeholder": "თქვენი მომსახურების პირობების შინაარსი..."
+      },
+      "shippingInfo": {
+        "title": "მიწოდების ინფორმაცია",
+        "contentLabel": "შინაარსი",
+        "placeholder": "თქვენი მიწოდების ინფორმაცია..."
+      },
+      "returns": {
+        "title": "დაბრუნების პოლიტიკა",
+        "contentLabel": "შინაარსი",
+        "placeholder": "თქვენი დაბრუნების პოლიტიკა..."
+      },
+      "faq": {
+        "title": "ხშირად დასმული კითხვები",
+        "contentLabel": "შინაარსი",
+        "placeholder": "თქვენი ხშირად დასმული კითხვების შინაარსი..."
+      }
+    },
+    "social": {
+      "title": "სოციალური მედიის ბმულები",
+      "description": "დაამატეთ თქვენი სოციალური მედიის პროფილები. ეს გამოჩნდება მაღაზიის ფუტერში.",
+      "facebook": {
+        "label": "Facebook URL",
+        "placeholder": "https://facebook.com/yourstore"
+      },
+      "twitter": {
+        "label": "Twitter URL",
+        "placeholder": "https://twitter.com/yourstore"
+      },
+      "instagram": {
+        "label": "Instagram URL",
+        "placeholder": "https://instagram.com/yourstore"
+      },
+      "linkedin": {
+        "label": "LinkedIn URL",
+        "placeholder": "https://linkedin.com/company/yourstore"
+      },
+      "youtube": {
+        "label": "YouTube URL",
+        "placeholder": "https://youtube.com/c/yourstore"
+      }
+    },
+    "links": {
+      "title": "სწრაფი ბმულები",
+      "description": "კონფიგურაცია დამატებითი ბმულებისთვის, რომლებიც გამოჩნდება თქვენი მაღაზიის ფუტერში.",
+      "trackOrder": {
+        "label": "შეკვეთის მოძებნის URL",
+        "placeholder": "https://yourstore.com/track-order",
+        "helpText": "URL სადაც მომხმარებლებს შეუძლიათ შეკვეთების მოძებნა"
+      }
+    },
+    "actions": {
+      "saving": "შენახვა...",
+      "saveSettings": "პარამეტრების შენახვა"
+    }
+  },
+  "storefront": {
+    "title": "მაღაზია",
+    "hero": {
+      "welcome": "მოგესალმებით {{storeName}}-ში",
+      "description": "აღმოაჩინეთ შესანიშნავი პროდუქტები შესანიშნავ ფასებზე",
+      "shopNow": "ყიდვა",
+      "learnMore": "მეტის ცოდნა"
+    },
+    "header": {
+      "searchPlaceholder": "პროდუქტების ძებნა...",
+      "cart": "კალათი",
+      "menu": "მენიუ",
+      "categories": "კატეგორიები",
+      "allProducts": "ყველა პროდუქტი"
+    },
+    "footer": {
+      "aboutUs": "ჩვენ შესახებ",
+      "contact": "კონტაქტი",
+      "privacyPolicy": "კონფიდენციალურობის პოლიტიკა",
+      "termsOfService": "მომსახურების პირობები",
+      "shippingInfo": "მიწოდება",
+      "returns": "დაბრუნება",
+      "faq": "ხშირად დასმული კითხვები",
+      "followUs": "მიყევით",
+      "newsletter": "სიახლეების ბიულეტენი",
+      "newsletterPlaceholder": "შეიყვანეთ თქვენი ელფოსტა",
+      "subscribe": "გამოწერა",
+      "copyright": "© {{year}} {{storeName}}. ყველა უფლება დაცულია."
+    },
+    "product": {
+      "addToCart": "კალათში დამატება",
+      "buyNow": "ახლავე ყიდვა",
+      "outOfStock": "მარაგში არ არის",
+      "inStock": "მარაგშია",
+      "quantity": "რაოდენობა",
+      "selectVariant": "აირჩიეთ {{option}}",
+      "description": "აღწერა",
+      "specifications": "სპეციფიკაციები",
+      "reviews": "მიმოხილვები",
+      "relatedProducts": "მსგავსი პროდუქტები",
+      "priceRange": "{{min}}-დან {{max}}-მდე",
+      "variantOptions": "ოფციები"
+    },
+    "cart": {
+      "title": "საყიდლების კალათი",
+      "empty": "თქვენი კალათი ცარიელია",
+      "emptyDescription": "დაიწყეთ პროდუქტების დამატებით",
+      "continueShopping": "ყიდვის გაგრძელება",
+      "checkout": "გადახდა",
+      "removeItem": "ნივთის წაშლა",
+      "updateQuantity": "რაოდენობის განახლება",
+      "subtotal": "ქვეჯამი",
+      "shipping": "მიწოდება",
+      "tax": "გადასახადი",
+      "total": "სულ"
+    },
+    "checkout": {
+      "title": "გადახდა",
+      "customerInfo": "მომხმარებლის ინფორმაცია",
+      "email": "ელფოსტის მისამართი",
+      "firstName": "სახელი",
+      "lastName": "გვარი",
+      "shippingAddress": "მიწოდების მისამართი",
+      "billingAddress": "გადახდის მისამართი",
+      "sameAsShipping": "იგივე, რაც მიწოდების მისამართი",
+      "street": "ქუჩის მისამართი",
+      "city": "ქალაქი",
+      "state": "რეგიონი/პროვინცია",
+      "zipCode": "ZIP/საფოსტო კოდი",
+      "country": "ქვეყანა",
+      "orderNotes": "შეკვეთის შენიშვნები",
+      "orderNotesPlaceholder": "რაიმე სპეციალური ინსტრუქცია...",
+      "placeOrder": "შეკვეთის გაფორმება",
+      "orderSummary": "შეკვეთის შეჯამება",
+      "processing": "თქვენი შეკვეთა მუშავდება...",
+      "success": "შეკვეთა წარმატებით გაფორმდა!",
+      "orderNumber": "შეკვეთის ნომერი: {{number}}"
+    },
+    "filters": {
+      "priceRange": "ფასის დიაპაზონი",
+      "minPrice": "მინ. ფასი",
+      "maxPrice": "მაქს. ფასი",
+      "category": "კატეგორია",
+      "sortBy": "დალაგება",
+      "sortOptions": {
+        "newest": "უახლესი პირველად",
+        "oldest": "ძველი პირველად",
+        "priceLow": "ფასი: დაბალი-მაღალი",
+        "priceHigh": "ფასი: მაღალი-დაბალი",
+        "nameAZ": "სახელი: ა-ჰ",
+        "nameZA": "სახელი: ჰ-ა"
+      }
+    },
+    "pagination": {
+      "showing": "ნაჩვენებია {{start}}-დან {{end}}-მდე {{total}} პროდუქტიდან",
+      "page": "გვერდი {{current}} {{total}}-დან",
+      "previous": "წინა",
+      "next": "შემდეგი"
+    }
+  },
+  "logs": {
+    "title": "აუდიტის ლოგები",
+    "noLogs": "ლოგები ვერ მოიძებნა",
+    "noLogsDescription": "სისტემის აქტივობა ჩაიწერება აქ.",
+    "searchPlaceholder": "ლოგების ძებნა...",
+    "filterByAction": "ფილტრი მოქმედებით",
+    "filterByResource": "ფილტრი რესურსით",
+    "allActions": "ყველა მოქმედება",
+    "allResources": "ყველა რესურსი",
+    "columns": {
+      "timestamp": "დრო",
+      "action": "მოქმედება",
+      "resource": "რესურსი",
+      "user": "მომხმარებელი",
+      "details": "დეტალები"
+    },
+    "actions": {
+      "create": "შექმნილი",
+      "update": "განახლებული",
+      "delete": "წაშლილი",
+      "login": "შესული",
+      "logout": "გასული"
+    },
+    "resources": {
+      "product": "პროდუქტი",
+      "category": "კატეგორია",
+      "order": "შეკვეთა",
+      "user": "მომხმარებელი",
+      "settings": "პარამეტრები"
+    },
+    "details": {
+      "viewChanges": "ცვლილებების ნახვა",
+      "oldValue": "ძველი მნიშვნელობა",
+      "newValue": "ახალი მნიშვნელობა",
+      "noChanges": "ცვლილებები არ ჩაიწერა"
+    }
+  },
+  "errors": {
+    "pageNotFound": "გვერდი ვერ მოიძებნა",
+    "pageNotFoundDescription": "გვერდი, რომელსაც ეძებთ, არ არსებობს.",
+    "goHome": "მთავარ გვერდზე",
+    "serverError": "სერვერის შეცდომა",
+    "serverErrorDescription": "რაღაც შეცდომა მოხდა ჩვენს მხრიდან. გთხოვთ სცადოთ მოგვიანებით.",
+    "networkError": "ქსელის შეცდომა",
+    "networkErrorDescription": "გთხოვთ შეამოწმოთ ინტერნეტ-კავშირი და სცადოთ კვლავ.",
+    "unauthorized": "ავტორიზაცია არ არის",
+    "unauthorizedDescription": "თქვენ არ გაქვთ უფლება ამ გვერდზე წვდომის.",
+    "forbidden": "შეზღუდული",
+    "forbiddenDescription": "ამ რესურსზე წვდომა შეზღუდულია.",
+    "validationError": "ვალიდაციის შეცდომა",
+    "validationErrorDescription": "გთხოვთ შეამოწმოთ თქვენი მონაცემები და სცადოთ კვლავ.",
+    "genericError": "მოულოდნელი შეცდომა მოხდა",
+    "tryAgain": "კვლავ სცადეთ",
+    "contactSupport": "დახმარების მიღება"
+  },
+  "language": {
+    "select": "ენის არჩევა",
+    "english": "English",
+    "georgian": "ქართული"
+  }
+}

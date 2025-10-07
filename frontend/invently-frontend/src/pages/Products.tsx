@@ -1,12 +1,15 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { productsAPI, categoriesAPI, debounce } from '../utils/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import PageHeader from '../components/PageHeader';
 import FilterSection from '../components/FilterSection';
 import ProductsList from '../components/ProductsList';
 import { CubeIcon } from '@heroicons/react/24/outline';
 
 const Products = () => {
+  const { t } = useLanguage();
+  
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -51,7 +54,7 @@ const Products = () => {
     {
       type: 'search' as const,
       key: 'search',
-      placeholder: 'Search products...',
+      placeholder: t('products.searchPlaceholder'),
       className: 'lg:col-span-2',
       value: searchInput,
       onChange: (value: string) => {
@@ -62,23 +65,23 @@ const Products = () => {
     {
       type: 'dropdown' as const,
       key: 'status',
-      placeholder: 'Status',
+      placeholder: t('common.status'),
       value: statusFilter,
       onChange: setStatusFilter,
       options: [
-        { value: '', label: 'All Status' },
-        { value: 'ACTIVE', label: 'Active' },
-        { value: 'DRAFT', label: 'Draft' },
+        { value: '', label: t('products.allStatuses') },
+        { value: 'ACTIVE', label: t('products.status.active') },
+        { value: 'DRAFT', label: t('products.status.draft') },
       ]
     },
     {
       type: 'dropdown' as const,
       key: 'category',
-      placeholder: 'Category',
+      placeholder: t('navigation.categories'),
       value: categoryFilter,
       onChange: setCategoryFilter,
       options: [
-        { value: '', label: 'All Categories' },
+        { value: '', label: t('products.allCategories') },
         ...(categoriesData?.categories?.map(cat => ({
           value: cat.id,
           label: cat.name
@@ -100,11 +103,11 @@ const Products = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Products"
-        subtitle={`${productsData?.pagination.total || 0} products in your store`}
+        title={t('navigation.products')}
+        subtitle={t('products.subtitle', { count: productsData?.pagination.total || 0 })}
         icon={CubeIcon}
         actionButton={{
-          label: 'Add Product',
+          label: t('products.addProduct'),
           href: '/admin/products/new'
         }}
       />
@@ -119,13 +122,13 @@ const Products = () => {
         products={productsData?.products || []}
         isLoading={isLoading}
         emptyState={{
-          title: hasActiveFilters ? 'No products found' : 'No products yet',
+          title: hasActiveFilters ? t('products.noProducts') : t('products.noProductsYet'),
           description: hasActiveFilters
-            ? 'Try adjusting your search criteria or filters.'
-            : 'Get started by creating your first product.',
+            ? t('products.noProductsFiltered')
+            : t('products.noProductsDescription'),
           ...(hasActiveFilters && {
             actionButton: {
-              label: 'Clear filters',
+              label: t('common.clear'),
               onClick: clearFilters
             }
           })

@@ -5,6 +5,7 @@ import {
   XCircleIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface StatusBadgeProps {
   status: string;
@@ -19,6 +20,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   showIcon = false,
   size = 'md'
 }) => {
+  const { t } = useLanguage();
   const getStatusIcon = (status: string) => {
     const iconClass = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
 
@@ -63,6 +65,37 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
     }
   };
 
+  const getStatusText = (status: string) => {
+    if (type === 'product') {
+      switch (status) {
+        case 'ACTIVE':
+          return t('products.status.active');
+        case 'DRAFT':
+          return t('products.status.draft');
+        case 'DELETED':
+          return t('products.status.deleted');
+        default:
+          return status;
+      }
+    } else {
+      // For orders, use order status translations
+      switch (status) {
+        case 'PENDING':
+          return t('orders.status.pending');
+        case 'CONFIRMED':
+          return t('orders.status.confirmed');
+        case 'SHIPPED':
+          return t('orders.status.shipped');
+        case 'DELIVERED':
+          return t('orders.status.delivered');
+        case 'CANCELLED':
+          return t('orders.status.cancelled');
+        default:
+          return status;
+      }
+    }
+  };
+
   const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-0.5 text-xs';
 
   return (
@@ -73,7 +106,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           type === 'order' ? 'border' : ''
         } ${getStatusColor(status)}`}
       >
-        {status}
+        {getStatusText(status)}
       </span>
     </div>
   );

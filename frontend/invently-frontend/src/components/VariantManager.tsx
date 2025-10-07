@@ -3,6 +3,8 @@ import { PlusIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { ProductVariant, CreateVariantData } from '../types';
 import { productsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
+import { useLanguage } from '../contexts/LanguageContext';
+import { T } from './Translation';
 
 interface VariantManagerProps {
   productId?: string; // For editing existing product
@@ -25,6 +27,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   onVariantsChange,
   isCreating = false
 }) => {
+  const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
   const [formData, setFormData] = useState<VariantFormData>({
@@ -95,7 +98,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
     // Validate options
     const validOptions = formData.options.filter(opt => opt.key.trim() && opt.value.trim());
     if (validOptions.length === 0) {
-      handleApiError(new Error('At least one option is required'), 'Validation Error');
+      handleApiError(new Error(t('products.variants.validationError')), t('common.error'));
       return;
     }
 
@@ -131,7 +134,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
       } else {
         onVariantsChange([...variants, newVariant]);
       }
-      handleSuccess(editingVariant ? 'Variant updated' : 'Variant added');
+      handleSuccess(editingVariant ? t('products.variants.success.updated') : t('products.variants.success.added'));
       resetForm();
     } else {
       // For existing products, save to backend
@@ -140,15 +143,15 @@ const VariantManager: React.FC<VariantManagerProps> = ({
         if (editingVariant) {
           const updated = await productsAPI.updateVariant(productId, editingVariant.id, variantData);
           onVariantsChange(variants.map(v => v.id === editingVariant.id ? updated : v));
-          handleSuccess('Variant updated successfully');
+          handleSuccess(t('products.variants.success.updated'));
         } else {
           const created = await productsAPI.createVariant(productId, variantData);
           onVariantsChange([...variants, created]);
-          handleSuccess('Variant created successfully');
+          handleSuccess(t('products.variants.success.created'));
         }
         resetForm();
       } catch (error) {
-        handleApiError(error, 'Failed to save variant');
+        handleApiError(error, t('products.variants.errors.saveFailed'));
       } finally {
         setSaving(false);
       }
@@ -156,20 +159,20 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   };
 
   const handleDelete = async (variant: ProductVariant) => {
-    if (!confirm('Are you sure you want to delete this variant?')) return;
+    if (!confirm(t('common.confirm'))) return;
 
     if (isCreating || !productId || variant.id.startsWith('temp-')) {
       // Just remove from local state
       onVariantsChange(variants.filter(v => v.id !== variant.id));
-      handleSuccess('Variant removed');
+      handleSuccess(t('products.variants.success.removed'));
     } else {
       // Delete from backend
       try {
         await productsAPI.deleteVariant(productId, variant.id);
         onVariantsChange(variants.filter(v => v.id !== variant.id));
-        handleSuccess('Variant deleted successfully');
+        handleSuccess(t('products.variants.success.deleted'));
       } catch (error) {
-        handleApiError(error, 'Failed to delete variant');
+        handleApiError(error, t('products.variants.errors.deleteFailed'));
       }
     }
   };
@@ -179,10 +182,10 @@ const VariantManager: React.FC<VariantManagerProps> = ({
       <div className="flex items-center justify-between">
         <div>
           <label className="block text-sm font-semibold text-gray-700">
-            Product Variants
+            <T tKey="products.variants.title" />
           </label>
           <span className="text-xs text-gray-500">
-            Create variants for different sizes, colors, or configurations
+            <T tKey="products.variants.description" />
           </span>
         </div>
         {!showForm && (
@@ -192,7 +195,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
             className="btn-primary text-sm px-3 py-2"
           >
             <PlusIcon className="w-4 h-4 mr-1 inline" />
-            Add Variant
+            <T tKey="products.variants.addVariant" />
           </button>
         )}
       </div>
@@ -224,12 +227,12 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                   </div>
                   {!variant.isActive && (
                     <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                      Inactive
+                      <T tKey="products.variants.inactive" />
                     </span>
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
-                  Price: ${variant.price?.toFixed(2) || 'Base price'} • Stock: {variant.stockQuantity}
+                  <T tKey="products.variants.price" />: ${variant.price?.toFixed(2) || t('products.variants.basePrice')} • <T tKey="products.variants.stock" />: {variant.stockQuantity}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -258,7 +261,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-gray-900">
-              {editingVariant ? 'Edit Variant' : 'New Variant'}
+              <T tKey={editingVariant ? 'products.variants.editVariant' : 'products.variants.newVariant'} />
             </h3>
             <button
               type="button"
@@ -272,7 +275,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
           {/* Options */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Options (e.g., size, color) *
+              <T tKey="products.variants.options" />
             </label>
             {formData.options.map((option, index) => (
               <div key={index} className="flex gap-2">
@@ -280,14 +283,14 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                   type="text"
                   value={option.key}
                   onChange={(e) => handleOptionChange(index, 'key', e.target.value)}
-                  placeholder="Key (e.g., size)"
+                  placeholder={t('products.variants.optionKeyPlaceholder')}
                   className="input-field flex-1"
                 />
                 <input
                   type="text"
                   value={option.value}
                   onChange={(e) => handleOptionChange(index, 'value', e.target.value)}
-                  placeholder="Value (e.g., Medium)"
+                  placeholder={t('products.variants.optionValuePlaceholder')}
                   className="input-field flex-1"
                 />
                 {formData.options.length > 1 && (
@@ -306,26 +309,26 @@ const VariantManager: React.FC<VariantManagerProps> = ({
               onClick={handleAddOption}
               className="text-sm text-blue-600 hover:text-blue-800"
             >
-              + Add Option
+              <T tKey="products.variants.addOption" />
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                SKU (optional)
+                <T tKey="products.variants.sku" />
               </label>
               <input
                 type="text"
                 value={formData.sku}
                 onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
-                placeholder="e.g., TSHIRT-RED-M"
+                placeholder={t('products.variants.skuPlaceholder')}
                 className="input-field"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price Override (optional)
+                <T tKey="products.variants.priceOverride" />
               </label>
               <input
                 type="number"
@@ -333,7 +336,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                 min="0"
                 value={formData.price}
                 onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                placeholder="Leave empty for base price"
+                placeholder={t('products.variants.priceOverridePlaceholder')}
                 className="input-field"
               />
             </div>
@@ -342,7 +345,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Stock Quantity *
+                <T tKey="products.variants.stockQuantity" />
               </label>
               <input
                 type="number"
@@ -355,7 +358,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                <T tKey="products.variants.status" />
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -364,7 +367,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                   onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
                   className="w-4 h-4 text-blue-600 rounded"
                 />
-                <span className="text-sm text-gray-700">Active</span>
+                <span className="text-sm text-gray-700"><T tKey="products.variants.active" /></span>
               </label>
             </div>
           </div>
@@ -375,7 +378,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
               onClick={resetForm}
               className="btn-outline text-sm px-4 py-2"
             >
-              Cancel
+              <T tKey="products.variants.cancel" />
             </button>
             <button
               type="button"
@@ -383,7 +386,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
               disabled={saving}
               className="btn-primary text-sm px-4 py-2 disabled:opacity-50"
             >
-              {saving ? 'Saving...' : editingVariant ? 'Update' : 'Add Variant'}
+              {saving ? t('products.variants.saving') : editingVariant ? t('products.variants.update') : t('products.variants.addVariantButton')}
             </button>
           </div>
         </div>
@@ -391,7 +394,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
 
       {variants.length === 0 && !showForm && (
         <p className="text-sm text-gray-500 italic">
-          No variants yet. Add variants for different sizes, colors, or configurations.
+          <T tKey="products.variants.noVariants" />
         </p>
       )}
     </div>

@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersAPI } from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   ArrowLeftIcon,
   ShoppingBagIcon,
@@ -17,6 +18,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const OrderDetails = () => {
+  const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -88,14 +90,14 @@ const OrderDetails = () => {
   if (error || !order) {
     return (
       <div className="text-center py-12">
-        <div className="text-lg font-medium text-gray-900 mb-2">Order not found</div>
-        <p className="text-gray-600 mb-4">The order you're looking for doesn't exist or has been removed.</p>
+        <div className="text-lg font-medium text-gray-900 mb-2">{t('orders.orderDetails.notFound.title')}</div>
+        <p className="text-gray-600 mb-4">{t('orders.orderDetails.notFound.description')}</p>
         <button
           onClick={() => navigate('/admin/orders')}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-2" />
-          Back to Orders
+          {t('orders.orderDetails.notFound.backButton')}
         </button>
       </div>
     );
@@ -115,15 +117,17 @@ const OrderDetails = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center">
               <ShoppingBagIcon className="h-8 w-8 mr-3 text-blue-600" />
-              Order {order.orderNumber}
+              {t('orders.orderDetails.header.orderNumber', { number: order.orderNumber })}
             </h1>
             <p className="text-gray-600 mt-1">
-              Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+              {t('orders.orderDetails.header.placedOn', { 
+                date: new Date(order.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
               })}
             </p>
           </div>
@@ -133,7 +137,7 @@ const OrderDetails = () => {
         <div className="flex items-center">
           {getStatusIcon(order.status)}
           <span className={`ml-2 px-4 py-2 text-sm font-semibold rounded-full border ${getStatusColor(order.status)}`}>
-            {order.status}
+            {t(`orders.status.${order.status.toLowerCase()}`)}
           </span>
         </div>
       </div>
@@ -144,7 +148,7 @@ const OrderDetails = () => {
           {/* Order Items */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Order Items</h3>
+              <h3 className="text-lg font-medium text-gray-900">{t('orders.orderDetails.sections.orderItems.title')}</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -153,9 +157,9 @@ const OrderDetails = () => {
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900">{item.title}</h4>
                       <div className="flex items-center text-sm text-gray-600 mt-1">
-                        <span>Quantity: {item.quantity}</span>
+                        <span>{t('orders.orderDetails.sections.orderItems.quantity')}: {item.quantity}</span>
                         <span className="mx-2">•</span>
-                        <span>Unit Price: ${item.price.toFixed(2)}</span>
+                        <span>{t('orders.orderDetails.sections.orderItems.unitPrice')}: ${item.price.toFixed(2)}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -168,7 +172,7 @@ const OrderDetails = () => {
               </div>
               <div className="border-t border-gray-200 pt-4 mt-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">Total Amount:</span>
+                  <span className="text-lg font-semibold text-gray-900">{t('orders.orderDetails.sections.orderItems.totalAmount')}:</span>
                   <span className="text-xl font-bold text-blue-600">
                     ${order.totalAmount.toFixed(2)}
                   </span>
@@ -182,7 +186,7 @@ const OrderDetails = () => {
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <UserIcon className="h-5 w-5 mr-2" />
-                Customer Information
+                {t('orders.orderDetails.sections.customerInfo.title')}
               </h3>
             </div>
             <div className="p-6">
@@ -190,14 +194,14 @@ const OrderDetails = () => {
                 <div>
                   <div className="flex items-center text-gray-600 mb-2">
                     <UserIcon className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Name</span>
+                    <span className="font-medium">{t('orders.orderDetails.sections.customerInfo.name')}</span>
                   </div>
                   <p className="text-gray-900">{order.customerName}</p>
                 </div>
                 <div>
                   <div className="flex items-center text-gray-600 mb-2">
                     <EnvelopeIcon className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Email</span>
+                    <span className="font-medium">{t('orders.orderDetails.sections.customerInfo.email')}</span>
                   </div>
                   <p className="text-gray-900">{order.customerEmail}</p>
                 </div>
@@ -211,14 +215,14 @@ const OrderDetails = () => {
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center">
                   <MapPinIcon className="h-5 w-5 mr-2" />
-                  Addresses
+                  {t('orders.orderDetails.sections.addresses.title')}
                 </h3>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {order.shippingAddress && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Shipping Address</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">{t('orders.orderDetails.sections.addresses.shippingAddress')}</h4>
                       <div className="text-gray-600 space-y-1">
                         <p>{order.shippingAddress.street}</p>
                         <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
@@ -228,7 +232,7 @@ const OrderDetails = () => {
                   )}
                   {order.billingAddress && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Billing Address</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">{t('orders.orderDetails.sections.addresses.billingAddress')}</h4>
                       <div className="text-gray-600 space-y-1">
                         <p>{order.billingAddress.street}</p>
                         <p>{order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.zipCode}</p>
@@ -247,7 +251,7 @@ const OrderDetails = () => {
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center">
                   <DocumentTextIcon className="h-5 w-5 mr-2" />
-                  Order Notes
+                  {t('orders.orderDetails.sections.orderNotes.title')}
                 </h3>
               </div>
               <div className="p-6">
@@ -264,23 +268,23 @@ const OrderDetails = () => {
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900 flex items-center">
                 <CreditCardIcon className="h-5 w-5 mr-2" />
-                Payment
+                {t('orders.orderDetails.sections.payment.title')}
               </h3>
             </div>
             <div className="p-6">
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Status:</span>
+                  <span className="text-gray-600">{t('orders.orderDetails.sections.payment.paymentStatus')}:</span>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     order.paymentStatus === 'PAID'
                       ? 'bg-green-100 text-green-800'
                       : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {order.paymentStatus}
+                    {t(`orders.paymentStatus.${order.paymentStatus.toLowerCase()}`)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Amount:</span>
+                  <span className="text-gray-600">{t('orders.orderDetails.sections.payment.totalAmount')}:</span>
                   <span className="font-semibold">${order.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
@@ -290,7 +294,7 @@ const OrderDetails = () => {
           {/* Status Management */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Update Order Status</h3>
+              <h3 className="text-lg font-medium text-gray-900">{t('orders.orderDetails.sections.statusManagement.title')}</h3>
             </div>
             <div className="p-6">
               <div className="space-y-3">
@@ -307,7 +311,7 @@ const OrderDetails = () => {
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                     }`}
                   >
-                    {updateOrderMutation.isPending ? 'Updating...' : status}
+                    {updateOrderMutation.isPending ? t('orders.orderDetails.sections.statusManagement.updating') : t(`orders.status.${status.toLowerCase()}`)}
                   </button>
                 ))}
               </div>
@@ -317,14 +321,14 @@ const OrderDetails = () => {
           {/* Order Timeline */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Order Timeline</h3>
+              <h3 className="text-lg font-medium text-gray-900">{t('orders.orderDetails.sections.timeline.title')}</h3>
             </div>
             <div className="p-6">
               <div className="space-y-3">
                 <div className="flex items-center text-sm">
                   <div className="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full"></div>
                   <div className="ml-3">
-                    <p className="text-gray-900 font-medium">Order Placed</p>
+                    <p className="text-gray-900 font-medium">{t('orders.orderDetails.sections.timeline.orderPlaced')}</p>
                     <p className="text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
@@ -332,7 +336,7 @@ const OrderDetails = () => {
                   <div className="flex items-center text-sm">
                     <div className="flex-shrink-0 w-2 h-2 bg-blue-400 rounded-full"></div>
                     <div className="ml-3">
-                      <p className="text-gray-900 font-medium">Last Updated</p>
+                      <p className="text-gray-900 font-medium">{t('orders.orderDetails.sections.timeline.lastUpdated')}</p>
                       <p className="text-gray-500">{new Date(order.updatedAt).toLocaleDateString()}</p>
                     </div>
                   </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface DropdownOption {
   value: string;
@@ -26,11 +27,12 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
   value,
   onChange,
   options,
-  placeholder = 'Select an option',
+  placeholder,
   disabled = false,
   className = '',
   size = 'default',
 }) => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -139,7 +141,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
         aria-labelledby={id ? `${id}-label` : undefined}
       >
         <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
-          {selectedOption ? selectedOption.label : placeholder}
+          {selectedOption ? selectedOption.label : (placeholder || t('common.selectOption'))}
         </span>
         <ChevronDownIcon 
           className={`text-gray-600 ${

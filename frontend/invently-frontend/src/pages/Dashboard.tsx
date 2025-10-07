@@ -2,8 +2,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { categoriesAPI, productsAPI, ordersAPI } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
+import { T } from '../components/Translation';
 import {
   PlusIcon,
   EyeIcon,
@@ -18,6 +20,7 @@ import {
 
 const Dashboard = () => {
   const { user, tenants } = useAuth();
+  const { t } = useLanguage();
   const currentTenant = tenants[0];
   const navigate = useNavigate();
 
@@ -43,7 +46,7 @@ const Dashboard = () => {
 
   const stats = [
     {
-      name: 'Total Orders',
+      name: t('dashboard.stats.totalOrders'),
       value: orderStats?.totalOrders || 0,
       icon: ShoppingBagIcon,
       color: 'text-blue-600',
@@ -52,7 +55,7 @@ const Dashboard = () => {
       link: '/admin/orders',
     },
     {
-      name: 'Pending Orders',
+      name: t('dashboard.stats.pendingOrders'),
       value: pendingOrders,
       icon: ClockIcon,
       color: 'text-orange-600',
@@ -61,7 +64,7 @@ const Dashboard = () => {
       link: '/admin/orders',
     },
     {
-      name: 'Monthly Revenue',
+      name: t('dashboard.stats.totalRevenue'),
       value: `$${(orderStats?.monthlyRevenue || 0).toFixed(2)}`,
       icon: CurrencyDollarIcon,
       color: 'text-green-600',
@@ -70,7 +73,7 @@ const Dashboard = () => {
       link: '/admin/orders',
     },
     {
-      name: 'Active Products',
+      name: t('dashboard.stats.totalProducts'),
       value: activeProducts,
       icon: CubeIcon,
       color: 'text-purple-600',
@@ -79,7 +82,7 @@ const Dashboard = () => {
       link: '/admin/products',
     },
     {
-      name: 'Draft Products',
+      name: t('products.status.draft'),
       value: draftProducts,
       icon: PencilIcon,
       color: 'text-gray-600',
@@ -88,7 +91,7 @@ const Dashboard = () => {
       link: '/admin/products',
     },
     {
-      name: 'Total Categories',
+      name: t('navigation.categories'),
       value: totalCategories,
       icon: FolderIcon,
       color: 'text-indigo-600',
@@ -106,10 +109,10 @@ const Dashboard = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">
             <ChartBarIcon className="h-8 w-8 mr-3 text-blue-600" />
-            Dashboard
+            <T tKey="dashboard.title" />
           </h1>
           <p className="text-gray-600 mt-1">
-            Welcome back, {user?.firstName}! Here's what's happening with {currentTenant?.name || 'your store'}.
+            <T tKey="dashboard.welcome" params={{ name: user?.firstName || '' }} /> {currentTenant?.name || t('dashboard.overview')}.
           </p>
         </div>
       </div>
@@ -117,7 +120,7 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-6">
-          Quick Actions
+          <T tKey="dashboard.quickActions" />
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
@@ -129,8 +132,8 @@ const Dashboard = () => {
                 <PlusIcon className="h-6 w-6" />
               </div>
               <div>
-                <div className="font-bold text-lg">Add Product</div>
-                <div className="text-blue-100 text-sm">Create a new product</div>
+                <div className="font-bold text-lg"><T tKey="dashboard.addProduct" /></div>
+                <div className="text-blue-100 text-sm"><T tKey="products.form.basicInfo" /></div>
               </div>
             </div>
           </Link>
@@ -144,8 +147,8 @@ const Dashboard = () => {
                 <ShoppingBagIcon className="h-6 w-6" />
               </div>
               <div>
-                <div className="font-bold text-lg">Manage Orders</div>
-                <div className="text-purple-100 text-sm">View and update orders</div>
+                <div className="font-bold text-lg"><T tKey="dashboard.manageOrders" /></div>
+                <div className="text-purple-100 text-sm"><T tKey="navigation.orders" /></div>
               </div>
             </div>
           </Link>
@@ -161,8 +164,8 @@ const Dashboard = () => {
                 <EyeIcon className="h-6 w-6" />
               </div>
               <div>
-                <div className="font-bold text-lg">View Store</div>
-                <div className="text-green-100 text-sm">See your public store</div>
+                <div className="font-bold text-lg"><T tKey="dashboard.viewStorefront" /></div>
+                <div className="text-green-100 text-sm"><T tKey="navigation.storefront" /></div>
               </div>
             </div>
           </a>
@@ -205,13 +208,13 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-white flex items-center">
               <ShoppingBagIcon className="h-6 w-6 mr-2" />
-              Recent Orders
+              <T tKey="dashboard.recentOrders" />
             </h3>
             <Link
               to="/admin/orders"
               className="text-white/90 hover:text-white text-sm font-medium underline underline-offset-2 transition-colors"
             >
-              View all
+              <T tKey="dashboard.viewAll" />
             </Link>
           </div>
         </div>
@@ -253,9 +256,11 @@ const Dashboard = () => {
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
                 <ShoppingBagIcon className="h-10 w-10 text-blue-600" />
               </div>
-              <div className="text-lg font-medium text-gray-900 mb-2">No orders yet</div>
+              <div className="text-lg font-medium text-gray-900 mb-2">
+                <T tKey="dashboard.noOrdersYet" />
+              </div>
               <p className="text-gray-600 text-sm">
-                Orders will appear here once customers start buying from your store.
+                <T tKey="dashboard.noOrdersDescription" />
               </p>
             </div>
           )}

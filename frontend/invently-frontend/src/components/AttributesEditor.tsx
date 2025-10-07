@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
+import { T } from './Translation';
 
 interface AttributesEditorProps {
   attributes: Record<string, any>;
@@ -7,6 +9,7 @@ interface AttributesEditorProps {
 }
 
 const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChange }) => {
+  const { t } = useLanguage();
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -94,10 +97,10 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="block text-sm font-semibold text-gray-700">
-          Custom Attributes
+          <T tKey="products.attributes.title" />
         </label>
         <span className="text-xs text-gray-500">
-          Add product-specific properties (e.g., material, brand, care instructions)
+          <T tKey="products.attributes.description" />
         </span>
       </div>
 
@@ -131,7 +134,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
                   }
                 }}
                 className="input-field flex-1"
-                placeholder="Key (e.g., material)"
+                placeholder={t('products.attributes.keyPlaceholder')}
               />
               <input
                 type="text"
@@ -158,7 +161,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
                   }
                 }}
                 className="input-field flex-1"
-                placeholder="Value (e.g., Cotton)"
+                placeholder={t('products.attributes.valuePlaceholder')}
               />
               <button
                 type="button"
@@ -180,7 +183,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
           onChange={(e) => setNewKey(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleAddAttribute()}
           className="input-field flex-1"
-          placeholder="Key (e.g., material)"
+          placeholder={t('products.attributes.keyPlaceholder')}
         />
         <input
           type="text"
@@ -188,7 +191,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
           onChange={(e) => setNewValue(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleAddAttribute()}
           className="input-field flex-1"
-          placeholder="Value (e.g., 100% Cotton)"
+          placeholder={t('products.attributes.addValuePlaceholder')}
         />
         <button
           type="button"
@@ -202,7 +205,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
 
       {orderedAttributeEntries.length === 0 && (
         <p className="text-sm text-gray-500 italic">
-          No custom attributes yet. Add attributes like material, brand, dimensions, etc.
+          <T tKey="products.attributes.noAttributes" />
         </p>
       )}
     </div>

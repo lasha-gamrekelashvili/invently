@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { productsAPI, categoriesAPI, mediaAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
+import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CustomDropdown from '../components/CustomDropdown';
 import FormSkeleton from '../components/FormSkeleton';
@@ -13,6 +14,7 @@ import { ProductVariant } from '../types';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const ProductForm = () => {
+  const { t } = useLanguage();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const isEditing = !!id;
@@ -81,16 +83,16 @@ const ProductForm = () => {
 
   // Memoized category options to prevent unnecessary recalculations
   const categoryOptions = useMemo(() => {
-    if (!categoriesData?.categories) return [{ value: '', label: 'Select a category' }];
+    if (!categoriesData?.categories) return [{ value: '', label: t('products.form.selectCategory') }];
     
     return [
-      { value: '', label: 'Select a category' },
+      { value: '', label: t('products.form.selectCategory') },
       ...categoriesData.categories.map((category) => ({
         value: category.id,
         label: category.name,
       }))
     ];
-  }, [categoriesData?.categories]);
+  }, [categoriesData?.categories, t]);
 
   const createProductMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -116,11 +118,11 @@ const ProductForm = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      handleSuccess(`Product "${data.title}" created successfully`);
+      handleSuccess(t('products.createSuccess', { title: data.title }));
       navigate('/admin/products');
     },
     onError: (error: any) => {
-      const errorMessage = handleApiError(error, 'Failed to create product');
+      const errorMessage = handleApiError(error, t('products.createError'));
       setError(errorMessage);
     }
   });
@@ -130,11 +132,11 @@ const ProductForm = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', id] });
-      handleSuccess(`Product "${data.title}" updated successfully`);
+      handleSuccess(t('products.updateSuccess', { title: data.title }));
       navigate('/admin/products');
     },
     onError: (error: any) => {
-      const errorMessage = handleApiError(error, 'Failed to update product');
+      const errorMessage = handleApiError(error, t('products.updateError'));
       setError(errorMessage);
     }
   });
@@ -173,9 +175,9 @@ const ProductForm = () => {
         queryClient.invalidateQueries({ queryKey: ['product-images', id] });
       }
       
-      handleSuccess('Images uploaded successfully');
+      handleSuccess(t('products.images.uploadSuccess'));
     } catch (error) {
-      handleApiError(error, 'Failed to upload images');
+      handleApiError(error, t('products.images.uploadError'));
     } finally {
       setUploadingImages(false);
     }
@@ -193,7 +195,7 @@ const ProductForm = () => {
         queryClient.invalidateQueries({ queryKey: ['product', id] });
         queryClient.invalidateQueries({ queryKey: ['product-images', id] });
         
-        handleSuccess('Image added successfully');
+        handleSuccess(t('products.images.addSuccess'));
       } else {
         // For new products, add temporarily
         const tempImage = {
@@ -204,10 +206,10 @@ const ProductForm = () => {
           isUrl: true
         };
         setImages(prev => [...prev, tempImage]);
-        handleSuccess('Image added successfully');
+        handleSuccess(t('products.images.addSuccess'));
       }
     } catch (error) {
-      handleApiError(error, 'Failed to add image by URL');
+      handleApiError(error, t('products.images.addError'));
     }
   }, [isEditing, id, queryClient]);
 
@@ -221,9 +223,9 @@ const ProductForm = () => {
         queryClient.invalidateQueries({ queryKey: ['product-images', id] });
       }
       setImages(prev => prev.filter(img => img.id !== imageId));
-      handleSuccess('Image removed successfully');
+      handleSuccess(t('products.images.removeSuccess'));
     } catch (error) {
-      handleApiError(error, 'Failed to remove image');
+      handleApiError(error, t('products.images.removeError'));
     }
   }, [isEditing, id, queryClient]);
 
@@ -295,13 +297,13 @@ const ProductForm = () => {
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
-          Back to Products
+{t('common.back')} {t('navigation.products')}
         </Link>
       </div>
 
       <div className="card p-8">
         <h1 className="text-3xl font-bold gradient-text mb-8">
-          {isEditing ? 'Edit Product' : 'Create New Product'}
+{isEditing ? t('products.actions.edit') : t('products.actions.create')}
         </h1>
 
         {error && (
@@ -314,7 +316,7 @@ const ProductForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
-                Product Title *
+{t('products.form.title')} *
               </label>
               <input
                 id="title"
@@ -324,13 +326,13 @@ const ProductForm = () => {
                 value={formData.title}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="Enter product title"
+placeholder={t('products.form.titlePlaceholder')}
               />
             </div>
 
             <div>
               <label htmlFor="categoryId" className="block text-sm font-semibold text-gray-700 mb-2">
-                Category
+{t('products.form.category')}
               </label>
               <CustomDropdown
                 id="categoryId"
@@ -338,14 +340,14 @@ const ProductForm = () => {
                 value={formData.categoryId}
                 onChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
                 options={categoryOptions}
-                placeholder="Select a category"
+placeholder={t('products.form.selectCategory')}
               />
             </div>
           </div>
 
           <div>
             <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
-              Description
+{t('products.form.description')}
             </label>
             <textarea
               id="description"
@@ -354,7 +356,7 @@ const ProductForm = () => {
               value={formData.description}
               onChange={handleChange}
               className="input-field resize-none"
-              placeholder="Enter product description"
+placeholder={t('products.form.descriptionPlaceholder')}
             />
           </div>
 
@@ -370,7 +372,7 @@ const ProductForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
-                Base Price ($) *
+{t('products.form.basePrice')} *
               </label>
               <input
                 id="price"
@@ -382,14 +384,14 @@ const ProductForm = () => {
                 value={formData.price}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="0.00"
+placeholder={t('products.form.basePricePlaceholder')}
               />
-              <p className="text-xs text-gray-500 mt-1">Can be overridden by variant prices</p>
+              <p className="text-xs text-gray-500 mt-1">{t('products.form.basePriceHelp')}</p>
             </div>
 
             <div>
               <label htmlFor="stockQuantity" className="block text-sm font-semibold text-gray-700 mb-2">
-                Base Stock Quantity *
+{t('products.form.stockQuantity')} *
               </label>
               <input
                 id="stockQuantity"
@@ -400,14 +402,14 @@ const ProductForm = () => {
                 value={formData.stockQuantity}
                 onChange={handleChange}
                 className="input-field"
-                placeholder="0"
+placeholder={t('products.form.stockQuantityPlaceholder')}
               />
-              <p className="text-xs text-gray-500 mt-1">Use 0 if managing stock via variants</p>
+              <p className="text-xs text-gray-500 mt-1">{t('products.form.stockQuantityHelp')}</p>
             </div>
 
             <div>
               <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
-                Status *
+{t('products.form.status')} *
               </label>
               <CustomDropdown
                 id="status"
@@ -415,10 +417,10 @@ const ProductForm = () => {
                 value={formData.status}
                 onChange={(value) => setFormData(prev => ({ ...prev, status: value as 'DRAFT' | 'ACTIVE' }))}
                 options={[
-                  { value: 'DRAFT', label: 'Draft' },
-                  { value: 'ACTIVE', label: 'Active' },
+                  { value: 'DRAFT', label: t('products.form.draft') },
+                  { value: 'ACTIVE', label: t('products.form.active') },
                 ]}
-                placeholder="Select status"
+placeholder={t('products.form.selectStatus')}
                 required
               />
             </div>
@@ -447,7 +449,7 @@ const ProductForm = () => {
               to="/admin/products"
               className="btn-outline"
             >
-              Cancel
+{t('common.cancel')}
             </Link>
             <button
               type="submit"
@@ -457,7 +459,7 @@ const ProductForm = () => {
               {(createProductMutation.isPending || updateProductMutation.isPending) ? (
                 <LoadingSpinner size="sm" />
               ) : (
-                isEditing ? 'Update Product' : 'Create Product'
+isEditing ? t('products.actions.update') : t('products.actions.create')
               )}
             </button>
           </div>

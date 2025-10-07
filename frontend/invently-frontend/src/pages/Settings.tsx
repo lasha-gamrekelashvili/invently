@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
+import { useLanguage } from '../contexts/LanguageContext';
 import { UpdateStoreSettingsData } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHeader from '../components/PageHeader';
 import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon } from '@heroicons/react/24/outline';
 
 const Settings = () => {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links'>('content');
   const [formData, setFormData] = useState<UpdateStoreSettingsData>({});
@@ -60,9 +62,9 @@ const Settings = () => {
   };
 
   const tabs = [
-    { id: 'content', name: 'Page Content', icon: DocumentTextIcon },
-    { id: 'social', name: 'Social Media', icon: LinkIcon },
-    { id: 'links', name: 'Quick Links', icon: BoltIcon },
+    { id: 'content', name: t('settings.tabs.content'), icon: DocumentTextIcon },
+    { id: 'social', name: t('settings.tabs.social'), icon: LinkIcon },
+    { id: 'links', name: t('settings.tabs.links'), icon: BoltIcon },
   ];
 
   if (isLoading) {
@@ -72,8 +74,8 @@ const Settings = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Store Settings"
-        subtitle="Manage your store's footer content, social media links, and quick links"
+        title={t('settings.title')}
+        subtitle={t('settings.subtitle')}
         icon={CogIcon}
       />
 
@@ -101,126 +103,126 @@ const Settings = () => {
         {/* Page Content Tab */}
         {activeTab === 'content' && (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">Page Content</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('settings.content.title')}</h3>
             <p className="text-sm text-gray-600">
-              Manage the content for your store's footer pages. These will be displayed in the storefront footer.
+              {t('settings.content.description')}
             </p>
 
             {/* About Us */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">About Us</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.aboutUs.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.aboutUs.contentLabel')}
                 </label>
                 <textarea
                   value={formData.aboutUs?.content || ''}
                   onChange={(e) => handleContentChange('aboutUs', e.target.value)}
                   rows={4}
                   className="input-field"
-                  placeholder="Tell customers about your store..."
+                  placeholder={t('settings.content.aboutUs.placeholder')}
                 />
               </div>
             </div>
 
             {/* Contact */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Contact Information</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.contact.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.contact.contentLabel')}
                 </label>
                 <textarea
                   value={formData.contact?.content || ''}
                   onChange={(e) => handleContentChange('contact', e.target.value)}
                   rows={4}
                   className="input-field"
-                  placeholder="Your contact information..."
+                  placeholder={t('settings.content.contact.placeholder')}
                 />
               </div>
             </div>
 
             {/* Privacy Policy */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Privacy Policy</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.privacyPolicy.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.privacyPolicy.contentLabel')}
                 </label>
                 <textarea
                   value={formData.privacyPolicy?.content || ''}
                   onChange={(e) => handleContentChange('privacyPolicy', e.target.value)}
                   rows={6}
                   className="input-field"
-                  placeholder="Your privacy policy content..."
+                  placeholder={t('settings.content.privacyPolicy.placeholder')}
                 />
               </div>
             </div>
 
             {/* Terms of Service */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Terms of Service</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.termsOfService.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.termsOfService.contentLabel')}
                 </label>
                 <textarea
                   value={formData.termsOfService?.content || ''}
                   onChange={(e) => handleContentChange('termsOfService', e.target.value)}
                   rows={6}
                   className="input-field"
-                  placeholder="Your terms of service content..."
+                  placeholder={t('settings.content.termsOfService.placeholder')}
                 />
               </div>
             </div>
 
             {/* Shipping Info */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Shipping Information</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.shippingInfo.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.shippingInfo.contentLabel')}
                 </label>
                 <textarea
                   value={formData.shippingInfo?.content || ''}
                   onChange={(e) => handleContentChange('shippingInfo', e.target.value)}
                   rows={4}
                   className="input-field"
-                  placeholder="Your shipping information..."
+                  placeholder={t('settings.content.shippingInfo.placeholder')}
                 />
               </div>
             </div>
 
             {/* Returns */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Returns Policy</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.returns.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.returns.contentLabel')}
                 </label>
                 <textarea
                   value={formData.returns?.content || ''}
                   onChange={(e) => handleContentChange('returns', e.target.value)}
                   rows={4}
                   className="input-field"
-                  placeholder="Your returns policy..."
+                  placeholder={t('settings.content.returns.placeholder')}
                 />
               </div>
             </div>
 
             {/* FAQ */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
-              <h4 className="text-md font-medium text-gray-900 mb-4">FAQ</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.faq.title')}</h4>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Content
+                  {t('settings.content.faq.contentLabel')}
                 </label>
                 <textarea
                   value={formData.faq?.content || ''}
                   onChange={(e) => handleContentChange('faq', e.target.value)}
                   rows={6}
                   className="input-field"
-                  placeholder="Your FAQ content..."
+                  placeholder={t('settings.content.faq.placeholder')}
                 />
               </div>
             </div>
@@ -230,75 +232,75 @@ const Settings = () => {
         {/* Social Media Tab */}
         {activeTab === 'social' && (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">Social Media Links</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('settings.social.title')}</h3>
             <p className="text-sm text-gray-600">
-              Add your social media profiles. These will be displayed in the storefront footer.
+              {t('settings.social.description')}
             </p>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Facebook URL
+                    {t('settings.social.facebook.label')}
                   </label>
                   <input
                     type="url"
                     value={formData.facebookUrl || ''}
                     onChange={(e) => handleInputChange('facebookUrl', e.target.value)}
                     className="input-field"
-                    placeholder="https://facebook.com/yourstore"
+                    placeholder={t('settings.social.facebook.placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Twitter URL
+                    {t('settings.social.twitter.label')}
                   </label>
                   <input
                     type="url"
                     value={formData.twitterUrl || ''}
                     onChange={(e) => handleInputChange('twitterUrl', e.target.value)}
                     className="input-field"
-                    placeholder="https://twitter.com/yourstore"
+                    placeholder={t('settings.social.twitter.placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Instagram URL
+                    {t('settings.social.instagram.label')}
                   </label>
                   <input
                     type="url"
                     value={formData.instagramUrl || ''}
                     onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
                     className="input-field"
-                    placeholder="https://instagram.com/yourstore"
+                    placeholder={t('settings.social.instagram.placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    LinkedIn URL
+                    {t('settings.social.linkedin.label')}
                   </label>
                   <input
                     type="url"
                     value={formData.linkedinUrl || ''}
                     onChange={(e) => handleInputChange('linkedinUrl', e.target.value)}
                     className="input-field"
-                    placeholder="https://linkedin.com/company/yourstore"
+                    placeholder={t('settings.social.linkedin.placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    YouTube URL
+                    {t('settings.social.youtube.label')}
                   </label>
                   <input
                     type="url"
                     value={formData.youtubeUrl || ''}
                     onChange={(e) => handleInputChange('youtubeUrl', e.target.value)}
                     className="input-field"
-                    placeholder="https://youtube.com/c/yourstore"
+                    placeholder={t('settings.social.youtube.placeholder')}
                   />
                 </div>
               </div>
@@ -309,25 +311,25 @@ const Settings = () => {
         {/* Quick Links Tab */}
         {activeTab === 'links' && (
           <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">Quick Links</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('settings.links.title')}</h3>
             <p className="text-sm text-gray-600">
-              Configure additional links that will appear in your storefront footer.
+              {t('settings.links.description')}
             </p>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Track Order URL
+                  {t('settings.links.trackOrder.label')}
                 </label>
                 <input
                   type="url"
                   value={formData.trackOrderUrl || ''}
                   onChange={(e) => handleInputChange('trackOrderUrl', e.target.value)}
                   className="input-field"
-                  placeholder="https://yourstore.com/track-order"
+                  placeholder={t('settings.links.trackOrder.placeholder')}
                 />
                 <p className="mt-1 text-sm text-gray-500">
-                  URL where customers can track their orders
+                  {t('settings.links.trackOrder.helpText')}
                 </p>
               </div>
             </div>
@@ -341,7 +343,7 @@ const Settings = () => {
             disabled={updateSettingsMutation.isPending}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {updateSettingsMutation.isPending ? 'Saving...' : 'Save Settings'}
+            {updateSettingsMutation.isPending ? t('settings.actions.saving') : t('settings.actions.saveSettings')}
           </button>
         </div>
       </form>

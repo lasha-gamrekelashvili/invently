@@ -1,5 +1,6 @@
 import React from 'react';
 import { MagnifyingGlassIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 import CustomDropdown from './CustomDropdown';
 
 interface FilterOption {
@@ -31,6 +32,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   onClearFilters,
   className = ''
 }) => {
+  const { t } = useLanguage();
   const renderField = (field: FilterField) => {
     switch (field.type) {
       case 'search':
@@ -40,7 +42,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder={field.placeholder || 'Search...'}
+                placeholder={field.placeholder || t('common.search')}
                 value={field.value as string || ''}
                 onChange={(e) => field.onChange?.(e.target.value)}
                 className="input-field pl-10"
@@ -67,7 +69,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           <div className={`flex space-x-2 ${field.className || ''}`}>
             <input
               type="number"
-              placeholder="Min $"
+              placeholder={t('common.minPrice')}
               value={priceValue.min}
               onChange={(e) => field.onChange?.({ ...priceValue, min: e.target.value })}
               className="input-field text-sm"
@@ -76,7 +78,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             />
             <input
               type="number"
-              placeholder="Max $"
+              placeholder={t('common.maxPrice')}
               value={priceValue.max}
               onChange={(e) => field.onChange?.({ ...priceValue, max: e.target.value })}
               className="input-field text-sm"
@@ -115,7 +117,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors duration-200"
           >
             <XCircleIcon className="h-3 w-3 mr-1" />
-            Clear filters
+            {t('common.clearFilters')}
           </button>
         </div>
       )}

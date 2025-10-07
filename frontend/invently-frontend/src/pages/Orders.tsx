@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { ordersAPI, debounce } from '../utils/api';
+import { useLanguage } from '../contexts/LanguageContext';
 import PageHeader from '../components/PageHeader';
 import FilterSection from '../components/FilterSection';
 import DataTable, { Column } from '../components/DataTable';
@@ -12,6 +13,7 @@ import { ShoppingBagIcon } from '@heroicons/react/24/outline';
 import type { Order } from '../types';
 
 const Orders = () => {
+  const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,7 +44,7 @@ const Orders = () => {
     {
       type: 'search' as const,
       key: 'search',
-      placeholder: 'Search orders...',
+      placeholder: t('orders.searchPlaceholder'),
       value: searchInput,
       onChange: (value: string) => {
         setSearchInput(value);
@@ -52,16 +54,16 @@ const Orders = () => {
     {
       type: 'dropdown' as const,
       key: 'status',
-      placeholder: 'All Status',
+      placeholder: t('orders.allStatuses'),
       value: statusFilter,
       onChange: setStatusFilter,
       options: [
-        { value: '', label: 'All Status' },
-        { value: 'PENDING', label: 'Pending' },
-        { value: 'CONFIRMED', label: 'Confirmed' },
-        { value: 'SHIPPED', label: 'Shipped' },
-        { value: 'DELIVERED', label: 'Delivered' },
-        { value: 'CANCELLED', label: 'Cancelled' },
+        { value: '', label: t('orders.allStatuses') },
+        { value: 'PENDING', label: t('orders.status.pending') },
+        { value: 'CONFIRMED', label: t('orders.status.confirmed') },
+        { value: 'SHIPPED', label: t('orders.status.shipped') },
+        { value: 'DELIVERED', label: t('orders.status.delivered') },
+        { value: 'CANCELLED', label: t('orders.status.cancelled') },
       ]
     },
     {
@@ -73,14 +75,14 @@ const Orders = () => {
             <DatePicker
               value={startDate}
               onChange={setStartDate}
-              placeholder="From"
+              placeholder={t('common.from')}
             />
           </div>
           <div className="flex-1">
             <DatePicker
               value={endDate}
               onChange={setEndDate}
-              placeholder="To"
+              placeholder={t('common.to')}
             />
           </div>
         </div>
@@ -91,21 +93,21 @@ const Orders = () => {
   const columns: Column<Order>[] = [
     {
       key: 'orderNumber',
-      header: 'Order',
+      header: t('orders.columns.orderNumber'),
       render: (order) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
             {order.orderNumber}
           </div>
           <div className="text-sm text-gray-500">
-            {order.items.length} items
+            {order.items.length} {t('common.items')}
           </div>
         </div>
       )
     },
     {
       key: 'customer',
-      header: 'Customer',
+      header: t('orders.columns.customer'),
       render: (order) => (
         <div>
           <div className="text-sm font-medium text-gray-900">
@@ -119,14 +121,14 @@ const Orders = () => {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('common.status'),
       render: (order) => (
         <StatusBadge status={order.status} type="order" showIcon={true} />
       )
     },
     {
       key: 'totalAmount',
-      header: 'Total',
+      header: t('common.total'),
       render: (order) => (
         <span className="text-sm text-gray-900">
           ${order.totalAmount.toFixed(2)}
@@ -135,7 +137,7 @@ const Orders = () => {
     },
     {
       key: 'createdAt',
-      header: 'Date',
+      header: t('common.date'),
       render: (order) => (
         <span className="text-sm text-gray-500">
           {new Date(order.createdAt).toLocaleDateString()}
@@ -154,8 +156,8 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Orders"
-        subtitle="Manage and track your store orders"
+        title={t('navigation.orders')}
+        subtitle={t('orders.subtitle')}
         icon={ShoppingBagIcon}
       />
 
@@ -177,10 +179,10 @@ const Orders = () => {
           columns={columns}
           isLoading={isLoading}
           emptyState={{
-            title: 'No orders found',
+            title: t('orders.noOrders'),
             description: hasActiveFilters
-              ? 'Try adjusting your filters.'
-              : 'Orders will appear here once customers start buying from your store.',
+              ? t('orders.noOrdersFiltered')
+              : t('orders.noOrdersDescription'),
             icon: ShoppingBagIcon
           }}
           onRowClick={handleOrderClick}

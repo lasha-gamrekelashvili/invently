@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { PhotoIcon, LinkIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ImageUploaderProps {
   images: any[];
@@ -16,6 +17,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageRemove,
   isUploading = false
 }) => {
+  const { t } = useLanguage();
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file');
   const [urlInput, setUrlInput] = useState('');
   const [altTextInput, setAltTextInput] = useState('');
@@ -62,7 +64,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   return (
     <div className="space-y-4">
       <label className="block text-sm font-semibold text-gray-700 mb-2">
-        Product Images
+        {t('products.imageUploader.title')}
       </label>
       
       {/* Upload Method Toggle */}
@@ -77,7 +79,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           }`}
         >
           <PhotoIcon className="w-4 h-4 inline mr-2" />
-          Upload Files
+          {t('products.imageUploader.uploadMethod.file')}
         </button>
         <button
           type="button"
@@ -89,7 +91,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           }`}
         >
           <LinkIcon className="w-4 h-4 inline mr-2" />
-          Add by URL
+          {t('products.imageUploader.uploadMethod.url')}
         </button>
       </div>
 
@@ -98,14 +100,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <div className="space-y-3">
           <div>
             <label htmlFor="file-alt-text" className="block text-sm font-medium text-gray-700 mb-1">
-              Alt Text (optional)
+              {t('products.imageUploader.fileUpload.altTextLabel')}
             </label>
             <input
               id="file-alt-text"
               type="text"
               value={fileAltTextInput}
               onChange={(e) => setFileAltTextInput(e.target.value)}
-              placeholder="Describe the images for accessibility"
+              placeholder={t('products.imageUploader.fileUpload.altTextPlaceholder')}
               className="input-field"
               disabled={isUploading}
             />
@@ -127,10 +129,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               }`}
             >
               <PhotoIcon className="w-5 h-5 mr-2" />
-              {isUploading ? 'Uploading...' : 'Upload Images'}
+              {isUploading ? t('products.imageUploader.fileUpload.uploadingButton') : t('products.imageUploader.fileUpload.uploadButton')}
             </label>
             <p className="text-xs text-gray-500 mt-1">
-              Upload JPEG, PNG, GIF, or WebP images (max 5MB each)
+              {t('products.imageUploader.fileUpload.helpText')}
             </p>
           </div>
         </div>
@@ -141,7 +143,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
         <div className="space-y-3">
           <div>
             <label htmlFor="image-url" className="block text-sm font-medium text-gray-700 mb-1">
-              Image URL *
+              {t('products.imageUploader.urlUpload.urlLabel')}
             </label>
             <input
               id="image-url"
@@ -154,7 +156,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                   handleAddByUrl();
                 }
               }}
-              placeholder="https://example.com/image.jpg"
+              placeholder={t('products.imageUploader.urlUpload.urlPlaceholder')}
               className="input-field"
               required
               disabled={isAddingByUrl}
@@ -162,14 +164,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           </div>
           <div>
             <label htmlFor="image-alt-text" className="block text-sm font-medium text-gray-700 mb-1">
-              Alt Text (optional)
+              {t('products.imageUploader.urlUpload.altTextLabel')}
             </label>
             <input
               id="image-alt-text"
               type="text"
               value={altTextInput}
               onChange={(e) => setAltTextInput(e.target.value)}
-              placeholder="Describe the image for accessibility"
+              placeholder={t('products.imageUploader.urlUpload.altTextPlaceholder')}
               className="input-field"
               disabled={isAddingByUrl}
             />
@@ -181,7 +183,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <LinkIcon className="w-4 h-4 mr-2" />
-            {isAddingByUrl ? 'Adding...' : 'Add Image'}
+            {isAddingByUrl ? t('products.imageUploader.urlUpload.addingButton') : t('products.imageUploader.urlUpload.addButton')}
           </button>
         </div>
       )}
@@ -190,14 +192,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       {images.length > 0 && (
         <div className="mt-6">
           <h4 className="text-sm font-medium text-gray-700 mb-3">
-            Current Images ({images.length})
+            {t('products.imageUploader.preview.title', { count: images.length })}
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image) => (
               <div key={image.id} className="relative group">
                 <img
                   src={image.url}
-                  alt={image.altText || 'Product image'}
+                  alt={image.altText || t('products.imageUploader.preview.altTextFallback')}
                   className="w-full h-32 object-cover rounded-lg border border-gray-200"
                 />
                 <button
