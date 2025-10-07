@@ -25,7 +25,7 @@ const StorefrontContent = () => {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' }); // Debounced price range
   const [gridLayout, setGridLayout] = useState(3); // Default to 3 items per row
   const pageSize = 12; // Products per page
-  const { addToCart, getCartItemQuantity } = useCart();
+  const { getCartItemQuantity } = useCart();
 
   // Parse category slug from URL
   const getCategorySlugFromUrl = () => {
@@ -166,9 +166,6 @@ const StorefrontContent = () => {
     setCurrentPage(1); // Reset to first page
   };
 
-  const handleAddToCart = async (productId: string, variantId?: string) => {
-    await addToCart(productId, 1, variantId);
-  };
 
   const handleSearchChange = (query: string) => {
     setSearchInput(query); // Update input immediately, debounce will handle the actual search
@@ -251,7 +248,6 @@ const StorefrontContent = () => {
                     key={product.id}
                     product={product}
                     cartQuantity={getCartItemQuantity(product.id)}
-                    onAddToCart={handleAddToCart}
                   />
                 ))}
               </div>

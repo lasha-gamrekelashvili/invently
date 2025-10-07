@@ -1,15 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCartIcon, CubeIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { CubeIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { Product, ProductVariant } from '../types';
 
 interface ProductCardProps {
   product: Product;
   cartQuantity: number;
-  onAddToCart: (productId: string, variantId?: string) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant] = useState<ProductVariant | null>(null);
@@ -48,10 +47,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
     navigate(`/product/${product.slug || product.id}`);
   };
 
-  const handleAddToCartClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent product click when clicking add to cart
-    onAddToCart(product.id, selectedVariant?.id);
-  };
 
   return (
     <div
@@ -177,15 +172,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, onAddT
             )}
           </div>
 
-          {/* Add to Cart Button */}
-          {displayStock > 0 && !priceInfo.hasVariants && (
-            <button
-              onClick={handleAddToCartClick}
-              className="p-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors active:scale-95"
-            >
-              <ShoppingCartIcon className="w-5 h-5" />
-            </button>
-          )}
         </div>
       </div>
     </div>
