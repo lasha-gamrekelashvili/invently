@@ -10,13 +10,15 @@ import {
 } from '@heroicons/react/24/outline';
 import { T } from '../components/Translation';
 import LanguageSelector from '../components/LanguageSelector';
+import dashboardImage from '../../assets/dashboard-image.png';
+import categoryImage from '../../assets/category-image.png';
 
 const Landing = () => {
   const [currentImage, setCurrentImage] = useState(0);
 
   const images = [
-    { src: '/assets/dashboard-image.png', alt: 'Dashboard Preview' },
-    { src: '/assets/category-image.png', alt: 'Category Management Preview' }
+    { src: dashboardImage, alt: 'Dashboard Preview' },
+    { src: categoryImage, alt: 'Category Management Preview' }
   ];
 
   useEffect(() => {
