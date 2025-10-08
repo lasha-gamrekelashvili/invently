@@ -852,5 +852,59 @@
     "select": "Select Language",
     "english": "English",
     "georgian": "ქართული"
+  },
+  "landing": {
+    "nav": {
+      "brand": "Invently",
+      "login": "Login",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "badge": "Launch your online store in minutes",
+      "title": "Your Complete",
+      "titleGradient": "E-commerce Platform",
+      "subtitle": "Manage inventory, create beautiful storefronts, and grow your business with Invently. Everything you need to sell online, all in one place.",
+      "startFreeTrial": "Start Free Trial",
+      "watchDemo": "Watch Demo",
+      "dashboardPreview": "Dashboard Preview"
+    },
+    "features": {
+      "title": "Everything You Need to Succeed",
+      "subtitle": "Powerful features designed to help you manage and grow your online business",
+      "items": {
+        "storefronts": {
+          "title": "Beautiful Storefronts",
+          "description": "Create stunning, customizable online stores with your own subdomain"
+        },
+        "inventory": {
+          "title": "Inventory Management",
+          "description": "Track products, variants, and stock levels with ease"
+        },
+        "analytics": {
+          "title": "Real-time Analytics",
+          "description": "Monitor sales, orders, and performance with comprehensive dashboards"
+        },
+        "multilanguage": {
+          "title": "Multi-language Support",
+          "description": "Reach global audiences with built-in translation capabilities"
+        },
+        "fast": {
+          "title": "Lightning Fast",
+          "description": "Optimized performance for seamless shopping experiences"
+        },
+        "secure": {
+          "title": "Secure & Reliable",
+          "description": "Enterprise-grade security with automated backups"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Start Selling?",
+      "subtitle": "Join thousands of businesses already using Invently to power their online stores",
+      "button": "Create Your Store Now"
+    },
+    "footer": {
+      "copyright": "© 2025 Invently. All rights reserved."
+    }
   }
 }

@@ -200,7 +200,7 @@ const Layout = () => {
             >
               <Bars3Icon className="w-6 h-6" />
             </button>
-            
+
             {/* Language Selector - Top Right */}
             <div className="ml-auto">
               <LanguageSelector variant="micro" showLabel={false} />

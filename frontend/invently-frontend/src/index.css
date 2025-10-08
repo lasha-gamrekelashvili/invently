@@ -15,7 +15,6 @@
     min-height: 100vh;
   }
 
-  /* Removed global transitions for better performance */
 }
 
 @layer components {
