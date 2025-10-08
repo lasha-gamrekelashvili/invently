@@ -8,12 +8,10 @@ import {
   GlobeAltIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
-import { useLanguage } from '../contexts/LanguageContext';
 import { T } from '../components/Translation';
 import LanguageSelector from '../components/LanguageSelector';
 
 const Landing = () => {
-  const { t } = useLanguage();
   const [currentImage, setCurrentImage] = useState(0);
 
   const images = [
