@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRightIcon, ChevronDownIcon, FolderIcon, PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, ChevronDownIcon, FolderIcon, PencilIcon, TrashIcon, PlusIcon, TagIcon } from '@heroicons/react/24/outline';
 
 interface Category {
   id: string;
@@ -96,7 +96,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
             {/* Expand/Collapse Button */}
             <button
               onClick={() => hasChildren && toggleExpanded(category.id)}
-              className="w-4 h-4 flex items-center justify-center mr-1.5 text-gray-300 hover:text-gray-500"
+              className="w-4 h-4 flex items-center justify-center mr-1.5 text-gray-500 hover:text-gray-700"
             >
               {hasChildren ? (
                 isExpanded ? (
@@ -115,13 +115,17 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
               className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
             >
               <div className="flex items-center">
-                <FolderIcon className={`w-3.5 h-3.5 mr-2 ${isDraft ? 'text-yellow-600' : level === 0 ? 'text-gray-400' : 'text-gray-300'}`} />
-                <span className={`text-sm truncate ${
+                {level === 0 ? (
+                  <FolderIcon className={`w-3.5 h-3.5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`} />
+                ) : (
+                  <TagIcon className={`w-3.5 h-3.5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`} />
+                )}
+                <span className={`truncate ${
                   isDraft
-                    ? 'text-yellow-800 font-medium'
+                    ? 'text-yellow-800 font-medium text-sm'
                     : level === 0
-                      ? 'text-gray-700 font-medium'
-                      : 'text-gray-600 font-normal'
+                      ? 'text-gray-700 font-medium text-sm'
+                      : 'text-gray-700 font-normal text-xs'
                 }`}>
                   {category.name}
                 </span>
@@ -178,7 +182,11 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
 
           {/* Category Icon */}
           <div className={`w-5 h-5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
-            <FolderIcon className="w-5 h-5" />
+            {level === 0 ? (
+              <FolderIcon className="w-5 h-5" />
+            ) : (
+              <TagIcon className="w-5 h-5" />
+            )}
           </div>
 
           {/* Category Info */}
