@@ -84,19 +84,19 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
       return (
         <div key={category.id} className="select-none">
           <div
-            className={`flex items-center py-2 px-3 rounded-lg group ${
-              isSelected 
-                ? 'bg-blue-50 border border-blue-200' 
-                : isDraft 
-                  ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
+            className={`flex items-center py-1.5 px-2 rounded-md group ${
+              isSelected
+                ? 'bg-blue-50/70 border border-blue-200/50'
+                : isDraft
+                  ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200'
                   : 'hover:bg-gray-50'
             }`}
-            style={{ marginLeft: `${level * 12}px` }}
+            style={{ marginLeft: `${level * 16}px` }}
           >
             {/* Expand/Collapse Button */}
             <button
               onClick={() => hasChildren && toggleExpanded(category.id)}
-              className="w-4 h-4 flex items-center justify-center mr-2 text-gray-400 hover:text-gray-600"
+              className="w-4 h-4 flex items-center justify-center mr-1.5 text-gray-300 hover:text-gray-500"
             >
               {hasChildren ? (
                 isExpanded ? (
@@ -115,15 +115,21 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
               className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
             >
               <div className="flex items-center">
-                <FolderIcon className={`w-4 h-4 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`} />
-                <span className={`text-sm font-medium truncate ${isDraft ? 'text-yellow-800' : 'text-gray-900'}`}>
+                <FolderIcon className={`w-3.5 h-3.5 mr-2 ${isDraft ? 'text-yellow-600' : level === 0 ? 'text-gray-400' : 'text-gray-300'}`} />
+                <span className={`text-sm truncate ${
+                  isDraft
+                    ? 'text-yellow-800 font-medium'
+                    : level === 0
+                      ? 'text-gray-700 font-medium'
+                      : 'text-gray-600 font-normal'
+                }`}>
                   {category.name}
                 </span>
                 {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
-                  <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
-                    (category._recursiveCount || category._count?.products || 0) > 0 
-                      ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                      : 'bg-gray-50 text-gray-400 border border-gray-200'
+                  <span className={`ml-auto text-xs px-1.5 py-0.5 rounded ${
+                    (category._recursiveCount || category._count?.products || 0) > 0
+                      ? 'bg-gray-100 text-gray-500'
+                      : 'bg-gray-50 text-gray-400'
                   }`}>
                     {category._recursiveCount || category._count?.products || 0}
                   </span>

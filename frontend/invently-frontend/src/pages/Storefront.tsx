@@ -216,14 +216,14 @@ const StorefrontContent = () => {
         <div id="products-section">
           {/* Category Breadcrumb */}
           {selectedCategory && (
-            <div className="mb-6 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="mb-6 flex items-center justify-between bg-blue-50/50 border border-blue-100 rounded-lg p-3">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Browsing category</p>
-                <h2 className="text-xl font-bold text-gray-900">{selectedCategory.name}</h2>
+                <p className="text-xs text-gray-500 mb-0.5">Browsing category</p>
+                <h2 className="text-base font-semibold text-gray-900">{selectedCategory.name}</h2>
               </div>
               <button
                 onClick={() => navigate('/')}
-                className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors"
               >
                 Clear filter
               </button>

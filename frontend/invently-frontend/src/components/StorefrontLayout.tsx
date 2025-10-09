@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  FolderIcon,
   CubeIcon,
   XMarkIcon,
   FunnelIcon,
@@ -76,29 +75,26 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         )}
 
         {/* Desktop Sidebar - Filters */}
-        <aside className="hidden lg:block w-72 bg-white border-r border-gray-200 overflow-y-auto">
-          <div className="p-6 space-y-6">
+        <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 overflow-y-auto">
+          <div className="p-5 space-y-5">
             {/* All Products Button */}
             <button
               onClick={onAllProductsClick}
-              className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${
+              className={`w-full flex items-center px-4 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                 !selectedCategoryId
-                  ? 'bg-blue-50 text-blue-700 shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
+                  : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
             >
-              <CubeIcon className="w-5 h-5 mr-3" />
+              <CubeIcon className="w-5 h-5 mr-2.5" />
               All Products
             </button>
 
             {/* Categories */}
             <div>
-              <div className="flex items-center mb-3 px-2">
-                <FolderIcon className="w-5 h-5 mr-2 text-gray-500" />
-                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                  Categories
-                </h3>
-              </div>
+              <h3 className="text-xs font-medium text-gray-400 mb-2 px-1">
+                Categories
+              </h3>
               {categories && categories.length > 0 ? (
                 <CategoryTree
                   categories={categories}
@@ -108,7 +104,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                   compact={true}
                 />
               ) : (
-                <p className="text-sm text-gray-500 px-2">
+                <p className="text-sm text-gray-500 px-1">
                   {categories === undefined ? 'Loading...' : 'No categories'}
                 </p>
               )}
@@ -116,25 +112,30 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 
 
             {/* Price Filter */}
-            <div className="pt-6 border-t border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider px-2">
+            <div className="pt-4 border-t border-gray-100">
+              <h3 className="text-xs font-medium text-gray-400 mb-3 px-1">
                 Price Range
               </h3>
-              <div className="space-y-3">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={externalPriceRange?.min || ''}
-                  onChange={(e) => handlePriceChange('min', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={externalPriceRange?.max || ''}
-                  onChange={(e) => handlePriceChange('max', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={externalPriceRange?.min || ''}
+                    onChange={(e) => handlePriceChange('min', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                  />
+                </div>
+                <span className="text-gray-400 text-sm">-</span>
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={externalPriceRange?.max || ''}
+                    onChange={(e) => handlePriceChange('max', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -160,31 +161,28 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
             </div>
 
             {/* Mobile Sidebar Content */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 space-y-5">
               {/* All Products Button */}
               <button
                 onClick={() => {
                   onAllProductsClick?.();
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${
+                className={`w-full flex items-center px-4 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                   !selectedCategoryId
-                    ? 'bg-blue-50 text-blue-700 shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
+                    : 'text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                <CubeIcon className="w-5 h-5 mr-3" />
+                <CubeIcon className="w-5 h-5 mr-2.5" />
                 All Products
               </button>
 
               {/* Categories */}
               <div>
-                <div className="flex items-center mb-3 px-2">
-                  <FolderIcon className="w-5 h-5 mr-2 text-gray-500" />
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                    Categories
-                  </h3>
-                </div>
+                <h3 className="text-xs font-medium text-gray-400 mb-2 px-1">
+                  Categories
+                </h3>
                 {categories && categories.length > 0 ? (
                   <CategoryTree
                     categories={categories}
@@ -197,7 +195,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     compact={true}
                   />
                 ) : (
-                  <p className="text-sm text-gray-500 px-2">
+                  <p className="text-sm text-gray-500 px-1">
                     {categories === undefined ? 'Loading...' : 'No categories'}
                   </p>
                 )}
@@ -205,25 +203,30 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 
 
               {/* Price Filter */}
-              <div className="pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider px-2">
+              <div className="pt-4 border-t border-gray-100">
+                <h3 className="text-xs font-medium text-gray-400 mb-3 px-1">
                   Price Range
                 </h3>
-                <div className="space-y-3">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    value={externalPriceRange?.min || ''}
-                    onChange={(e) => handlePriceChange('min', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    value={externalPriceRange?.max || ''}
-                    onChange={(e) => handlePriceChange('max', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={externalPriceRange?.min || ''}
+                      onChange={(e) => handlePriceChange('min', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                    />
+                  </div>
+                  <span className="text-gray-400 text-sm">-</span>
+                  <div className="flex-1">
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={externalPriceRange?.max || ''}
+                      onChange={(e) => handlePriceChange('max', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
