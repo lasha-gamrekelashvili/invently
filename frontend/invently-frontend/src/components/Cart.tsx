@@ -1,4 +1,5 @@
 import { useCart } from '../contexts/CartContext';
+import { useState, useEffect } from 'react';
 import {
   ShoppingCartIcon,
   XMarkIcon,
@@ -23,6 +24,21 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
     cartTotal,
   } = useCart();
 
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Trigger slide-in animation
+    setIsVisible(true);
+  }, []);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    // Wait for animation to complete before calling onClose
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   const handleQuantityChange = async (itemId: string, currentQuantity: number, change: number) => {
     const newQuantity = currentQuantity + change;
     if (newQuantity <= 0) {
@@ -40,12 +56,14 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gray-900/60 z-50 animate-fade-in"
-        onClick={onClose}
+        className="fixed inset-0 bg-gray-900/50 z-40"
+        onClick={handleClose}
       />
 
       {/* Cart Panel */}
-      <div className="fixed right-0 top-0 h-full w-full sm:w-[450px] bg-white shadow-2xl z-50 flex flex-col animate-slide-in">
+      <div className={`fixed right-0 top-0 h-full w-full sm:w-[450px] bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
+        isVisible ? 'translate-x-0' : 'translate-x-full'
+      }`}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
           <div>
@@ -58,7 +76,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <XMarkIcon className="h-6 w-6" />

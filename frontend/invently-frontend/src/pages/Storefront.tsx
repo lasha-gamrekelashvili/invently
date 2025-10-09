@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontAPI } from '../utils/api';
@@ -109,6 +109,27 @@ const StorefrontContent = () => {
     placeholderData: (previousData) => previousData, // Keep showing old data while fetching new page
   });
 
+  // Get price range for all products in current category/filter combination (without price filter)
+  const { data: priceRangeData } = useQuery({
+    queryKey: ['storefront-price-range', selectedCategoryId, searchQuery],
+    queryFn: () => storefrontAPI.getProducts({
+      categoryId: selectedCategoryId,
+      search: searchQuery || undefined,
+      page: 1,
+      limit: 1000, // Get all products to find price range
+    }),
+    retry: false,
+    // Always fetch to get price range for current context
+  });
+
+  // Calculate max price from all products in current category/filter
+  const maxPrice = React.useMemo(() => {
+    if (!priceRangeData?.products?.length) return 1000; // Default fallback
+    const calculatedMax = Math.ceil(Math.max(...priceRangeData.products.map((p: any) => p.price || 0)));
+    console.log('Max price calculated:', calculatedMax, 'for category:', selectedCategoryId, 'search:', searchQuery);
+    return calculatedMax;
+  }, [priceRangeData, selectedCategoryId, searchQuery]);
+
   const displayCategories = categories;
   const displayProducts = productsData || { products: [], pagination: null };
 
@@ -159,11 +180,17 @@ const StorefrontContent = () => {
       navigate(path);
     }
     setCurrentPage(1); // Reset to first page when changing category
+    // Clear price filter when switching categories
+    setPriceInput({ min: '', max: '' });
+    setPriceRange({ min: '', max: '' });
   };
 
   const handleAllProductsClick = () => {
     navigate('/');
     setCurrentPage(1); // Reset to first page
+    // Clear price filter when going to all products
+    setPriceInput({ min: '', max: '' });
+    setPriceRange({ min: '', max: '' });
   };
 
 
@@ -197,6 +224,7 @@ const StorefrontContent = () => {
       onSearchChange={handleSearchChange}
       onPriceRangeChange={handlePriceRangeChange}
       priceRange={priceInput}
+      maxPrice={maxPrice}
       gridLayout={gridLayout}
       onGridLayoutChange={handleGridLayoutChange}
     >
@@ -222,7 +250,12 @@ const StorefrontContent = () => {
                 <h2 className="text-base font-semibold text-gray-900">{selectedCategory.name}</h2>
               </div>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => {
+                  navigate('/');
+                  setPriceInput({ min: '', max: '' });
+                  setPriceRange({ min: '', max: '' });
+                  setCurrentPage(1);
+                }}
                 className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors"
               >
                 Clear filter

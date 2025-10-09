@@ -84,28 +84,28 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
       return (
         <div key={category.id} className="select-none">
           <div
-            className={`flex items-center py-1.5 px-2 rounded-md group ${
+            className={`flex items-center py-2.5 px-3 rounded-xl group transition-all duration-200 ${
               isSelected
-                ? 'bg-blue-50/70 border border-blue-200/50'
+                ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 shadow-sm'
                 : isDraft
-                  ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200'
-                  : 'hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50 hover:from-yellow-100 hover:to-yellow-200/50 border border-yellow-200'
+                  : 'hover:bg-gray-100/80 hover:shadow-sm'
             }`}
             style={{ marginLeft: `${level * 16}px` }}
           >
             {/* Expand/Collapse Button */}
             <button
               onClick={() => hasChildren && toggleExpanded(category.id)}
-              className="w-4 h-4 flex items-center justify-center mr-1.5 text-gray-500 hover:text-gray-700"
+              className="w-5 h-5 flex items-center justify-center mr-2 text-gray-400 hover:text-gray-600 transition-colors"
             >
               {hasChildren ? (
                 isExpanded ? (
-                  <ChevronDownIcon className="w-3 h-3" />
+                  <ChevronDownIcon className="w-4 h-4" />
                 ) : (
-                  <ChevronRightIcon className="w-3 h-3" />
+                  <ChevronRightIcon className="w-4 h-4" />
                 )
               ) : (
-                <div className="w-4 h-4" />
+                <div className="w-5 h-5" />
               )}
             </button>
 
@@ -116,24 +116,28 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
             >
               <div className="flex items-center">
                 {level === 0 ? (
-                  <FolderIcon className={`w-3.5 h-3.5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`} />
+                  <FolderIcon className={`w-4 h-4 mr-3 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
                 ) : (
-                  <TagIcon className={`w-3.5 h-3.5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`} />
+                  <TagIcon className={`w-4 h-4 mr-3 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
                 )}
-                <span className={`truncate ${
+                <span className={`truncate font-medium ${
                   isDraft
-                    ? 'text-yellow-800 font-medium text-sm'
-                    : level === 0
-                      ? 'text-gray-700 font-medium text-sm'
-                      : 'text-gray-700 font-normal text-xs'
+                    ? 'text-yellow-800 text-sm'
+                    : isSelected
+                      ? 'text-blue-800 text-sm'
+                      : level === 0
+                        ? 'text-gray-900 text-sm font-semibold'
+                        : 'text-gray-600 text-sm hover:text-gray-900'
                 }`}>
                   {category.name}
                 </span>
                 {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
-                  <span className={`ml-auto text-xs px-1.5 py-0.5 rounded ${
+                  <span className={`ml-auto text-xs px-2 py-1 rounded-full font-medium ${
                     (category._recursiveCount || category._count?.products || 0) > 0
-                      ? 'bg-gray-100 text-gray-500'
-                      : 'bg-gray-50 text-gray-400'
+                      ? isSelected 
+                        ? 'bg-blue-200 text-blue-800'
+                        : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-100 text-gray-400'
                   }`}>
                     {category._recursiveCount || category._count?.products || 0}
                   </span>
@@ -144,7 +148,7 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
 
           {/* Children in compact mode */}
           {hasChildren && isExpanded && (
-            <div>
+            <div className="mt-1 space-y-1">
               {category.children!.map(child => renderCategoryNode(child, level + 1, !category.isActive))}
             </div>
           )}
@@ -261,7 +265,12 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           <p className="text-sm">No categories yet</p>
         </div>
       ) : (
-        tree.map(category => renderCategoryNode(category, 0, false))
+        tree.map((category, index) => (
+          <div key={category.id}>
+            {index > 0 && <div className="mt-2 mb-1" />}
+            {renderCategoryNode(category, 0, false)}
+          </div>
+        ))
       )}
     </div>
   );

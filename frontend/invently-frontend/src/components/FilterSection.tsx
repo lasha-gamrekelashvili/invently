@@ -2,6 +2,7 @@ import React from 'react';
 import { MagnifyingGlassIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '../contexts/LanguageContext';
 import CustomDropdown from './CustomDropdown';
+import PriceRangeSlider from './PriceRangeSlider';
 
 interface FilterOption {
   value: string;
@@ -66,24 +67,12 @@ const FilterSection: React.FC<FilterSectionProps> = ({
       case 'price-range':
         const priceValue = field.value as { min: string; max: string } || { min: '', max: '' };
         return (
-          <div className={`flex space-x-2 ${field.className || ''}`}>
-            <input
-              type="number"
-              placeholder={t('common.minPrice')}
-              value={priceValue.min}
-              onChange={(e) => field.onChange?.({ ...priceValue, min: e.target.value })}
-              className="input-field text-sm"
-              min="0"
-              step="0.01"
-            />
-            <input
-              type="number"
-              placeholder={t('common.maxPrice')}
-              value={priceValue.max}
-              onChange={(e) => field.onChange?.({ ...priceValue, max: e.target.value })}
-              className="input-field text-sm"
-              min="0"
-              step="0.01"
+          <div className={field.className || ''}>
+            <PriceRangeSlider
+              value={priceValue}
+              onChange={(min, max) => field.onChange?.({ min, max })}
+              minPrice={0}
+              maxPrice={1000}
             />
           </div>
         );
