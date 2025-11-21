@@ -3,7 +3,6 @@ const orderController = require('../controllers/orderController');
 const { authenticateToken } = require('../middleware/auth');
 const tenantResolver = require('../middleware/tenantResolver');
 const { validate, schemas } = require('../utils/validation');
-const { auditMiddleware } = require('../utils/auditLogger');
 const Joi = require('joi');
 
 const router = express.Router();
@@ -104,7 +103,7 @@ const updateOrderStatusSchema = Joi.object({
  *       500:
  *         description: Server error
  */
-router.post('/', validate(createOrderSchema), auditMiddleware('CREATE', 'ORDER'), orderController.createOrder);
+router.post('/', validate(createOrderSchema), orderController.createOrder);
 
 /**
  * @swagger
@@ -254,6 +253,6 @@ router.get('/:id', authenticateToken, orderController.getOrder);
  *       500:
  *         description: Server error
  */
-router.put('/:id/status', authenticateToken, validate(updateOrderStatusSchema), auditMiddleware('UPDATE', 'ORDER'), orderController.updateOrderStatus);
+router.put('/:id/status', authenticateToken, validate(updateOrderStatusSchema), orderController.updateOrderStatus);
 
 module.exports = router;

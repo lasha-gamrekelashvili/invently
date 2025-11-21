@@ -15,7 +15,6 @@ import {
   Bars3Icon,
   XMarkIcon,
   ShoppingBagIcon,
-  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 
 const Layout = () => {
@@ -31,7 +30,6 @@ const Layout = () => {
     { name: t('navigation.products'), href: '/admin/products', icon: CubeIcon, section: 'Store' },
     { name: t('navigation.orders'), href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
     { name: t('navigation.settings'), href: '/admin/settings', icon: CogIcon, section: 'Store' },
-    { name: t('navigation.logs'), href: '/admin/logs', icon: DocumentTextIcon, section: 'Store' },
   ];
 
   if (user?.role === 'PLATFORM_ADMIN') {
@@ -69,7 +67,7 @@ const Layout = () => {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between h-20 px-6 border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
               <BuildingStorefrontIcon className="h-5 w-5 text-white" />
@@ -191,8 +189,8 @@ const Layout = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Header with Language Selector */}
-        <div className="flex-shrink-0 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between px-4 py-4">
+        <div className="flex-shrink-0 h-16 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 h-full">
             {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}

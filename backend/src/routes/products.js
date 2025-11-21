@@ -13,7 +13,6 @@ const {
 const { authenticateToken, requireStoreOwner } = require('../middleware/auth');
 const tenantResolver = require('../middleware/tenantResolver');
 const { validate, validateQuery, schemas } = require('../utils/validation');
-const { auditMiddleware } = require('../utils/auditLogger');
 
 const router = express.Router();
 
@@ -730,7 +729,6 @@ router.use(requireStoreOwner);
 router.post(
   '/',
   validate(schemas.product),
-  auditMiddleware('CREATE', 'PRODUCT'),
   createProduct
 );
 
@@ -746,13 +744,11 @@ router.get('/:id', getProductById);
 router.put(
   '/:id',
   validate(schemas.productUpdate),
-  auditMiddleware('UPDATE', 'PRODUCT'),
   updateProduct
 );
 
 router.delete(
   '/:id',
-  auditMiddleware('DELETE', 'PRODUCT'),
   deleteProduct
 );
 
@@ -760,20 +756,17 @@ router.delete(
 router.post(
   '/:productId/variants',
   validate(schemas.variant),
-  auditMiddleware('CREATE', 'PRODUCT_VARIANT'),
   createVariant
 );
 
 router.put(
   '/:productId/variants/:variantId',
   validate(schemas.variantUpdate),
-  auditMiddleware('UPDATE', 'PRODUCT_VARIANT'),
   updateVariant
 );
 
 router.delete(
   '/:productId/variants/:variantId',
-  auditMiddleware('DELETE', 'PRODUCT_VARIANT'),
   deleteVariant
 );
 

@@ -1,5 +1,4 @@
 const { PrismaClient } = require('@prisma/client');
-const { auditLog } = require('../utils/auditLogger');
 
 const prisma = new PrismaClient();
 
@@ -13,8 +12,7 @@ const cartController = {
       let cart = await prisma.cart.findFirst({
         where: {
           sessionId,
-          tenantId,
-          deletedAt: null,
+          tenantId
         },
         include: {
           items: {
@@ -22,7 +20,6 @@ const cartController = {
               product: {
                 include: {
                   images: {
-                    where: { deletedAt: null },
                     orderBy: { sortOrder: 'asc' },
                     take: 1,
                   },
@@ -46,7 +43,6 @@ const cartController = {
                 product: {
                   include: {
                     images: {
-                      where: { deletedAt: null },
                       orderBy: { sortOrder: 'asc' },
                       take: 1,
                     },
@@ -90,8 +86,7 @@ const cartController = {
         where: {
           id: productId,
           tenantId,
-          status: 'ACTIVE',
-          deletedAt: null,
+          status: 'ACTIVE'
         },
       });
 
@@ -109,8 +104,7 @@ const cartController = {
           where: {
             id: variantId,
             productId,
-            isActive: true,
-            deletedAt: null,
+            isActive: true
           },
         });
 
@@ -138,8 +132,7 @@ const cartController = {
       let cart = await prisma.cart.findFirst({
         where: {
           sessionId,
-          tenantId,
-          deletedAt: null,
+          tenantId
         },
       });
 
@@ -183,7 +176,6 @@ const cartController = {
             product: {
               include: {
                 images: {
-                  where: { deletedAt: null },
                   orderBy: { sortOrder: 'asc' },
                   take: 1,
                 },
@@ -205,7 +197,6 @@ const cartController = {
             product: {
               include: {
                 images: {
-                  where: { deletedAt: null },
                   orderBy: { sortOrder: 'asc' },
                   take: 1,
                 },
@@ -244,8 +235,7 @@ const cartController = {
           id: itemId,
           cart: {
             sessionId,
-            tenantId,
-            deletedAt: null,
+            tenantId
           },
         },
         include: {
@@ -284,7 +274,6 @@ const cartController = {
           product: {
             include: {
               images: {
-                where: { deletedAt: null },
                 orderBy: { sortOrder: 'asc' },
                 take: 1,
               },
@@ -321,8 +310,7 @@ const cartController = {
           id: itemId,
           cart: {
             sessionId,
-            tenantId,
-            deletedAt: null,
+            tenantId
           },
         },
       });
@@ -361,8 +349,7 @@ const cartController = {
       const cart = await prisma.cart.findFirst({
         where: {
           sessionId,
-          tenantId,
-          deletedAt: null,
+          tenantId
         },
       });
 

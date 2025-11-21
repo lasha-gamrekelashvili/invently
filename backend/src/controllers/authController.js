@@ -87,14 +87,12 @@ const login = async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: {
-        email,
-        deletedAt: null
+        email
       },
       include: {
         ownedTenants: {
           where: {
-            isActive: true,
-            deletedAt: null
+            isActive: true
           }
         }
       }
@@ -139,14 +137,12 @@ const me = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: req.user.id,
-        deletedAt: null
+        id: req.user.id
       },
       include: {
         ownedTenants: {
           where: {
-            isActive: true,
-            deletedAt: null
+            isActive: true
           }
         }
       }

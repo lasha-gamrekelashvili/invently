@@ -7,7 +7,6 @@ const getAllTenants = async (req, res) => {
     const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'desc', isActive } = req.query;
 
     const where = {
-      deletedAt: null,
       ...(isActive !== undefined && { isActive: isActive === 'true' }),
       ...(search && {
         OR: [
@@ -76,7 +75,6 @@ const getTenantById = async (req, res) => {
           }
         },
         categories: {
-          where: { deletedAt: null },
           include: {
             _count: {
               select: { products: true }
@@ -84,7 +82,6 @@ const getTenantById = async (req, res) => {
           }
         },
         products: {
-          where: { deletedAt: null },
           include: {
             category: {
               select: {
@@ -158,7 +155,6 @@ const getAllUsers = async (req, res) => {
     const { page = 1, limit = 20, search, role, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
     const where = {
-      deletedAt: null,
       ...(role && { role }),
       ...(search && {
         OR: [
@@ -273,13 +269,12 @@ const getSystemStats = async (req, res) => {
       totalCategories,
       recentTenants
     ] = await Promise.all([
-      prisma.tenant.count({ where: { deletedAt: null } }),
-      prisma.tenant.count({ where: { deletedAt: null, isActive: true } }),
-      prisma.user.count({ where: { deletedAt: null } }),
-      prisma.product.count({ where: { deletedAt: null } }),
-      prisma.category.count({ where: { deletedAt: null } }),
+      prisma.tenant.count(),
+      prisma.tenant.count({ where: { isActive: true } }),
+      prisma.user.count(),
+      prisma.product.count(),
+      prisma.category.count(),
       prisma.tenant.findMany({
-        where: { deletedAt: null },
         include: {
           owner: {
             select: {

@@ -20,8 +20,7 @@ const orderController = {
       const cart = await prisma.cart.findFirst({
         where: {
           sessionId,
-          tenantId,
-          deletedAt: null,
+          tenantId
         },
         include: {
           items: {
@@ -138,7 +137,6 @@ const orderController = {
               product: {
                 include: {
                   images: {
-                    where: { deletedAt: null },
                     orderBy: { sortOrder: 'asc' },
                     take: 1,
                   },
@@ -173,8 +171,7 @@ const orderController = {
       const offset = (page - 1) * limit;
 
       const where = {
-        tenantId,
-        deletedAt: null,
+        tenantId
       };
 
       if (status) {
@@ -304,8 +301,7 @@ const orderController = {
       const order = await prisma.order.findFirst({
         where: {
           id,
-          tenantId,
-          deletedAt: null,
+          tenantId
         },
         include: {
           items: {
@@ -313,7 +309,6 @@ const orderController = {
               product: {
                 include: {
                   images: {
-                    where: { deletedAt: null },
                     orderBy: { sortOrder: 'asc' },
                     take: 1,
                   },
@@ -365,8 +360,7 @@ const orderController = {
       const existingOrder = await prisma.order.findFirst({
         where: {
           id,
-          tenantId,
-          deletedAt: null,
+          tenantId
         },
       });
 
@@ -424,33 +418,30 @@ const orderController = {
         ordersByStatus,
       ] = await Promise.all([
         prisma.order.count({
-          where: { tenantId, deletedAt: null },
+          where: { tenantId },
         }),
         prisma.order.count({
           where: {
             tenantId,
-            deletedAt: null,
             createdAt: { gte: startOfMonth },
           },
         }),
         prisma.order.count({
           where: {
             tenantId,
-            deletedAt: null,
             createdAt: { gte: startOfWeek },
           },
         }),
         prisma.order.aggregate({
           where: {
             tenantId,
-            deletedAt: null,
             paymentStatus: 'PAID',
             createdAt: { gte: startOfMonth },
           },
           _sum: { totalAmount: true },
         }),
         prisma.order.findMany({
-          where: { tenantId, deletedAt: null },
+          where: { tenantId },
           include: {
             items: {
               select: {
@@ -466,7 +457,7 @@ const orderController = {
         }),
         prisma.order.groupBy({
           by: ['status'],
-          where: { tenantId, deletedAt: null },
+          where: { tenantId },
           _count: { status: true },
         }),
       ]);

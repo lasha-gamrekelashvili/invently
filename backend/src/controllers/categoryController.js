@@ -5,20 +5,12 @@ const prisma = new PrismaClient();
 // Helper function to calculate recursive product count for a category
 const calculateRecursiveProductCount = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
-    where: { id: categoryId, tenantId, deletedAt: null },
+    where: { id: categoryId, tenantId },
     include: {
-      children: {
-        where: {
-          deletedAt: null
-        }
-      },
+      children: true,
       _count: {
         select: {
-          products: {
-            where: {
-              deletedAt: null
-            }
-          }
+          products: true
         }
       }
     }
@@ -50,13 +42,9 @@ const addRecursiveCounts = async (categories, tenantId) => {
 // Helper function to get all products in a category and its children recursively
 const getRecursiveProducts = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
-    where: { id: categoryId, tenantId, deletedAt: null },
+    where: { id: categoryId, tenantId },
     include: {
-      children: {
-        where: {
-          deletedAt: null
-        }
-      }
+      children: true
     }
   });
 
@@ -66,8 +54,7 @@ const getRecursiveProducts = async (categoryId, tenantId) => {
   const directProducts = await prisma.product.findMany({
     where: {
       categoryId: categoryId,
-      tenantId,
-      deletedAt: null
+      tenantId
     },
     include: {
       category: {
@@ -78,12 +65,11 @@ const getRecursiveProducts = async (categoryId, tenantId) => {
         }
       },
       images: {
-        where: { deletedAt: null },
         orderBy: { sortOrder: 'asc' },
         take: 1
       },
       variants: {
-        where: { deletedAt: null, isActive: true },
+        where: { isActive: true },
         orderBy: { createdAt: 'asc' }
       }
     }
@@ -110,8 +96,7 @@ const createCategory = async (req, res) => {
       const parentCategory = await prisma.category.findFirst({
         where: {
           id: parentId,
-          tenantId,
-          deletedAt: null
+          tenantId
         }
       });
 
@@ -152,7 +137,6 @@ const getCategories = async (req, res) => {
 
     const where = {
       tenantId,
-      deletedAt: null,
       ...(search && {
         OR: [
           { name: { contains: search } },
@@ -165,22 +149,13 @@ const getCategories = async (req, res) => {
       prisma.category.findMany({
         where,
         include: {
-          parent: {
-            where: {
-              deletedAt: null
-            }
-          },
-          children: {
-            where: {
-              deletedAt: null
-            }
-          },
+          parent: true,
+          children: true,
           _count: {
-            select: { 
+            select: {
               products: {
                 where: {
-                  status: 'ACTIVE',
-                  deletedAt: null
+                  status: 'ACTIVE'
                 }
               }
             }
@@ -219,32 +194,15 @@ const getCategoryById = async (req, res) => {
     const category = await prisma.category.findFirst({
       where: {
         id,
-        tenantId,
-        deletedAt: null
+        tenantId
       },
       include: {
-        parent: {
-          where: {
-            deletedAt: null
-          }
-        },
-        children: {
-          where: {
-            deletedAt: null
-          }
-        },
-        products: {
-          where: {
-            deletedAt: null
-          }
-        },
+        parent: true,
+        children: true,
+        products: true,
         _count: {
-          select: { 
-            products: {
-              where: {
-                deletedAt: null
-              }
-            }
+          select: {
+            products: true
           }
         }
       }
@@ -280,8 +238,7 @@ const updateCategory = async (req, res) => {
     const existingCategory = await prisma.category.findFirst({
       where: {
         id,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -297,8 +254,7 @@ const updateCategory = async (req, res) => {
       const parentCategory = await prisma.category.findFirst({
         where: {
           id: parentId,
-          tenantId,
-          deletedAt: null
+          tenantId
         }
       });
 
@@ -340,20 +296,11 @@ const deleteCategory = async (req, res) => {
     const category = await prisma.category.findFirst({
       where: {
         id,
-        tenantId,
-        deletedAt: null
+        tenantId
       },
       include: {
-        children: {
-          where: {
-            deletedAt: null
-          }
-        },
-        products: {
-          where: {
-            deletedAt: null
-          }
-        }
+        children: true,
+        products: true
       }
     });
 
@@ -369,11 +316,9 @@ const deleteCategory = async (req, res) => {
       return res.status(400).json({ error: 'Cannot delete category with products' });
     }
 
-    await prisma.category.update({
-      where: { id },
-      data: { deletedAt: new Date() }
+    await prisma.category.delete({
+      where: { id }
     });
-
 
     res.json({ message: 'Category deleted successfully' });
   } catch (error) {

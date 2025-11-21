@@ -8,16 +8,14 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
+  id           String   @id @default(uuid())
+  email        String   @unique
   password     String
   firstName    String
   lastName     String
-  role         UserRole   @default(STORE_OWNER)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  deletedAt    DateTime?
-  auditLogs    AuditLog[]
+  role         UserRole @default(STORE_OWNER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   ownedTenants Tenant[]
 
   @@map("users")
@@ -32,8 +30,6 @@ model Tenant {
   isActive      Boolean        @default(true)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  deletedAt     DateTime?
-  auditLogs     AuditLog[]
   carts         Cart[]
   categories    Category[]
   orders        Order[]
@@ -55,7 +51,6 @@ model Category {
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  deletedAt   DateTime?
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryHierarchy")
   tenant      Tenant     @relation(fields: [tenantId], references: [id])
@@ -70,7 +65,7 @@ model Product {
   title         String
   description   String?
   slug          String
-  price         Float            // Base price (can be overridden by variants)
+  price         Float // Base price (can be overridden by variants)
   stockQuantity Int              @default(0) // Base stock (can be overridden by variants)
   status        ProductStatus    @default(DRAFT)
   tenantId      String
@@ -79,7 +74,6 @@ model Product {
   attributes    Json?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  deletedAt     DateTime?
   cartItems     CartItem[]
   orderItems    OrderItem[]
   images        ProductImage[]
@@ -92,57 +86,37 @@ model Product {
 }
 
 model ProductImage {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   url       String
   altText   String?
   filename  String
   productId String
   tenantId  String
-  sortOrder Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
   @@map("product_images")
 }
 
 model ProductVariant {
-  id            String     @id @default(uuid())
+  id            String      @id @default(uuid())
   productId     String
-  sku           String?    @unique // Stock Keeping Unit
+  sku           String?     @unique // Stock Keeping Unit
   // Variant options stored as JSON (e.g., {"size": "Medium", "color": "Red"})
   options       Json
-  price         Float?     // Override product base price (null = use product price)
-  stockQuantity Int        @default(0)
-  isActive      Boolean    @default(true)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  deletedAt     DateTime?
-  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  price         Float? // Override product base price (null = use product price)
+  stockQuantity Int         @default(0)
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   cartItems     CartItem[]
   orderItems    OrderItem[]
 
   @@map("product_variants")
-}
-
-model AuditLog {
-  id                 String   @id @default(uuid())
-  action             String
-  resource           String
-  resourceId         String?
-  userId             String?
-  tenantId           String?
-  oldData            Json?
-  newData            Json?
-  createdAt          DateTime @default(now())
-  anonymousUserEmail String?
-  anonymousUserName  String?
-  tenant             Tenant?  @relation(fields: [tenantId], references: [id])
-  user               User?    @relation(fields: [userId], references: [id])
-
-  @@map("audit_logs")
 }
 
 model Cart {
@@ -152,7 +126,6 @@ model Cart {
   customerEmail String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  deletedAt     DateTime?
   items         CartItem[]
   tenant        Tenant     @relation(fields: [tenantId], references: [id])
 
@@ -163,7 +136,7 @@ model CartItem {
   id        String          @id @default(uuid())
   cartId    String
   productId String
-  variantId String?         // Optional: if customer selected a specific variant
+  variantId String? // Optional: if customer selected a specific variant
   quantity  Int             @default(1)
   price     Float
   createdAt DateTime        @default(now())
@@ -190,7 +163,6 @@ model Order {
   notes           String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  deletedAt       DateTime?
   items           OrderItem[]
   tenant          Tenant        @relation(fields: [tenantId], references: [id])
 
@@ -201,7 +173,7 @@ model OrderItem {
   id          String          @id @default(uuid())
   orderId     String
   productId   String
-  variantId   String?         // Optional: if customer ordered a specific variant
+  variantId   String? // Optional: if customer ordered a specific variant
   quantity    Int
   price       Float
   title       String

@@ -44,8 +44,7 @@ const tenantResolver = async (req, res, next) => {
     const tenant = await prisma.tenant.findUnique({
       where: {
         subdomain,
-        isActive: true,
-        deletedAt: null
+        isActive: true
       },
       include: {
         owner: {

@@ -9,7 +9,6 @@ const {
 const { authenticateToken, requireStoreOwner } = require('../middleware/auth');
 const tenantResolver = require('../middleware/tenantResolver');
 const { validate, validateQuery, schemas } = require('../utils/validation');
-const { auditMiddleware } = require('../utils/auditLogger');
 
 const router = express.Router();
 
@@ -390,7 +389,6 @@ router.use(requireStoreOwner);
 router.post(
   '/',
   validate(schemas.category),
-  auditMiddleware('CREATE', 'CATEGORY'),
   createCategory
 );
 
@@ -405,13 +403,11 @@ router.get('/:id', getCategoryById);
 router.put(
   '/:id',
   validate(schemas.category),
-  auditMiddleware('UPDATE', 'CATEGORY'),
   updateCategory
 );
 
 router.delete(
   '/:id',
-  auditMiddleware('DELETE', 'CATEGORY'),
   deleteCategory
 );
 

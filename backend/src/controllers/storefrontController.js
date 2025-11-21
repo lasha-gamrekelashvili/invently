@@ -5,19 +5,14 @@ const prisma = new PrismaClient();
 // Helper function to calculate recursive product count for a category
 const calculateRecursiveProductCount = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
-    where: { id: categoryId, tenantId, deletedAt: null },
+    where: { id: categoryId, tenantId },
     include: {
-      children: {
-        where: {
-          deletedAt: null
-        }
-      },
+      children: true,
       _count: {
         select: {
           products: {
             where: {
-              status: 'ACTIVE',
-              deletedAt: null
+              status: 'ACTIVE'
             }
           }
         }
@@ -64,22 +59,19 @@ const getPublicCategories = async (req, res) => {
     const categories = await prisma.category.findMany({
       where: {
         tenantId: req.tenant.id,
-        isActive: true,
-        deletedAt: null
+        isActive: true
       },
       include: {
         children: {
           where: {
-            isActive: true,
-            deletedAt: null
+            isActive: true
           }
         },
         _count: {
           select: {
             products: {
               where: {
-                status: 'ACTIVE',
-                deletedAt: null
+                status: 'ACTIVE'
               }
             }
           }
@@ -106,7 +98,7 @@ const getPublicCategories = async (req, res) => {
 // Helper function to get all category IDs including children recursively
 const getRecursiveCategoryIds = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
-    where: { id: categoryId, tenantId, deletedAt: null },
+    where: { id: categoryId, tenantId },
     include: { children: true }
   });
 
@@ -139,7 +131,6 @@ const getPublicProducts = async (req, res) => {
     const where = {
       tenantId: req.tenant.id,
       status: 'ACTIVE',
-      deletedAt: null,
       ...(categoryIds && { categoryId: { in: categoryIds } }),
       ...(search && {
         OR: [
@@ -164,11 +155,10 @@ const getPublicProducts = async (req, res) => {
             }
           },
           images: {
-            where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' }
           },
           variants: {
-            where: { deletedAt: null, isActive: true },
+            where: { isActive: true },
             orderBy: { createdAt: 'asc' }
           }
         },
@@ -206,8 +196,7 @@ const getPublicProductBySlug = async (req, res) => {
       where: {
         slug,
         tenantId: req.tenant.id,
-        status: 'ACTIVE',
-        deletedAt: null
+        status: 'ACTIVE'
       },
       include: {
         category: {
@@ -218,11 +207,10 @@ const getPublicProductBySlug = async (req, res) => {
           }
         },
         images: {
-          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
-          where: { deletedAt: null, isActive: true },
+          where: { isActive: true },
           orderBy: { createdAt: 'asc' }
         }
       }
@@ -252,8 +240,7 @@ const getProductsByCategory = async (req, res) => {
       where: {
         slug: categorySlug,
         tenantId: req.tenant.id,
-        isActive: true,
-        deletedAt: null
+        isActive: true
       }
     });
 
@@ -265,7 +252,6 @@ const getProductsByCategory = async (req, res) => {
       categoryId: category.id,
       tenantId: req.tenant.id,
       status: 'ACTIVE',
-      deletedAt: null,
       ...(search && {
         OR: [
           { title: { contains: search, mode: 'insensitive' } },
@@ -286,11 +272,10 @@ const getProductsByCategory = async (req, res) => {
             }
           },
           images: {
-            where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' }
           },
           variants: {
-            where: { deletedAt: null, isActive: true },
+            where: { isActive: true },
             orderBy: { createdAt: 'asc' }
           }
         },

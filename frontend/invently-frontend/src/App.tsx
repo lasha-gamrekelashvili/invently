@@ -20,7 +20,6 @@ import Products from './pages/Products';
 import ProductForm from './pages/ProductForm';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
-import Logs from './pages/Logs';
 import Settings from './pages/Settings';
 import Storefront from './pages/Storefront';
 import ProductDetail from './pages/ProductDetail';
@@ -77,7 +76,6 @@ const AppRoutes = () => {
         <Route path="products/:id/edit" element={<ProductForm />} />
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<OrderDetails />} />
-        <Route path="logs" element={<Logs />} />
         <Route path="settings" element={<Settings />} />
 
         {/* Platform Admin Routes */}

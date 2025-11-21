@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 // Helper function to get all child category IDs recursively
 const getAllChildCategoryIds = async (categoryId, tenantId) => {
   const category = await prisma.category.findFirst({
-    where: { id: categoryId, tenantId, deletedAt: null },
+    where: { id: categoryId, tenantId },
     include: {
       children: true
     }
@@ -33,8 +33,7 @@ const createProduct = async (req, res) => {
       const category = await prisma.category.findFirst({
         where: {
           id: categoryId,
-          tenantId,
-          deletedAt: null
+          tenantId
         }
       });
 
@@ -75,16 +74,13 @@ const createProduct = async (req, res) => {
       include: {
         category: true,
         images: {
-          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
-          where: { deletedAt: null },
           orderBy: { createdAt: 'asc' }
         }
       }
     });
-
 
     res.status(201).json(product);
   } catch (error) {
@@ -115,7 +111,6 @@ const getProducts = async (req, res) => {
 
     const where = {
       tenantId,
-      deletedAt: null,
       ...categoryFilter,
       ...(status && { status }),
       ...(search && {
@@ -144,11 +139,10 @@ const getProducts = async (req, res) => {
         include: {
           category: true,
           images: {
-            where: { deletedAt: null },
             orderBy: { sortOrder: 'asc' }
           },
           variants: {
-            where: { deletedAt: null, isActive: true },
+            where: { isActive: true },
             orderBy: { createdAt: 'asc' }
           }
         },
@@ -182,17 +176,14 @@ const getProductById = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id,
-        tenantId,
-        deletedAt: null
+        tenantId
       },
       include: {
         category: true,
         images: {
-          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
-          where: { deletedAt: null },
           orderBy: { createdAt: 'asc' }
         }
       }
@@ -218,17 +209,15 @@ const getProductBySlug = async (req, res) => {
       where: {
         slug,
         tenantId,
-        deletedAt: null,
         status: 'ACTIVE'
       },
       include: {
         category: true,
         images: {
-          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
-          where: { deletedAt: null, isActive: true },
+          where: { isActive: true },
           orderBy: { createdAt: 'asc' }
         }
       }
@@ -254,8 +243,7 @@ const updateProduct = async (req, res) => {
     const existingProduct = await prisma.product.findFirst({
       where: {
         id,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -267,8 +255,7 @@ const updateProduct = async (req, res) => {
       const category = await prisma.category.findFirst({
         where: {
           id: categoryId,
-          tenantId,
-          deletedAt: null
+          tenantId
         }
       });
 
@@ -293,16 +280,13 @@ const updateProduct = async (req, res) => {
       include: {
         category: true,
         images: {
-          where: { deletedAt: null },
           orderBy: { sortOrder: 'asc' }
         },
         variants: {
-          where: { deletedAt: null },
           orderBy: { createdAt: 'asc' }
         }
       }
     });
-
 
     res.json(product);
   } catch (error) {
@@ -322,8 +306,7 @@ const deleteProduct = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -331,11 +314,9 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    await prisma.product.update({
-      where: { id },
-      data: { deletedAt: new Date() }
+    await prisma.product.delete({
+      where: { id }
     });
-
 
     res.json({ message: 'Product deleted successfully' });
   } catch (error) {
@@ -355,8 +336,7 @@ const createVariant = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id: productId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -395,8 +375,7 @@ const updateVariant = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id: productId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -408,8 +387,7 @@ const updateVariant = async (req, res) => {
     const existingVariant = await prisma.productVariant.findFirst({
       where: {
         id: variantId,
-        productId,
-        deletedAt: null
+        productId
       }
     });
 
@@ -448,8 +426,7 @@ const deleteVariant = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id: productId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -461,8 +438,7 @@ const deleteVariant = async (req, res) => {
     const variant = await prisma.productVariant.findFirst({
       where: {
         id: variantId,
-        productId,
-        deletedAt: null
+        productId
       }
     });
 
@@ -470,9 +446,8 @@ const deleteVariant = async (req, res) => {
       return res.status(404).json({ error: 'Variant not found' });
     }
 
-    await prisma.productVariant.update({
-      where: { id: variantId },
-      data: { deletedAt: new Date() }
+    await prisma.productVariant.delete({
+      where: { id: variantId }
     });
 
     res.json({ message: 'Variant deleted successfully' });

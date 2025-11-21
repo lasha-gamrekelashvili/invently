@@ -8,7 +8,6 @@ const {
   getSystemStats
 } = require('../controllers/adminController');
 const { authenticateToken, requirePlatformAdmin } = require('../middleware/auth');
-const { auditMiddleware } = require('../utils/auditLogger');
 
 const router = express.Router();
 
@@ -501,7 +500,6 @@ router.get('/tenants', getAllTenants);
 router.get('/tenants/:id', getTenantById);
 router.put(
   '/tenants/:id/status',
-  auditMiddleware('UPDATE', 'TENANT'),
   updateTenantStatus
 );
 router.get('/users', getAllUsers);

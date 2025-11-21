@@ -3,7 +3,6 @@ const rateLimit = require('express-rate-limit');
 const { register, login, me } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/auth');
 const { validate, schemas } = require('../utils/validation');
-const { auditMiddleware } = require('../utils/auditLogger');
 
 const router = express.Router();
 
@@ -230,8 +229,8 @@ const authLimiter = rateLimit({
   legacyHeaders: false
 });
 
-router.post('/register', authLimiter, validate(schemas.register), auditMiddleware('CREATE', 'USER'), register);
-router.post('/login', authLimiter, validate(schemas.login), auditMiddleware('LOGIN', 'USER'), login);
+router.post('/register', authLimiter, validate(schemas.register), register);
+router.post('/login', authLimiter, validate(schemas.login), login);
 router.get('/me', authenticateToken, me);
 
 module.exports = router;

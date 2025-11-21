@@ -45,8 +45,7 @@ const uploadProductImage = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id: productId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -82,8 +81,7 @@ const getProductImages = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id: productId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -93,8 +91,7 @@ const getProductImages = async (req, res) => {
 
     const images = await prisma.productImage.findMany({
       where: {
-        productId,
-        deletedAt: null
+        productId
       },
       orderBy: { sortOrder: 'asc' }
     });
@@ -115,8 +112,7 @@ const updateProductImage = async (req, res) => {
     const existingImage = await prisma.productImage.findFirst({
       where: {
         id: imageId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -161,8 +157,7 @@ const addProductImageByUrl = async (req, res) => {
     const product = await prisma.product.findFirst({
       where: {
         id: productId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -200,8 +195,7 @@ const deleteProductImage = async (req, res) => {
     const image = await prisma.productImage.findFirst({
       where: {
         id: imageId,
-        tenantId,
-        deletedAt: null
+        tenantId
       }
     });
 
@@ -209,9 +203,8 @@ const deleteProductImage = async (req, res) => {
       return res.status(404).json({ error: 'Image not found' });
     }
 
-    await prisma.productImage.update({
-      where: { id: imageId },
-      data: { deletedAt: new Date() }
+    await prisma.productImage.delete({
+      where: { id: imageId }
     });
 
     res.json({ message: 'Image deleted successfully' });

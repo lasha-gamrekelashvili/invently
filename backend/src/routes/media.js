@@ -9,7 +9,6 @@ const {
 } = require('../controllers/mediaController');
 const { authenticateToken, requireStoreOwner } = require('../middleware/auth');
 const tenantResolver = require('../middleware/tenantResolver');
-const { auditMiddleware } = require('../utils/auditLogger');
 
 const router = express.Router();
 
@@ -249,13 +248,11 @@ router.use(requireStoreOwner);
 router.post(
   '/products/:productId/images',
   upload.single('image'),
-  auditMiddleware('CREATE', 'PRODUCT_IMAGE'),
   uploadProductImage
 );
 
 router.post(
   '/products/:productId/images/url',
-  auditMiddleware('CREATE', 'PRODUCT_IMAGE'),
   addProductImageByUrl
 );
 
@@ -263,13 +260,11 @@ router.get('/products/:productId/images', getProductImages);
 
 router.put(
   '/images/:imageId',
-  auditMiddleware('UPDATE', 'PRODUCT_IMAGE'),
   updateProductImage
 );
 
 router.delete(
   '/images/:imageId',
-  auditMiddleware('DELETE', 'PRODUCT_IMAGE'),
   deleteProductImage
 );
 
