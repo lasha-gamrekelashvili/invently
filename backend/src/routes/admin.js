@@ -1,4 +1,5 @@
-const express = require('express');
+import express from 'express';
+import adminController from '../controllers/adminController.js';
 const {
   getAllTenants,
   getTenantById,
@@ -6,8 +7,8 @@ const {
   getAllUsers,
   getAuditLogs,
   getSystemStats
-} = require('../controllers/adminController');
-const { authenticateToken, requirePlatformAdmin } = require('../middleware/auth');
+} = adminController;
+import { authenticateToken, requirePlatformAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -505,4 +506,4 @@ router.put(
 router.get('/users', getAllUsers);
 router.get('/audit-logs', getAuditLogs);
 
-module.exports = router;
+export default router;

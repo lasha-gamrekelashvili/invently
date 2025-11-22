@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -73,7 +73,7 @@ const requireStoreOwner = (req, res, next) => {
   return res.status(403).json({ error: 'Store owner access required' });
 };
 
-module.exports = {
+export {
   authenticateToken,
   requirePlatformAdmin,
   requireStoreOwner

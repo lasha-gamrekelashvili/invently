@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -105,7 +105,7 @@ const getPublicSettings = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getSettings,
   updateSettings,
   getPublicSettings

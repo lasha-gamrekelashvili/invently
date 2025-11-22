@@ -1,14 +1,14 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   createCategory,
   getCategories,
   getCategoryById,
   updateCategory,
   deleteCategory
-} = require('../controllers/categoryController');
-const { authenticateToken, requireStoreOwner } = require('../middleware/auth');
-const tenantResolver = require('../middleware/tenantResolver');
-const { validate, validateQuery, schemas } = require('../utils/validation');
+} from '../controllers/categoryController.js';
+import { authenticateToken, requireStoreOwner } from '../middleware/auth.js';
+import tenantResolver from '../middleware/tenantResolver.js';
+import { validate, validateQuery, schemas } from '../utils/validation.js';
 
 const router = express.Router();
 
@@ -411,4 +411,4 @@ router.delete(
   deleteCategory
 );
 
-module.exports = router;
+export default router;

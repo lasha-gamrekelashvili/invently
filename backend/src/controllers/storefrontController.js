@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -302,7 +302,7 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getStoreInfo,
   getPublicCategories,
   getPublicProducts,

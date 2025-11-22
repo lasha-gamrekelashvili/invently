@@ -1,7 +1,7 @@
-const multer = require('multer');
-const path = require('path');
-const crypto = require('crypto');
-const { PrismaClient } = require('@prisma/client');
+import multer from 'multer';
+import path from 'path';
+import crypto from 'crypto';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -214,7 +214,7 @@ const deleteProductImage = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   upload,
   uploadProductImage,
   addProductImageByUrl,

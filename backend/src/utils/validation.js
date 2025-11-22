@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
 // Updated regex to support Georgian characters and other Unicode letters
 const slugRegex = /^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u;
@@ -137,7 +137,7 @@ const validateQuery = (schema) => {
   };
 };
 
-module.exports = {
+export {
   schemas,
   validate,
   validateQuery

@@ -1,8 +1,8 @@
-const express = require('express');
-const cartController = require('../controllers/cartController');
-const tenantResolver = require('../middleware/tenantResolver');
-const { validate, schemas } = require('../utils/validation');
-const Joi = require('joi');
+import express from 'express';
+import cartController from '../controllers/cartController.js';
+import tenantResolver from '../middleware/tenantResolver.js';
+import { validate, schemas } from '../utils/validation.js';
+import Joi from 'joi';
 
 const router = express.Router();
 
@@ -207,4 +207,4 @@ router.delete('/:sessionId/items/:itemId', cartController.removeFromCart);
  */
 router.delete('/:sessionId/clear', cartController.clearCart);
 
-module.exports = router;
+export default router;

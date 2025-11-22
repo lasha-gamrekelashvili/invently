@@ -1,22 +1,26 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { PrismaClient } = require('@prisma/client');
+import 'dotenv/config';
+import express, { json, urlencoded, static as expressStatic } from 'express';
+import cors from 'cors';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { PrismaClient } from '@prisma/client';
 
 // Import routes
-const authRoutes = require('./src/routes/auth');
-const categoryRoutes = require('./src/routes/categories');
-const productRoutes = require('./src/routes/products');
-const mediaRoutes = require('./src/routes/media');
-const storefrontRoutes = require('./src/routes/storefront');
-const adminRoutes = require('./src/routes/admin');
-const cartRoutes = require('./src/routes/cart');
-const orderRoutes = require('./src/routes/orders');
-const settingsRoutes = require('./src/routes/settings');
+import authRoutes from './src/routes/auth.js';
+import categoryRoutes from './src/routes/categories.js';
+import productRoutes from './src/routes/products.js';
+import mediaRoutes from './src/routes/media.js';
+import storefrontRoutes from './src/routes/storefront.js';
+import adminRoutes from './src/routes/admin.js';
+import cartRoutes from './src/routes/cart.js';
+import orderRoutes from './src/routes/orders.js';
+import settingsRoutes from './src/routes/settings.js';
 
 // Import swagger config
-const swagger = require('./src/config/swagger');
+import { serve, setup } from './src/config/swagger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -57,14 +61,14 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(json({ limit: '10mb' }));
+app.use(urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve uploaded images
-app.use('/api/images', express.static(path.join(__dirname, process.env.UPLOAD_PATH || './uploads')));
+app.use('/api/images', expressStatic(join(__dirname, process.env.UPLOAD_PATH || './uploads')));
 
 // API Documentation
-app.use('/api/docs', swagger.serve, swagger.setup);
+app.use('/api/docs', serve, setup);
 
 // Health check endpoints
 app.get('/healthz', async (req, res) => {
@@ -92,10 +96,10 @@ app.get('/readyz', async (req, res) => {
     await prisma.$queryRaw`SELECT 1`;
 
     // Check if uploads directory exists
-    const fs = require('fs');
+    const { existsSync, mkdirSync } = await import('fs');
     const uploadPath = process.env.UPLOAD_PATH || './uploads';
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+    if (!existsSync(uploadPath)) {
+      mkdirSync(uploadPath, { recursive: true });
     }
 
     res.json({

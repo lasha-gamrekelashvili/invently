@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -305,7 +305,7 @@ const getSystemStats = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getAllTenants,
   getTenantById,
   updateTenantStatus,

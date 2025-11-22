@@ -1,9 +1,9 @@
-const express = require('express');
-const orderController = require('../controllers/orderController');
-const { authenticateToken } = require('../middleware/auth');
-const tenantResolver = require('../middleware/tenantResolver');
-const { validate, schemas } = require('../utils/validation');
-const Joi = require('joi');
+import express from 'express';
+import orderController from '../controllers/orderController.js';
+import { authenticateToken } from '../middleware/auth.js';
+import tenantResolver from '../middleware/tenantResolver.js';
+import { validate, schemas } from '../utils/validation.js';
+import Joi from 'joi';
 
 const router = express.Router();
 
@@ -255,4 +255,4 @@ router.get('/:id', authenticateToken, orderController.getOrder);
  */
 router.put('/:id/status', authenticateToken, validate(updateOrderStatusSchema), orderController.updateOrderStatus);
 
-module.exports = router;
+export default router;

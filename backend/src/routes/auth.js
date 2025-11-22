@@ -1,8 +1,8 @@
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const { register, login, me } = require('../controllers/authController');
-const { authenticateToken } = require('../middleware/auth');
-const { validate, schemas } = require('../utils/validation');
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import { register, login, me } from '../controllers/authController.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { validate, schemas } from '../utils/validation.js';
 
 const router = express.Router();
 
@@ -233,4 +233,4 @@ router.post('/register', authLimiter, validate(schemas.register), register);
 router.post('/login', authLimiter, validate(schemas.login), login);
 router.get('/me', authenticateToken, me);
 
-module.exports = router;
+export default router;

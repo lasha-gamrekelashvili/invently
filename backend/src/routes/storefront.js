@@ -1,13 +1,13 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   getStoreInfo,
   getPublicCategories,
   getPublicProducts,
   getPublicProductBySlug,
   getProductsByCategory
-} = require('../controllers/storefrontController');
-const { getPublicSettings } = require('../controllers/settingsController');
-const tenantResolver = require('../middleware/tenantResolver');
+} from '../controllers/storefrontController.js';
+import { getPublicSettings } from '../controllers/settingsController.js';
+import tenantResolver from '../middleware/tenantResolver.js';
 
 const router = express.Router();
 
@@ -317,4 +317,4 @@ router.get('/products/:slug', getPublicProductBySlug);
 router.get('/categories/:categorySlug/products', getProductsByCategory);
 router.get('/settings', getPublicSettings);
 
-module.exports = router;
+export default router;

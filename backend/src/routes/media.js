@@ -1,14 +1,14 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   upload,
   uploadProductImage,
   addProductImageByUrl,
   getProductImages,
   updateProductImage,
   deleteProductImage
-} = require('../controllers/mediaController');
-const { authenticateToken, requireStoreOwner } = require('../middleware/auth');
-const tenantResolver = require('../middleware/tenantResolver');
+} from '../controllers/mediaController.js';
+import { authenticateToken, requireStoreOwner } from '../middleware/auth.js';
+import tenantResolver from '../middleware/tenantResolver.js';
 
 const router = express.Router();
 
@@ -268,4 +268,4 @@ router.delete(
   deleteProductImage
 );
 
-module.exports = router;
+export default router;

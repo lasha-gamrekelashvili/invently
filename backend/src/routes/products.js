@@ -1,5 +1,5 @@
-const express = require('express');
-const {
+import express from 'express';
+import {
   createProduct,
   getProducts,
   getProductById,
@@ -9,10 +9,10 @@ const {
   createVariant,
   updateVariant,
   deleteVariant
-} = require('../controllers/productController');
-const { authenticateToken, requireStoreOwner } = require('../middleware/auth');
-const tenantResolver = require('../middleware/tenantResolver');
-const { validate, validateQuery, schemas } = require('../utils/validation');
+} from '../controllers/productController.js';
+import { authenticateToken, requireStoreOwner } from '../middleware/auth.js';
+import tenantResolver from '../middleware/tenantResolver.js';
+import { validate, validateQuery, schemas } from '../utils/validation.js';
 
 const router = express.Router();
 
@@ -770,4 +770,4 @@ router.delete(
   deleteVariant
 );
 
-module.exports = router;
+export default router;
