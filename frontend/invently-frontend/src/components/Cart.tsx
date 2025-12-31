@@ -20,7 +20,6 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) =
     updateCartItem,
     removeFromCart,
     clearCart,
-    cartItemCount,
     cartTotal,
   } = useCart();
 
