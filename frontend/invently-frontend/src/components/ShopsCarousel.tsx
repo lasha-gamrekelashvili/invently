@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import api from '../utils/api';
 
 interface Shop {
   id: number;
@@ -14,12 +15,8 @@ const ShopsCarousel: React.FC = () => {
     // Fetch shops from public API
     const fetchShops = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'}/api/public/stores`);
-        
-        if (response.ok) {
-          const result = await response.json();
-          setShops(result.data || []);
-        }
+        const response = await api.get('/public/stores');
+        setShops(response.data || []);
       } catch (error) {
         console.error('Failed to fetch shops:', error);
       } finally {
