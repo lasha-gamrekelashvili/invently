@@ -16,9 +16,9 @@
     <path d="M100 55 L100 70"/>
 
     <!-- Face -->
-    <circle cx="52" cy="110" r="6" fill="url(#g)" stroke="none"/>
-    <circle cx="88" cy="110" r="6" fill="url(#g)" stroke="none"/>
-    <path d="M52 135 C62 150, 78 150, 88 135"/>
+    <circle cx="52" cy="100" r="6" fill="url(#g)" stroke="none"/>
+    <circle cx="88" cy="100" r="6" fill="url(#g)" stroke="none"/>
+    <path d="M52 125 C62 140, 78 140, 88 125"/>
   </g>
 
   <!-- Text -->
