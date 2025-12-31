@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import LandingHeader from '../components/LandingHeader';
 import { T } from '../components/Translation';
 import { useLanguage } from '../contexts/LanguageContext';
