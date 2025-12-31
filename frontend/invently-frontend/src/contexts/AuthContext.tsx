@@ -162,7 +162,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (isOnSubdomain()) {
       const mainDomain = window.location.hostname.endsWith('.localhost')
         ? `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}`
-        : `${window.location.protocol}//${window.location.hostname.endsWith('.momigvare.ge') ? 'momigvare.ge' : window.location.hostname.split('.').slice(1).join('.')}`;
+        : `${window.location.protocol}//${window.location.hostname.endsWith('.shopu.ge') ? 'shopu.ge' : window.location.hostname.split('.').slice(1).join('.')}`;
       window.location.href = mainDomain;
     }
   };

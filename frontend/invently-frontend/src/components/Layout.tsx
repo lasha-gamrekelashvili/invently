@@ -74,7 +74,7 @@ const Layout = () => {
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900">
-                {currentTenant?.name || 'Invently'}
+                {currentTenant?.name || 'Shopu'}
               </h1>
               <p className="text-xs text-gray-500">
                 <T tKey="navigation.admin" />

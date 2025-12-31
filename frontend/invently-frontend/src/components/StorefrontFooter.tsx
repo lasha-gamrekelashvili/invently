@@ -234,7 +234,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
           {/* Copyright */}
           <div className="mt-8 pt-8 border-t border-gray-200 text-center">
             <p className="text-xs text-gray-500">
-              © {new Date().getFullYear()} Powered by Invently. All rights reserved.
+              © {new Date().getFullYear()} Powered by Shopu.ge. All rights reserved.
             </p>
           </div>
         </div>

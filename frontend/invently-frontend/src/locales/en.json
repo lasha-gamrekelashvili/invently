@@ -71,6 +71,9 @@
     "login": {
       "title": "Sign In",
       "subtitle": "Welcome back! Please sign in to your account.",
+      "heroTitle": "Welcome back to",
+      "heroBrand": "Shopu",
+      "heroDescription": "Manage your inventory, track your sales, and grow your business all in one powerful platform.",
       "email": "Email Address",
       "password": "Password",
       "rememberMe": "Remember me",
@@ -83,6 +86,10 @@
     "register": {
       "title": "Create Account",
       "subtitle": "Get started with your new store",
+      "heroTitle": "Start your",
+      "heroTitleHighlight": "journey",
+      "heroTitleEnd": "today",
+      "heroDescription": "Join thousands of businesses already using Shopu to manage their inventory and grow their sales.",
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email Address",
@@ -91,7 +98,7 @@
       "tenantName": "Store Name",
       "subdomain": "Store URL",
       "subdomainPlaceholder": "your-store",
-      "subdomainHelp": "This will be your store's web address: your-store.invently.com",
+      "subdomainHelp": "This will be your store's web address: your-store.shopu.ge",
       "createAccountButton": "Create Account",
       "hasAccount": "Already have an account?",
       "signInLink": "Sign in here",
@@ -855,7 +862,7 @@
   },
   "landing": {
     "nav": {
-      "brand": "Invently",
+      "brand": "Shopu",
       "login": "Login",
       "getStarted": "Get Started"
     },
@@ -863,7 +870,7 @@
       "badge": "Launch your online store in minutes",
       "title": "Your Complete",
       "titleGradient": "E-commerce Platform",
-      "subtitle": "Manage inventory, create beautiful storefronts, and grow your business with Invently. Everything you need to sell online, all in one place.",
+      "subtitle": "Manage inventory, create beautiful storefronts, and grow your business with Shopu. Everything you need to sell online, all in one place.",
       "startFreeTrial": "Start Free Trial",
       "watchDemo": "Watch Demo",
       "dashboardPreview": "Dashboard Preview"
@@ -900,11 +907,125 @@
     },
     "cta": {
       "title": "Ready to Start Selling?",
-      "subtitle": "Join thousands of businesses already using Invently to power their online stores",
+      "subtitle": "Join thousands of businesses already using Shopu to power their online stores",
       "button": "Create Your Store Now"
     },
     "footer": {
-      "copyright": "© 2025 Invently. All rights reserved."
+      "copyright": "© 2025 Shopu.ge. All rights reserved.",
+      "company": {
+        "title": "Company",
+        "aboutUs": "About Us",
+        "contact": "Contact Information",
+        "services": "Service Description",
+        "pricing": "Pricing"
+      },
+      "legal": {
+        "title": "Legal",
+        "terms": "Terms & Conditions",
+        "privacy": "Privacy Policy",
+        "refundPolicy": "Refund Policy"
+      },
+      "contactInfo": {
+        "title": "Contact",
+        "email": "support@shopu.ge",
+        "phone": "+995 XXX XX XX XX",
+        "address": "Georgia, Tbilisi"
+      }
+    }
+  },
+  "legal": {
+    "nav": {
+      "title": "Legal Information",
+      "backToHome": "Home"
+    },
+    "navigation": {
+      "about": "About Us",
+      "contact": "Contact Information",
+      "services": "Service Description",
+      "pricing": "Pricing",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "refundPolicy": "Refund Policy"
+    },
+    "footer": {
+      "copyright": "© 2025 Shopu.ge",
+      "backToHome": "Back to Home"
+    },
+    "notFound": {
+      "title": "Page Not Found",
+      "backToHome": "Back to Home"
+    },
+    "pages": {
+      "about": {
+        "title": "About Shopu.ge",
+        "content": {
+          "p1": "Shopu.ge is an e-commerce technology platform (SaaS) that enables users to create and manage their own online stores in minutes.",
+          "p2": "The platform provides online store creation, product management, order fulfillment, payment integration, and an administrative panel.",
+          "p3": "Shopu.ge does not sell physical products or services.",
+          "p4": "Products and services displayed on the platform are sold by independent merchants who are solely responsible for their activities."
+        }
+      },
+      "contact": {
+        "title": "Contact Information",
+        "platform": {
+          "title": "Shopu.ge (Platform)",
+          "companyName": "Company Name",
+          "email": "Email",
+          "phone": "Phone",
+          "address": "Address",
+          "companyNameValue": "Shopu.ge",
+          "emailValue": "support@shopu.ge",
+          "phoneValue": "+995 XXX XX XX XX",
+          "addressValue": "Georgia, Tbilisi"
+        },
+        "merchants": {
+          "title": "Merchants (Online Stores)",
+          "p1": "Each merchant using the Shopu.ge platform is required to provide contact information in their online store, including phone number, email address, and physical address if applicable.",
+          "p2": "The merchant is solely responsible for the accuracy of the information they provide."
+        }
+      },
+      "services": {
+        "title": "Product / Service Description",
+        "subtitle": "(Shopu.ge Product)",
+        "content": {
+          "p1": "Shopu.ge offers users a digital service — an online store creation and management platform.",
+          "p2": "The service includes online store design creation, product addition, order management, payment integration, and administrative functionality.",
+          "p3": "Shopu.ge is not the final seller of products or services and does not participate in sales conducted by merchants."
+        }
+      },
+      "pricing": {
+        "title": "Product / Service Pricing",
+        "content": {
+          "p1": "Shopu.ge services are available through free and paid subscription plans.",
+          "p2": "Pricing, currency, and available features for paid plans are listed on the website's Pricing page.",
+          "p3": "The price, currency, and additional costs (e.g., delivery) for products and services sold by merchants are determined by the merchants themselves."
+        }
+      },
+      "refundPolicy": {
+        "title": "Delivery, Returns, Cancellation & Refund Policy",
+        "content": {
+          "p1": "Shopu.ge is a technology platform and does not participate in product delivery, returns, or refund processes.",
+          "p2": "Delivery, returns, order cancellation, and refund policies are determined individually by each merchant and are available in the merchant's online store.",
+          "p3": "Customers are required to review the specific store's policies before making a payment."
+        }
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "content": {
+          "p1": "Shopu.ge respects user privacy and protects personal data in accordance with applicable laws.",
+          "p2": "The platform collects only the data necessary for account creation, service delivery, and payment processing.",
+          "p3": "Merchants receive only the information necessary to fulfill orders.",
+          "p4": "Shopu.ge does not share personal data with third parties except as required by law."
+        }
+      },
+      "terms": {
+        "title": "Terms & Conditions",
+        "content": {
+          "p1": "By using the website, users agree to Shopu.ge's Terms & Conditions.",
+          "p2": "Using the platform for illegal, fraudulent, or activities that violate third-party rights is prohibited.",
+          "p3": "Shopu.ge reserves the right to temporarily or permanently restrict user account access in case of policy violations."
+        }
+      }
     }
   }
 }

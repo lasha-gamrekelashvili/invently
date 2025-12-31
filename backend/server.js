@@ -37,8 +37,8 @@ app.use(cors({
     
     // Allow your main domain and all subdomains
     const allowedDomains = [
-      'https://momigvare.ge',
-      'http://momigvare.ge',
+      'https://shopu.ge',
+      'http://shopu.ge',
       /^https:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/,
       /^http:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/
     ];

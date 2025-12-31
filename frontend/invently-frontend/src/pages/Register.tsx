@@ -5,8 +5,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { T } from '../components/Translation';
-import LanguageSelector from '../components/LanguageSelector';
-import { CubeIcon, EnvelopeIcon, LockClosedIcon, UserIcon, BuildingStorefrontIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import LandingHeader from '../components/LandingHeader';
+import { EnvelopeIcon, LockClosedIcon, UserIcon, BuildingStorefrontIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +21,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
   const { t } = useLanguage();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +60,8 @@ const Register = () => {
 
     try {
       const { confirmPassword, ...registerData } = formData;
-      await register(registerData);
-      handleSuccess('Registration successful! Welcome to Invently!');
+      await registerUser(registerData);
+      handleSuccess('Registration successful! Welcome to Shopu!');
       // AuthContext will handle the redirect automatically
     } catch (err: any) {
       const errorMessage = handleApiError(err, 'Registration failed. Please try again.');
@@ -72,271 +72,251 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white relative">
-        {/* Language Selector - Absolute positioned */}
-        <div className="absolute top-6 right-6">
-          <LanguageSelector variant="micro" showLabel={false} />
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Navigation */}
+      <LandingHeader />
+
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        
+        <div className="max-w-4xl mx-auto relative z-10 text-center">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
+            <T tKey="auth.register.heroTitle" />{' '}
+            <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <T tKey="auth.register.heroTitleHighlight" />
+            </span>
+            {' '}<T tKey="auth.register.heroTitleEnd" />
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
+            <T tKey="auth.register.heroDescription" />
+          </p>
         </div>
+      </div>
 
-        <div className="max-w-md w-full space-y-8">
-          {/* Logo and Header */}
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <CubeIcon className="w-10 h-10 text-white" />
+      {/* Form Section */}
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          {/* Form Card */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10">
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                  <p className="text-sm font-medium">{error}</p>
+                </div>
+              )}
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <T tKey="auth.register.firstName" />
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <UserIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="firstName"
+                      name="firstName"
+                      type="text"
+                      required
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder={t('auth.register.firstName')}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
+                    <T tKey="auth.register.lastName" />
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <UserIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="lastName"
+                      name="lastName"
+                      type="text"
+                      required
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder={t('auth.register.lastName')}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">
-              <T tKey="auth.register.title" />
-            </h2>
-            <p className="text-gray-600 text-lg">
-              <T tKey="auth.register.subtitle" />
-            </p>
-          </div>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg">
-                <p className="font-medium">{error}</p>
-              </div>
-            )}
-
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
+              {/* Email */}
               <div>
-                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  <T tKey="auth.register.firstName" />
+                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <T tKey="auth.register.email" />
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <UserIcon className="h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <EnvelopeIcon className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="firstName"
-                    name="firstName"
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder={t('auth.register.email')}
+                  />
+                </div>
+              </div>
+
+              {/* Store Name */}
+              <div>
+                <label htmlFor="tenantName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <T tKey="auth.register.tenantName" />
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <BuildingStorefrontIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    id="tenantName"
+                    name="tenantName"
                     type="text"
                     required
-                    value={formData.firstName}
+                    value={formData.tenantName}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder={t('auth.register.firstName')}
+                    className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder={t('auth.register.tenantName')}
+                  />
+                </div>
+              </div>
+
+              {/* Subdomain */}
+              <div>
+                <label htmlFor="subdomain" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <T tKey="auth.register.subdomain" />
+                </label>
+                <div className="flex rounded-xl border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <GlobeAltIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="subdomain"
+                      name="subdomain"
+                      type="text"
+                      required
+                      value={formData.subdomain}
+                      onChange={handleChange}
+                      className="block w-full pl-11 pr-4 py-3 border-0 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0"
+                      placeholder={t('auth.register.subdomainPlaceholder')}
+                      pattern="[a-z0-9]+"
+                      title="Only lowercase letters and numbers allowed"
+                    />
+                  </div>
+                  <span className="inline-flex items-center px-4 bg-gray-50 text-gray-700 text-sm font-medium border-l border-gray-300">
+                    .shopu.ge
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  <T tKey="auth.register.subdomainHelp" />
+                </p>
+              </div>
+
+              {/* Password Fields */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <T tKey="auth.register.password" />
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder={t('auth.register.password')}
+                    minLength={8}
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  <T tKey="auth.register.lastName" />
+                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <T tKey="auth.register.confirmPassword" />
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <UserIcon className="h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <LockClosedIcon className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
                     required
-                    value={formData.lastName}
+                    value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder={t('auth.register.lastName')}
+                    className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder={t('auth.register.confirmPassword')}
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                <T tKey="auth.register.email" />
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder={t('auth.register.email')}
-                />
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3.5 px-4 rounded-xl font-semibold text-base hover:from-blue-600 hover:to-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  {isLoading ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <T tKey="auth.register.createAccountButton" />
+                  )}
+                </button>
               </div>
-            </div>
+            </form>
 
-            {/* Store Name */}
-            <div>
-              <label htmlFor="tenantName" className="block text-sm font-semibold text-gray-700 mb-2">
-                <T tKey="auth.register.tenantName" />
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <BuildingStorefrontIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="tenantName"
-                  name="tenantName"
-                  type="text"
-                  required
-                  value={formData.tenantName}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder={t('auth.register.tenantName')}
-                />
-              </div>
-            </div>
-
-            {/* Subdomain */}
-            <div>
-              <label htmlFor="subdomain" className="block text-sm font-semibold text-gray-700 mb-2">
-                <T tKey="auth.register.subdomain" />
-              </label>
-              <div className="flex rounded-xl shadow-sm overflow-hidden border border-gray-300 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
-                <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <GlobeAltIcon className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    id="subdomain"
-                    name="subdomain"
-                    type="text"
-                    required
-                    value={formData.subdomain}
-                    onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-3 border-0 focus:outline-none focus:ring-0"
-                    placeholder={t('auth.register.subdomainPlaceholder')}
-                    pattern="[a-z0-9]+"
-                    title="Only lowercase letters and numbers allowed"
-                  />
-                </div>
-                <span className="inline-flex items-center px-4 bg-gray-50 text-gray-700 text-sm font-medium border-l border-gray-300">
-                  .momigvare.ge
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-gray-500">
-                Your store: <span className="font-medium text-blue-600">{formData.subdomain || 'yourstore'}.momigvare.ge</span>
-              </p>
-            </div>
-
-            {/* Password Fields */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                <T tKey="auth.register.password" />
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder={t('auth.register.password')}
-                  minLength={8}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                <T tKey="auth.register.confirmPassword" />
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <LockClosedIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder={t('auth.register.confirmPassword')}
-                />
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
-              >
-                {isLoading ? (
-                  <LoadingSpinner size="sm" />
-                ) : (
-                  <T tKey="auth.register.createAccountButton" />
-                )}
-              </button>
-            </div>
-
-            <div className="text-center pt-4">
-              <p className="text-gray-600">
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
                 <T tKey="auth.register.hasAccount" />{' '}
                 <Link
                   to="/login"
-                  className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                  className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   <T tKey="auth.register.signInLink" />
                 </Link>
               </p>
             </div>
-          </form>
-        </div>
-      </div>
-
-      {/* Right Side - Image/Gradient */}
-      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 items-center justify-center p-12">
-        <div className="max-w-lg text-white">
-          <h1 className="text-5xl font-extrabold mb-6">
-            Start your <span className="text-blue-200">journey</span> today
-          </h1>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of businesses already using Invently to manage their inventory and grow their sales.
-          </p>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-lg">Launch your store in minutes</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-lg">No credit card required</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-lg">24/7 customer support</span>
-            </div>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-gray-100 mt-auto">
+        <div className="max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-gray-400 text-sm">
+            © 2025 Shopu.ge
+          </p>
+          <Link to="/" className="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors">
+            <T tKey="legal.footer.backToHome" />
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 };

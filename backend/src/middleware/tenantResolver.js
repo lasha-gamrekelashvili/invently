@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 const tenantResolver = async (req, res, next) => {
   try {
     // Check for X-Original-Host header first (for cross-domain deployments)
-    // This allows frontend on momigvare.ge to communicate with backend on momigvare.onrender.com
+    // This allows frontend on shopu.ge to communicate with backend on momigvare.onrender.com
     let host = req.get('x-original-host') || req.get('host');
 
     if (!host) {
@@ -26,7 +26,7 @@ const tenantResolver = async (req, res, next) => {
         return next();
       }
     } else {
-      // Handle production subdomains (e.g., shopname.example.com or shopname.momigvare.ge)
+      // Handle production subdomains (e.g., shopname.example.com or shopname.shopu.ge)
       const parts = host.split('.');
       if (parts.length > 2) {
         subdomain = parts[0];

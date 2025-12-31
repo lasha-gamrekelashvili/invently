@@ -171,38 +171,24 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   if (variant === 'micro') {
     return (
-      <div className={`relative ${className}`}>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="px-2 py-1.5 rounded-md hover:bg-gray-100 transition-colors flex items-center space-x-1.5 text-sm text-gray-600 hover:text-gray-900"
-        >
-          <span className="text-base">{currentLanguage?.flag}</span>
-          <span className="text-xs font-medium">{currentLanguage?.code.toUpperCase()}</span>
-          <ChevronDownIcon className="w-3 h-3 text-gray-400" />
-        </button>
-
-        {isOpen && (
-          <div
-            ref={dropdownRef}
-            className="absolute z-50 mt-1 right-0 w-28 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
-          >
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => handleLanguageChange(lang.code as 'en' | 'ka')}
-                className={`w-full px-3 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center space-x-2 ${
-                  language === lang.code ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                }`}
-              >
-                <span className="text-base">{lang.flag}</span>
-                <span className="text-xs font-medium">{lang.code.toUpperCase()}</span>
-                {language === lang.code && (
-                  <CheckIcon className="w-3 h-3 text-blue-600 ml-auto" />
-                )}
-              </button>
-            ))}
-          </div>
-        )}
+      <div className={`flex items-center gap-0.5 ${className}`}>
+        {languages.map((lang, index) => (
+          <React.Fragment key={lang.code}>
+            <button
+              onClick={() => handleLanguageChange(lang.code as 'en' | 'ka')}
+              className={`px-2 py-1 text-xs transition-colors ${
+                language === lang.code 
+                  ? 'text-gray-900 font-medium' 
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              {lang.code === 'ka' ? 'GE' : lang.code.toUpperCase()}
+            </button>
+            {index < languages.length - 1 && (
+              <span className="text-gray-300 text-xs">/</span>
+            )}
+          </React.Fragment>
+        ))}
       </div>
     );
   }

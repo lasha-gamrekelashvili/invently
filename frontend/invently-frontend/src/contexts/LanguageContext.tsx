@@ -28,7 +28,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   // Load language from localStorage on mount
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('invently-language') as Language;
+    const savedLanguage = localStorage.getItem('shopu-language') as Language;
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'ka')) {
       setLanguageState(savedLanguage);
     }
@@ -37,7 +37,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   // Save language to localStorage when it changes
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('invently-language', lang);
+    localStorage.setItem('shopu-language', lang);
   };
 
   // Translation function

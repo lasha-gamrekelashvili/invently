@@ -24,6 +24,7 @@ import Settings from './pages/Settings';
 import Storefront from './pages/Storefront';
 import ProductDetail from './pages/ProductDetail';
 import PlatformAdmin from './pages/PlatformAdmin';
+import LegalPage from './pages/LegalPage';
 
 const AppRoutes = () => {
   const { isLoading, user } = useAuth();
@@ -43,6 +44,14 @@ const AppRoutes = () => {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        {/* Legal Pages */}
+        <Route path="/about" element={<LegalPage />} />
+        <Route path="/contact" element={<LegalPage />} />
+        <Route path="/services" element={<LegalPage />} />
+        <Route path="/pricing" element={<LegalPage />} />
+        <Route path="/terms" element={<LegalPage />} />
+        <Route path="/privacy" element={<LegalPage />} />
+        <Route path="/refund-policy" element={<LegalPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
