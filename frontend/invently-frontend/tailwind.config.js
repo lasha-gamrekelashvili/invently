@@ -41,8 +41,11 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Syne', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'Inter', 'Noto Sans Georgian', 'FiraGO', 'system-ui', '-apple-system', 'sans-serif'],
+        body: ['Inter', 'Noto Sans Georgian', 'FiraGO', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Poppins', 'Noto Sans Georgian', 'FiraGO', 'system-ui', 'sans-serif'],
+        // Optional: Explicitly Georgian fonts if needed
+        georgian: ['Noto Sans Georgian', 'FiraGO', 'BPG Nino Medium', 'Poppins', 'sans-serif'],
       },
       spacing: {
         '18': '4.5rem',

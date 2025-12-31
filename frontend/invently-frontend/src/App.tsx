@@ -1,7 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { isOnSubdomain } from './utils/api';
 
 // Components
@@ -28,8 +29,13 @@ import LegalPage from './pages/LegalPage';
 
 const AppRoutes = () => {
   const { isLoading, user } = useAuth();
+  const { language } = useLanguage();
   const onSubdomain = isOnSubdomain();
 
+  // Set HTML lang attribute dynamically based on current language
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   if (isLoading) {
     return <LoadingSpinner />;

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import {
   CubeIcon,
-  XMarkIcon,
-  FunnelIcon,
 } from '@heroicons/react/24/outline';
 import CategoryTree from './CategoryTree';
 import StorefrontHeader from './StorefrontHeader';
@@ -47,12 +45,24 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Prevent background scroll when sidebar is open
+  React.useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [sidebarOpen]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <StorefrontHeader
         storeInfo={storeInfo}
-        onMenuClick={() => setSidebarOpen(true)}
+        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         onCartClick={onCartClick}
         onSearchChange={onSearchChange}
         gridLayout={gridLayout}
@@ -63,7 +73,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
+            className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -124,24 +134,10 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         </aside>
 
         {/* Mobile Sidebar - Filter Drawer */}
-        <aside className={`fixed inset-y-0 left-0 z-50 w-80 bg-gray-50 rounded-r-xl shadow-[0_0_20px_rgba(0,0,0,0.1)] transform transition-transform duration-300 ease-in-out lg:hidden ${
+        <aside className={`fixed top-20 bottom-0 left-0 z-50 w-80 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <div className="flex flex-col h-full">
-            {/* Mobile Sidebar Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-t-r-xl">
-              <div className="flex items-center">
-                <FunnelIcon className="w-6 h-6 mr-3 text-gray-700" />
-                <h2 className="text-xl font-bold text-gray-900">Filters</h2>
-              </div>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-            </div>
-
             {/* Mobile Sidebar Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* All Products Button */}
@@ -202,10 +198,10 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
             </div>
 
             {/* Mobile Apply Button */}
-            <div className="p-6 border-t border-gray-200/60 bg-white/80 backdrop-blur-sm rounded-b-r-xl">
+            <div className="p-6 border-t border-gray-200 bg-white">
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Apply Filters
               </button>

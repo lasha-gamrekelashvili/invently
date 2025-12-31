@@ -6,23 +6,53 @@ import Logo from './Logo';
 
 interface LandingHeaderProps {
   showAuthButtons?: boolean;
+  mobileMenuButton?: React.ReactNode;
+  shopName?: string;
+  centerContent?: React.ReactNode;
+  rightActions?: React.ReactNode;
 }
 
 const LandingHeader: React.FC<LandingHeaderProps> = ({
   showAuthButtons = false,
+  mobileMenuButton,
+  shopName,
+  centerContent,
+  rightActions,
 }) => {
   return (
     <nav className="bg-gray-100 border-b border-gray-200 sticky top-0 z-50">
       <div className="w-full px-6 lg:px-12">
-        <div className="flex justify-between items-center h-20">
-          {/* Left: Logo */}
-          <div className="flex items-center">
-            <Logo variant="full" size="lg" theme="dark" />
+        <div className="flex justify-between items-center h-20 gap-4">
+          {/* Left: Mobile Menu Button + Shop Name + Logo */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {mobileMenuButton && (
+              <div className="lg:hidden">
+                {mobileMenuButton}
+              </div>
+            )}
+            <div className="flex items-center gap-1.5">
+              {shopName && (
+                <h1 className="text-2xl font-bold text-gray-900 capitalize">{shopName}</h1>
+              )}
+              <Logo variant="full" size="lg" theme="dark" />
+            </div>
           </div>
 
-          {/* Right: Auth Buttons or Language Selector */}
-          <div className="flex items-center gap-3">
-            {showAuthButtons ? (
+          {/* Center: Custom Content (e.g., search bar) */}
+          {centerContent && (
+            <div className="hidden md:flex flex-1 max-w-2xl">
+              {centerContent}
+            </div>
+          )}
+
+          {/* Right: Auth Buttons, Custom Actions, or Language Selector */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {rightActions ? (
+              <>
+                {rightActions}
+                <LanguageSelector variant="micro" showLabel={false} />
+              </>
+            ) : showAuthButtons ? (
               <>
                 <Link
                   to="/login"

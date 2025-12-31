@@ -18,6 +18,7 @@ const StorefrontContent = () => {
   const location = useLocation();
   const [showCheckout, setShowCheckout] = useState(false);
   const [showCart, setShowCart] = useState(false);
+  const [cartClosing, setCartClosing] = useState(false);
   const [searchInput, setSearchInput] = useState(''); // User's input
   const [searchQuery, setSearchQuery] = useState(''); // Debounced search query
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,6 +27,23 @@ const StorefrontContent = () => {
   const [gridLayout, setGridLayout] = useState(3); // Default to 3 items per row
   const pageSize = 12; // Products per page
   const { getCartItemQuantity } = useCart();
+
+  // Handle cart toggle with animation
+  const handleCartToggle = () => {
+    if (showCart && !cartClosing) {
+      // Start close animation
+      setCartClosing(true);
+    } else if (!showCart) {
+      // Open cart
+      setShowCart(true);
+      setCartClosing(false);
+    }
+  };
+
+  const handleCartCloseComplete = () => {
+    setShowCart(false);
+    setCartClosing(false);
+  };
 
   // Parse category slug from URL
   const getCategorySlugFromUrl = () => {
@@ -220,7 +238,7 @@ const StorefrontContent = () => {
       selectedCategoryId={selectedCategoryId}
       onCategorySelect={handleCategorySelect}
       onAllProductsClick={handleAllProductsClick}
-      onCartClick={() => setShowCart(true)}
+      onCartClick={handleCartToggle}
       onSearchChange={handleSearchChange}
       onPriceRangeChange={handlePriceRangeChange}
       priceRange={priceInput}
@@ -335,9 +353,11 @@ const StorefrontContent = () => {
         <Cart
           onCheckout={() => {
             setShowCart(false);
+            setCartClosing(false);
             setShowCheckout(true);
           }}
-          onClose={() => setShowCart(false)}
+          onClose={handleCartCloseComplete}
+          isClosing={cartClosing}
         />
       )}
 

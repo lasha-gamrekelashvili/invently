@@ -2,7 +2,6 @@ import { useCart } from '../contexts/CartContext';
 import { useState, useEffect } from 'react';
 import {
   ShoppingCartIcon,
-  XMarkIcon,
   MinusIcon,
   PlusIcon,
   TrashIcon,
@@ -11,9 +10,10 @@ import {
 interface CartProps {
   onCheckout: () => void;
   onClose: () => void;
+  isClosing?: boolean;
 }
 
-const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
+const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) => {
   const {
     cart,
     isLoading,
@@ -29,6 +29,26 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
   useEffect(() => {
     // Trigger slide-in animation
     setIsVisible(true);
+  }, []);
+
+  // Watch for isClosing prop to trigger close animation
+  useEffect(() => {
+    if (isClosing) {
+      setIsVisible(false);
+      // Wait for animation to complete before calling onClose
+      const timer = setTimeout(() => {
+        onClose();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isClosing, onClose]);
+
+  // Prevent background scroll when cart is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, []);
 
   const handleClose = () => {
@@ -61,7 +81,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
       />
 
       {/* Cart Panel */}
-      <div className={`fixed right-0 top-0 h-full w-full sm:w-[450px] bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
+      <div className={`fixed right-0 top-20 bottom-0 w-full sm:w-[450px] bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
         isVisible ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Header */}
@@ -75,12 +95,6 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
               {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'}
             </p>
           </div>
-          <button
-            onClick={handleClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
         </div>
 
         {/* Cart Content */}
@@ -188,10 +202,6 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
                 <span>Subtotal</span>
                 <span>${cartTotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between items-center text-sm text-gray-600">
-                <span>Shipping</span>
-                <span className="text-green-600 font-medium">Free</span>
-              </div>
             </div>
 
             {/* Total */}
@@ -214,22 +224,6 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose }) => {
               >
                 Clear Cart
               </button>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="flex items-center justify-center space-x-4 pt-4 text-xs text-gray-500">
-              <div className="flex items-center">
-                <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Secure Checkout
-              </div>
-              <div className="flex items-center">
-                <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Free Shipping
-              </div>
             </div>
           </div>
         )}

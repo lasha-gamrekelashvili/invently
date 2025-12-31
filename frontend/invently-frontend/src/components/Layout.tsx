@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { isOnSubdomain } from '../utils/api';
 import { T } from './Translation';
-import LanguageSelector from './LanguageSelector';
+import LandingHeader from './LandingHeader';
 import {
   ChartBarIcon,
   FolderIcon,
@@ -13,7 +13,6 @@ import {
   ArrowRightOnRectangleIcon,
   BuildingStorefrontIcon,
   Bars3Icon,
-  XMarkIcon,
   ShoppingBagIcon,
 } from '@heroicons/react/24/outline';
 
@@ -53,43 +52,38 @@ const Layout = () => {
   }, [tenants]);
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
-      {/* Mobile sidebar backdrop */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      {/* Top Header - Full Width */}
+      <div className="flex-shrink-0 z-50">
+        <LandingHeader 
+          showAuthButtons={false}
+          shopName={currentTenant?.subdomain || currentTenant?.name || ''}
+          mobileMenuButton={
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+            >
+              <Bars3Icon className="w-6 h-6" />
+            </button>
+          }
         />
-      )}
+      </div>
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col h-screen ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        {/* Header */}
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-              <BuildingStorefrontIcon className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">
-                {currentTenant?.name || 'Shopu'}
-              </h1>
-              <p className="text-xs text-gray-500">
-                <T tKey="navigation.admin" />
-              </p>
-            </div>
-          </div>
-          <button
+      {/* Content Area with Sidebar */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Mobile sidebar backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-          >
-            <XMarkIcon className="w-5 h-5" />
-          </button>
-        </div>
+          />
+        )}
 
-        <div className="flex flex-col flex-1 min-h-0">
+        {/* Sidebar */}
+        <div className={`fixed top-20 bottom-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-auto lg:w-64 flex flex-col ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <div className="flex flex-col flex-1 min-h-0">
           {/* Navigation */}
           <nav className="flex-1 p-4 overflow-y-auto">
             {/* Store Section */}
@@ -183,33 +177,16 @@ const Layout = () => {
               <T tKey="navigation.logout" />
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Top Header with Language Selector */}
-        <div className="flex-shrink-0 h-16 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between px-4 h-full">
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-            >
-              <Bars3Icon className="w-6 h-6" />
-            </button>
-
-            {/* Language Selector - Top Right */}
-            <div className="ml-auto">
-              <LanguageSelector variant="micro" showLabel={false} />
-            </div>
           </div>
         </div>
 
-        {/* Page content - scrollable */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
-          <Outlet />
-        </main>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Page content - scrollable */}
+          <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

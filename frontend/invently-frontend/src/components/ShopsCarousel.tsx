@@ -34,6 +34,11 @@ const ShopsCarousel: React.FC = () => {
   // Create multiple duplicates for seamless infinite scroll
   const displayShops = [...shops, ...shops, ...shops, ...shops];
 
+  // Calculate animation duration based on number of items
+  // More items = longer duration for consistent speed
+  // Base: 3 seconds per shop
+  const animationDuration = Math.max(12, shops.length * 3);
+
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
       <div className="max-w-full">
@@ -45,7 +50,10 @@ const ShopsCarousel: React.FC = () => {
           
           {/* Scrolling container */}
           <div className="overflow-hidden py-6">
-            <div className="flex items-center animate-scroll">
+            <div 
+              className="flex items-center animate-scroll" 
+              style={{ animationDuration: `${animationDuration}s` }}
+            >
               {displayShops.map((shop, index) => (
                 <a
                   key={`${shop.id}-${index}`}
@@ -58,8 +66,10 @@ const ShopsCarousel: React.FC = () => {
                     <span className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 tracking-tight transition-all duration-300 whitespace-nowrap bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 bg-clip-text group-hover:text-transparent">
                       {shop.name}
                     </span>
-                    <span className="text-base md:text-lg text-gray-400 font-medium mt-2 group-hover:text-gray-700 transition-colors duration-300">
-                      {shop.subdomain}.shopu.ge
+                    <span className="text-base md:text-lg font-medium italic mt-2 transition-colors duration-300">
+                      <span className="text-gray-400 group-hover:text-gray-600">{shop.subdomain}</span>
+                      <span className="text-gray-600 group-hover:text-gray-700">.shopu</span>
+                      <span className="text-primary-500 group-hover:text-primary-600">.ge</span>
                     </span>
                   </div>
                 </a>
@@ -87,7 +97,7 @@ const ShopsCarousel: React.FC = () => {
         }
 
         .animate-scroll {
-          animation: scroll 18s linear infinite;
+          animation: scroll linear infinite;
           width: max-content;
         }
 

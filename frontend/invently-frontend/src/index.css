@@ -1,5 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+
+/* Georgian fonts */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=FiraGO:wght@300;400;500;600;700;800&display=swap');
+
+/* BPG Nino Medium - Add the font file to /public/fonts/ directory if available */
+@font-face {
+  font-family: 'BPG Nino Medium';
+  src: url('/fonts/bpg-nino-medium-caps.ttf') format('truetype');
+  font-weight: 400 500;
+  font-display: swap;
+  unicode-range: U+10A0-10FF; /* Georgian Unicode range */
+}
 
 @tailwind base;
 @tailwind components;
@@ -7,8 +20,13 @@
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
+  }
+
+  /* Georgian language support - Georgian fonts as fallback for Georgian characters only */
+  html[lang="ka"] {
+    font-family: 'Poppins', 'Inter', 'Noto Sans Georgian', 'FiraGO', 'BPG Nino Medium', system-ui, sans-serif;
   }
 
   body {
@@ -160,11 +178,10 @@
    LANDING PAGE SPECIFIC STYLES (Minimal & Fast)
    ============================================ */
 
-/* Hero title - bold italic style */
+/* Hero title - bold style with Poppins */
 .hero-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-style: italic;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
