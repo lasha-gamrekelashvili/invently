@@ -1,9 +1,10 @@
 import multer from 'multer';
 import path from 'path';
 import crypto from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import { MediaService } from '../services/MediaService.js';
+import { ApiResponse } from '../utils/responseFormatter.js';
 
-const prisma = new PrismaClient();
+const mediaService = new MediaService();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -39,37 +40,26 @@ const uploadProductImage = async (req, res) => {
     const tenantId = req.tenantId;
 
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      return res.status(400).json(ApiResponse.error('No file uploaded'));
     }
 
-    const product = await prisma.product.findFirst({
-      where: {
-        id: productId,
-        tenantId
-      }
-    });
-
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    const imageUrl = `/api/images/${req.file.filename}`;
-
-    const productImage = await prisma.productImage.create({
-      data: {
-        url: imageUrl,
-        altText: altText || '',
+    const productImage = await mediaService.uploadProductImage(
+      productId,
+      tenantId,
+      {
         filename: req.file.filename,
-        productId,
-        tenantId,
-        sortOrder: parseInt(sortOrder)
-      }
-    });
+        path: req.file.path,
+      },
+      { altText, sortOrder }
+    );
 
-    res.status(201).json(productImage);
+    res.status(201).json(ApiResponse.created(productImage, 'Image uploaded successfully'));
   } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json(ApiResponse.notFound('Product'));
+    }
     console.error('Upload image error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -78,28 +68,15 @@ const getProductImages = async (req, res) => {
     const { productId } = req.params;
     const tenantId = req.tenantId;
 
-    const product = await prisma.product.findFirst({
-      where: {
-        id: productId,
-        tenantId
-      }
-    });
+    const images = await mediaService.getProductImages(productId, tenantId);
 
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    const images = await prisma.productImage.findMany({
-      where: {
-        productId
-      },
-      orderBy: { sortOrder: 'asc' }
-    });
-
-    res.json(images);
+    res.json(ApiResponse.success(images));
   } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json(ApiResponse.notFound('Product'));
+    }
     console.error('Get product images error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -109,31 +86,18 @@ const updateProductImage = async (req, res) => {
     const { altText, sortOrder } = req.body;
     const tenantId = req.tenantId;
 
-    const existingImage = await prisma.productImage.findFirst({
-      where: {
-        id: imageId,
-        tenantId
-      }
+    const image = await mediaService.updateProductImage(imageId, tenantId, {
+      altText,
+      sortOrder,
     });
 
-    if (!existingImage) {
-      return res.status(404).json({ error: 'Image not found' });
-    }
-
-    const updateData = {};
-    if (altText !== undefined) updateData.altText = altText;
-    if (sortOrder !== undefined) updateData.sortOrder = parseInt(sortOrder);
-
-    const image = await prisma.productImage.update({
-      where: { id: imageId },
-      data: updateData
-    });
-
-
-    res.json(image);
+    res.json(ApiResponse.updated(image, 'Image updated successfully'));
   } catch (error) {
+    if (error.message === 'Image not found') {
+      return res.status(404).json(ApiResponse.notFound('Image'));
+    }
     console.error('Update image error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -143,47 +107,22 @@ const addProductImageByUrl = async (req, res) => {
     const { url, altText, sortOrder = 0 } = req.body;
     const tenantId = req.tenantId;
 
-    if (!url) {
-      return res.status(400).json({ error: 'Image URL is required' });
-    }
-
-    // Basic URL validation
-    try {
-      new URL(url);
-    } catch (error) {
-      return res.status(400).json({ error: 'Invalid URL format' });
-    }
-
-    const product = await prisma.product.findFirst({
-      where: {
-        id: productId,
-        tenantId
-      }
+    const productImage = await mediaService.addProductImageByUrl(productId, tenantId, {
+      url,
+      altText,
+      sortOrder,
     });
 
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Extract filename from URL for storage purposes
-    const urlParts = url.split('/');
-    const filename = urlParts[urlParts.length - 1] || `image-${Date.now()}`;
-
-    const productImage = await prisma.productImage.create({
-      data: {
-        url: url,
-        altText: altText || '',
-        filename: filename,
-        productId,
-        tenantId,
-        sortOrder: parseInt(sortOrder)
-      }
-    });
-
-    res.status(201).json(productImage);
+    res.status(201).json(ApiResponse.created(productImage, 'Image added successfully'));
   } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json(ApiResponse.notFound('Product'));
+    }
+    if (error.message === 'Image URL is required' || error.message === 'Invalid URL format') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
     console.error('Add image by URL error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -192,25 +131,15 @@ const deleteProductImage = async (req, res) => {
     const { imageId } = req.params;
     const tenantId = req.tenantId;
 
-    const image = await prisma.productImage.findFirst({
-      where: {
-        id: imageId,
-        tenantId
-      }
-    });
+    await mediaService.deleteProductImage(imageId, tenantId);
 
-    if (!image) {
-      return res.status(404).json({ error: 'Image not found' });
-    }
-
-    await prisma.productImage.delete({
-      where: { id: imageId }
-    });
-
-    res.json({ message: 'Image deleted successfully' });
+    res.json(ApiResponse.deleted('Image deleted successfully'));
   } catch (error) {
+    if (error.message === 'Image not found') {
+      return res.status(404).json(ApiResponse.notFound('Image'));
+    }
     console.error('Delete image error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 

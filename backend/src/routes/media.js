@@ -241,6 +241,86 @@ const router = express.Router();
  *         $ref: '#/components/responses/ServerError'
  */
 
+/**
+ * @swagger
+ * /media/products/{productId}/images/url:
+ *   post:
+ *     summary: Add product image by URL
+ *     description: Adds an image to a product by providing an external URL
+ *     tags: [Media]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/TenantHost'
+ *       - name: productId
+ *         in: path
+ *         required: true
+ *         description: Product ID
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *           example: f47ac10b-58cc-4372-a567-0e02b2c3d482
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - url
+ *             properties:
+ *               url:
+ *                 type: string
+ *                 format: uri
+ *                 description: External image URL
+ *                 example: https://example.com/images/product.jpg
+ *               altText:
+ *                 type: string
+ *                 description: Alt text for accessibility
+ *                 example: iPhone 15 Pro front view
+ *               sortOrder:
+ *                 type: integer
+ *                 minimum: 0
+ *                 description: Display order of the image
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Image added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProductImage'
+ *       400:
+ *         description: Invalid URL or missing required fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             examples:
+ *               missing_url:
+ *                 summary: URL is required
+ *                 value:
+ *                   error: Image URL is required
+ *               invalid_url:
+ *                 summary: Invalid URL format
+ *                 value:
+ *                   error: Invalid URL format
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: Product not found
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
 router.use(tenantResolver);
 router.use(authenticateToken);
 router.use(requireStoreOwner);

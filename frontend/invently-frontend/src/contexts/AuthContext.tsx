@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const params = new URLSearchParams(hash.slice(1));
         return params.get('token');
       })();
-      
+
       if (hashToken) {
         localStorage.setItem('token', hashToken);
         setToken(hashToken);
@@ -59,6 +59,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // 2) make sure your auth API uses the token
           authAPI.setToken(savedToken);
           const response = await authAPI.me();
+
+          // Response is already unwrapped by the interceptor
           setUser(response.user);
           setTenants(response.tenants || []);
           setToken(savedToken);
@@ -81,6 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authAPI.login({ email, password });
 
+      // Response is already unwrapped by the interceptor
       setToken(response.token);
       setUser(response.user);
       setTenants(response.tenants || []);
@@ -115,6 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authAPI.register(data);
 
+      // Response is already unwrapped by the interceptor
       setToken(response.token);
       setUser(response.user);
       setTenants(response.tenant ? [response.tenant] : []);
@@ -151,9 +155,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     authAPI.setToken(null);
-    
+
     handleSuccess('Logged out successfully');
-    
+
     // If on subdomain, redirect to main domain
     if (isOnSubdomain()) {
       const mainDomain = window.location.hostname.endsWith('.localhost')

@@ -1,26 +1,18 @@
-import { PrismaClient } from '@prisma/client';
+import { SettingsService } from '../services/SettingsService.js';
+import { ApiResponse } from '../utils/responseFormatter.js';
 
-const prisma = new PrismaClient();
+const settingsService = new SettingsService();
 
 const getSettings = async (req, res) => {
   try {
     const tenantId = req.tenantId;
 
-    let settings = await prisma.storeSettings.findUnique({
-      where: { tenantId }
-    });
+    const settings = await settingsService.getSettings(tenantId);
 
-    // If no settings exist, create default ones
-    if (!settings) {
-      settings = await prisma.storeSettings.create({
-        data: { tenantId }
-      });
-    }
-
-    res.json({ data: settings });
+    res.json(ApiResponse.success(settings));
   } catch (error) {
     console.error('Get settings error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -40,68 +32,46 @@ const updateSettings = async (req, res) => {
       instagramUrl,
       linkedinUrl,
       youtubeUrl,
-      trackOrderUrl
+      trackOrderUrl,
     } = req.body;
 
-    // Upsert settings
-    const settings = await prisma.storeSettings.upsert({
-      where: { tenantId },
-      update: {
-        ...(aboutUs !== undefined && { aboutUs }),
-        ...(contact !== undefined && { contact }),
-        ...(privacyPolicy !== undefined && { privacyPolicy }),
-        ...(termsOfService !== undefined && { termsOfService }),
-        ...(shippingInfo !== undefined && { shippingInfo }),
-        ...(returns !== undefined && { returns }),
-        ...(faq !== undefined && { faq }),
-        ...(facebookUrl !== undefined && { facebookUrl }),
-        ...(twitterUrl !== undefined && { twitterUrl }),
-        ...(instagramUrl !== undefined && { instagramUrl }),
-        ...(linkedinUrl !== undefined && { linkedinUrl }),
-        ...(youtubeUrl !== undefined && { youtubeUrl }),
-        ...(trackOrderUrl !== undefined && { trackOrderUrl }),
-      },
-      create: {
-        tenantId,
-        aboutUs,
-        contact,
-        privacyPolicy,
-        termsOfService,
-        shippingInfo,
-        returns,
-        faq,
-        facebookUrl,
-        twitterUrl,
-        instagramUrl,
-        linkedinUrl,
-        youtubeUrl,
-        trackOrderUrl,
-      }
+    const settings = await settingsService.updateSettings(tenantId, {
+      aboutUs,
+      contact,
+      privacyPolicy,
+      termsOfService,
+      shippingInfo,
+      returns,
+      faq,
+      facebookUrl,
+      twitterUrl,
+      instagramUrl,
+      linkedinUrl,
+      youtubeUrl,
+      trackOrderUrl,
     });
 
-    res.json({ data: settings, message: 'Settings updated successfully' });
+    res.json(ApiResponse.updated(settings, 'Settings updated successfully'));
   } catch (error) {
     console.error('Update settings error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
 // Public endpoint for storefront
 const getPublicSettings = async (req, res) => {
   try {
-    if (!req.tenant) {
-      return res.status(404).json({ error: 'Store not found' });
-    }
+    const tenantId = req.tenant?.id;
 
-    const settings = await prisma.storeSettings.findUnique({
-      where: { tenantId: req.tenant.id }
-    });
+    const settings = await settingsService.getPublicSettings(tenantId);
 
-    // Return null if no settings exist
     res.json(settings || null);
   } catch (error) {
+    if (error.message === 'Store not found') {
+      return res.status(404).json(ApiResponse.error(error.message));
+    }
     console.error('Get public settings error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 

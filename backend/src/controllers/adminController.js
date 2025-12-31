@@ -1,60 +1,22 @@
-import { PrismaClient } from '@prisma/client';
+import { AdminService } from '../services/AdminService.js';
+import { ApiResponse } from '../utils/responseFormatter.js';
 
-const prisma = new PrismaClient();
+const adminService = new AdminService();
 
 const getAllTenants = async (req, res) => {
   try {
     const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'desc', isActive } = req.query;
 
-    const where = {
-      ...(isActive !== undefined && { isActive: isActive === 'true' }),
-      ...(search && {
-        OR: [
-          { name: { contains: search } },
-          { subdomain: { contains: search } },
-          { owner: { email: { contains: search } } }
-        ]
-      })
-    };
+    const result = await adminService.getAllTenants(
+      { search, sortBy, sortOrder, isActive },
+      parseInt(page),
+      parseInt(limit)
+    );
 
-    const [tenants, total] = await Promise.all([
-      prisma.tenant.findMany({
-        where,
-        include: {
-          owner: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true
-            }
-          },
-          _count: {
-            select: {
-              categories: true,
-              products: true
-            }
-          }
-        },
-        orderBy: { [sortBy]: sortOrder },
-        skip: (parseInt(page) - 1) * parseInt(limit),
-        take: parseInt(limit)
-      }),
-      prisma.tenant.count({ where })
-    ]);
-
-    res.json({
-      tenants,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
-    });
+    res.json(result);
   } catch (error) {
     console.error('Get all tenants error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -62,55 +24,15 @@ const getTenantById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const tenant = await prisma.tenant.findUnique({
-      where: { id },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            createdAt: true
-          }
-        },
-        categories: {
-          include: {
-            _count: {
-              select: { products: true }
-            }
-          }
-        },
-        products: {
-          include: {
-            category: {
-              select: {
-                id: true,
-                name: true
-              }
-            }
-          },
-          take: 10,
-          orderBy: { createdAt: 'desc' }
-        },
-        _count: {
-          select: {
-            categories: true,
-            products: true,
-            productImages: true
-          }
-        }
-      }
-    });
+    const tenant = await adminService.getTenantById(id);
 
-    if (!tenant) {
-      return res.status(404).json({ error: 'Tenant not found' });
-    }
-
-    res.json(tenant);
+    res.json(ApiResponse.success(tenant));
   } catch (error) {
+    if (error.message === 'Tenant not found') {
+      return res.status(404).json(ApiResponse.notFound('Tenant'));
+    }
     console.error('Get tenant by ID error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -119,34 +41,15 @@ const updateTenantStatus = async (req, res) => {
     const { id } = req.params;
     const { isActive } = req.body;
 
-    const existingTenant = await prisma.tenant.findUnique({
-      where: { id }
-    });
+    const tenant = await adminService.updateTenantStatus(id, isActive);
 
-    if (!existingTenant) {
-      return res.status(404).json({ error: 'Tenant not found' });
-    }
-
-    const tenant = await prisma.tenant.update({
-      where: { id },
-      data: { isActive },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true
-          }
-        }
-      }
-    });
-
-
-    res.json(tenant);
+    res.json(ApiResponse.updated(tenant, 'Tenant status updated successfully'));
   } catch (error) {
+    if (error.message === 'Tenant not found') {
+      return res.status(404).json(ApiResponse.notFound('Tenant'));
+    }
     console.error('Update tenant status error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -154,55 +57,16 @@ const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 20, search, role, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
-    const where = {
-      ...(role && { role }),
-      ...(search && {
-        OR: [
-          { email: { contains: search } },
-          { firstName: { contains: search } },
-          { lastName: { contains: search } }
-        ]
-      })
-    };
+    const result = await adminService.getAllUsers(
+      { search, role, sortBy, sortOrder },
+      parseInt(page),
+      parseInt(limit)
+    );
 
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          role: true,
-          createdAt: true,
-          ownedTenants: {
-            select: {
-              id: true,
-              name: true,
-              subdomain: true,
-              isActive: true
-            }
-          }
-        },
-        orderBy: { [sortBy]: sortOrder },
-        skip: (parseInt(page) - 1) * parseInt(limit),
-        take: parseInt(limit)
-      }),
-      prisma.user.count({ where })
-    ]);
-
-    res.json({
-      users,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
-    });
+    res.json(result);
   } catch (error) {
     console.error('Get all users error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
@@ -210,98 +74,27 @@ const getAuditLogs = async (req, res) => {
   try {
     const { page = 1, limit = 50, tenantId, userId, resource, action } = req.query;
 
-    const where = {
-      ...(tenantId && { tenantId }),
-      ...(userId && { userId }),
-      ...(resource && { resource }),
-      ...(action && { action })
-    };
+    const result = await adminService.getAuditLogs(
+      { tenantId, userId, resource, action },
+      parseInt(page),
+      parseInt(limit)
+    );
 
-    const [logs, total] = await Promise.all([
-      prisma.auditLog.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true
-            }
-          },
-          tenant: {
-            select: {
-              id: true,
-              name: true,
-              subdomain: true
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        skip: (parseInt(page) - 1) * parseInt(limit),
-        take: parseInt(limit)
-      }),
-      prisma.auditLog.count({ where })
-    ]);
-
-    res.json({
-      logs,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
-    });
+    res.json(result);
   } catch (error) {
     console.error('Get audit logs error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 
 const getSystemStats = async (req, res) => {
   try {
-    const [
-      totalTenants,
-      activeTenants,
-      totalUsers,
-      totalProducts,
-      totalCategories,
-      recentTenants
-    ] = await Promise.all([
-      prisma.tenant.count(),
-      prisma.tenant.count({ where: { isActive: true } }),
-      prisma.user.count(),
-      prisma.product.count(),
-      prisma.category.count(),
-      prisma.tenant.findMany({
-        include: {
-          owner: {
-            select: {
-              email: true,
-              firstName: true,
-              lastName: true
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 5
-      })
-    ]);
+    const result = await adminService.getSystemStats();
 
-    res.json({
-      stats: {
-        totalTenants,
-        activeTenants,
-        totalUsers,
-        totalProducts,
-        totalCategories
-      },
-      recentTenants
-    });
+    res.json(ApiResponse.success(result));
   } catch (error) {
     console.error('Get system stats error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
 

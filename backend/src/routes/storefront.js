@@ -308,6 +308,74 @@ router.use(tenantResolver);
  *         $ref: '#/components/responses/ServerError'
  */
 
+/**
+ * @swagger
+ * /storefront/settings:
+ *   get:
+ *     summary: Get public store settings
+ *     description: Retrieves public settings for the storefront (about us, contact, social links, etc.)
+ *     tags: [Storefront]
+ *     parameters:
+ *       - $ref: '#/components/parameters/TenantHost'
+ *     responses:
+ *       200:
+ *         description: Settings retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 aboutUs:
+ *                   type: string
+ *                   nullable: true
+ *                 contact:
+ *                   type: string
+ *                   nullable: true
+ *                 privacyPolicy:
+ *                   type: string
+ *                   nullable: true
+ *                 termsOfService:
+ *                   type: string
+ *                   nullable: true
+ *                 shippingInfo:
+ *                   type: string
+ *                   nullable: true
+ *                 returns:
+ *                   type: string
+ *                   nullable: true
+ *                 faq:
+ *                   type: string
+ *                   nullable: true
+ *                 facebookUrl:
+ *                   type: string
+ *                   nullable: true
+ *                 twitterUrl:
+ *                   type: string
+ *                   nullable: true
+ *                 instagramUrl:
+ *                   type: string
+ *                   nullable: true
+ *                 linkedinUrl:
+ *                   type: string
+ *                   nullable: true
+ *                 youtubeUrl:
+ *                   type: string
+ *                   nullable: true
+ *                 trackOrderUrl:
+ *                   type: string
+ *                   nullable: true
+ *       404:
+ *         description: Store not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               error: Store not found
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
 router.use(tenantResolver);
 
 router.get('/info', getStoreInfo);

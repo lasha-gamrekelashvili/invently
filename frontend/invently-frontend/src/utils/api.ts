@@ -100,9 +100,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor for error handling
+// Response interceptor for error handling and unwrapping ApiResponse
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Unwrap the ApiResponse format from backend
+    // Backend returns: { success: true, data: {...}, message?: string }
+    // We want to extract just the data property for easier consumption
+    if (response.data && response.data.success !== undefined && response.data.data !== undefined) {
+      // This is an ApiResponse format, unwrap it
+      return {
+        ...response,
+        data: response.data.data
+      };
+    }
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
@@ -120,18 +132,10 @@ export const authAPI = {
   },
 
   login: (data: LoginData): Promise<AuthResponse> =>
-    api.post('/auth/login', data).then(res => {
-      // Set token immediately so /me right after login works too
-      authAPI.setToken(res.data.token);
-      return res.data;
-    }),
+    api.post('/auth/login', data).then(res => res.data),
 
   register: (data: RegisterData): Promise<AuthResponse> =>
-    api.post('/auth/register', data).then(res => {
-      // Set token immediately so /me right after register works too
-      authAPI.setToken(res.data.token);
-      return res.data;
-    }),
+    api.post('/auth/register', data).then(res => res.data),
 
   me: (): Promise<{ user: User; tenants: any[] }> =>
     api.get('/auth/me').then(res => res.data),
@@ -271,7 +275,7 @@ export const settingsAPI = {
 // Cart API
 export const cartAPI = {
   getCart: (sessionId: string): Promise<Cart> =>
-    api.get(`/cart/${sessionId}`).then(res => res.data.data),
+    api.get(`/cart/${sessionId}`).then(res => res.data),
 
   addToCart: (sessionId: string, productId: string, quantity: number = 1, variantId?: string): Promise<any> =>
     api.post(`/cart/${sessionId}/items`, { productId, quantity, variantId }).then(res => res.data),
@@ -289,19 +293,19 @@ export const cartAPI = {
 // Orders API
 export const ordersAPI = {
   createOrder: (data: CreateOrderData): Promise<Order> =>
-    api.post('/orders', data).then(res => res.data.data),
+    api.post('/orders', data).then(res => res.data),
 
   getOrders: (params?: PaginationParams & { status?: string; search?: string; dateFilter?: string; startDate?: string; endDate?: string }): Promise<PaginatedResponse<Order>> =>
     api.get('/orders', { params }).then(res => res.data),
 
   getOrder: (id: string): Promise<Order> =>
-    api.get(`/orders/${id}`).then(res => res.data.data),
+    api.get(`/orders/${id}`).then(res => res.data),
 
   updateOrderStatus: (id: string, status: string): Promise<Order> =>
-    api.put(`/orders/${id}/status`, { status }).then(res => res.data.data),
+    api.put(`/orders/${id}/status`, { status }).then(res => res.data),
 
   getOrderStats: (): Promise<OrderStats> =>
-    api.get('/orders/stats').then(res => res.data.data),
+    api.get('/orders/stats').then(res => res.data),
 };
 
 // Audit Logs API
@@ -310,7 +314,7 @@ export const auditLogsAPI = {
     api.get('/audit-logs', { params }).then(res => res.data),
 
   getAuditLogStats: (): Promise<any> =>
-    api.get('/audit-logs/stats').then(res => res.data.data),
+    api.get('/audit-logs/stats').then(res => res.data),
 };
 
 export default api;
