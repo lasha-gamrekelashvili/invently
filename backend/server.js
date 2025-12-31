@@ -131,7 +131,7 @@ app.use('/api/settings', settingsRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Invently Multi-Tenant Shop API',
+    message: 'Shopu Multi-Tenant Shop API',
     version: '1.0.0',
     docs: '/api/docs',
     health: '/healthz',

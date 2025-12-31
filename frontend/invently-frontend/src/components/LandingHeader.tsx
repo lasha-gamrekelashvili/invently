@@ -16,7 +16,9 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
       <div className="w-full px-6 lg:px-12">
         <div className="flex justify-between items-center h-20">
           {/* Left: Logo */}
-          <Logo variant="full" size="md" theme="dark" />
+          <div className="flex items-center">
+            <Logo variant="full" size="lg" theme="dark" />
+          </div>
 
           {/* Right: Auth Buttons or Language Selector */}
           <div className="flex items-center gap-3">

@@ -77,7 +77,8 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# public folder is for Gatsby only, not our frontend
+# We keep frontend/invently-frontend/public for static assets
 
 # Storybook build outputs
 .out

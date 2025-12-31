@@ -1,4 +1,4 @@
--- Test Data Generation Script for Invently
+-- Test Data Generation Script for Shopu
 -- Tenant ID: 924cf123-390e-4d26-8e69-5f2edc552a26
 
 -- Clear existing data for the tenant (optional - uncomment if needed)

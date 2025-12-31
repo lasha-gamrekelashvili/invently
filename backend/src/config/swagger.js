@@ -5,7 +5,7 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Invently Multi-Tenant E-Commerce API',
+      title: 'Shopu Multi-Tenant E-Commerce API',
       version: '1.0.0',
       description: 'Multi-tenant e-commerce platform API with customizable product variants and attributes',
     },
