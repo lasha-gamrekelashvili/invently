@@ -40,6 +40,9 @@ app.use(cors({
     const allowedDomains = [
       'https://shopu.ge',
       'http://shopu.ge',
+      /^https:\/\/[a-zA-Z0-9-]+\.shopu\.ge$/,
+      /^http:\/\/[a-zA-Z0-9-]+\.shopu\.ge$/,
+      // Legacy domain support (can be removed later)
       /^https:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/,
       /^http:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/
     ];

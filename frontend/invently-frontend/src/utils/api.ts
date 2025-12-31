@@ -57,7 +57,7 @@ const getApiBaseUrl = () => {
   
   // For production - use the actual backend URL
   console.log('Using production API URL');
-  return 'https://momigvare.onrender.com/api';
+  return 'https://shopu.onrender.com/api';
 };
 
 const api = axios.create({
