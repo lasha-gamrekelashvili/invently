@@ -26,13 +26,13 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
               <>
                 <Link
                   to="/login"
-                  className="px-5 py-2.5 text-gray-700 hover:text-gray-900 font-semibold transition-colors"
+                  className="px-3 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base text-gray-700 hover:text-gray-900 font-semibold transition-colors"
                 >
                   <T tKey="navigation.login" />
                 </Link>
                 <Link
                   to="/register"
-                  className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
+                  className="px-3 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-bold bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-600 hover:via-indigo-700 hover:to-purple-700 transition-all"
                 >
                   <T tKey="landing.nav.getStarted" />
                 </Link>

@@ -22,6 +22,10 @@ const options = {
     
     tags: [
       {
+        name: 'Public',
+        description: 'Public endpoints (no authentication required)'
+      },
+      {
         name: 'Products',
         description: 'Product management endpoints'
       },

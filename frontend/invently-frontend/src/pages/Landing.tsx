@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { T } from '../components/Translation';
 import LandingHeader from '../components/LandingHeader';
+import ShopsCarousel from '../components/ShopsCarousel';
 import dashboardImage from '../../assets/dashboard-image.png';
 import categoryImage from '../../assets/category-image.png';
 
@@ -163,6 +164,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Shops Carousel */}
+      <ShopsCarousel />
 
       {/* Features Section */}
       <section className="py-20 lg:py-28 bg-gray-100">

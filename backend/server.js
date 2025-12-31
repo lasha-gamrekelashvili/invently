@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
 
 // Import routes
+import publicRoutes from './src/routes/public.js';
 import authRoutes from './src/routes/auth.js';
 import categoryRoutes from './src/routes/categories.js';
 import productRoutes from './src/routes/products.js';
@@ -118,6 +119,7 @@ app.get('/readyz', async (req, res) => {
 });
 
 // API Routes
+app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
