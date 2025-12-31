@@ -17,6 +17,7 @@ interface StorefrontHeaderProps {
   onSearchChange?: (query: string) => void;
   gridLayout?: number;
   onGridLayoutChange?: (layout: number) => void;
+  searchQuery?: string;
 }
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
@@ -26,121 +27,152 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   onSearchChange,
   gridLayout = 3,
   onGridLayoutChange,
+  searchQuery = '',
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { cartItemCount } = useCart();
+
+  // Sync with parent when prop changes
+  React.useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchQuery(value);
+    setLocalSearchQuery(value);
     onSearchChange?.(value);
   };
 
+  const toggleMobileSearch = () => {
+    setMobileSearchOpen(!mobileSearchOpen);
+  };
+
   return (
-    <>
-      {/* Single unified header with all functionality */}
-      <LandingHeader 
-        showAuthButtons={false}
-        shopName={storeInfo?.name || ''}
-        mobileMenuButton={
-          <button
-            onClick={onMenuClick}
-            className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-          >
-            <Bars3Icon className="w-6 h-6" />
-          </button>
-        }
-        centerContent={
-          <div className="flex items-center gap-3 w-full">
-            {/* Search Bar */}
-            <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
+    <LandingHeader 
+      showAuthButtons={false}
+      shopName={storeInfo?.name || ''}
+      mobileMenuButton={
+        <button
+          onClick={onMenuClick}
+          className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+        >
+          <Bars3Icon className="w-6 h-6" />
+        </button>
+      }
+      mobileSearchButton={
+        <button
+          onClick={toggleMobileSearch}
+          className="p-2 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all"
+          aria-label="Search"
+        >
+          <MagnifyingGlassIcon className="h-6 w-6" />
+        </button>
+      }
+      centerContent={
+        <div className="flex items-center gap-3 w-full">
+          {/* Search Bar - Desktop always visible */}
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
             </div>
-
-            {/* Grid Layout Selector */}
-            <div className="flex items-center space-x-1">
-              {[
-                { layout: 2, icon: 'grid-2' },
-                { layout: 3, icon: 'grid-3' },
-                { layout: 4, icon: 'grid-4' }
-              ].map(({ layout, icon }) => (
-                <button
-                  key={layout}
-                  onClick={() => onGridLayoutChange?.(layout)}
-                  className={`p-2 rounded-lg transition-all ${
-                    gridLayout === layout
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title={`${layout} items per row`}
-                >
-                  {icon === 'grid-2' && (
-                    <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                      <div className="bg-current rounded-sm"></div>
-                      <div className="bg-current rounded-sm"></div>
-                    </div>
-                  )}
-                  {icon === 'grid-3' && (
-                    <div className="w-4 h-4 grid grid-cols-3 gap-0.5">
-                      <div className="bg-current rounded-sm"></div>
-                      <div className="bg-current rounded-sm"></div>
-                      <div className="bg-current rounded-sm"></div>
-                    </div>
-                  )}
-                  {icon === 'grid-4' && (
-                    <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                      <div className="bg-current rounded-sm"></div>
-                      <div className="bg-current rounded-sm"></div>
-                      <div className="bg-current rounded-sm"></div>
-                      <div className="bg-current rounded-sm"></div>
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={localSearchQuery}
+              onChange={handleSearchChange}
+              className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
           </div>
-        }
-        rightActions={
-          <button
-            onClick={onCartClick}
-            className="relative p-2.5 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all group"
-            aria-label="Shopping cart"
-          >
-            <ShoppingBagIcon className="h-6 w-6" />
-            {cartItemCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white group-hover:scale-110 transition-transform">
-                {cartItemCount > 99 ? '99+' : cartItemCount}
-              </span>
-            )}
-          </button>
-        }
-      />
 
-      {/* Mobile Search Bar - Below header on small screens */}
-      <div className="md:hidden bg-gray-50 border-b border-gray-200 px-4 py-3">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+          {/* Grid Layout Selector - Only show when there are multiple options */}
+          <div className="hidden lg:flex items-center space-x-1">
+            {[
+              { layout: 2, icon: 'grid-2', hideBelow: '' }, // Always show (when container is visible)
+              { layout: 3, icon: 'grid-3', hideBelow: 'lg' }, // Hide below lg (1024px)
+              { layout: 4, icon: 'grid-4', hideBelow: 'xl' } // Hide below xl (1280px)
+            ].map(({ layout, icon, hideBelow }) => (
+              <button
+                key={layout}
+                onClick={() => onGridLayoutChange?.(layout)}
+                className={`p-2 rounded-lg transition-all ${
+                  gridLayout === layout
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                } ${
+                  hideBelow === 'xl' ? 'hidden xl:block' : 
+                  hideBelow === 'lg' ? 'hidden lg:block' : ''
+                }`}
+                title={`${layout} items per row`}
+              >
+                {icon === 'grid-2' && (
+                  <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+                    <div className="bg-current rounded-sm"></div>
+                    <div className="bg-current rounded-sm"></div>
+                  </div>
+                )}
+                {icon === 'grid-3' && (
+                  <div className="w-4 h-4 grid grid-cols-3 gap-0.5">
+                    <div className="bg-current rounded-sm"></div>
+                    <div className="bg-current rounded-sm"></div>
+                    <div className="bg-current rounded-sm"></div>
+                  </div>
+                )}
+                {icon === 'grid-4' && (
+                  <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
+                    <div className="bg-current rounded-sm"></div>
+                    <div className="bg-current rounded-sm"></div>
+                    <div className="bg-current rounded-sm"></div>
+                    <div className="bg-current rounded-sm"></div>
+                  </div>
+                )}
+              </button>
+            ))}
           </div>
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
         </div>
-      </div>
-    </>
+      }
+      rightActions={
+        <button
+          onClick={onCartClick}
+          className="relative p-2 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all group"
+          aria-label="Shopping cart"
+        >
+          <ShoppingBagIcon className="h-6 w-6" />
+          {cartItemCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white group-hover:scale-110 transition-transform">
+              {cartItemCount > 99 ? '99+' : cartItemCount}
+            </span>
+          )}
+        </button>
+      }
+      showLanguageSelector={true}
+      mobileSearchExpanded={mobileSearchOpen}
+      mobileSearchContent={
+        <div className="flex items-center gap-2 w-full">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={localSearchQuery}
+              onChange={handleSearchChange}
+              autoFocus
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+          <button
+            onClick={toggleMobileSearch}
+            className="p-2 text-gray-400 hover:text-gray-600"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      }
+    />
   );
 };
 

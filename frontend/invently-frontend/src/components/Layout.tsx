@@ -80,7 +80,7 @@ const Layout = () => {
         )}
 
         {/* Sidebar */}
-        <div className={`fixed top-20 bottom-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-auto lg:w-64 flex flex-col ${
+        <div className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-auto lg:w-64 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <div className="flex flex-col flex-1 min-h-0">

@@ -245,6 +245,7 @@ const StorefrontContent = () => {
       maxPrice={maxPrice}
       gridLayout={gridLayout}
       onGridLayoutChange={handleGridLayoutChange}
+      searchQuery={searchInput}
     >
       <div className="space-y-8">
         {/* Hero Section - Only show when no category is selected */}

@@ -25,6 +25,7 @@ interface StorefrontLayoutProps {
   maxPrice?: number;
   gridLayout?: number;
   onGridLayoutChange?: (layout: number) => void;
+  searchQuery?: string;
 }
 
 const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
@@ -42,6 +43,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   maxPrice = 1000,
   gridLayout = 3,
   onGridLayoutChange,
+  searchQuery = '',
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -67,6 +69,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         onSearchChange={onSearchChange}
         gridLayout={gridLayout}
         onGridLayoutChange={onGridLayoutChange}
+        searchQuery={searchQuery}
       />
 
       <div className="flex-1 flex">
@@ -134,7 +137,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         </aside>
 
         {/* Mobile Sidebar - Filter Drawer */}
-        <aside className={`fixed top-20 bottom-0 left-0 z-50 w-80 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
+        <aside className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-80 bg-white shadow-lg border-r border-t border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <div className="flex flex-col h-full">
