@@ -246,6 +246,7 @@ const StorefrontContent = () => {
       gridLayout={gridLayout}
       onGridLayoutChange={handleGridLayoutChange}
       searchQuery={searchInput}
+      isCartOpen={showCart}
     >
       <div className="space-y-8">
         {/* Hero Section - Only show when no category is selected */}

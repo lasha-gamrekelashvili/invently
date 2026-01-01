@@ -18,6 +18,8 @@ interface StorefrontHeaderProps {
   gridLayout?: number;
   onGridLayoutChange?: (layout: number) => void;
   searchQuery?: string;
+  isCartOpen?: boolean;
+  isSidebarOpen?: boolean;
 }
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
@@ -28,6 +30,8 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   gridLayout = 3,
   onGridLayoutChange,
   searchQuery = '',
+  isCartOpen = false,
+  isSidebarOpen = false,
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -55,7 +59,11 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
       mobileMenuButton={
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+          className={`p-2 rounded-md transition-all ${
+            isSidebarOpen
+              ? 'text-blue-600 bg-blue-50 ring-1 ring-blue-400'
+              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+          }`}
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
@@ -134,12 +142,20 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
       rightActions={
         <button
           onClick={onCartClick}
-          className="relative p-2 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all group"
+          className={`relative p-2 rounded-xl transition-all group ${
+            isCartOpen
+              ? 'text-blue-600 bg-blue-50 ring-1 ring-blue-400 shadow-md shadow-blue-100/50'
+              : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+          }`}
           aria-label="Shopping cart"
         >
-          <ShoppingBagIcon className="h-6 w-6" />
+          <ShoppingBagIcon className={`h-6 w-6 transition-transform ${isCartOpen ? 'scale-110' : ''}`} />
           {cartItemCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white group-hover:scale-110 transition-transform">
+            <span className={`absolute -top-1 -right-1 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white transition-all ${
+              isCartOpen 
+                ? 'bg-blue-600 scale-110 ring-blue-50' 
+                : 'bg-blue-600 group-hover:scale-110'
+            }`}>
               {cartItemCount > 99 ? '99+' : cartItemCount}
             </span>
           )}

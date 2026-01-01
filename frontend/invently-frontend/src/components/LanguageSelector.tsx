@@ -171,21 +171,21 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   if (variant === 'micro') {
     return (
-      <div className={`flex items-center gap-0.5 ${className}`}>
+      <div className={`flex items-center gap-0 ${className}`}>
         {languages.map((lang, index) => (
           <React.Fragment key={lang.code}>
             <button
               onClick={() => handleLanguageChange(lang.code as 'en' | 'ka')}
-              className={`px-2 py-1 text-xs transition-colors ${
+              className={`px-1.5 sm:px-2 py-1 text-[10px] sm:text-xs font-medium transition-colors ${
                 language === lang.code 
-                  ? 'text-gray-900 font-medium' 
+                  ? 'text-gray-900 font-semibold' 
                   : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               {lang.code === 'ka' ? 'GE' : lang.code.toUpperCase()}
             </button>
             {index < languages.length - 1 && (
-              <span className="text-gray-300 text-xs">/</span>
+              <span className="text-gray-300 text-[10px] sm:text-xs">/</span>
             )}
           </React.Fragment>
         ))}

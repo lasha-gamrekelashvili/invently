@@ -20,11 +20,11 @@
 
 @layer base {
   html {
-    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+    font-family: 'Poppins', 'Inter', 'Noto Sans Georgian', 'FiraGO', 'BPG Nino Medium', system-ui, sans-serif;
     scroll-behavior: smooth;
   }
 
-  /* Georgian language support - Georgian fonts as fallback for Georgian characters only */
+  /* Georgian language support - Keep same font stack for consistency */
   html[lang="ka"] {
     font-family: 'Poppins', 'Inter', 'Noto Sans Georgian', 'FiraGO', 'BPG Nino Medium', system-ui, sans-serif;
   }
