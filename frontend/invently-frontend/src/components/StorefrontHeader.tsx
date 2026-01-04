@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   ShoppingBagIcon,
   MagnifyingGlassIcon,
-  Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { useCart } from '../contexts/CartContext';
 import LandingHeader from './LandingHeader';
@@ -56,18 +55,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
     <LandingHeader 
       showAuthButtons={false}
       shopName={storeInfo?.name || ''}
-      mobileMenuButton={
-        <button
-          onClick={onMenuClick}
-          className={`p-2 rounded-md transition-all ${
-            isSidebarOpen
-              ? 'text-blue-600 bg-blue-50 ring-1 ring-blue-400'
-              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-          }`}
-        >
-          <Bars3Icon className="w-6 h-6" />
-        </button>
-      }
+      mobileMenuButton={null}
       mobileSearchButton={
         <button
           onClick={toggleMobileSearch}

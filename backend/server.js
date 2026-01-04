@@ -16,6 +16,7 @@ import adminRoutes from './src/routes/admin.js';
 import cartRoutes from './src/routes/cart.js';
 import orderRoutes from './src/routes/orders.js';
 import settingsRoutes from './src/routes/settings.js';
+import bulkUploadRoutes from './src/routes/bulkUpload.js';
 
 // Import swagger config
 import { serve, setup } from './src/config/swagger.js';
@@ -132,6 +133,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/bulk-upload', bulkUploadRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

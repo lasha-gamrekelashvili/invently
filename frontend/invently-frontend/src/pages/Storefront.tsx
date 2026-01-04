@@ -5,13 +5,14 @@ import { storefrontAPI } from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
-import StorefrontHero from '../components/StorefrontHero';
 import StorefrontPagination from '../components/StorefrontPagination';
 import ProductCard from '../components/ProductCard';
 import Cart from '../components/Cart';
 import Checkout from '../components/Checkout';
+import CategoryCarousel from '../components/CategoryCarousel';
+import CategoryGridModal from '../components/CategoryGridModal';
 import { CartProvider, useCart } from '../contexts/CartContext';
-import { CubeIcon } from '@heroicons/react/24/outline';
+import { CubeIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const StorefrontContent = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const StorefrontContent = () => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [cartClosing, setCartClosing] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [searchInput, setSearchInput] = useState(''); // User's input
   const [searchQuery, setSearchQuery] = useState(''); // Debounced search query
   const [currentPage, setCurrentPage] = useState(1);
@@ -188,6 +190,27 @@ const StorefrontContent = () => {
     return null;
   };
 
+  // Build category hierarchy (from root to current category)
+  const buildCategoryHierarchy = (categoryId: string | undefined): any[] => {
+    if (!categoryId || !categories) return [];
+    
+    const hierarchy: any[] = [];
+    let currentCat = findCategoryById(categoryId, categories);
+    
+    while (currentCat) {
+      hierarchy.unshift(currentCat);
+      if (currentCat.parentId) {
+        currentCat = findCategoryById(currentCat.parentId, categories);
+      } else {
+        break;
+      }
+    }
+    
+    return hierarchy;
+  };
+
+  const categoryHierarchy = buildCategoryHierarchy(selectedCategoryId);
+
   const handleCategorySelect = (categoryId: string) => {
     if (categoryId === selectedCategoryId) {
       // If clicking the same category, go to all products
@@ -247,16 +270,16 @@ const StorefrontContent = () => {
       onGridLayoutChange={handleGridLayoutChange}
       searchQuery={searchInput}
       isCartOpen={showCart}
+      hideSidebar={true}
     >
-      <div className="space-y-8">
-        {/* Hero Section - Only show when no category is selected */}
-        {!selectedCategoryId && (
-          <StorefrontHero
-            storeInfo={storeInfo}
-            onShopNowClick={() => {
-              // Scroll to products section
-              document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
+      <div className="space-y-6 sm:space-y-8">
+        {/* Category Carousel - Primary Navigation */}
+        {categories && categories.length > 0 && (
+          <CategoryCarousel
+            categories={categories}
+            onCategorySelect={handleCategorySelect}
+            onShowAllClick={() => setShowCategoryModal(true)}
+            selectedCategoryId={selectedCategoryId}
           />
         )}
 
@@ -264,23 +287,32 @@ const StorefrontContent = () => {
         <div id="products-section">
           {/* Category Breadcrumb */}
           {selectedCategory && (
-            <div className="mb-6 flex items-center justify-between bg-blue-50/50 border border-blue-100 rounded-lg p-3">
-              <div>
-                <p className="text-xs text-gray-500 mb-0.5">Browsing category</p>
-                <h2 className="text-base font-semibold text-gray-900">{selectedCategory.name}</h2>
+            <nav className="mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                <button
+                  onClick={handleAllProductsClick}
+                  className="hover:text-gray-900 transition-colors flex-shrink-0"
+                >
+                  Home
+                </button>
+                
+                {categoryHierarchy.map((cat, index) => (
+                  <React.Fragment key={cat.id}>
+                    <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+                    <button
+                      onClick={() => handleCategorySelect(cat.id)}
+                      className={`transition-colors flex-shrink-0 ${
+                        index === categoryHierarchy.length - 1
+                          ? 'text-gray-900 font-medium'
+                          : 'hover:text-gray-900'
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  </React.Fragment>
+                ))}
               </div>
-              <button
-                onClick={() => {
-                  navigate('/');
-                  setPriceInput({ min: '', max: '' });
-                  setPriceRange({ min: '', max: '' });
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors"
-              >
-                Clear filter
-              </button>
-            </div>
+            </nav>
           )}
 
           {productsLoading ? (
@@ -367,6 +399,15 @@ const StorefrontContent = () => {
       <Checkout
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
+      />
+
+      {/* Category Grid Modal */}
+      <CategoryGridModal
+        isOpen={showCategoryModal}
+        onClose={() => setShowCategoryModal(false)}
+        categories={categories || []}
+        onCategorySelect={handleCategorySelect}
+        selectedCategoryId={selectedCategoryId}
       />
     </StorefrontLayout>
   );

@@ -215,3 +215,13 @@
 .feature-card:hover {
   transform: translateY(-4px);
 }
+
+/* Hide scrollbar for horizontal scroll areas (breadcrumbs, etc.) */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}

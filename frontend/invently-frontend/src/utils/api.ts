@@ -317,4 +317,23 @@ export const auditLogsAPI = {
     api.get('/audit-logs/stats').then(res => res.data),
 };
 
+// Bulk Upload API
+export const bulkUploadAPI = {
+  uploadCSV: (file: File): Promise<{ categories: any; products: any; errors: any[] }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return api.post('/bulk-upload/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then(res => res.data);
+  },
+
+  downloadTemplate: (): Promise<Blob> =>
+    api.get('/bulk-upload/template', {
+      responseType: 'blob',
+    }).then(res => res.data),
+};
+
 export default api;

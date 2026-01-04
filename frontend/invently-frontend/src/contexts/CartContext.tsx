@@ -49,42 +49,171 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addToCartMutation = useMutation({
     mutationFn: ({ productId, quantity, variantId }: { productId: string; quantity: number; variantId?: string }) =>
       cartAPI.addToCart(sessionId, productId, quantity, variantId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
+    onMutate: async ({ productId, quantity, variantId }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cart', sessionId] });
+      
+      // Snapshot the previous value
+      const previousCart = queryClient.getQueryData(['cart', sessionId]);
+      
+      // Optimistically update the cart
+      queryClient.setQueryData(['cart', sessionId], (old: any) => {
+        if (!old) return old;
+        
+        const existingItemIndex = old.items.findIndex((item: any) => 
+          item.productId === productId && 
+          (variantId ? item.variantId === variantId : !item.variantId)
+        );
+        
+        if (existingItemIndex > -1) {
+          // Update existing item
+          const newItems = [...old.items];
+          newItems[existingItemIndex] = {
+            ...newItems[existingItemIndex],
+            quantity: newItems[existingItemIndex].quantity + quantity,
+          };
+          return {
+            ...old,
+            items: newItems,
+            total: old.total + (newItems[existingItemIndex].price * quantity),
+          };
+        }
+        
+        return old; // If item not in cart, let the server response handle it
+      });
+      
+      return { previousCart };
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cart', sessionId], context.previousCart);
+      }
       toast.error(error.response?.data?.message || 'Failed to add item to cart');
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
     },
   });
 
   const updateCartItemMutation = useMutation({
     mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
       cartAPI.updateCartItem(sessionId, itemId, quantity),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
+    onMutate: async ({ itemId, quantity }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cart', sessionId] });
+      
+      // Snapshot the previous value
+      const previousCart = queryClient.getQueryData(['cart', sessionId]);
+      
+      // Optimistically update the cart
+      queryClient.setQueryData(['cart', sessionId], (old: any) => {
+        if (!old) return old;
+        
+        const newItems = old.items.map((item: any) => 
+          item.id === itemId ? { ...item, quantity } : item
+        );
+        
+        const newTotal = newItems.reduce((sum: number, item: any) => 
+          sum + (item.price * item.quantity), 0
+        );
+        
+        return {
+          ...old,
+          items: newItems,
+          total: newTotal,
+        };
+      });
+      
+      return { previousCart };
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cart', sessionId], context.previousCart);
+      }
       toast.error(error.response?.data?.message || 'Failed to update cart');
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
     },
   });
 
   const removeFromCartMutation = useMutation({
     mutationFn: (itemId: string) => cartAPI.removeFromCart(sessionId, itemId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
+    onMutate: async (itemId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cart', sessionId] });
+      
+      // Snapshot the previous value
+      const previousCart = queryClient.getQueryData(['cart', sessionId]);
+      
+      // Optimistically update the cart
+      queryClient.setQueryData(['cart', sessionId], (old: any) => {
+        if (!old) return old;
+        
+        const newItems = old.items.filter((item: any) => item.id !== itemId);
+        
+        const newTotal = newItems.reduce((sum: number, item: any) => 
+          sum + (item.price * item.quantity), 0
+        );
+        
+        return {
+          ...old,
+          items: newItems,
+          total: newTotal,
+        };
+      });
+      
+      return { previousCart };
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cart', sessionId], context.previousCart);
+      }
       toast.error(error.response?.data?.message || 'Failed to remove item');
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
     },
   });
 
   const clearCartMutation = useMutation({
     mutationFn: () => cartAPI.clearCart(sessionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['cart', sessionId] });
+      
+      // Snapshot the previous value
+      const previousCart = queryClient.getQueryData(['cart', sessionId]);
+      
+      // Optimistically clear the cart
+      queryClient.setQueryData(['cart', sessionId], (old: any) => {
+        if (!old) return old;
+        
+        return {
+          ...old,
+          items: [],
+          total: 0,
+        };
+      });
+      
+      return { previousCart };
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
+      // Rollback on error
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cart', sessionId], context.previousCart);
+      }
       toast.error(error.response?.data?.message || 'Failed to clear cart');
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      queryClient.invalidateQueries({ queryKey: ['cart', sessionId] });
     },
   });
 

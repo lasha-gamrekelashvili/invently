@@ -99,14 +99,13 @@ export class CartService {
       // Check total stock
       this.checkStockAvailability(product, variant, newQuantity);
 
-      cartItem = await this.cartItemRepository.update(existingItem.id, {
-        quantity: newQuantity,
-        price: itemPrice,
-      });
-
-      // Fetch with full details
-      cartItem = await this.cartItemRepository.findFirst(
-        { id: cartItem.id },
+      // Update with full details in single query
+      cartItem = await this.cartItemRepository.update(
+        existingItem.id,
+        {
+          quantity: newQuantity,
+          price: itemPrice,
+        },
         {
           include: {
             product: {
@@ -122,17 +121,15 @@ export class CartService {
         }
       );
     } else {
-      cartItem = await this.cartItemRepository.create({
-        cartId: cart.id,
-        productId,
-        variantId: variantId || null,
-        quantity,
-        price: itemPrice,
-      });
-
-      // Fetch with full details
-      cartItem = await this.cartItemRepository.findFirst(
-        { id: cartItem.id },
+      // Create with full details in single query
+      cartItem = await this.cartItemRepository.create(
+        {
+          cartId: cart.id,
+          productId,
+          variantId: variantId || null,
+          quantity,
+          price: itemPrice,
+        },
         {
           include: {
             product: {
@@ -154,7 +151,7 @@ export class CartService {
 
   // Update cart item quantity
   async updateCartItem(sessionId, itemId, quantity, tenantId) {
-    // Find cart item
+    // Find cart item with all details in single query
     const cartItem = await this.cartItemRepository.findByCartWithSession(itemId, sessionId, tenantId);
 
     if (!cartItem) {
@@ -170,15 +167,13 @@ export class CartService {
     // Determine price
     const itemPrice = cartItem.variant?.price ?? cartItem.product.price;
 
-    // Update quantity
-    const updatedItem = await this.cartItemRepository.update(itemId, {
-      quantity,
-      price: itemPrice,
-    });
-
-    // Fetch with full details
-    return await this.cartItemRepository.findFirst(
-      { id: updatedItem.id },
+    // Update with full details in single query
+    return await this.cartItemRepository.update(
+      itemId,
+      {
+        quantity,
+        price: itemPrice,
+      },
       {
         include: {
           product: {

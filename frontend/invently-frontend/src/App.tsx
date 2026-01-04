@@ -22,6 +22,7 @@ import ProductForm from './pages/ProductForm';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
 import Settings from './pages/Settings';
+import BulkUpload from './pages/BulkUpload';
 import Storefront from './pages/Storefront';
 import ProductDetail from './pages/ProductDetail';
 import PlatformAdmin from './pages/PlatformAdmin';
@@ -89,6 +90,7 @@ const AppRoutes = () => {
         <Route path="products" element={<Products />} />
         <Route path="products/new" element={<ProductForm />} />
         <Route path="products/:id/edit" element={<ProductForm />} />
+        <Route path="bulk-upload" element={<BulkUpload />} />
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<OrderDetails />} />
         <Route path="settings" element={<Settings />} />

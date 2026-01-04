@@ -119,9 +119,19 @@ const ProductDetailContent: React.FC = () => {
   const activeVariants = product.variants?.filter(v => v.isActive) || [];
   const hasVariants = activeVariants.length > 0;
   
-  const displayPrice = selectedVariant?.price || product.price;
+  // Calculate the minimum price across all variants for "Starting from" display
+  const minVariantPrice = hasVariants 
+    ? Math.min(...activeVariants.map(v => v.price || product.price))
+    : product.price;
+  
+  // Display price: selected variant price, or minimum variant price, or base product price
+  const displayPrice = selectedVariant?.price || (hasVariants ? minVariantPrice : product.price);
   const displayStock = selectedVariant?.stockQuantity ?? product.stockQuantity;
+  
+  // For products with variants, only show stock status after a variant is selected
+  // For simple products (no variants), show stock status immediately
   const isInStock = displayStock > 0;
+  const shouldShowStockStatus = !hasVariants || selectedVariant !== null;
 
   const cartQuantity = getCartItemQuantity(product.id, selectedVariant?.id);
 
@@ -219,10 +229,10 @@ const ProductDetailContent: React.FC = () => {
       isCartOpen={showCart}
       hideSidebar={true}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 lg:py-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 overflow-x-auto">
-          <div className="flex items-center text-sm text-gray-600 min-w-max">
+        <nav className="mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap">
             <button
               onClick={() => navigate('/')}
               className="hover:text-gray-900 transition-colors flex-shrink-0"
@@ -232,27 +242,27 @@ const ProductDetailContent: React.FC = () => {
             
             {categoryHierarchy.map((cat) => (
               <React.Fragment key={cat.id}>
-                <ChevronRightIcon className="w-3 h-3 mx-2 flex-shrink-0 text-gray-400" />
+                <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
                 <button
                   onClick={() => {
                     const path = buildCategoryPath(cat.id);
                     navigate(path);
                   }}
-                  className="hover:text-gray-900 transition-colors whitespace-nowrap"
+                  className="hover:text-gray-900 transition-colors flex-shrink-0"
                 >
                   {cat.name}
                 </button>
               </React.Fragment>
             ))}
             
-            <ChevronRightIcon className="w-3 h-3 mx-2 flex-shrink-0 text-gray-400" />
-            <span className="text-gray-900 font-medium truncate max-w-[200px]">{product.title}</span>
+            <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+            <span className="text-gray-900 font-medium flex-shrink-0 max-w-[120px] sm:max-w-[200px] truncate">{product.title}</span>
           </div>
         </nav>
 
         {/* Main Product Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Vertical Thumbnails - Desktop Only */}
             {product.images && product.images.length > 1 && (
@@ -321,33 +331,35 @@ const ProductDetailContent: React.FC = () => {
             </div>
 
             {/* Product Info */}
-            <div className="lg:col-span-6 space-y-4">
+            <div className="lg:col-span-6 space-y-3 sm:space-y-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{product.title}</h1>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">{product.title}</h1>
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-gray-900">₾{displayPrice.toFixed(2)}</span>
+              <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
+                <span className="text-3xl sm:text-4xl font-bold text-gray-900">₾{displayPrice.toFixed(2)}</span>
                 {hasVariants && !selectedVariant && (
-                  <span className="text-sm text-gray-500">Starting from</span>
+                  <span className="text-xs sm:text-sm text-gray-500">Starting from</span>
                 )}
               </div>
 
-              {/* Stock Status */}
-              <div className="flex items-center gap-2 text-sm">
-                {isInStock ? (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="font-semibold text-green-700">In Stock ({displayStock} available)</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                    <span className="font-semibold text-red-700">Out of Stock</span>
-                  </>
-                )}
-              </div>
+              {/* Stock Status - Only show for simple products or after variant selection */}
+              {shouldShowStockStatus && (
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                  {isInStock ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                      <span className="font-semibold text-green-700">In Stock ({displayStock} available)</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                      <span className="font-semibold text-red-700">Out of Stock</span>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Variants */}
               {hasVariants && (
@@ -370,23 +382,25 @@ const ProductDetailContent: React.FC = () => {
 
               {/* Quantity */}
               <div>
-                <label className="text-sm font-semibold text-gray-700 block mb-2">Quantity:</label>
-                <div className="flex items-center gap-3">
+                <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-2">Quantity:</label>
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                   <div className="flex items-center border border-gray-300 rounded-md">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1}
-                      className="px-3 py-2 hover:bg-gray-50 disabled:opacity-50"
+                      className="px-2 sm:px-3 py-2 hover:bg-gray-50 disabled:opacity-50 text-base sm:text-lg"
+                      aria-label="Decrease quantity"
                     >
                       −
                     </button>
-                    <span className="px-4 py-2 font-semibold border-x border-gray-300 min-w-[50px] text-center">
+                    <span className="px-3 sm:px-4 py-2 font-semibold border-x border-gray-300 min-w-[45px] sm:min-w-[50px] text-center text-sm sm:text-base">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(Math.min(displayStock, quantity + 1))}
                       disabled={quantity >= displayStock}
-                      className="px-3 py-2 hover:bg-gray-50 disabled:opacity-50"
+                      className="px-2 sm:px-3 py-2 hover:bg-gray-50 disabled:opacity-50 text-base sm:text-lg"
+                      aria-label="Increase quantity"
                     >
                       +
                     </button>
@@ -397,34 +411,34 @@ const ProductDetailContent: React.FC = () => {
 
               {/* Cart Status */}
               {cartQuantity > 0 && (
-                <div className="flex items-center gap-2 bg-green-50 px-4 py-3 rounded-lg border border-green-200">
-                  <CheckIcon className="w-5 h-5 text-green-600" />
-                  <span className="text-sm font-semibold text-green-700">
+                <div className="flex items-center gap-2 bg-green-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-green-200">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-semibold text-green-700">
                     {cartQuantity} in cart
                   </span>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="space-y-3 pt-2">
+              <div className="space-y-2 sm:space-y-3 pt-2">
                 <button
                   onClick={handleAddToCart}
                   disabled={!isInStock || (hasVariants && !selectedVariant)}
-                  className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-lg font-semibold transition-all ${
+                  className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                     !isInStock || (hasVariants && !selectedVariant)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-sm hover:shadow-md'
                   }`}
                 >
-                  <ShoppingCartIcon className="w-5 h-5" />
+                  <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                   Add to Cart
                 </button>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <button
                     onClick={handleAddToCart}
                     disabled={!isInStock || (hasVariants && !selectedVariant)}
-                    className={`py-3 px-4 rounded-lg font-semibold transition-all ${
+                    className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                       !isInStock || (hasVariants && !selectedVariant)
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-gray-900 text-white hover:bg-gray-800'
@@ -444,7 +458,7 @@ const ProductDetailContent: React.FC = () => {
                         navigator.clipboard.writeText(window.location.href);
                       }
                     }}
-                    className="py-3 px-4 rounded-lg font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
+                    className="py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all text-sm sm:text-base"
                   >
                     Share
                   </button>
@@ -456,8 +470,8 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Description Section */}
         {product.description && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="text-gray-600 leading-relaxed whitespace-pre-line">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+            <div className="text-sm sm:text-base text-gray-600 leading-relaxed whitespace-pre-line break-words">
               {product.description}
             </div>
           </div>
@@ -465,16 +479,16 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Specifications */}
         {product.attributes && Object.keys(product.attributes).length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Technical Specifications</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Technical Specifications</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {Object.entries(product.attributes).map(([key, value]) => (
                 <div 
                   key={key} 
-                  className="flex justify-between items-center px-4 py-3 bg-gray-50 rounded-lg"
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg gap-1 sm:gap-2"
                 >
-                  <span className="font-semibold text-gray-700">{key}:</span>
-                  <span className="text-gray-900">{String(value)}</span>
+                  <span className="font-semibold text-gray-700 text-sm sm:text-base break-words">{key}:</span>
+                  <span className="text-gray-900 text-sm sm:text-base break-words">{String(value)}</span>
                 </div>
               ))}
             </div>
