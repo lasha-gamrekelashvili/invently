@@ -58,7 +58,13 @@ const CategoryForm = () => {
     const result: any[] = [];
     
     categories
-      .filter(cat => cat.parentId === parentId)
+      .filter(cat => {
+        // Handle both null and undefined for root categories
+        if (parentId === null) {
+          return cat.parentId === null || cat.parentId === undefined;
+        }
+        return cat.parentId === parentId;
+      })
       .filter(cat => !isEditing || cat.id !== id) // Exclude current category when editing
       .sort((a, b) => a.name.localeCompare(b.name))
       .forEach(cat => {

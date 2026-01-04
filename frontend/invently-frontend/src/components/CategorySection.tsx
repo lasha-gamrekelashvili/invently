@@ -1,16 +1,7 @@
 import React from 'react';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import ProductCard from './ProductCard';
-
-interface Product {
-  id: string;
-  title: string;
-  slug: string;
-  price: number;
-  images: Array<{ url: string; altText?: string }>;
-  category?: { name: string };
-  _count?: { variants: number };
-}
+import { Product } from '../types';
 
 interface CategorySectionProps {
   categoryName: string;

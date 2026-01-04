@@ -38,7 +38,7 @@ const Categories = () => {
 
   const { data: categoriesData, isLoading } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => categoriesAPI.list(),
+    queryFn: () => categoriesAPI.list({ limit: 1000 }), // Fetch all categories for tree view
   });
 
   const { data: selectedCategory } = useQuery({

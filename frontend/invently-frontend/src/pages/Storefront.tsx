@@ -305,11 +305,11 @@ const StorefrontContent = () => {
       onGridLayoutChange={handleGridLayoutChange}
       searchQuery={searchInput}
       isCartOpen={showCart}
-      hideSidebar={true}
+      hideSidebar={!selectedCategoryId}
     >
-      <div className="space-y-6 sm:space-y-8 px-8 sm:px-12 lg:px-16">
-        {/* Category Carousel - Primary Navigation */}
-        {categories && categories.length > 0 && (
+      <div className="space-y-6 sm:space-y-8">
+        {/* Category Carousel - Primary Navigation - Only show on home page */}
+        {categories && categories.length > 0 && !selectedCategoryId && (
           <CategoryCarousel
             categories={categories}
             onCategorySelect={handleCategorySelect}

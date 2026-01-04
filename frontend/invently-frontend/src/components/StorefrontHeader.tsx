@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   ShoppingBagIcon,
   MagnifyingGlassIcon,
+  Bars3Icon,
 } from '@heroicons/react/24/outline';
 import { useCart } from '../contexts/CartContext';
 import LandingHeader from './LandingHeader';
@@ -23,12 +24,14 @@ interface StorefrontHeaderProps {
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   storeInfo,
+  onMenuClick,
   onCartClick,
   onSearchChange,
   gridLayout = 3,
   onGridLayoutChange,
   searchQuery = '',
-  isCartOpen = false
+  isCartOpen = false,
+  isSidebarOpen = false
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -53,7 +56,18 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
     <LandingHeader 
       showAuthButtons={false}
       shopName={storeInfo?.name || ''}
-      mobileMenuButton={null}
+      mobileMenuButton={
+        <button
+          onClick={onMenuClick}
+          className={`p-2 rounded-md transition-all ${
+            isSidebarOpen
+              ? 'text-blue-600 bg-blue-50 ring-1 ring-blue-400'
+              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+          }`}
+        >
+          <Bars3Icon className="w-6 h-6" />
+        </button>
+      }
       mobileSearchButton={
         <button
           onClick={toggleMobileSearch}

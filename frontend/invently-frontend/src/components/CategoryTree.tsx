@@ -52,7 +52,13 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
 
   const buildTree = (categories: Category[], parentId: string | null = null): Category[] => {
     return categories
-      .filter(cat => cat.parentId === parentId)
+      .filter(cat => {
+        // Handle both null and undefined for root categories
+        if (parentId === null) {
+          return cat.parentId === null || cat.parentId === undefined;
+        }
+        return cat.parentId === parentId;
+      })
       .map(cat => ({
         ...cat,
         children: buildTree(categories, cat.id)
