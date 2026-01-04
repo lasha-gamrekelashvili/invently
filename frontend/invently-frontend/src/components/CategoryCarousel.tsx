@@ -85,18 +85,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           </div>
 
           {/* Categories carousel with scroll buttons */}
-          <div className="relative overflow-hidden" style={{ maxWidth: 'calc(100vw - 200px)' }}>
-            {/* Left scroll button - only for categories */}
-            {showLeftButton && (
-              <button
-                onClick={() => scroll('left')}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-all"
-                aria-label="Scroll left"
-              >
-                <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
-              </button>
-            )}
-
+          <div className="relative w-full max-w-4xl">
             {/* Categories container - scrollable, centered */}
             <div
               ref={categoriesContainerRef}
@@ -148,11 +137,38 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
               ))}
             </div>
 
-            {/* Right scroll button - only for categories */}
+            {/* Fade overlay on left */}
+            {showLeftButton && (
+              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-gray-50 via-gray-50/60 via-gray-50/30 to-transparent pointer-events-none" />
+            )}
+
+            {/* Fade overlay on right */}
+            {showRightButton && (
+              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 via-gray-50/60 via-gray-50/30 to-transparent pointer-events-none" />
+            )}
+
+            {/* Left scroll button - positioned at edge */}
+            {showLeftButton && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scroll('left');
+                }}
+                className="absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-all pointer-events-auto"
+                aria-label="Scroll left"
+              >
+                <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+              </button>
+            )}
+
+            {/* Right scroll button - positioned at edge */}
             {showRightButton && (
               <button
-                onClick={() => scroll('right')}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scroll('right');
+                }}
+                className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-all pointer-events-auto"
                 aria-label="Scroll right"
               >
                 <ChevronRightIcon className="w-5 h-5 text-gray-600" />

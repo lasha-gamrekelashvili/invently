@@ -78,7 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity }) => {
                 e.stopPropagation();
                 setCurrentImageIndex((prev) => (prev - 1 + product.images!.length) % product.images!.length);
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/60 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-sm z-20 opacity-0 group-hover:opacity-100"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/60 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-sm z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
             >
               <ChevronLeftIcon className="w-4 h-4" />
             </button>
@@ -87,7 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity }) => {
                 e.stopPropagation();
                 setCurrentImageIndex((prev) => (prev + 1) % product.images!.length);
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/60 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-sm z-20 opacity-0 group-hover:opacity-100"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white/60 backdrop-blur-sm text-gray-700 rounded-full flex items-center justify-center hover:bg-white/90 transition-all shadow-sm z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
             >
               <ChevronRightIcon className="w-4 h-4" />
             </button>

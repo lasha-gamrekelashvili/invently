@@ -31,10 +31,10 @@ const CategorySection: React.FC<CategorySectionProps> = ({
           onClick={onCategoryClick}
           className="group flex items-center gap-2 hover:gap-3 transition-all"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 transition-colors">
             {categoryName}
           </h2>
-          <ArrowRightIcon className="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors" />
+          <ArrowRightIcon className="w-6 h-6 text-gray-400 transition-colors" />
         </button>
         
         <button
