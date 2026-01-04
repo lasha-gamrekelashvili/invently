@@ -322,11 +322,11 @@ const StorefrontContent = () => {
         <div id="products-section">
           {/* Category Breadcrumb */}
           {selectedCategory && (
-            <nav className="mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
-              <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+            <nav className="mb-4 sm:mb-6 overflow-x-auto scrollbar-hide pb-2">
+              <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
                 <button
                   onClick={handleAllProductsClick}
-                  className="hover:text-gray-900 transition-colors flex-shrink-0"
+                  className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
                 >
                   Home
                 </button>
@@ -336,7 +336,7 @@ const StorefrontContent = () => {
                     <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
                     <button
                       onClick={() => handleCategorySelect(cat.id)}
-                      className={`transition-colors flex-shrink-0 ${
+                      className={`transition-colors flex-shrink-0 px-1 ${
                         index === categoryHierarchy.length - 1
                           ? 'text-gray-900 font-medium'
                           : 'hover:text-gray-900'
