@@ -23,14 +23,12 @@ interface StorefrontHeaderProps {
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   storeInfo,
-  onMenuClick,
   onCartClick,
   onSearchChange,
   gridLayout = 3,
   onGridLayoutChange,
   searchQuery = '',
-  isCartOpen = false,
-  isSidebarOpen = false,
+  isCartOpen = false
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
