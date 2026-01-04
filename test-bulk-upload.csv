@@ -1,0 +1,153 @@
+Category,Product Name,Variant Options,Product Description,Price,Stock,SKU,Status,Image URLs,Attributes
+Electronics,,,,,,,,,
+Electronics > Smartphones,,,,,,,,,
+Electronics > Smartphones,iPhone 15 Pro,,Latest flagship with A17 Pro chip and titanium design,1199.99,0,IP15PRO-BASE,ACTIVE,https://images.unsplash.com/photo-1592286927505-c7c68f19b30d?w=400,brand:Apple|warranty:1 year
+Electronics > Smartphones,iPhone 15 Pro,storage:128GB|color:Natural Titanium,,1199.99,45,IP15PRO-128-NAT,ACTIVE,,
+Electronics > Smartphones,iPhone 15 Pro,storage:256GB|color:Natural Titanium,,1299.99,50,IP15PRO-256-NAT,ACTIVE,,
+Electronics > Smartphones,iPhone 15 Pro,storage:512GB|color:Natural Titanium,,1499.99,30,IP15PRO-512-NAT,ACTIVE,,
+Electronics > Smartphones,iPhone 15 Pro,storage:128GB|color:Blue Titanium,,1199.99,40,IP15PRO-128-BLU,ACTIVE,,
+Electronics > Smartphones,iPhone 15 Pro,storage:256GB|color:Blue Titanium,,1299.99,35,IP15PRO-256-BLU,ACTIVE,,
+Electronics > Smartphones,Samsung Galaxy S24 Ultra,,Flagship Android with 200MP camera and S Pen,1299.99,0,S24U-BASE,ACTIVE,https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400,brand:Samsung|warranty:2 years
+Electronics > Smartphones,Samsung Galaxy S24 Ultra,storage:256GB|color:Titanium Black,,1299.99,60,S24U-256-BLK,ACTIVE,,
+Electronics > Smartphones,Samsung Galaxy S24 Ultra,storage:512GB|color:Titanium Black,,1419.99,40,S24U-512-BLK,ACTIVE,,
+Electronics > Smartphones,Samsung Galaxy S24 Ultra,storage:256GB|color:Titanium Gray,,1299.99,55,S24U-256-GRY,ACTIVE,,
+Electronics > Smartphones,Google Pixel 8 Pro,,Pure Android experience with incredible AI features,999.99,80,PIX8PRO,ACTIVE,https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400,brand:Google|warranty:1 year
+Electronics > Smartphones,OnePlus 12,,Flagship killer with Snapdragon 8 Gen 3,799.99,120,OP12,ACTIVE,https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400,brand:OnePlus|warranty:1 year
+Electronics > Laptops,,,,,,,,,
+Electronics > Laptops,MacBook Pro 16,,Professional laptop with M3 Max chip,2499.99,0,MBP16-BASE,ACTIVE,https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400,brand:Apple|warranty:1 year
+Electronics > Laptops,MacBook Pro 16,ram:16GB|storage:512GB,,2499.99,35,MBP16-16-512,ACTIVE,,
+Electronics > Laptops,MacBook Pro 16,ram:32GB|storage:1TB,,3299.99,25,MBP16-32-1TB,ACTIVE,,
+Electronics > Laptops,MacBook Air 13,,Lightweight laptop with M3 chip,1199.99,60,MBA13,ACTIVE,https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400,brand:Apple|warranty:1 year
+Electronics > Laptops,Dell XPS 15,,Premium Windows laptop with stunning display,1799.99,45,DELLXPS15,ACTIVE,https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400,brand:Dell|warranty:2 years
+Electronics > Laptops,Lenovo ThinkPad X1 Carbon,,Business ultrabook with legendary keyboard,1599.99,50,THINKX1,ACTIVE,https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400,brand:Lenovo|warranty:3 years
+Electronics > Laptops,ASUS ROG Zephyrus G14,,Compact gaming laptop with RTX 4060,1499.99,40,ROGG14,ACTIVE,https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400,brand:ASUS|warranty:2 years
+Electronics > Tablets,,,,,,,,,
+Electronics > Tablets,iPad Pro 12.9,,Professional tablet with M2 chip,1099.99,55,IPADPRO129,ACTIVE,https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400,brand:Apple|warranty:1 year
+Electronics > Tablets,iPad Air,,Versatile tablet with M1 chip,599.99,80,IPADAIR,ACTIVE,https://images.unsplash.com/photo-1585790050230-5dd28404f869?w=400,brand:Apple|warranty:1 year
+Electronics > Tablets,Samsung Galaxy Tab S9,,Premium Android tablet with S Pen,799.99,70,TABS9,ACTIVE,https://images.unsplash.com/photo-1561154464-82e9adf32764?w=400,brand:Samsung|warranty:2 years
+Electronics > Headphones,,,,,,,,,
+Electronics > Headphones,AirPods Pro 2,,Premium wireless earbuds with ANC,249.99,150,AIRPODSPRO2,ACTIVE,https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=400,brand:Apple|warranty:1 year
+Electronics > Headphones,Sony WH-1000XM5,,Industry-leading noise canceling headphones,399.99,90,SONYWH1000,ACTIVE,https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400,brand:Sony|warranty:2 years
+Electronics > Headphones,Bose QuietComfort Ultra,,Premium comfort with world-class ANC,429.99,85,BOSEQCU,ACTIVE,https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400,brand:Bose|warranty:2 years
+Electronics > Smart Watches,,,,,,,,,
+Electronics > Smart Watches,Apple Watch Series 9,,Advanced health and fitness tracking,399.99,0,AWS9-BASE,ACTIVE,https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400,brand:Apple|warranty:1 year
+Electronics > Smart Watches,Apple Watch Series 9,size:41mm|color:Midnight,,399.99,70,AWS9-41-MID,ACTIVE,,
+Electronics > Smart Watches,Apple Watch Series 9,size:45mm|color:Midnight,,429.99,65,AWS9-45-MID,ACTIVE,,
+Electronics > Smart Watches,Apple Watch Series 9,size:41mm|color:Starlight,,399.99,60,AWS9-41-STR,ACTIVE,,
+Electronics > Smart Watches,Samsung Galaxy Watch 6,,Comprehensive health monitoring for Android,299.99,95,GW6,ACTIVE,https://images.unsplash.com/photo-1617043786394-f977fa12eddf?w=400,brand:Samsung|warranty:1 year
+Electronics > Smart Watches,Garmin Fenix 7,,Premium multisport GPS watch,699.99,50,GARFENIX7,ACTIVE,https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400,brand:Garmin|warranty:2 years
+Fashion,,,,,,,,,
+Fashion > Men,,,,,,,,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,,Premium 100% organic cotton t-shirt,29.99,0,TSHIRT-BASE,ACTIVE,https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400,material:100% Cotton|fit:Regular
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:S|color:White,,29.99,100,TSHIRT-S-WHT,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:M|color:White,,29.99,150,TSHIRT-M-WHT,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:L|color:White,,29.99,120,TSHIRT-L-WHT,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:XL|color:White,,29.99,100,TSHIRT-XL-WHT,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:S|color:Black,,29.99,90,TSHIRT-S-BLK,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:M|color:Black,,29.99,140,TSHIRT-M-BLK,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:L|color:Black,,29.99,110,TSHIRT-L-BLK,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:XL|color:Black,,29.99,95,TSHIRT-XL-BLK,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:M|color:Navy,,29.99,130,TSHIRT-M-NAV,ACTIVE,,
+Fashion > Men > T-Shirts,Classic Cotton Tee,size:L|color:Navy,,29.99,105,TSHIRT-L-NAV,ACTIVE,,
+Fashion > Men > T-Shirts,Graphic Print Tee,,Trendy graphic design on premium cotton,34.99,200,GRAPHICTEE,ACTIVE,https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400,material:Cotton blend|fit:Regular
+Fashion > Men > Shirts,Oxford Button-Down,,Classic dress shirt for any occasion,59.99,0,OXFORD-BASE,ACTIVE,https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400,material:Cotton|fit:Slim
+Fashion > Men > Shirts,Oxford Button-Down,size:S|color:Light Blue,,59.99,60,OXFORD-S-LBLU,ACTIVE,,
+Fashion > Men > Shirts,Oxford Button-Down,size:M|color:Light Blue,,59.99,80,OXFORD-M-LBLU,ACTIVE,,
+Fashion > Men > Shirts,Oxford Button-Down,size:L|color:Light Blue,,59.99,70,OXFORD-L-LBLU,ACTIVE,,
+Fashion > Men > Shirts,Oxford Button-Down,size:M|color:White,,59.99,75,OXFORD-M-WHT,ACTIVE,,
+Fashion > Men > Shirts,Oxford Button-Down,size:L|color:White,,59.99,65,OXFORD-L-WHT,ACTIVE,,
+Fashion > Men > Jeans,Slim Fit Denim,,Modern slim fit jeans with stretch,79.99,0,JEANS-BASE,ACTIVE,https://images.unsplash.com/photo-1542272604-787c3835535d?w=400,material:98% Cotton 2% Elastane|fit:Slim
+Fashion > Men > Jeans,Slim Fit Denim,size:30x32|color:Dark Wash,,79.99,50,JEANS-30-32-DRK,ACTIVE,,
+Fashion > Men > Jeans,Slim Fit Denim,size:32x32|color:Dark Wash,,79.99,70,JEANS-32-32-DRK,ACTIVE,,
+Fashion > Men > Jeans,Slim Fit Denim,size:34x32|color:Dark Wash,,79.99,60,JEANS-34-32-DRK,ACTIVE,,
+Fashion > Men > Jeans,Slim Fit Denim,size:32x32|color:Light Wash,,79.99,65,JEANS-32-32-LGT,ACTIVE,,
+Fashion > Men > Jeans,Slim Fit Denim,size:34x32|color:Light Wash,,79.99,55,JEANS-34-32-LGT,ACTIVE,,
+Fashion > Men > Hoodies,Premium Hoodie,,Soft fleece hoodie with kangaroo pocket,69.99,0,HOODIE-BASE,ACTIVE,https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400,material:Cotton/Polyester blend|fit:Regular
+Fashion > Men > Hoodies,Premium Hoodie,size:M|color:Gray,,69.99,80,HOODIE-M-GRY,ACTIVE,,
+Fashion > Men > Hoodies,Premium Hoodie,size:L|color:Gray,,69.99,70,HOODIE-L-GRY,ACTIVE,,
+Fashion > Men > Hoodies,Premium Hoodie,size:XL|color:Gray,,69.99,60,HOODIE-XL-GRY,ACTIVE,,
+Fashion > Men > Hoodies,Premium Hoodie,size:M|color:Black,,69.99,75,HOODIE-M-BLK,ACTIVE,,
+Fashion > Men > Hoodies,Premium Hoodie,size:L|color:Black,,69.99,65,HOODIE-L-BLK,ACTIVE,,
+Fashion > Women,,,,,,,,,
+Fashion > Women > Dresses,Summer Floral Dress,,Lightweight floral print dress perfect for summer,89.99,0,DRESS-BASE,ACTIVE,https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400,material:Rayon|fit:Regular
+Fashion > Women > Dresses,Summer Floral Dress,size:XS|color:Blue Floral,,89.99,40,DRESS-XS-BLU,ACTIVE,,
+Fashion > Women > Dresses,Summer Floral Dress,size:S|color:Blue Floral,,89.99,60,DRESS-S-BLU,ACTIVE,,
+Fashion > Women > Dresses,Summer Floral Dress,size:M|color:Blue Floral,,89.99,70,DRESS-M-BLU,ACTIVE,,
+Fashion > Women > Dresses,Summer Floral Dress,size:L|color:Blue Floral,,89.99,50,DRESS-L-BLU,ACTIVE,,
+Fashion > Women > Dresses,Summer Floral Dress,size:S|color:Pink Floral,,89.99,55,DRESS-S-PNK,ACTIVE,,
+Fashion > Women > Dresses,Summer Floral Dress,size:M|color:Pink Floral,,89.99,65,DRESS-M-PNK,ACTIVE,,
+Fashion > Women > Tops,Silk Blouse,,Elegant silk blouse for office or evening,79.99,90,SILKBLOUSE,ACTIVE,https://images.unsplash.com/photo-1564257577230-65d83c1bf6b7?w=400,material:100% Silk|fit:Regular
+Fashion > Women > Tops,Casual Tank Top,,Essential ribbed tank top,24.99,180,TANKTOP,ACTIVE,https://images.unsplash.com/photo-1583744946564-b52ac1c389c8?w=400,material:Cotton|fit:Regular
+Fashion > Women > Leggings,High-Waist Yoga Leggings,,Compression leggings for yoga and fitness,54.99,0,LEGGING-BASE,ACTIVE,https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400,material:Nylon/Spandex|fit:Compression
+Fashion > Women > Leggings,High-Waist Yoga Leggings,size:XS|color:Black,,54.99,70,LEGGING-XS-BLK,ACTIVE,,
+Fashion > Women > Leggings,High-Waist Yoga Leggings,size:S|color:Black,,54.99,90,LEGGING-S-BLK,ACTIVE,,
+Fashion > Women > Leggings,High-Waist Yoga Leggings,size:M|color:Black,,54.99,100,LEGGING-M-BLK,ACTIVE,,
+Fashion > Women > Leggings,High-Waist Yoga Leggings,size:L|color:Black,,54.99,80,LEGGING-L-BLK,ACTIVE,,
+Fashion > Women > Leggings,High-Waist Yoga Leggings,size:S|color:Navy,,54.99,85,LEGGING-S-NAV,ACTIVE,,
+Fashion > Women > Leggings,High-Waist Yoga Leggings,size:M|color:Navy,,54.99,95,LEGGING-M-NAV,ACTIVE,,
+Fashion > Kids,,,,,,,,,
+Fashion > Kids > Kids T-Shirts,Kids Graphic Tee,,Fun graphic print for kids,19.99,200,KIDSTEE,ACTIVE,https://images.unsplash.com/photo-1519278409-9a9c5854811b?w=400,material:Cotton|fit:Regular
+Fashion > Kids > Kids Jeans,Kids Denim Jeans,,Durable jeans for active kids,39.99,150,KIDSJEANS,ACTIVE,https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400,material:Cotton|fit:Regular
+Home & Garden,,,,,,,,,
+Home & Garden > Furniture,,,,,,,,,
+Home & Garden > Furniture,Modern Sectional Sofa,,Comfortable L-shaped sectional with premium fabric,1299.99,15,SOFA-SECT,ACTIVE,https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400,material:Fabric|color:Gray|seats:5
+Home & Garden > Furniture,Velvet Accent Chair,,Elegant accent chair with gold legs,349.99,35,CHAIR-VELVET,ACTIVE,https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400,material:Velvet|color:Navy Blue
+Home & Garden > Furniture,Dining Table Set,,Modern dining table with 6 chairs,899.99,20,DINING-SET6,ACTIVE,https://images.unsplash.com/photo-1617806118233-18e1de247200?w=400,material:Wood|seats:6
+Home & Garden > Furniture,King Size Bed Frame,,Upholstered bed frame with storage,699.99,25,BED-KING-STOR,ACTIVE,https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=400,size:King|material:Fabric
+Home & Garden > Furniture,Bookshelf 5-Tier,,Modern open bookshelf for storage,179.99,50,BOOKSHELF-5T,ACTIVE,https://images.unsplash.com/photo-1594620302200-9a762244a156?w=400,material:Wood|tiers:5
+Home & Garden > Kitchen,,,,,,,,,
+Home & Garden > Kitchen,Stand Mixer,,Professional 5-quart stand mixer,299.99,40,MIXER-5Q,ACTIVE,https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400,brand:KitchenPro|capacity:5 quarts
+Home & Garden > Kitchen,Stainless Steel Cookware Set,,10-piece premium cookware set,249.99,55,COOKWARE-10PC,ACTIVE,https://images.unsplash.com/photo-1584990347449-39b4aa82c6c6?w=400,pieces:10|material:Stainless Steel
+Home & Garden > Kitchen,French Press Coffee Maker,,Glass french press for perfect coffee,34.99,120,FRENCHPRESS,ACTIVE,https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=400,capacity:1L|material:Glass
+Home & Garden > Kitchen,Knife Set 15-Piece,,Professional chef knife set with block,159.99,45,KNIFESET-15,ACTIVE,https://images.unsplash.com/photo-1593618998160-e34014e67546?w=400,pieces:15|material:Stainless Steel
+Home & Garden > Decor,,,,,,,,,
+Home & Garden > Decor,Abstract Canvas Wall Art,,Modern abstract painting on canvas,129.99,60,WALLART-ABS,ACTIVE,https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=400,size:24x36 inches|material:Canvas
+Home & Garden > Decor,Decorative Throw Pillows,,Set of 2 decorative pillows,39.99,100,PILLOWS-2PC,ACTIVE,https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=400,pieces:2|material:Cotton
+Home & Garden > Decor,Floor Lamp Modern,,Minimalist floor lamp with LED,89.99,75,LAMP-FLOOR,ACTIVE,https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400,type:LED|style:Modern
+Home & Garden > Decor,Area Rug 8x10,,Soft area rug for living room,299.99,30,RUG-8X10,ACTIVE,https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=400,size:8x10 ft|material:Wool blend
+Sports & Outdoors,,,,,,,,,
+Sports & Outdoors > Fitness,,,,,,,,,
+Sports & Outdoors > Fitness,Adjustable Dumbbells,,Space-saving adjustable dumbbells 5-52.5 lbs,399.99,40,DUMBBELLS-ADJ,ACTIVE,https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400,weight:5-52.5 lbs|material:Steel
+Sports & Outdoors > Fitness,Yoga Mat Premium,,Extra thick non-slip yoga mat,49.99,150,YOGAMAT-PREM,ACTIVE,https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400,thickness:6mm|material:TPE
+Sports & Outdoors > Fitness,Resistance Bands Set,,5 resistance levels workout bands,29.99,200,BANDS-SET5,ACTIVE,https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400,pieces:5|material:Latex
+Sports & Outdoors > Fitness,Treadmill Folding,,Compact folding treadmill for home,599.99,25,TREADMILL-FOLD,ACTIVE,https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400,type:Folding|motor:2.5HP
+Sports & Outdoors > Cycling,,,,,,,,,
+Sports & Outdoors > Cycling,Mountain Bike 27.5,,Aluminum frame mountain bike with 21 speeds,499.99,30,MTB-275,ACTIVE,https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=400,wheelSize:27.5 inch|speeds:21
+Sports & Outdoors > Cycling,Road Bike Carbon,,Lightweight carbon road bike,1899.99,15,ROADBIKE-CARB,ACTIVE,https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=400,material:Carbon|speeds:22
+Sports & Outdoors > Cycling,Bike Helmet,,Safety certified bike helmet,59.99,100,HELMET-BIKE,ACTIVE,https://images.unsplash.com/photo-1565658711203-cd46faa19cc9?w=400,certification:CPSC|size:Adjustable
+Sports & Outdoors > Camping,,,,,,,,,
+Sports & Outdoors > Camping,4-Person Tent,,Waterproof camping tent for 4 people,189.99,45,TENT-4P,ACTIVE,https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400,capacity:4 person|material:Polyester
+Sports & Outdoors > Camping,Sleeping Bag 20F,,3-season sleeping bag rated to 20°F,79.99,80,SLEEPBAG-20F,ACTIVE,https://images.unsplash.com/photo-1520095972714-909e91b038e5?w=400,rating:20°F|season:3-season
+Sports & Outdoors > Camping,Portable Camping Stove,,Compact propane camping stove,44.99,120,STOVE-CAMP,ACTIVE,https://images.unsplash.com/photo-1606685075964-cf6c89a1e25b?w=400,fuel:Propane|burners:2
+Books & Media,,,,,,,,,
+Books & Media > Fiction,The Midnight Library,,Bestselling fiction novel,16.99,200,BOOK-MIDLIB,ACTIVE,https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400,author:Matt Haig|format:Hardcover
+Books & Media > Fiction,Project Hail Mary,,Sci-fi thriller by Andy Weir,18.99,150,BOOK-HAILMARY,ACTIVE,https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400,author:Andy Weir|format:Paperback
+Books & Media > Non-Fiction,Atomic Habits,,Transform your life with tiny changes,19.99,250,BOOK-ATOMHAB,ACTIVE,https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400,author:James Clear|format:Hardcover
+Books & Media > Non-Fiction,Thinking Fast and Slow,,Nobel Prize winner's psychology masterpiece,22.99,180,BOOK-THINKFAST,ACTIVE,https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400,author:Daniel Kahneman|format:Paperback
+Books & Media > Learning,Learn Python Programming,,Complete Python guide for beginners,34.99,130,BOOK-PYTHON,ACTIVE,https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?w=400,topic:Programming|format:Paperback
+Toys & Games,,,,,,,,,
+Toys & Games > Action Figures,Superhero Action Figure Set,,Set of 6 poseable superhero figures,49.99,80,TOY-HEROES-6,ACTIVE,https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=400,pieces:6|age:4+
+Toys & Games > Board Games,Strategy Board Game,,Award-winning strategy game for families,44.99,100,GAME-STRATEGY,ACTIVE,https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=400,players:2-4|age:10+
+Toys & Games > Board Games,Classic Chess Set,,Wooden chess set with handcrafted pieces,59.99,70,CHESS-WOOD,ACTIVE,https://images.unsplash.com/photo-1586165368502-1bad197a6461?w=400,material:Wood|pieces:32
+Toys & Games > Educational Toys,STEM Building Blocks,,Educational building set for kids,69.99,120,TOY-STEM-500,ACTIVE,https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400,pieces:500|age:6+
+Toys & Games > Puzzles,1000 Piece Jigsaw Puzzle,,Beautiful landscape puzzle,24.99,150,PUZZLE-1000,ACTIVE,https://images.unsplash.com/photo-1542330952-bffc55e812b2?w=400,pieces:1000|age:12+
+Beauty & Health,,,,,,,,,
+Beauty & Health > Skincare,Vitamin C Serum,,Brightening serum with hyaluronic acid,39.99,180,SERUM-VITC,ACTIVE,https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400,volume:1 oz|type:Serum
+Beauty & Health > Skincare,Moisturizer SPF 30,,Daily moisturizer with sun protection,29.99,200,MOIST-SPF30,ACTIVE,https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400,volume:2 oz|SPF:30
+Beauty & Health > Skincare,Retinol Night Cream,,Anti-aging night cream,44.99,160,CREAM-RETIN,ACTIVE,https://images.unsplash.com/photo-1556228578-dd367959f3ba?w=400,volume:1.7 oz|type:Night Cream
+Beauty & Health > Makeup,Eyeshadow Palette,,12-color eyeshadow palette,34.99,140,EYESHAD-12,ACTIVE,https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400,colors:12|finish:Matte/Shimmer
+Beauty & Health > Makeup,Liquid Lipstick Set,,Long-wearing liquid lipstick set of 6,39.99,120,LIPSTICK-SET6,ACTIVE,https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400,pieces:6|finish:Matte
+Beauty & Health > Supplements,Multivitamin Gummies,,Daily multivitamin for adults,24.99,250,MULTI-GUMMY,ACTIVE,https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400,count:60|type:Gummy
+Beauty & Health > Supplements,Omega-3 Fish Oil,,High-potency omega-3 supplement,29.99,220,OMEGA3-1000,ACTIVE,https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=400,count:120|dosage:1000mg
+Food & Beverages,,,,,,,,,
+Food & Beverages > Snacks,Organic Protein Bars,,Box of 12 chocolate peanut butter bars,29.99,180,PROTBAR-12,ACTIVE,https://images.unsplash.com/photo-1622484211582-f43f63a59a76?w=400,count:12|flavor:Chocolate PB
+Food & Beverages > Snacks,Mixed Nuts Premium,,Roasted and salted mixed nuts 2lb,19.99,200,NUTS-MIX-2LB,ACTIVE,https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400,weight:2 lb|type:Mixed
+Food & Beverages > Snacks,Dark Chocolate Bar,,70% cacao organic chocolate,5.99,300,CHOC-DARK-70,ACTIVE,https://images.unsplash.com/photo-1511381939415-e44015466834?w=400,cacao:70%|weight:3.5 oz
+Food & Beverages > Drinks,Organic Green Tea,,Box of 100 organic green tea bags,14.99,250,TEA-GREEN-100,ACTIVE,https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400,count:100|type:Green Tea
+Food & Beverages > Drinks,Cold Brew Coffee,,Ready-to-drink cold brew 6-pack,24.99,150,COFFEE-COLD-6,ACTIVE,https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400,count:6|volume:12 oz each
+Food & Beverages > Organic,Organic Honey Raw,,Pure raw honey from local bees,18.99,120,HONEY-RAW-1LB,ACTIVE,https://images.unsplash.com/photo-1587049352846-4a222e784990?w=400,weight:1 lb|type:Raw
+Office Supplies,,,,,,,,,
+Office Supplies > Writing,Gel Pens Set,,Smooth gel pens pack of 24 colors,16.99,200,PENS-GEL-24,ACTIVE,https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?w=400,count:24|type:Gel
+Office Supplies > Writing,Notebook Bundle,,Set of 3 hardcover notebooks,24.99,150,NOTEBOOK-3PC,ACTIVE,https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400,count:3|pages:200 each
+Office Supplies > Desk,Desk Organizer,,Bamboo desk organizer with compartments,34.99,100,ORGANIZER-DESK,ACTIVE,https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=400,material:Bamboo|compartments:5
+Office Supplies > Desk,Ergonomic Mouse Pad,,Gel wrist rest mouse pad,19.99,180,MOUSEPAD-GEL,ACTIVE,https://images.unsplash.com/photo-1527814050087-3793815479db?w=400,type:Gel|color:Black

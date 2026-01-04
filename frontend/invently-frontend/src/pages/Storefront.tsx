@@ -7,6 +7,7 @@ import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
 import StorefrontPagination from '../components/StorefrontPagination';
 import ProductCard from '../components/ProductCard';
+import CategorySection from '../components/CategorySection';
 import Cart from '../components/Cart';
 import Checkout from '../components/Checkout';
 import CategoryCarousel from '../components/CategoryCarousel';
@@ -115,6 +116,39 @@ const StorefrontContent = () => {
   const selectedCategory = findCategoryBySlug(categorySlugFromUrl, categories);
   const selectedCategoryId = selectedCategory?.id;
 
+  // Get root categories (no parent)
+  const rootCategories = React.useMemo(() => {
+    if (!categories) return [];
+    return categories.filter((cat: any) => !cat.parentId);
+  }, [categories]);
+
+  // For home page (no category selected), fetch products for each root category
+  const categoryProductsQueries = useQuery({
+    queryKey: ['category-products', rootCategories.map((c: any) => c.id)],
+    queryFn: async () => {
+      if (selectedCategoryId || searchQuery) return null; // Only fetch on home page
+      
+      const results = await Promise.all(
+        rootCategories.map(async (category: any) => {
+          const data = await storefrontAPI.getProducts({
+            categoryId: category.id,
+            page: 1,
+            limit: 6, // Get 6 products per category
+          });
+          return {
+            categoryId: category.id,
+            categoryName: category.name,
+            products: data.products || [],
+          };
+        })
+      );
+      return results;
+    },
+    enabled: !selectedCategoryId && !searchQuery && rootCategories.length > 0,
+    retry: false,
+  });
+
+  // For filtered views (category selected or search), use the existing products query
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['storefront-products', selectedCategoryId, searchQuery, currentPage, pageSize, priceRange],
     queryFn: () => storefrontAPI.getProducts({
@@ -125,8 +159,9 @@ const StorefrontContent = () => {
       minPrice: priceRange.min ? parseFloat(priceRange.min) : undefined,
       maxPrice: priceRange.max ? parseFloat(priceRange.max) : undefined,
     }),
+    enabled: !!(selectedCategoryId || searchQuery || priceRange.min || priceRange.max),
     retry: false,
-    placeholderData: (previousData) => previousData, // Keep showing old data while fetching new page
+    placeholderData: (previousData) => previousData,
   });
 
   // Get price range for all products in current category/filter combination (without price filter)
@@ -272,7 +307,7 @@ const StorefrontContent = () => {
       isCartOpen={showCart}
       hideSidebar={true}
     >
-      <div className="space-y-6 sm:space-y-8">
+      <div className="space-y-6 sm:space-y-8 px-8 sm:px-12 lg:px-16">
         {/* Category Carousel - Primary Navigation */}
         {categories && categories.length > 0 && (
           <CategoryCarousel
@@ -315,69 +350,104 @@ const StorefrontContent = () => {
             </nav>
           )}
 
-          {productsLoading ? (
-            <div className="flex justify-center py-12">
-              <LoadingSpinner />
-            </div>
-          ) : displayProducts?.products?.length ? (
-            <>
-              <div className={`grid gap-6 ${
-                gridLayout === 2 
-                  ? 'grid-cols-1 sm:grid-cols-2' 
-                  : gridLayout === 3 
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-              }`}>
-                {displayProducts.products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    cartQuantity={getCartItemQuantity(product.id)}
-                  />
-                ))}
+          {/* Show category sections on home page */}
+          {!selectedCategoryId && !searchQuery && !priceRange.min && !priceRange.max ? (
+            categoryProductsQueries.isLoading ? (
+              <div className="flex justify-center py-12">
+                <LoadingSpinner />
               </div>
-
-              {/* Pagination */}
-              {displayProducts.pagination && (
-                <StorefrontPagination
-                  currentPage={displayProducts.pagination.page}
-                  totalPages={displayProducts.pagination.pages}
-                  totalItems={displayProducts.pagination.total}
-                  itemsPerPage={displayProducts.pagination.limit}
-                  onPageChange={handlePageChange}
-                />
-              )}
-            </>
+            ) : categoryProductsQueries.data && categoryProductsQueries.data.length > 0 ? (
+              <div className="space-y-8">
+                {categoryProductsQueries.data
+                  .filter((cat: any) => cat.products.length > 0)
+                  .map((categoryData: any) => (
+                    <CategorySection
+                      key={categoryData.categoryId}
+                      categoryName={categoryData.categoryName}
+                      products={categoryData.products}
+                      onViewAll={() => handleCategorySelect(categoryData.categoryId)}
+                      onCategoryClick={() => handleCategorySelect(categoryData.categoryId)}
+                      getCartItemQuantity={getCartItemQuantity}
+                    />
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+                <CubeIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No products available
+                </h3>
+                <p className="text-gray-600">
+                  Check back later for new products!
+                </p>
+              </div>
+            )
           ) : (
-            <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-              <CubeIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                {selectedCategory ? `No products found in ${selectedCategory.name}` : 'No products found'}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {selectedCategory
-                  ? 'Try selecting a different category or browse all products.'
-                  : searchQuery
-                  ? `No products match your search for "${searchQuery}"`
-                  : 'Check back later for new products!'
-                }
-              </p>
-              {(selectedCategory || searchQuery || priceRange.min || priceRange.max) && (
-                <button
-                  onClick={() => {
-                    navigate('/');
-                    setSearchInput('');
-                    setSearchQuery('');
-                    setPriceInput({ min: '', max: '' });
-                    setPriceRange({ min: '', max: '' });
-                    setCurrentPage(1);
-                  }}
-                  className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-                >
-                  Clear Filters
-                </button>
-              )}
-            </div>
+            /* Filtered view - show products in grid */
+            productsLoading ? (
+              <div className="flex justify-center py-12">
+                <LoadingSpinner />
+              </div>
+            ) : displayProducts?.products?.length ? (
+              <>
+                <div className={`grid gap-6 ${
+                  gridLayout === 2 
+                    ? 'grid-cols-1 sm:grid-cols-2' 
+                    : gridLayout === 3 
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                }`}>
+                  {displayProducts.products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      cartQuantity={getCartItemQuantity(product.id)}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {displayProducts.pagination && (
+                  <StorefrontPagination
+                    currentPage={displayProducts.pagination.page}
+                    totalPages={displayProducts.pagination.pages}
+                    totalItems={displayProducts.pagination.total}
+                    itemsPerPage={displayProducts.pagination.limit}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </>
+            ) : (
+              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+                <CubeIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {selectedCategory ? `No products found in ${selectedCategory.name}` : 'No products found'}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {selectedCategory
+                    ? 'Try selecting a different category or browse all products.'
+                    : searchQuery
+                    ? `No products match your search for "${searchQuery}"`
+                    : 'Check back later for new products!'
+                  }
+                </p>
+                {(selectedCategory || searchQuery || priceRange.min || priceRange.max) && (
+                  <button
+                    onClick={() => {
+                      navigate('/');
+                      setSearchInput('');
+                      setSearchQuery('');
+                      setPriceInput({ min: '', max: '' });
+                      setPriceRange({ min: '', max: '' });
+                      setCurrentPage(1);
+                    }}
+                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )
           )}
         </div>
       </div>
