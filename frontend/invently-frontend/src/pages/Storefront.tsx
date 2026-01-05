@@ -8,6 +8,8 @@ import StorefrontLayout from '../components/StorefrontLayout';
 import StorefrontPagination from '../components/StorefrontPagination';
 import ProductCard from '../components/ProductCard';
 import CategorySection from '../components/CategorySection';
+import CategorySectionSkeleton from '../components/CategorySectionSkeleton';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import Cart from '../components/Cart';
 import Checkout from '../components/Checkout';
 import { CartProvider, useCart } from '../contexts/CartContext';
@@ -78,7 +80,7 @@ const StorefrontContent = () => {
     return () => clearTimeout(timer);
   }, [priceInput]);
 
-  const { data: storeInfo, error: storeInfoError } = useQuery({
+  const { data: storeInfo, error: storeInfoError, isLoading: storeInfoLoading } = useQuery({
     queryKey: ['store-info'],
     queryFn: () => storefrontAPI.getStoreInfo(),
     retry: false,
@@ -90,7 +92,7 @@ const StorefrontContent = () => {
     retry: false,
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ['storefront-categories'],
     queryFn: () => storefrontAPI.getCategories(),
     retry: false,
@@ -147,6 +149,11 @@ const StorefrontContent = () => {
     retry: false,
   });
 
+  // Check if we're in initial loading state
+  const isInitialLoading = storeInfoLoading || categoriesLoading || 
+    (!categories && !storeInfoError) ||
+    (categoryProductsQueries.isLoading && !selectedCategoryId && !searchQuery);
+
   // For filtered views (category selected or search), use the existing products query
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['storefront-products', selectedCategoryId, searchQuery, currentPage, pageSize, priceRange],
@@ -164,7 +171,7 @@ const StorefrontContent = () => {
   });
 
   // Get price range for all products in current category/filter combination (without price filter)
-  const { data: priceRangeData } = useQuery({
+  const { data: priceRangeData, isLoading: priceRangeDataLoading } = useQuery({
     queryKey: ['storefront-price-range', selectedCategoryId, searchQuery],
     queryFn: () => storefrontAPI.getProducts({
       categoryId: selectedCategoryId,
@@ -175,6 +182,9 @@ const StorefrontContent = () => {
     retry: false,
     // Always fetch to get price range for current context
   });
+
+  // Check if price range is loading
+  const isPriceRangeLoading = isInitialLoading || (priceRangeDataLoading && !priceRangeData);
 
   // Calculate max price from all products in current category/filter
   const maxPrice = React.useMemo(() => {
@@ -292,6 +302,7 @@ const StorefrontContent = () => {
       storeInfo={storeInfo}
       storeSettings={storeSettings}
       categories={displayCategories}
+      categoriesLoading={categoriesLoading}
       selectedCategoryId={selectedCategoryId}
       onCategorySelect={handleCategorySelect}
       onAllProductsClick={handleAllProductsClick}
@@ -300,6 +311,7 @@ const StorefrontContent = () => {
       onPriceRangeChange={handlePriceRangeChange}
       priceRange={priceInput}
       maxPrice={maxPrice}
+      priceRangeLoading={isPriceRangeLoading}
       searchQuery={searchInput}
       isCartOpen={showCart}
       hideSidebar={false}
@@ -307,6 +319,15 @@ const StorefrontContent = () => {
       <div className="space-y-6 sm:space-y-8">
         {/* Products Section */}
         <div id="products-section">
+          {/* Show skeleton loaders during initial page load */}
+          {isInitialLoading ? (
+            <div className="space-y-8">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <CategorySectionSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <>
           {/* Category Breadcrumb & Grid Controls */}
           {selectedCategory && (
             <div className="mb-4 sm:mb-6">
@@ -421,8 +442,10 @@ const StorefrontContent = () => {
           {/* Show category sections on home page */}
           {!selectedCategoryId && !searchQuery ? (
             categoryProductsQueries.isLoading ? (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner />
+              <div className="space-y-8">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <CategorySectionSkeleton key={i} />
+                ))}
               </div>
             ) : categoryProductsQueries.data && categoryProductsQueries.data.length > 0 ? (
               <div className="space-y-8">
@@ -467,8 +490,16 @@ const StorefrontContent = () => {
           ) : (
             /* Filtered view - show products in grid */
             productsLoading ? (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner />
+              <div className={`grid gap-3 sm:gap-4 md:gap-6 ${
+                gridLayout === 2 
+                  ? 'grid-cols-2' 
+                  : gridLayout === 3 
+                  ? 'grid-cols-3' 
+                  : 'grid-cols-4'
+              }`}>
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
               </div>
             ) : displayProducts?.products?.length ? (
               <>
@@ -532,6 +563,8 @@ const StorefrontContent = () => {
                 )}
               </div>
             )
+          )}
+            </>
           )}
         </div>
       </div>

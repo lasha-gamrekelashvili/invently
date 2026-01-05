@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import StorefrontHeader from './StorefrontHeader';
 import StorefrontFooter from './StorefrontFooter';
 import StorefrontCategoryList from './StorefrontCategoryList';
+import CategoryListSkeleton from './CategoryListSkeleton';
 import PriceRangeSlider from './PriceRangeSlider';
+import PriceRangeSliderSkeleton from './PriceRangeSliderSkeleton';
 
 interface StorefrontLayoutProps {
   children: React.ReactNode;
@@ -12,6 +14,7 @@ interface StorefrontLayoutProps {
   };
   storeSettings?: any;
   categories?: any[];
+  categoriesLoading?: boolean;
   selectedCategoryId?: string;
   onCategorySelect?: (categoryId: string) => void;
   onAllProductsClick?: () => void;
@@ -20,6 +23,7 @@ interface StorefrontLayoutProps {
   onPriceRangeChange?: (min: string, max: string) => void;
   priceRange?: { min: string; max: string };
   maxPrice?: number;
+  priceRangeLoading?: boolean;
   searchQuery?: string;
   isCartOpen?: boolean;
   hideSidebar?: boolean;
@@ -30,6 +34,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   storeInfo,
   storeSettings,
   categories = [],
+  categoriesLoading = false,
   selectedCategoryId,
   onCategorySelect,
   onAllProductsClick,
@@ -38,6 +43,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   onPriceRangeChange,
   priceRange: externalPriceRange,
   maxPrice = 1000,
+  priceRangeLoading = false,
   searchQuery = '',
   isCartOpen = false,
   hideSidebar = false,
@@ -100,7 +106,9 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                   <h3 className="text-xs font-semibold text-gray-500 mb-3 px-3 uppercase tracking-wider">
                     Categories
                   </h3>
-                  {categories && categories.length > 0 ? (
+                  {categoriesLoading ? (
+                    <CategoryListSkeleton />
+                  ) : categories && categories.length > 0 ? (
                     <StorefrontCategoryList
                       categories={categories}
                       onSelect={onCategorySelect}
@@ -108,9 +116,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     />
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-sm text-gray-500">
-                        {categories === undefined ? 'Loading categories...' : 'No categories available'}
-                      </p>
+                      <p className="text-sm text-gray-500">No categories available</p>
                     </div>
                   )}
                 </div>
@@ -118,12 +124,16 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                 {/* Price Filter */}
                 <div className="pt-2">
                   <hr className="border-gray-200 my-3" />
-                  <PriceRangeSlider
-                    value={externalPriceRange || { min: '', max: '' }}
-                    onChange={onPriceRangeChange || (() => {})}
-                    minPrice={0}
-                    maxPrice={maxPrice}
-                  />
+                  {priceRangeLoading ? (
+                    <PriceRangeSliderSkeleton />
+                  ) : (
+                    <PriceRangeSlider
+                      value={externalPriceRange || { min: '', max: '' }}
+                      onChange={onPriceRangeChange || (() => {})}
+                      minPrice={0}
+                      maxPrice={maxPrice}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -167,7 +177,9 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                   <h3 className="text-xs font-semibold text-gray-500 mb-3 px-3 uppercase tracking-wider">
                     Categories
                   </h3>
-                  {categories && categories.length > 0 ? (
+                  {categoriesLoading ? (
+                    <CategoryListSkeleton />
+                  ) : categories && categories.length > 0 ? (
                     <StorefrontCategoryList
                       categories={categories}
                       onSelect={(id) => {
@@ -178,9 +190,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     />
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-sm text-gray-500">
-                        {categories === undefined ? 'Loading categories...' : 'No categories available'}
-                      </p>
+                      <p className="text-sm text-gray-500">No categories available</p>
                     </div>
                   )}
                 </div>
@@ -188,12 +198,16 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                 {/* Price Filter */}
                 <div className="pt-2">
                   <hr className="border-gray-200 my-3" />
-                  <PriceRangeSlider
-                    value={externalPriceRange || { min: '', max: '' }}
-                    onChange={onPriceRangeChange || (() => {})}
-                    minPrice={0}
-                    maxPrice={maxPrice}
-                  />
+                  {priceRangeLoading ? (
+                    <PriceRangeSliderSkeleton />
+                  ) : (
+                    <PriceRangeSlider
+                      value={externalPriceRange || { min: '', max: '' }}
+                      onChange={onPriceRangeChange || (() => {})}
+                      minPrice={0}
+                      maxPrice={maxPrice}
+                    />
+                  )}
                 </div>
               </div>
 
