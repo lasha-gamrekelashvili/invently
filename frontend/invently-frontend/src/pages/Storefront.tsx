@@ -52,7 +52,8 @@ const StorefrontContent = () => {
     if (path.startsWith('/category/')) {
       // Get the last slug in the path (supports nested categories)
       const slugs = path.replace('/category/', '').split('/').filter(Boolean);
-      return slugs[slugs.length - 1]; // Return the deepest category slug
+      // URL-decode the slug to handle special characters
+      return slugs.length > 0 ? decodeURIComponent(slugs[slugs.length - 1]) : null;
     }
     return null;
   };
@@ -189,7 +190,6 @@ const StorefrontContent = () => {
   const maxPrice = React.useMemo(() => {
     if (!priceRangeData?.products?.length) return 1000; // Default fallback
     const calculatedMax = Math.ceil(Math.max(...priceRangeData.products.map((p: any) => p.price || 0)));
-    console.log('Max price calculated:', calculatedMax, 'for category:', selectedCategoryId, 'search:', searchQuery);
     return calculatedMax;
   }, [priceRangeData, selectedCategoryId, searchQuery]);
 
@@ -211,7 +211,8 @@ const StorefrontContent = () => {
 
     // Build path from bottom to top
     while (current) {
-      slugs.unshift(current.slug);
+      // URL-encode each slug to handle special characters
+      slugs.unshift(encodeURIComponent(current.slug));
       if (current.parentId) {
         current = findCategoryById(current.parentId, categoriesList);
       } else {

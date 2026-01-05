@@ -38,7 +38,6 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
   // Reset slider values when maxPrice changes significantly
   useEffect(() => {
-    console.log('PriceRangeSlider maxPrice changed:', maxPrice, 'current slider max:', sliderValues[1]);
     if (maxPrice !== sliderValues[1] && !isDragging) {
       // If current max value exceeds new maxPrice, reset to new range
       if (sliderValues[1] > maxPrice) {
