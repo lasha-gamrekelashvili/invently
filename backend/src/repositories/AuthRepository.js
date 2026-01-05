@@ -7,12 +7,24 @@ export class AuthRepository extends BaseRepository {
   }
 
   async findByEmail(email, options = {}) {
-    return await this.findFirst({ email }, options);
+    // Case-insensitive email search
+    return await this.findFirst({ 
+      email: {
+        equals: email,
+        mode: 'insensitive'
+      }
+    }, options);
   }
 
   async findByEmailWithTenants(email) {
+    // Case-insensitive email search
     return await this.findFirst(
-      { email },
+      { 
+        email: {
+          equals: email,
+          mode: 'insensitive'
+        }
+      },
       {
         include: {
           ownedTenants: {

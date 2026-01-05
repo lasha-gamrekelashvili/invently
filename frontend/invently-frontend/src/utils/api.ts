@@ -36,32 +36,16 @@ export const debounce = <T extends (...args: any[]) => any>(
 // Determine the correct API base URL based on environment
 const getApiBaseUrl = () => {
   const hostname = window.location.hostname;
-  const port = window.location.port;
   
-  // Debug logging
-  console.log('Current hostname:', hostname);
-  console.log('Current port:', port);
-  console.log('Current origin:', window.location.origin);
-  
-  // For local development (localhost or local network IP)
+  // For localhost development - check for localhost in any form
   if (hostname === 'localhost' || 
       hostname === '127.0.0.1' || 
-      hostname.includes('127.0.0.1') ||
       hostname.endsWith('.localhost') ||  // This covers subdomains like nucushop.localhost
-      hostname.includes('localhost') ||
-      port === '3000' ||
-      /^192\.168\.\d+\.\d+$/.test(hostname) ||  // Local network IP (192.168.x.x)
-      /^10\.\d+\.\d+\.\d+$/.test(hostname) ||   // Local network IP (10.x.x.x)
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+$/.test(hostname) ||  // Local network IP (172.16-31.x.x)
-      window.location.origin.includes('localhost')) {
-    console.log('Using local development API URL');
-    // Use the same hostname as the frontend, but port 3001 for API
-    // This ensures mobile devices on the same network can reach the backend
-    return `http://${hostname === 'localhost' ? 'localhost' : hostname}:3001/api`;
+      hostname.includes('localhost')) {
+    return 'http://localhost:3001/api';
   }
   
   // For production - use the actual backend URL
-  console.log('Using production API URL');
   return 'https://momigvare.onrender.com/api';
 };
 

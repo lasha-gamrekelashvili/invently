@@ -97,20 +97,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
-        const protocol = window.location.protocol;
-
-        // Check if we're accessing via local network IP (not localhost)
-        const isLocalNetworkIP = 
-          /^192\.168\.\d+\.\d+$/.test(currentHost) ||
-          /^10\.\d+\.\d+\.\d+$/.test(currentHost) ||
-          /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+$/.test(currentHost);
 
         let redirectUrl: string;
 
-        if (isLocalNetworkIP) {
-          // For local network IP access (mobile on same network)
-          redirectUrl = `${protocol}//${currentHost}${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        } else if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
           // For localhost development - use subdomain
           redirectUrl = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
@@ -118,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           redirectUrl = `https://${tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
 
-        // Force immediate redirect - use replace to prevent back button issues
         window.location.replace(redirectUrl);
         return;
       }
@@ -145,20 +134,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
-        const protocol = window.location.protocol;
-
-        // Check if we're accessing via local network IP (not localhost)
-        const isLocalNetworkIP = 
-          /^192\.168\.\d+\.\d+$/.test(currentHost) ||
-          /^10\.\d+\.\d+\.\d+$/.test(currentHost) ||
-          /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+$/.test(currentHost);
 
         let redirectUrl: string;
 
-        if (isLocalNetworkIP) {
-          // For local network IP access (mobile on same network)
-          redirectUrl = `${protocol}//${currentHost}${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        } else if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
           // For localhost development - use subdomain
           redirectUrl = `http://${response.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
@@ -166,7 +145,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           redirectUrl = `https://${response.tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
 
-        // Force immediate redirect - use replace to prevent back button issues
         window.location.replace(redirectUrl);
         return;
       }
