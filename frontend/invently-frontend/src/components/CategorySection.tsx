@@ -15,7 +15,6 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   categoryName,
   products,
   onViewAll,
-  onCategoryClick,
   getCartItemQuantity,
 }) => {
   if (!products || products.length === 0) return null;

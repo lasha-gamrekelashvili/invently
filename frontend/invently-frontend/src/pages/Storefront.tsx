@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontAPI } from '../utils/api';
-import LoadingSpinner from '../components/LoadingSpinner';
 import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
 import StorefrontPagination from '../components/StorefrontPagination';
