@@ -12,7 +12,6 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState('');
 
   const { login } = useAuth();
@@ -26,14 +25,12 @@ const Login = () => {
     try {
       await login(email, password);
       handleSuccess(t('auth.login.successMessage'));
-      setIsRedirecting(true);
       // AuthContext will handle the redirect automatically
       // Keep loading state active to prevent multiple submissions
     } catch (err: any) {
       const errorMessage = handleApiError(err, t('auth.errors.loginFailed'));
       setError(errorMessage);
       setIsLoading(false);
-      setIsRedirecting(false);
     }
   };
 
@@ -122,14 +119,11 @@ const Login = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={isLoading || isRedirecting}
+                  disabled={isLoading}
                   className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3.5 px-4 rounded-xl font-semibold text-base hover:from-blue-600 hover:to-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
-                  {isLoading || isRedirecting ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <LoadingSpinner size="sm" />
-                      {isRedirecting ? 'Redirecting...' : null}
-                    </span>
+                  {isLoading ? (
+                    <LoadingSpinner size="sm" />
                   ) : (
                     <T tKey="auth.login.signInButton" />
                   )}

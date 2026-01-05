@@ -81,9 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Starting login...');
       const response = await authAPI.login({ email, password });
-      console.log('Login API response received');
 
       // Response is already unwrapped by the interceptor
       setToken(response.token);
@@ -92,15 +90,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      console.log('Token and user saved to localStorage');
 
-      // TEMPORARY: Debug the redirect condition
-      const onSubdomain = isOnSubdomain();
-      const hasTenants = response.tenants && response.tenants.length > 0;
-      console.log('Redirect check - onSubdomain:', onSubdomain, 'hasTenants:', hasTenants, 'tenants:', response.tenants);
-      
       // Only redirect to subdomain if we're on the main domain
-      if (!onSubdomain && hasTenants && response.tenants) {
+      if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
@@ -126,32 +118,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           redirectUrl = `https://${tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
 
-        console.log('Login successful, redirecting to:', redirectUrl);
-        
-        // TEMPORARY: Alert for mobile debugging - remove this after testing
-        alert(`Login successful! Redirecting to: ${redirectUrl}`);
-        
-        // Force redirect immediately - Safari iOS can be very strict
-        // Try multiple methods to ensure redirect works
-        try {
-          window.location.replace(redirectUrl);
-        } catch (e) {
-          console.error('Redirect failed, trying fallback:', e);
-          alert(`Redirect error: ${e}. Trying fallback...`);
-          window.location.href = redirectUrl;
-        }
-        
-        // Don't return here - let the function complete
-        // The redirect will happen asynchronously
-      } else {
-        // TEMPORARY: Alert to show why redirect didn't happen
-        alert(`Redirect skipped! onSubdomain: ${onSubdomain}, hasTenants: ${hasTenants}, tenants count: ${response.tenants?.length || 0}`);
-        console.log('Redirect condition not met, staying on current page');
+        // Force immediate redirect - use replace to prevent back button issues
+        window.location.replace(redirectUrl);
+        return;
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
-      // TEMPORARY: Alert for mobile debugging - remove this after testing
-      alert(`Login failed: ${error?.message || error?.response?.data?.message || 'Unknown error'}`);
       throw error;
     }
   };
@@ -194,19 +166,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           redirectUrl = `https://${response.tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
 
-        console.log('Registration successful, redirecting to:', redirectUrl);
-        
-        // Force redirect immediately - Safari iOS can be very strict
-        // Try multiple methods to ensure redirect works
-        try {
-          window.location.replace(redirectUrl);
-        } catch (e) {
-          console.error('Redirect failed, trying fallback:', e);
-          window.location.href = redirectUrl;
-        }
-        
-        // Don't return here - let the function complete
-        // The redirect will happen asynchronously
+        // Force immediate redirect - use replace to prevent back button issues
+        window.location.replace(redirectUrl);
+        return;
       }
     } catch (error) {
       console.error('Registration error:', error);
