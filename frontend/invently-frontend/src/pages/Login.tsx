@@ -22,20 +22,11 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
-    console.log('Login form submitted');
-    alert('Login form submitted, calling login API...');
-
     try {
-      console.log('Calling login function...');
       await login(email, password);
-      console.log('Login function completed successfully');
-      alert('Login API succeeded! Should redirect now...');
       handleSuccess(t('auth.login.successMessage'));
       // AuthContext will handle the redirect automatically
-      // Keep loading state active to prevent multiple submissions
     } catch (err: any) {
-      console.error('Login error in component:', err);
-      alert(`Login error caught: ${err?.message || JSON.stringify(err)}`);
       const errorMessage = handleApiError(err, t('auth.errors.loginFailed'));
       setError(errorMessage);
       setIsLoading(false);

@@ -81,13 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('AuthContext login called');
-      alert('AuthContext: Starting login API call...');
-      
       const response = await authAPI.login({ email, password });
-      
-      console.log('AuthContext: API response received:', response);
-      alert(`AuthContext: API response received. Has token: ${!!response.token}, Has tenants: ${!!response.tenants}`);
 
       // Response is already unwrapped by the interceptor
       setToken(response.token);
@@ -96,22 +90,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-      
-      console.log('AuthContext: Token and user saved');
 
       // Only redirect to subdomain if we're on the main domain
-      const shouldRedirect = !isOnSubdomain() && response.tenants && response.tenants.length > 0;
-      const tenantsCount = response.tenants?.length || 0;
-      alert(`AuthContext: Should redirect? ${shouldRedirect}. isOnSubdomain: ${isOnSubdomain()}, hasTenants: ${!!response.tenants}, tenantsCount: ${tenantsCount}`);
-      
-      if (shouldRedirect && response.tenants) {
+      if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
         const protocol = window.location.protocol;
-        
-        alert(`AuthContext: Building redirect for tenant: ${tenant.subdomain}`);
 
         // Check if we're accessing via local network IP (not localhost)
         const isLocalNetworkIP = 
@@ -132,17 +118,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           redirectUrl = `https://${tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
 
-        alert(`AuthContext: About to redirect to: ${redirectUrl}`);
-        
         // Force immediate redirect - use replace to prevent back button issues
         window.location.replace(redirectUrl);
         return;
-      } else {
-        alert('AuthContext: Redirect condition NOT met - staying on login page');
       }
-    } catch (error: any) {
-      console.error('Login error in AuthContext:', error);
-      alert(`AuthContext: Login error - ${error?.message || JSON.stringify(error)}`);
+    } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
   };
