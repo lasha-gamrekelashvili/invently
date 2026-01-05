@@ -81,7 +81,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Starting login...');
       const response = await authAPI.login({ email, password });
+      console.log('Login API response received');
 
       // Response is already unwrapped by the interceptor
       setToken(response.token);
@@ -90,26 +92,66 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
+      console.log('Token and user saved to localStorage');
 
+      // TEMPORARY: Debug the redirect condition
+      const onSubdomain = isOnSubdomain();
+      const hasTenants = response.tenants && response.tenants.length > 0;
+      console.log('Redirect check - onSubdomain:', onSubdomain, 'hasTenants:', hasTenants, 'tenants:', response.tenants);
+      
       // Only redirect to subdomain if we're on the main domain
-      if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
+      if (!onSubdomain && hasTenants) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
+        const protocol = window.location.protocol;
 
-        if (currentHost.includes('localhost')) {
-          // For localhost development - redirect to admin dashboard with token
-          window.location.href = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
+        // Check if we're accessing via local network IP (not localhost)
+        const isLocalNetworkIP = 
+          /^192\.168\.\d+\.\d+$/.test(currentHost) ||
+          /^10\.\d+\.\d+\.\d+$/.test(currentHost) ||
+          /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+$/.test(currentHost);
+
+        let redirectUrl: string;
+
+        if (isLocalNetworkIP) {
+          // For local network IP access (mobile on same network)
+          redirectUrl = `${protocol}//${currentHost}${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
+        } else if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+          // For localhost development - use subdomain
+          redirectUrl = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
           // For production - redirect to admin dashboard with token
-          // Handle both localhost and production domains properly
-          const base = currentHost === 'localhost' ? 'localhost' : currentHost;
-          window.location.href = `https://${tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
+          redirectUrl = `https://${tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
-        return;
+
+        console.log('Login successful, redirecting to:', redirectUrl);
+        
+        // TEMPORARY: Alert for mobile debugging - remove this after testing
+        alert(`Login successful! Redirecting to: ${redirectUrl}`);
+        
+        // Force redirect immediately - Safari iOS can be very strict
+        // Try multiple methods to ensure redirect works
+        try {
+          window.location.replace(redirectUrl);
+        } catch (e) {
+          console.error('Redirect failed, trying fallback:', e);
+          alert(`Redirect error: ${e}. Trying fallback...`);
+          window.location.href = redirectUrl;
+        }
+        
+        // Don't return here - let the function complete
+        // The redirect will happen asynchronously
+      } else {
+        // TEMPORARY: Alert to show why redirect didn't happen
+        alert(`Redirect skipped! onSubdomain: ${onSubdomain}, hasTenants: ${hasTenants}, tenants count: ${response.tenants?.length || 0}`);
+        console.log('Redirect condition not met, staying on current page');
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login error:', error);
+      // TEMPORARY: Alert for mobile debugging - remove this after testing
+      alert(`Login failed: ${error?.message || error?.response?.data?.message || 'Unknown error'}`);
       throw error;
     }
   };
@@ -131,19 +173,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
+        const protocol = window.location.protocol;
 
-        if (currentHost.includes('localhost')) {
-          // For localhost development - redirect to admin dashboard with token
-          window.location.href = `http://${response.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
+        // Check if we're accessing via local network IP (not localhost)
+        const isLocalNetworkIP = 
+          /^192\.168\.\d+\.\d+$/.test(currentHost) ||
+          /^10\.\d+\.\d+\.\d+$/.test(currentHost) ||
+          /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+$/.test(currentHost);
+
+        let redirectUrl: string;
+
+        if (isLocalNetworkIP) {
+          // For local network IP access (mobile on same network)
+          redirectUrl = `${protocol}//${currentHost}${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
+        } else if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+          // For localhost development - use subdomain
+          redirectUrl = `http://${response.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
         } else {
           // For production - redirect to admin dashboard with token
-          // Handle both localhost and production domains properly
-          const base = currentHost === 'localhost' ? 'localhost' : currentHost;
-          window.location.href = `https://${response.tenant.subdomain}.${base}/admin/dashboard#token=${encodeURIComponent(token)}`;
+          redirectUrl = `https://${response.tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
         }
-        return;
+
+        console.log('Registration successful, redirecting to:', redirectUrl);
+        
+        // Force redirect immediately - Safari iOS can be very strict
+        // Try multiple methods to ensure redirect works
+        try {
+          window.location.replace(redirectUrl);
+        } catch (e) {
+          console.error('Redirect failed, trying fallback:', e);
+          window.location.href = redirectUrl;
+        }
+        
+        // Don't return here - let the function complete
+        // The redirect will happen asynchronously
       }
     } catch (error) {
+      console.error('Registration error:', error);
       throw error;
     }
   };

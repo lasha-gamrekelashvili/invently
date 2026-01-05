@@ -43,16 +43,21 @@ const getApiBaseUrl = () => {
   console.log('Current port:', port);
   console.log('Current origin:', window.location.origin);
   
-  // For localhost development - check for localhost in any form
+  // For local development (localhost or local network IP)
   if (hostname === 'localhost' || 
       hostname === '127.0.0.1' || 
       hostname.includes('127.0.0.1') ||
       hostname.endsWith('.localhost') ||  // This covers subdomains like nucushop.localhost
       hostname.includes('localhost') ||
       port === '3000' ||
+      /^192\.168\.\d+\.\d+$/.test(hostname) ||  // Local network IP (192.168.x.x)
+      /^10\.\d+\.\d+\.\d+$/.test(hostname) ||   // Local network IP (10.x.x.x)
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+$/.test(hostname) ||  // Local network IP (172.16-31.x.x)
       window.location.origin.includes('localhost')) {
-    console.log('Using localhost API URL');
-    return 'http://localhost:3001/api';
+    console.log('Using local development API URL');
+    // Use the same hostname as the frontend, but port 3001 for API
+    // This ensures mobile devices on the same network can reach the backend
+    return `http://${hostname === 'localhost' ? 'localhost' : hostname}:3001/api`;
   }
   
   // For production - use the actual backend URL
@@ -78,12 +83,17 @@ export const setAuthToken = (token: string | null) => {
 // Function to check if we're on a subdomain
 export const isOnSubdomain = () => {
   const host = window.location.hostname; // furniture.localhost OR furniture.shopu.ge
+  
+  // Not a subdomain if it's localhost or an IP address
   if (host === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return false;
+  
   // localhost special-case: foo.localhost is treated as subdomain
   if (host.endsWith('.localhost')) return true;
-  // real domains: at least 3 labels = subdomain
-  // Also check if it's a subdomain of shopu.ge
+  
+  // For production domains - check if it's a subdomain of shopu.ge
   if (host.endsWith('.shopu.ge') && host !== 'shopu.ge') return true;
+  
+  // General case: at least 3 labels = subdomain (e.g., tenant.example.com)
   return host.split('.').length >= 3;
 };
 
