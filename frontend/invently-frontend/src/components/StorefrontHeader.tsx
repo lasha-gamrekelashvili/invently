@@ -15,26 +15,20 @@ interface StorefrontHeaderProps {
   onMenuClick: () => void;
   onCartClick: () => void;
   onSearchChange?: (query: string) => void;
-  gridLayout?: number;
-  onGridLayoutChange?: (layout: number) => void;
   searchQuery?: string;
   isCartOpen?: boolean;
   isSidebarOpen?: boolean;
 }
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
-  storeInfo,
   onMenuClick,
   onCartClick,
   onSearchChange,
-  gridLayout = 3,
-  onGridLayoutChange,
   searchQuery = '',
   isCartOpen = false,
   isSidebarOpen = false
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { cartItemCount } = useCart();
 
   // Sync with parent when prop changes
@@ -48,94 +42,36 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
     onSearchChange?.(value);
   };
 
-  const toggleMobileSearch = () => {
-    setMobileSearchOpen(!mobileSearchOpen);
-  };
-
   return (
     <LandingHeader 
       showAuthButtons={false}
-      shopName={storeInfo?.name || ''}
+      showLogo={false}
       mobileMenuButton={
         <button
           onClick={onMenuClick}
           className={`p-2 rounded-md transition-all ${
             isSidebarOpen
-              ? 'text-blue-600 bg-blue-50 ring-1 ring-blue-400'
+              ? 'text-gray-800 bg-gray-100 ring-1 ring-gray-400'
               : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
           }`}
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
       }
-      mobileSearchButton={
-        <button
-          onClick={toggleMobileSearch}
-          className="p-2 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all"
-          aria-label="Search"
-        >
-          <MagnifyingGlassIcon className="h-6 w-6" />
-        </button>
-      }
       centerContent={
-        <div className="flex items-center gap-3 w-full">
-          {/* Search Bar - Desktop always visible */}
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+        <div className="flex items-center gap-2 sm:gap-3 w-full">
+          {/* Search Bar - Always visible on all screens */}
+          <div className="relative flex-1 min-w-0">
+            <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 md:pl-4 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </div>
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search..."
               value={localSearchQuery}
               onChange={handleSearchChange}
-              className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="block w-full pl-8 sm:pl-10 md:pl-12 pr-2 sm:pr-3 md:pr-4 py-1.5 sm:py-2 md:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all"
             />
-          </div>
-
-          {/* Grid Layout Selector - Only show when there are multiple options */}
-          <div className="hidden lg:flex items-center space-x-1">
-            {[
-              { layout: 2, icon: 'grid-2', hideBelow: '' }, // Always show (when container is visible)
-              { layout: 3, icon: 'grid-3', hideBelow: 'lg' }, // Hide below lg (1024px)
-              { layout: 4, icon: 'grid-4', hideBelow: 'xl' } // Hide below xl (1280px)
-            ].map(({ layout, icon, hideBelow }) => (
-              <button
-                key={layout}
-                onClick={() => onGridLayoutChange?.(layout)}
-                className={`p-2 rounded-lg transition-all ${
-                  gridLayout === layout
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } ${
-                  hideBelow === 'xl' ? 'hidden xl:block' : 
-                  hideBelow === 'lg' ? 'hidden lg:block' : ''
-                }`}
-                title={`${layout} items per row`}
-              >
-                {icon === 'grid-2' && (
-                  <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                    <div className="bg-current rounded-sm"></div>
-                    <div className="bg-current rounded-sm"></div>
-                  </div>
-                )}
-                {icon === 'grid-3' && (
-                  <div className="w-4 h-4 grid grid-cols-3 gap-0.5">
-                    <div className="bg-current rounded-sm"></div>
-                    <div className="bg-current rounded-sm"></div>
-                    <div className="bg-current rounded-sm"></div>
-                  </div>
-                )}
-                {icon === 'grid-4' && (
-                  <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                    <div className="bg-current rounded-sm"></div>
-                    <div className="bg-current rounded-sm"></div>
-                    <div className="bg-current rounded-sm"></div>
-                    <div className="bg-current rounded-sm"></div>
-                  </div>
-                )}
-              </button>
-            ))}
           </div>
         </div>
       }
@@ -144,8 +80,8 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           onClick={onCartClick}
           className={`relative p-2 rounded-xl transition-all group ${
             isCartOpen
-              ? 'text-blue-600 bg-blue-50 ring-1 ring-blue-400 shadow-md shadow-blue-100/50'
-              : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              ? 'text-gray-800 bg-gray-100 ring-1 ring-gray-400 shadow-md shadow-gray-200/50'
+              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
           }`}
           aria-label="Shopping cart"
         >
@@ -153,8 +89,8 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           {cartItemCount > 0 && (
             <span className={`absolute -top-1 -right-1 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white transition-all ${
               isCartOpen 
-                ? 'bg-blue-600 scale-110 ring-blue-50' 
-                : 'bg-blue-600 group-hover:scale-110'
+                ? 'bg-gray-800 scale-110 ring-gray-100' 
+                : 'bg-gray-800 group-hover:scale-110'
             }`}>
               {cartItemCount > 99 ? '99+' : cartItemCount}
             </span>
@@ -162,32 +98,6 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
         </button>
       }
       showLanguageSelector={true}
-      mobileSearchExpanded={mobileSearchOpen}
-      mobileSearchContent={
-        <div className="flex items-center gap-2 w-full">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={localSearchQuery}
-              onChange={handleSearchChange}
-              autoFocus
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-          </div>
-          <button
-            onClick={toggleMobileSearch}
-            className="p-2 text-gray-400 hover:text-gray-600"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      }
     />
   );
 };

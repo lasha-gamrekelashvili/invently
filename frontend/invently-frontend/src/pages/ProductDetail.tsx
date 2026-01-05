@@ -106,7 +106,7 @@ const ProductDetailContent: React.FC = () => {
           <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-gray-700 text-white font-medium rounded-xl hover:bg-gray-600 transition-colors"
           >
             Back to Store
           </button>
@@ -273,7 +273,7 @@ const ProductDetailContent: React.FC = () => {
                     onClick={() => setCurrentImageIndex(index)}
                     className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
                       index === currentImageIndex
-                        ? 'border-blue-500'
+                        ? 'border-gray-700'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -315,7 +315,7 @@ const ProductDetailContent: React.FC = () => {
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${
                         index === currentImageIndex
-                          ? 'border-blue-500'
+                          ? 'border-gray-700'
                           : 'border-gray-200'
                       }`}
                     >
@@ -427,7 +427,7 @@ const ProductDetailContent: React.FC = () => {
                   className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                     !isInStock || (hasVariants && !selectedVariant)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-sm hover:shadow-md'
+                      : 'bg-gradient-to-r from-gray-700 to-gray-600 text-white hover:from-gray-600 hover:to-gray-500 shadow-sm hover:shadow-md'
                   }`}
                 >
                   <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -441,7 +441,7 @@ const ProductDetailContent: React.FC = () => {
                     className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                       !isInStock || (hasVariants && !selectedVariant)
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-900 text-white hover:bg-gray-800'
+                        : 'bg-gray-800 text-white hover:bg-gray-700'
                     }`}
                   >
                     Buy Now

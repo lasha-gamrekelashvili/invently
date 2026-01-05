@@ -56,7 +56,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       <li>
                         <button
                           onClick={() => handlePopupOpen('aboutUs')}
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           About Us
                         </button>
@@ -66,7 +66,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       <li>
                         <button
                           onClick={() => handlePopupOpen('privacyPolicy')}
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           Privacy Policy
                         </button>
@@ -76,7 +76,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       <li>
                         <button
                           onClick={() => handlePopupOpen('termsOfService')}
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           Terms of Service
                         </button>
@@ -95,7 +95,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       <li>
                         <button
                           onClick={() => handlePopupOpen('shippingInfo')}
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           Shipping Info
                         </button>
@@ -105,7 +105,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       <li>
                         <button
                           onClick={() => handlePopupOpen('returns')}
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           Returns
                         </button>
@@ -115,7 +115,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       <li>
                         <button
                           onClick={() => handlePopupOpen('faq')}
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           FAQ
                         </button>
@@ -127,7 +127,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                           href={settings.trackOrderUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-gray-600 hover:text-blue-600 transition-colors block"
+                          className="text-sm text-gray-600 hover:text-gray-800 transition-colors block"
                         >
                           Track Order
                         </a>
@@ -151,7 +151,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       href={settings.facebookUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all"
                       aria-label="Facebook"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -193,7 +193,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       href={settings.linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-blue-700 hover:text-white transition-all"
+                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all"
                       aria-label="LinkedIn"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

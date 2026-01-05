@@ -87,7 +87,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) =
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-700 border-t-transparent"></div>
             </div>
           ) : cart?.items && cart.items.length > 0 ? (
             <div className="space-y-4">
@@ -120,7 +120,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) =
                           {Object.entries(item.variant.options).map(([key, value]) => (
                             <span
                               key={key}
-                              className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                              className="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded"
                             >
                               {key}: {value}
                             </span>
@@ -134,7 +134,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) =
                         <div className="flex items-center bg-white border border-gray-300 rounded-lg">
                           <button
                             onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
-                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-l-lg transition-colors"
+                            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-l-lg transition-colors"
                           >
                             <MinusIcon className="h-4 w-4" />
                           </button>
@@ -143,7 +143,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) =
                           </span>
                           <button
                             onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
-                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-r-lg transition-colors"
+                            className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-r-lg transition-colors"
                           >
                             <PlusIcon className="h-4 w-4" />
                           </button>
@@ -200,7 +200,7 @@ const Cart: React.FC<CartProps> = ({ onCheckout, onClose, isClosing = false }) =
             <div className="space-y-3 pt-2">
               <button
                 onClick={handleCheckout}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                className="w-full bg-gradient-to-r from-gray-800 to-gray-700 text-white py-4 px-4 rounded-xl font-semibold hover:from-gray-700 hover:to-gray-600 transition-all shadow-lg hover:shadow-xl active:scale-95"
               >
                 Proceed to Checkout
               </button>

@@ -143,7 +143,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                           required
                           value={formData.customerName}
                           onChange={(e) => handleInputChange('customerName', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-700 focus:border-transparent"
                         />
                       </div>
                       <div>
@@ -155,7 +155,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                           required
                           value={formData.customerEmail}
                           onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-700 focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -173,7 +173,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                           type="text"
                           value={formData.shippingAddress.street}
                           onChange={(e) => handleInputChange('shippingAddress.street', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-700 focus:border-transparent"
                         />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -185,7 +185,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                             type="text"
                             value={formData.shippingAddress.city}
                             onChange={(e) => handleInputChange('shippingAddress.city', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-700 focus:border-transparent"
                           />
                         </div>
                         <div>
@@ -196,7 +196,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                             type="text"
                             value={formData.shippingAddress.state}
                             onChange={(e) => handleInputChange('shippingAddress.state', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-700 focus:border-transparent"
                           />
                         </div>
                         <div>
@@ -207,7 +207,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                             type="text"
                             value={formData.shippingAddress.zipCode}
                             onChange={(e) => handleInputChange('shippingAddress.zipCode', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-700 focus:border-transparent"
                           />
                         </div>
                       </div>
@@ -248,12 +248,12 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                   </div>
 
                   {/* Mock Payment Info */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start">
-                      <CreditCardIcon className="h-5 w-5 text-blue-600 mt-0.5 mr-2" />
+                      <CreditCardIcon className="h-5 w-5 text-gray-700 mt-0.5 mr-2" />
                       <div>
-                        <p className="text-sm font-medium text-blue-900">Mock Payment</p>
-                        <p className="text-sm text-blue-700">
+                        <p className="text-sm font-medium text-gray-900">Mock Payment</p>
+                        <p className="text-sm text-gray-700">
                           This is a demo checkout. No real payment will be processed.
                           All orders will be automatically marked as paid.
                         </p>
@@ -272,7 +272,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                      className="px-6 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors"
                     >
                       Place Order
                     </button>
@@ -282,7 +282,7 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
 
               {step === 'processing' && (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-700 mx-auto mb-4"></div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Processing Your Order</h3>
                   <p className="text-gray-600">Please wait while we process your payment...</p>
                 </div>

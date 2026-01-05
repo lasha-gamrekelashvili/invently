@@ -10,8 +10,6 @@ import ProductCard from '../components/ProductCard';
 import CategorySection from '../components/CategorySection';
 import Cart from '../components/Cart';
 import Checkout from '../components/Checkout';
-import CategoryCarousel from '../components/CategoryCarousel';
-import CategoryGridModal from '../components/CategoryGridModal';
 import { CartProvider, useCart } from '../contexts/CartContext';
 import { CubeIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
@@ -21,7 +19,6 @@ const StorefrontContent = () => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [cartClosing, setCartClosing] = useState(false);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [searchInput, setSearchInput] = useState(''); // User's input
   const [searchQuery, setSearchQuery] = useState(''); // Debounced search query
   const [currentPage, setCurrentPage] = useState(1);
@@ -124,7 +121,7 @@ const StorefrontContent = () => {
 
   // For home page (no category selected), fetch products for each root category
   const categoryProductsQueries = useQuery({
-    queryKey: ['category-products', rootCategories.map((c: any) => c.id)],
+    queryKey: ['category-products', rootCategories.map((c: any) => c.id), priceRange],
     queryFn: async () => {
       if (selectedCategoryId || searchQuery) return null; // Only fetch on home page
       
@@ -134,6 +131,8 @@ const StorefrontContent = () => {
             categoryId: category.id,
             page: 1,
             limit: 6, // Get 6 products per category
+            minPrice: priceRange.min ? parseFloat(priceRange.min) : undefined,
+            maxPrice: priceRange.max ? parseFloat(priceRange.max) : undefined,
           });
           return {
             categoryId: category.id,
@@ -159,7 +158,7 @@ const StorefrontContent = () => {
       minPrice: priceRange.min ? parseFloat(priceRange.min) : undefined,
       maxPrice: priceRange.max ? parseFloat(priceRange.max) : undefined,
     }),
-    enabled: !!(selectedCategoryId || searchQuery || priceRange.min || priceRange.max),
+    enabled: !!(selectedCategoryId || searchQuery),
     retry: false,
     placeholderData: (previousData) => previousData,
   });
@@ -301,57 +300,126 @@ const StorefrontContent = () => {
       onPriceRangeChange={handlePriceRangeChange}
       priceRange={priceInput}
       maxPrice={maxPrice}
-      gridLayout={gridLayout}
-      onGridLayoutChange={handleGridLayoutChange}
       searchQuery={searchInput}
       isCartOpen={showCart}
-      hideSidebar={!selectedCategoryId}
+      hideSidebar={false}
     >
       <div className="space-y-6 sm:space-y-8">
-        {/* Category Carousel - Primary Navigation - Only show on home page */}
-        {categories && categories.length > 0 && !selectedCategoryId && (
-          <CategoryCarousel
-            categories={categories}
-            onCategorySelect={handleCategorySelect}
-            onShowAllClick={() => setShowCategoryModal(true)}
-            selectedCategoryId={selectedCategoryId}
-          />
-        )}
-
         {/* Products Section */}
         <div id="products-section">
-          {/* Category Breadcrumb */}
+          {/* Category Breadcrumb & Grid Controls */}
           {selectedCategory && (
-            <nav className="mb-4 sm:mb-6 overflow-x-auto scrollbar-hide pb-2">
-              <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
-                <button
-                  onClick={handleAllProductsClick}
-                  className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
-                >
-                  Home
-                </button>
-                
-                {categoryHierarchy.map((cat, index) => (
-                  <React.Fragment key={cat.id}>
-                    <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+            <div className="mb-4 sm:mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                {/* Breadcrumb */}
+                <nav className="overflow-x-auto scrollbar-hide">
+                  <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
                     <button
-                      onClick={() => handleCategorySelect(cat.id)}
-                      className={`transition-colors flex-shrink-0 px-1 ${
-                        index === categoryHierarchy.length - 1
-                          ? 'text-gray-900 font-medium'
-                          : 'hover:text-gray-900'
-                      }`}
+                      onClick={handleAllProductsClick}
+                      className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
                     >
-                      {cat.name}
+                      Home
                     </button>
-                  </React.Fragment>
-                ))}
+                    
+                    {categoryHierarchy.map((cat, index) => (
+                      <React.Fragment key={cat.id}>
+                        <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+                        <button
+                          onClick={() => handleCategorySelect(cat.id)}
+                          className={`transition-colors flex-shrink-0 px-1 ${
+                            index === categoryHierarchy.length - 1
+                              ? 'text-gray-900 font-medium'
+                              : 'hover:text-gray-900'
+                          }`}
+                        >
+                          {cat.name}
+                        </button>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </nav>
+
+                {/* Grid Layout Controls - Available on all screen sizes */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-xs sm:text-sm text-gray-600 px-1">View:</span>
+                {/* 2 columns */}
+                <button
+                  onClick={() => handleGridLayoutChange(2)}
+                  className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
+                    gridLayout === 2
+                      ? 'border-gray-700 bg-gray-50'
+                      : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
+                  }`}
+                  title="2 columns"
+                >
+                  <div className="flex gap-0.5 sm:gap-1">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div 
+                        key={i}
+                        className={`w-1.5 sm:w-2 h-4 sm:h-5 rounded-sm transition-colors ${
+                          gridLayout === 2
+                            ? 'bg-gray-700'
+                            : 'bg-gray-400 group-hover:bg-gray-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </button>
+
+                {/* 3 columns */}
+                <button
+                  onClick={() => handleGridLayoutChange(3)}
+                  className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
+                    gridLayout === 3
+                      ? 'border-gray-700 bg-gray-50'
+                      : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
+                  }`}
+                  title="3 columns"
+                >
+                  <div className="flex gap-0.5 sm:gap-1">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div 
+                        key={i}
+                        className={`w-1 sm:w-1.5 h-4 sm:h-5 rounded-sm transition-colors ${
+                          gridLayout === 3
+                            ? 'bg-gray-700'
+                            : 'bg-gray-400 group-hover:bg-gray-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </button>
+
+                {/* 4 columns */}
+                <button
+                  onClick={() => handleGridLayoutChange(4)}
+                  className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
+                    gridLayout === 4
+                      ? 'border-gray-700 bg-gray-50'
+                      : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
+                  }`}
+                  title="4 columns"
+                >
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div 
+                        key={i}
+                        className={`w-1 sm:w-1.5 h-4 sm:h-5 rounded-sm transition-colors ${
+                          gridLayout === 4
+                            ? 'bg-gray-700'
+                            : 'bg-gray-400 group-hover:bg-gray-600'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </button>
               </div>
-            </nav>
+              </div>
+            </div>
           )}
 
           {/* Show category sections on home page */}
-          {!selectedCategoryId && !searchQuery && !priceRange.min && !priceRange.max ? (
+          {!selectedCategoryId && !searchQuery ? (
             categoryProductsQueries.isLoading ? (
               <div className="flex justify-center py-12">
                 <LoadingSpinner />
@@ -377,9 +445,23 @@ const StorefrontContent = () => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   No products available
                 </h3>
-                <p className="text-gray-600">
-                  Check back later for new products!
+                <p className="text-gray-600 mb-6">
+                  {priceRange.min || priceRange.max
+                    ? 'No products found in this price range. Try adjusting the price filter.'
+                    : 'Check back later for new products!'
+                  }
                 </p>
+                {(priceRange.min || priceRange.max) && (
+                  <button
+                    onClick={() => {
+                      setPriceInput({ min: '', max: '' });
+                      setPriceRange({ min: '', max: '' });
+                    }}
+                    className="px-6 py-3 bg-gray-800 text-white font-medium rounded-xl hover:bg-gray-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    Clear Price Filter
+                  </button>
+                )}
               </div>
             )
           ) : (
@@ -390,12 +472,12 @@ const StorefrontContent = () => {
               </div>
             ) : displayProducts?.products?.length ? (
               <>
-                <div className={`grid gap-6 ${
+                <div className={`grid gap-3 sm:gap-4 md:gap-6 ${
                   gridLayout === 2 
-                    ? 'grid-cols-1 sm:grid-cols-2' 
+                    ? 'grid-cols-2' 
                     : gridLayout === 3 
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    ? 'grid-cols-3' 
+                    : 'grid-cols-4'
                 }`}>
                   {displayProducts.products.map((product) => (
                     <ProductCard
@@ -428,6 +510,8 @@ const StorefrontContent = () => {
                     ? 'Try selecting a different category or browse all products.'
                     : searchQuery
                     ? `No products match your search for "${searchQuery}"`
+                    : priceRange.min || priceRange.max
+                    ? 'No products found in this price range. Try adjusting the price filter.'
                     : 'Check back later for new products!'
                   }
                 </p>
@@ -441,7 +525,7 @@ const StorefrontContent = () => {
                       setPriceRange({ min: '', max: '' });
                       setCurrentPage(1);
                     }}
-                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                    className="px-6 py-3 bg-gray-800 text-white font-medium rounded-xl hover:bg-gray-700 transition-colors shadow-lg hover:shadow-xl"
                   >
                     Clear Filters
                   </button>
@@ -469,15 +553,6 @@ const StorefrontContent = () => {
       <Checkout
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
-      />
-
-      {/* Category Grid Modal */}
-      <CategoryGridModal
-        isOpen={showCategoryModal}
-        onClose={() => setShowCategoryModal(false)}
-        categories={categories || []}
-        onCategorySelect={handleCategorySelect}
-        selectedCategoryId={selectedCategoryId}
       />
     </StorefrontLayout>
   );

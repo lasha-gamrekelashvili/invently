@@ -14,6 +14,7 @@ interface LandingHeaderProps {
   mobileSearchExpanded?: boolean;
   mobileSearchContent?: React.ReactNode;
   mobileSearchButton?: React.ReactNode;
+  showLogo?: boolean;
 }
 
 const LandingHeader: React.FC<LandingHeaderProps> = ({
@@ -26,6 +27,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
   mobileSearchExpanded = false,
   mobileSearchContent,
   mobileSearchButton,
+  showLogo = true,
 }) => {
   return (
     <nav className="bg-gray-100 border-b border-gray-200 sticky top-0 z-50 w-full">
@@ -45,21 +47,23 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
                     {mobileMenuButton}
                   </div>
                 )}
-                <div className="flex items-center gap-0.5 sm:gap-1.5 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   {shopName && (
-                    <h1 className="hidden sm:block text-base md:text-xl lg:text-2xl font-bold text-gray-900 capitalize truncate">{shopName}</h1>
+                    <h1 className="text-base md:text-xl lg:text-2xl font-bold text-gray-900 capitalize truncate">{shopName}</h1>
                   )}
-                  <div className="flex-shrink-0">
-                    {/* Use smaller logo on mobile */}
-                    <div className="block sm:hidden">
-                      <Logo variant="full" size="sm" theme="dark" />
+                  {showLogo && (
+                    <div className="flex-shrink-0">
+                      {/* Use smaller logo on mobile */}
+                      <div className="block sm:hidden">
+                        <Logo variant="full" size="sm" theme="dark" />
+                      </div>
+                      <div className="hidden sm:block">
+                        <Logo variant="full" size="lg" theme="dark" />
+                      </div>
                     </div>
-                    <div className="hidden sm:block">
-                      <Logo variant="full" size="lg" theme="dark" />
-                    </div>
-                  </div>
-                  {/* Mobile Search Button - right next to logo */}
-                  {mobileSearchButton && (
+                  )}
+                  {/* Mobile Search Button */}
+                  {!showLogo && mobileSearchButton && (
                     <div className="md:hidden flex-shrink-0">
                       {mobileSearchButton}
                     </div>
@@ -69,7 +73,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
 
               {/* Center: Custom Content (e.g., search bar) */}
               {centerContent && (
-                <div className="hidden md:flex flex-1 max-w-2xl">
+                <div className="flex flex-1 max-w-2xl min-w-0">
                   {centerContent}
                 </div>
               )}

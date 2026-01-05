@@ -195,7 +195,7 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
             
             {/* Active Range */}
             <div
-              className="absolute top-1/2 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transform -translate-y-1/2"
+              className="absolute top-1/2 h-1 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full transform -translate-y-1/2"
               style={{
                 left: `${getSliderPercentage(sliderValues[0])}%`,
                 width: `${getSliderPercentage(sliderValues[1]) - getSliderPercentage(sliderValues[0])}%`,
@@ -204,7 +204,7 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
             {/* Thumbs */}
             <div
-              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 transition-transform ${
+              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-gray-700 rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 transition-transform ${
                 isDragging && dragIndex === 0 ? 'scale-110 shadow-xl' : 'hover:scale-110'
               }`}
               style={{ left: `calc(${getSliderPercentage(sliderValues[0])}% - 10px)` }}
@@ -212,7 +212,7 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
               onTouchStart={handleTouchStart(0)}
             />
             <div
-              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-blue-500 rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 transition-transform ${
+              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-gray-700 rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 transition-transform ${
                 isDragging && dragIndex === 1 ? 'scale-110 shadow-xl' : 'hover:scale-110'
               }`}
               style={{ left: `calc(${getSliderPercentage(sliderValues[1])}% - 10px)` }}

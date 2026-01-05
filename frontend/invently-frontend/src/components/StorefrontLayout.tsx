@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { CubeIcon } from '@heroicons/react/24/outline';
 import StorefrontHeader from './StorefrontHeader';
 import StorefrontFooter from './StorefrontFooter';
-import CategoryTree from './CategoryTree';
+import StorefrontCategoryList from './StorefrontCategoryList';
 import PriceRangeSlider from './PriceRangeSlider';
 
 interface StorefrontLayoutProps {
@@ -21,8 +20,6 @@ interface StorefrontLayoutProps {
   onPriceRangeChange?: (min: string, max: string) => void;
   priceRange?: { min: string; max: string };
   maxPrice?: number;
-  gridLayout?: number;
-  onGridLayoutChange?: (layout: number) => void;
   searchQuery?: string;
   isCartOpen?: boolean;
   hideSidebar?: boolean;
@@ -41,8 +38,6 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   onPriceRangeChange,
   priceRange: externalPriceRange,
   maxPrice = 1000,
-  gridLayout = 3,
-  onGridLayoutChange,
   searchQuery = '',
   isCartOpen = false,
   hideSidebar = false,
@@ -69,8 +64,6 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         onCartClick={onCartClick}
         onSearchChange={onSearchChange}
-        gridLayout={gridLayout}
-        onGridLayoutChange={onGridLayoutChange}
         searchQuery={searchQuery}
         isCartOpen={isCartOpen}
         isSidebarOpen={sidebarOpen}
@@ -85,107 +78,107 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
           />
         )}
 
-        {/* Desktop Sidebar - Only visible on large screens (1024px+) */}
+        {/* Desktop Sidebar - Always visible on large screens */}
         {!hideSidebar && (
-          <aside className="hidden lg:flex lg:flex-col flex-shrink-0 bg-gray-50 rounded-xl mx-4 my-4 shadow-[0_0_10px_rgba(0,0,0,0.03)] border border-gray-200/60 sticky top-24 max-h-[calc(100vh-120px)]" style={{ width: '288px' }}>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {/* All Products Button */}
-              <button
-                onClick={onAllProductsClick}
-                className={`w-full flex items-center px-5 py-3.5 text-base font-semibold rounded-xl transition-all duration-200 shadow-sm ${
-                  !selectedCategoryId
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-blue-200 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:shadow-blue-200/50'
-                    : 'text-gray-700 hover:bg-white hover:shadow-md border border-gray-200/60 hover:border-gray-300'
-                }`}
-              >
-                <CubeIcon className="w-5 h-5 mr-3" />
-                All Products
-              </button>
+          <aside className="hidden lg:flex lg:flex-col flex-shrink-0 bg-white shadow-lg border-r border-gray-200 sticky top-14 sm:top-16 md:top-20 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]" style={{ width: '320px' }}>
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                {/* All Products Button */}
+                <button
+                  onClick={onAllProductsClick}
+                  className={`w-full px-3 py-2 text-sm rounded-lg transition-colors ${
+                    !selectedCategoryId
+                      ? 'bg-gray-100 text-gray-900 font-medium'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  All Products
+                </button>
 
-              {/* Categories */}
-              <div>
-                <h3 className="text-sm font-bold text-gray-800 mb-4 px-2 uppercase tracking-wide">
-                  Shop by Category
-                </h3>
-                {categories && categories.length > 0 ? (
-                  <CategoryTree
-                    categories={categories}
-                    onSelect={onCategorySelect}
-                    selectedCategoryId={selectedCategoryId}
-                    showProductCounts={true}
-                    compact={true}
-                  />
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <CubeIcon className="w-6 h-6 text-gray-400" />
+                {/* Categories */}
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 mb-3 px-3 uppercase tracking-wider">
+                    Categories
+                  </h3>
+                  {categories && categories.length > 0 ? (
+                    <StorefrontCategoryList
+                      categories={categories}
+                      onSelect={onCategorySelect}
+                      selectedCategoryId={selectedCategoryId}
+                    />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-sm text-gray-500">
+                        {categories === undefined ? 'Loading categories...' : 'No categories available'}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-500 font-medium">
-                      {categories === undefined ? 'Loading categories...' : 'No categories available'}
-                    </p>
-                  </div>
-                )}
+                  )}
+                </div>
+
+                {/* Price Filter */}
+                <div className="pt-2">
+                  <hr className="border-gray-200 my-3" />
+                  <PriceRangeSlider
+                    value={externalPriceRange || { min: '', max: '' }}
+                    onChange={onPriceRangeChange || (() => {})}
+                    minPrice={0}
+                    maxPrice={maxPrice}
+                  />
+                </div>
               </div>
 
-              {/* Price Filter */}
-              <div className="pt-2">
-                <hr className="border-gray-200 my-3" />
-                <PriceRangeSlider
-                  value={externalPriceRange || { min: '', max: '' }}
-                  onChange={onPriceRangeChange || (() => {})}
-                  minPrice={0}
-                  maxPrice={maxPrice}
-                />
+              {/* Desktop Apply Button */}
+              <div className="p-5 border-t border-gray-200 bg-white">
+                <button
+                  onClick={onAllProductsClick}
+                  className="w-full bg-gray-800 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+                >
+                  Clear Filters
+                </button>
               </div>
             </div>
           </aside>
         )}
 
-        {/* Mobile Sidebar - Only visible below lg breakpoint */}
+        {/* Mobile Sidebar Drawer - Only on mobile */}
         {!hideSidebar && (
           <aside className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-[85vw] max-w-sm bg-white shadow-lg border-r border-t border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
             <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="flex-1 overflow-y-auto p-5 space-y-6">
                 {/* All Products Button */}
                 <button
                   onClick={() => {
                     onAllProductsClick?.();
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center px-5 py-3.5 text-base font-semibold rounded-xl transition-all duration-200 shadow-sm ${
+                  className={`w-full px-3 py-2 text-sm rounded-lg transition-colors ${
                     !selectedCategoryId
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-blue-200 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg hover:shadow-blue-200/50'
-                      : 'text-gray-700 hover:bg-white hover:shadow-md border border-gray-200/60 hover:border-gray-300'
+                      ? 'bg-gray-100 text-gray-900 font-medium'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <CubeIcon className="w-5 h-5 mr-3" />
                   All Products
                 </button>
 
                 {/* Categories */}
                 <div>
-                  <h3 className="text-sm font-bold text-gray-800 mb-4 px-2 uppercase tracking-wide">
-                    Shop by Category
+                  <h3 className="text-xs font-semibold text-gray-500 mb-3 px-3 uppercase tracking-wider">
+                    Categories
                   </h3>
                   {categories && categories.length > 0 ? (
-                    <CategoryTree
+                    <StorefrontCategoryList
                       categories={categories}
                       onSelect={(id) => {
                         onCategorySelect?.(id);
                         setSidebarOpen(false);
                       }}
                       selectedCategoryId={selectedCategoryId}
-                      showProductCounts={true}
-                      compact={true}
                     />
                   ) : (
                     <div className="text-center py-8">
-                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <CubeIcon className="w-6 h-6 text-gray-400" />
-                      </div>
-                      <p className="text-sm text-gray-500 font-medium">
+                      <p className="text-sm text-gray-500">
                         {categories === undefined ? 'Loading categories...' : 'No categories available'}
                       </p>
                     </div>
@@ -205,10 +198,10 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
               </div>
 
               {/* Mobile Apply Button */}
-              <div className="p-6 border-t border-gray-200 bg-white">
+              <div className="p-5 border-t border-gray-200 bg-white">
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="w-full bg-gray-800 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
                 >
                   Apply Filters
                 </button>
