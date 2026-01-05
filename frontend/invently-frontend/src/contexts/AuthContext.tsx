@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Redirect check - onSubdomain:', onSubdomain, 'hasTenants:', hasTenants, 'tenants:', response.tenants);
       
       // Only redirect to subdomain if we're on the main domain
-      if (!onSubdomain && hasTenants) {
+      if (!onSubdomain && hasTenants && response.tenants) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
