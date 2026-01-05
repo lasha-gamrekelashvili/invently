@@ -18,6 +18,8 @@ interface FilterField {
   onChange?: (value: any) => void;
   className?: string;
   children?: React.ReactNode;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 interface FilterSectionProps {
@@ -40,13 +42,13 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         return (
           <div className={field.className || ''}>
             <div className="relative">
-              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder={field.placeholder || t('common.search')}
                 value={field.value as string || ''}
                 onChange={(e) => field.onChange?.(e.target.value)}
-                className="input-field pl-10"
+                className="block w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all"
               />
             </div>
           </div>
@@ -71,8 +73,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             <PriceRangeSlider
               value={priceValue}
               onChange={(min, max) => field.onChange?.({ min, max })}
-              minPrice={0}
-              maxPrice={1000}
+              minPrice={field.minPrice ?? 0}
+              maxPrice={field.maxPrice ?? 1000}
             />
           </div>
         );
@@ -100,12 +102,12 @@ const FilterSection: React.FC<FilterSectionProps> = ({
       </div>
 
       {hasActiveFilters && onClearFilters && (
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
           <button
             onClick={onClearFilters}
-            className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors duration-200"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <XCircleIcon className="h-3 w-3 mr-1" />
+            <XCircleIcon className="h-4 w-4" />
             {t('common.clearFilters')}
           </button>
         </div>

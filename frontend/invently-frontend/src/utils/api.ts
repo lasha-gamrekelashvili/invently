@@ -98,14 +98,24 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => {
     // Unwrap the ApiResponse format from backend
-    // Backend returns: { success: true, data: {...}, message?: string }
-    // We want to extract just the data property for easier consumption
+    // Backend returns: { success: true, data: {...}, message?: string, pagination?: {...} }
+    // We want to extract the data property and preserve pagination if it exists
     if (response.data && response.data.success !== undefined && response.data.data !== undefined) {
       // This is an ApiResponse format, unwrap it
-      return {
+      const unwrapped: any = {
         ...response,
         data: response.data.data
       };
+      
+      // Preserve pagination if it exists (for paginated responses)
+      if (response.data.pagination) {
+        unwrapped.data = {
+          data: response.data.data,
+          pagination: response.data.pagination
+        };
+      }
+      
+      return unwrapped;
     }
     return response;
   },

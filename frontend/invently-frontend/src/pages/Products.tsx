@@ -1,54 +1,97 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { productsAPI, categoriesAPI, debounce } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import PageHeader from '../components/PageHeader';
 import FilterSection from '../components/FilterSection';
 import ProductsList from '../components/ProductsList';
+import StorefrontPagination from '../components/StorefrontPagination';
 import { CubeIcon } from '@heroicons/react/24/outline';
 
 const Products = () => {
   const { t } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  // Search and filter state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchInput, setSearchInput] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  // Read all filters from URL
+  const currentPage = parseInt(searchParams.get('page') || '1');
+  const searchQuery = searchParams.get('search') || '';
+  const statusFilter = searchParams.get('status') || '';
+  const categoryFilter = searchParams.get('categoryId') || '';
+  
+  // Local state for search input (debounced)
+  const [searchInput, setSearchInput] = useState(searchQuery);
 
-  const debouncedSetSearchQuery = useMemo(
-    () => debounce(setSearchQuery, 300),
+  // Sync searchInput with URL on mount/change
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
+
+  // Debounced search update
+  const debouncedSetSearch = useMemo(
+    () => debounce((value: string) => {
+      updateUrlParams({ search: value, page: '1' });
+    }, 300),
     []
   );
 
+  // Helper to update URL parameters
+  const updateUrlParams = (updates: Record<string, string>) => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) {
+        newParams.set(key, value);
+      } else {
+        newParams.delete(key);
+      }
+    });
+    
+    setSearchParams(newParams);
+  };
+
   const { data: productsData, isLoading } = useQuery({
-    queryKey: ['products', searchQuery, statusFilter, categoryFilter, minPrice, maxPrice],
+    queryKey: ['products', currentPage, searchQuery, statusFilter, categoryFilter],
     queryFn: () => productsAPI.list({
+      page: currentPage,
+      limit: 20,
       search: searchQuery || undefined,
       status: statusFilter || undefined,
       categoryId: categoryFilter || undefined,
-      minPrice: minPrice ? parseFloat(minPrice) : undefined,
-      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
     }),
   });
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => categoriesAPI.list(),
+    queryFn: () => categoriesAPI.list({ limit: 1000 }),
   });
 
-  const clearFilters = () => {
-    setSearchQuery('');
-    setSearchInput('');
-    setStatusFilter('');
-    setCategoryFilter('');
-    setMinPrice('');
-    setMaxPrice('');
+  // Flatten category tree to include all categories with full path
+  const flattenCategories = (categories: any[], parentPath = ''): any[] => {
+    if (!categories) return [];
+    
+    const flattened: any[] = [];
+    categories.forEach(cat => {
+      const fullPath = parentPath ? `${parentPath} > ${cat.name}` : cat.name;
+      flattened.push({
+        id: cat.id,
+        name: fullPath
+      });
+      if (cat.children && cat.children.length > 0) {
+        flattened.push(...flattenCategories(cat.children, fullPath));
+      }
+    });
+    return flattened;
   };
 
-  const hasActiveFilters = !!(searchQuery || statusFilter || categoryFilter || minPrice || maxPrice);
+  const allCategories = flattenCategories(categoriesData?.categories || []);
+
+  const clearFilters = () => {
+    setSearchParams(new URLSearchParams());
+    setSearchInput('');
+  };
+
+  const hasActiveFilters = !!(searchQuery || statusFilter || categoryFilter);
 
   const filterFields = [
     {
@@ -59,7 +102,7 @@ const Products = () => {
       value: searchInput,
       onChange: (value: string) => {
         setSearchInput(value);
-        debouncedSetSearchQuery(value);
+        debouncedSetSearch(value);
       }
     },
     {
@@ -67,7 +110,9 @@ const Products = () => {
       key: 'status',
       placeholder: t('common.status'),
       value: statusFilter,
-      onChange: setStatusFilter,
+      onChange: (value: string) => {
+        updateUrlParams({ status: value, page: '1' });
+      },
       options: [
         { value: '', label: t('products.allStatuses') },
         { value: 'ACTIVE', label: t('products.status.active') },
@@ -79,23 +124,16 @@ const Products = () => {
       key: 'category',
       placeholder: t('navigation.categories'),
       value: categoryFilter,
-      onChange: setCategoryFilter,
+      onChange: (value: string) => {
+        updateUrlParams({ categoryId: value, page: '1' });
+      },
       options: [
         { value: '', label: t('products.allCategories') },
-        ...(categoriesData?.categories?.map(cat => ({
+        ...allCategories.map(cat => ({
           value: cat.id,
           label: cat.name
-        })) || [])
+        }))
       ]
-    },
-    {
-      type: 'price-range' as const,
-      key: 'price',
-      value: { min: minPrice, max: maxPrice },
-      onChange: (value: { min: string; max: string }) => {
-        setMinPrice(value.min);
-        setMaxPrice(value.max);
-      }
     }
   ];
 
@@ -118,22 +156,34 @@ const Products = () => {
         onClearFilters={clearFilters}
       />
 
-      <ProductsList
-        products={productsData?.products || []}
-        isLoading={isLoading}
-        emptyState={{
-          title: hasActiveFilters ? t('products.noProducts') : t('products.noProductsYet'),
-          description: hasActiveFilters
-            ? t('products.noProductsFiltered')
-            : t('products.noProductsDescription'),
-          ...(hasActiveFilters && {
-            actionButton: {
-              label: t('common.clear'),
-              onClick: clearFilters
-            }
-          })
-        }}
-      />
+      <div>
+        <ProductsList
+          products={productsData?.products || []}
+          isLoading={isLoading}
+          emptyState={{
+            title: hasActiveFilters ? t('products.noProducts') : t('products.noProductsYet'),
+            description: hasActiveFilters
+              ? t('products.noProductsFiltered')
+              : t('products.noProductsDescription'),
+            ...(hasActiveFilters && {
+              actionButton: {
+                label: t('common.clear'),
+                onClick: clearFilters
+              }
+            })
+          }}
+        />
+
+        {productsData?.pagination && productsData.pagination.pages > 1 && (
+          <StorefrontPagination
+            currentPage={currentPage}
+            totalPages={productsData.pagination.pages}
+            totalItems={productsData.pagination.total}
+            itemsPerPage={productsData.pagination.limit}
+            onPageChange={(page) => updateUrlParams({ page: page.toString() })}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -129,23 +129,23 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
         onKeyDown={handleKeyDown}
         className={`
           w-full bg-white border border-gray-300 
-          rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+          rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-transparent 
           hover:border-gray-400 appearance-none cursor-pointer
-          text-left flex items-center justify-between
-          ${size === 'compact' ? 'px-2 py-1 pr-5 text-xs' : 'px-4 py-3 pr-10'}
+          text-left flex items-center justify-between transition-all
+          ${size === 'compact' ? 'px-2 py-1 pr-5 text-xs' : 'px-3 py-2 sm:py-2.5 pr-8 text-xs sm:text-sm'}
           ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-          ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
+          ${isOpen ? 'ring-2 ring-gray-700 border-transparent' : ''}
         `}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-labelledby={id ? `${id}-label` : undefined}
       >
-        <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
+        <span className={`${selectedOption ? 'text-gray-900' : 'text-gray-400'} text-xs sm:text-sm`}>
           {selectedOption ? selectedOption.label : (placeholder || t('common.selectOption'))}
         </span>
         <ChevronDownIcon 
-          className={`text-gray-600 ${
-            size === 'compact' ? 'w-3 h-3' : 'w-5 h-5'
+          className={`text-gray-400 transition-transform ${
+            size === 'compact' ? 'w-3 h-3' : 'w-4 h-4'
           } ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
@@ -162,11 +162,11 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
               onMouseEnter={() => handleMouseEnter(index)}
               disabled={option.disabled}
               className={`
-                block w-full text-left whitespace-nowrap overflow-hidden
-                ${size === 'compact' ? 'px-2 py-1 text-xs' : 'px-4 py-3'}
+                block w-full text-left whitespace-nowrap overflow-hidden transition-colors
+                ${size === 'compact' ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-xs sm:text-sm'}
                 ${index === highlightedIndex 
-                  ? 'bg-blue-50 text-blue-900' 
-                  : 'text-gray-900 hover:bg-gray-50'
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-700 hover:bg-gray-50'
                 }
                 ${option.disabled 
                   ? 'opacity-50 cursor-not-allowed text-gray-400' 

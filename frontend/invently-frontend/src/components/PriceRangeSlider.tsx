@@ -169,22 +169,21 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Header */}
+    <div className={`space-y-3 ${className}`}>
+      {/* Header with Price Display */}
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-gray-500 tracking-wide uppercase">
           Price Range
         </h3>
+        <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <span>{formatPrice(sliderValues[0])}</span>
+          <span>-</span>
+          <span>{formatPrice(sliderValues[1])}</span>
+        </div>
       </div>
 
       {/* Slider */}
-      <div className="space-y-3">
-          {/* Price Display */}
-          <div className="flex items-center justify-between text-sm font-medium text-gray-700">
-            <span>{formatPrice(sliderValues[0])}</span>
-            <span>{formatPrice(sliderValues[1])}</span>
-          </div>
-
+      <div>
           {/* Custom Slider */}
           <div ref={sliderRef} className="relative h-6 cursor-pointer">
             {/* Track */}
@@ -220,7 +219,7 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
               onTouchStart={handleTouchStart(1)}
             />
           </div>
-        </div>
+      </div>
     </div>
   );
 };

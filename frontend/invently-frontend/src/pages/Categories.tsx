@@ -164,107 +164,96 @@ const Categories = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             {selectedCategoryId && selectedCategory ? (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                  <T tKey="categories.details" />
-                </h3>
-                  <div className="flex items-center space-x-2">
+                {/* Header with actions */}
+                <div className="mb-6">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl font-semibold text-gray-900 truncate">
+                        {selectedCategory.name}
+                      </h2>
+                      <p className="text-sm text-gray-500 font-mono mt-1">
+                        {selectedCategory.slug}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={() => handleEditCategory(selectedCategory)}
+                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Edit category"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCategory(selectedCategory)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete category"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Action buttons - responsive */}
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => setShowAddProductModal(true)}
-                      className="inline-flex items-center px-3 py-2 border border-blue-300 shadow-sm text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                       <CubeIcon className="h-4 w-4 mr-2" />
                       <T tKey="categories.addProduct" />
                     </button>
                     <button
                       onClick={() => handleAddChild(selectedCategory.id)}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
                       <PlusIcon className="h-4 w-4 mr-2" />
                       <T tKey="categories.addChild" />
                     </button>
-                    <button
-                      onClick={() => handleEditCategory(selectedCategory)}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(selectedCategory)}
-                      className="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700"><T tKey="common.name" /></label>
-                    <div className="mt-1 text-sm text-gray-900">{selectedCategory.name}</div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700"><T tKey="categories.form.slug" /></label>
-                    <div className="mt-1 text-sm text-gray-500 font-mono">{selectedCategory.slug}</div>
-                  </div>
-
+                {/* Category info - more subtle */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-6 border-b border-gray-200">
                   {selectedCategory.description && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700"><T tKey="common.description" /></label>
-                      <div className="mt-1 text-sm text-gray-900">{selectedCategory.description}</div>
+                    <div className="sm:col-span-2">
+                      <p className="text-sm text-gray-600">{selectedCategory.description}</p>
                     </div>
                   )}
 
-                  {selectedCategory.parent && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700"><T tKey="categories.form.parentCategory" /></label>
-                      <div className="mt-1 text-sm text-gray-900">{selectedCategory.parent.name}</div>
-                    </div>
-                  )}
-
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700"><T tKey="common.status" /></label>
-                    <div className="mt-1">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        selectedCategory.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        <T tKey={`categories.status.${selectedCategory.isActive ? 'active' : 'draft'}`} />
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      selectedCategory.isActive 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      <T tKey={`categories.status.${selectedCategory.isActive ? 'active' : 'draft'}`} />
+                    </span>
+                    {selectedCategory.parent && (
+                      <span className="text-xs text-gray-500">
+                        in <span className="font-medium text-gray-700">{selectedCategory.parent.name}</span>
                       </span>
-                    </div>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700"><T tKey="common.created" /></label>
-                    <div className="mt-1 text-sm text-gray-500">
-                      {new Date(selectedCategory.createdAt).toLocaleDateString()}
-                    </div>
+                  <div className="text-xs text-gray-500 sm:text-right">
+                    <T tKey="common.created" />: {new Date(selectedCategory.createdAt).toLocaleDateString()}
                   </div>
                 </div>
 
-                {/* Products section with link */}
-                {selectedCategory.allProducts && selectedCategory.allProducts.length > 0 && (
+                {/* Products section */}
+                {selectedCategory.allProducts && selectedCategory.allProducts.length > 0 ? (
                   <div className="mt-6">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-medium text-gray-700">
                         <T tKey="categories.products.countInCategory" params={{ count: selectedCategory.allProducts.length }} />
-                      </span>
+                      </h3>
                       <Link
                         to={`/admin/products?categoryId=${selectedCategory.id}`}
-                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
                       >
                         <T tKey="categories.products.viewAllProducts" />
                       </Link>
                     </div>
-                  </div>
-                )}
-
-                {/* Products Table */}
-                {selectedCategory.allProducts && selectedCategory.allProducts.length > 0 && (
-                  <div className="mt-8">
                     <ProductsList
                       products={selectedCategory.allProducts.slice(0, 10)}
                       emptyState={{
@@ -273,6 +262,19 @@ const Categories = () => {
                       }}
                       invalidateQueries={[['categories'], ['category', selectedCategoryId]]}
                     />
+                  </div>
+                ) : (
+                  <div className="mt-6 text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <CubeIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <p className="text-sm text-gray-600 mb-3">
+                      <T tKey="categories.products.noProductsInCategory" />
+                    </p>
+                    <button
+                      onClick={() => setShowAddProductModal(true)}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      <T tKey="categories.addProduct" />
+                    </button>
                   </div>
                 )}
               </div>

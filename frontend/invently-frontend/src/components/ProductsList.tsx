@@ -9,7 +9,6 @@ import DataTable, { Column } from './DataTable';
 import ConfirmationModal from './ConfirmationModal';
 import StatusBadge from './StatusBadge';
 import ActionButtonGroup from './ActionButtonGroup';
-import InlineEditField from './InlineEditField';
 import { T } from '../components/Translation';
 import { CubeIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import type { Product } from '../types';
@@ -40,18 +39,6 @@ const ProductsList = ({
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: Product | null }>({
     isOpen: false,
     product: null,
-  });
-
-  // Inline editing state
-  const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<{
-    price: string;
-    stockQuantity: string;
-    status: string;
-  }>({
-    price: '',
-    stockQuantity: '',
-    status: '',
   });
 
   const navigate = useNavigate();
@@ -87,70 +74,11 @@ const ProductsList = ({
     }
   };
 
-  // Inline editing functions
-  const handleStartEdit = (product: Product) => {
-    // Don't allow inline editing for products with variants
-    if (hasActiveVariants(product)) {
-      return;
-    }
-    
-    setEditingProduct(product.id);
-    setEditValues({
-      price: product.price.toString(),
-      stockQuantity: product.stockQuantity.toString(),
-      status: product.status,
-    });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingProduct(null);
-    setEditValues({
-      price: '',
-      stockQuantity: '',
-      status: '',
-    });
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingProduct) return;
-
-    try {
-      const productData = {
-        price: parseFloat(editValues.price),
-        stockQuantity: parseInt(editValues.stockQuantity),
-        status: editValues.status as 'ACTIVE' | 'DRAFT',
-      };
-
-      await productsAPI.update(editingProduct, productData);
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      // Invalidate additional queries if provided
-      invalidateQueries.forEach(queryKey => {
-        queryClient.invalidateQueries({ queryKey });
-      });
-      setEditingProduct(null);
-      handleSuccess(t('products.updateSuccess'));
-    } catch (error) {
-      handleApiError(error, t('products.updateError'));
-    }
-  };
-
-  const handleEditValueChange = (field: string, value: string) => {
-    setEditValues(prev => ({ ...prev, [field]: value }));
-  };
-
   const handleProductClick = (product: Product) => {
-    if (editingProduct !== product.id) {
-      if (onRowClick) {
-        onRowClick(product);
-      } else {
-        // For products with variants, always go to edit page
-        // For products without variants, allow inline editing
-        if (hasActiveVariants(product)) {
-          handleEditProduct(product);
-        } else {
-          handleEditProduct(product);
-        }
-      }
+    if (onRowClick) {
+      onRowClick(product);
+    } else {
+      handleEditProduct(product);
     }
   };
 
@@ -186,7 +114,7 @@ const ProductsList = ({
               )}
             </div>
             {product.description && (
-              <div className="text-sm text-gray-500 line-clamp-1">{product.description}</div>
+              <div className="text-sm text-gray-500 truncate max-w-md">{product.description}</div>
             )}
           </div>
         </div>
@@ -214,15 +142,9 @@ const ProductsList = ({
         }
         
         return (
-          <InlineEditField
-            type="number"
-            value={editingProduct === product.id ? editValues.price : product.price.toString()}
-            onChange={(value) => handleEditValueChange('price', value)}
-            isEditing={editingProduct === product.id}
-            displayValue={`$${product.price}`}
-            step="0.01"
-            min="0"
-          />
+          <span className="text-sm text-gray-900">
+            ${product.price.toFixed(2)}
+          </span>
         );
       }
     },
@@ -248,14 +170,9 @@ const ProductsList = ({
         }
         
         return (
-          <InlineEditField
-            type="number"
-            value={editingProduct === product.id ? editValues.stockQuantity : product.stockQuantity.toString()}
-            onChange={(value) => handleEditValueChange('stockQuantity', value)}
-            isEditing={editingProduct === product.id}
-            displayValue={product.stockQuantity.toString()}
-            min="0"
-          />
+          <span className="text-sm text-gray-900">
+            {product.stockQuantity}
+          </span>
         );
       }
     },
@@ -276,20 +193,7 @@ const ProductsList = ({
       key: 'status',
       header: t('common.status'),
       render: (product) => (
-        editingProduct === product.id ? (
-          <InlineEditField
-            type="dropdown"
-            value={editValues.status}
-            onChange={(value) => handleEditValueChange('status', value)}
-            isEditing={true}
-            options={[
-              { value: 'ACTIVE', label: t('products.status.active') },
-              { value: 'DRAFT', label: t('products.status.draft') },
-            ]}
-          />
-        ) : (
-          <StatusBadge status={product.status} type="product" />
-        )
+        <StatusBadge status={product.status} type="product" />
       )
     },
     {
@@ -297,49 +201,17 @@ const ProductsList = ({
       header: t('common.actions'),
       headerClassName: 'text-right',
       className: 'text-right',
-      render: (product) => {
-        const hasVariants = hasActiveVariants(product);
-        
-        if (editingProduct === product.id) {
-          // Only allow editing base product fields if no variants
-          if (hasVariants) {
-            return (
-              <ActionButtonGroup
-                actions={[
-                  { type: 'cancel', onClick: handleCancelEdit }
-                ]}
-              />
-            );
-          }
-          
-          return (
-            <ActionButtonGroup
-              actions={[
-                { type: 'save', onClick: handleSaveEdit },
-                { type: 'cancel', onClick: handleCancelEdit }
-              ]}
-            />
-          );
-        }
-        
-        return (
-          <ActionButtonGroup
-            actions={[
-              {
-                type: 'edit',
-                onClick: () => handleStartEdit(product),
-                title: hasVariants ? t('products.inlineEdit.editProductVariants') : t('products.inlineEdit.editProductInline'),
-                disabled: hasVariants
-              },
-              {
-                type: 'delete',
-                onClick: () => handleDeleteProduct(product),
-                title: t('products.inlineEdit.deleteProduct')
-              }
-            ]}
-          />
-        );
-      }
+      render: (product) => (
+        <ActionButtonGroup
+          actions={[
+            {
+              type: 'delete',
+              onClick: () => handleDeleteProduct(product),
+              title: t('common.delete')
+            }
+          ]}
+        />
+      )
     }
   ];
 
@@ -354,7 +226,7 @@ const ProductsList = ({
           icon: CubeIcon
         } : undefined}
         onRowClick={handleProductClick}
-        getRowClassName={(product) => editingProduct !== product.id ? 'cursor-pointer' : ''}
+        getRowClassName={() => 'cursor-pointer'}
       />
 
       {/* Delete Confirmation Modal */}

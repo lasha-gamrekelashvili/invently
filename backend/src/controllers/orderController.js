@@ -48,7 +48,12 @@ const orderController = {
         parseInt(limit)
       );
 
-      res.json(ApiResponse.success(result.orders, null));
+      res.json(ApiResponse.paginated(
+        result.orders,
+        result.pagination.total,
+        result.pagination.page,
+        result.pagination.limit
+      ));
     } catch (error) {
       console.error('Get orders error:', error);
       res.status(500).json(ApiResponse.error('Failed to get orders', error.message));
