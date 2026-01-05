@@ -53,6 +53,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
             key={product.id}
             product={product}
             cartQuantity={getCartItemQuantity(product.id)}
+            hideDescription={true}
           />
         ))}
       </div>

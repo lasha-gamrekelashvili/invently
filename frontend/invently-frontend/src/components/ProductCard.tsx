@@ -6,9 +6,10 @@ import { Product, ProductVariant } from '../types';
 interface ProductCardProps {
   product: Product;
   cartQuantity: number;
+  hideDescription?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, hideDescription = false }) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant] = useState<ProductVariant | null>(null);
@@ -128,8 +129,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity }) => {
             {product.title}
           </h3>
 
-          {/* Description - Hide on very small cards */}
-          {product.description && (
+          {/* Description - Show on desktop when cards are large enough, unless explicitly hidden */}
+          {!hideDescription && product.description && (
             <p className="hidden md:block text-sm text-white/80 line-clamp-1 mb-2">
               {product.description}
             </p>
