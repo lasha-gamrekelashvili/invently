@@ -131,9 +131,27 @@ export const categoryIncludes = {
     },
   },
 
+  // Active children only (non-deleted)
+  withActiveChildren: {
+    include: {
+      children: {
+        where: { isDeleted: false },
+      },
+    },
+  },
+
   withProducts: {
     include: {
       products: true,
+    },
+  },
+
+  // Active products only (non-deleted)
+  withActiveProducts: {
+    include: {
+      products: {
+        where: { isDeleted: false },
+      },
     },
   },
 
@@ -142,6 +160,19 @@ export const categoryIncludes = {
       parent: true,
       children: true,
       products: true,
+    },
+  },
+
+  // Full with active items only
+  fullActive: {
+    include: {
+      parent: true,
+      children: {
+        where: { isDeleted: false },
+      },
+      products: {
+        where: { isDeleted: false },
+      },
     },
   },
 };
@@ -167,12 +198,20 @@ export function buildPagination(page = 1, limit = 10) {
 }
 
 // Filter builders
-export function buildProductFilters({ categoryId, status, minPrice, maxPrice, search, tenantId }) {
+export function buildProductFilters({ categoryId, isActive, isDeleted, minPrice, maxPrice, search, tenantId, includeDeleted = false }) {
   const where = {};
 
   if (tenantId) where.tenantId = tenantId;
-  if (categoryId) where.categoryId = parseInt(categoryId);
-  if (status) where.status = status;
+  if (categoryId) where.categoryId = categoryId; // UUID string, don't parse as int
+  if (isActive !== undefined) where.isActive = isActive;
+  
+  // Handle isDeleted filter - explicit value takes precedence
+  if (isDeleted !== undefined) {
+    where.isDeleted = isDeleted;
+  } else if (!includeDeleted) {
+    // By default, exclude deleted products unless includeDeleted is true
+    where.isDeleted = false;
+  }
 
   if (minPrice !== undefined || maxPrice !== undefined) {
     where.price = {};
@@ -184,17 +223,23 @@ export function buildProductFilters({ categoryId, status, minPrice, maxPrice, se
     where.OR = [
       { title: { contains: search, mode: 'insensitive' } },
       { description: { contains: search, mode: 'insensitive' } },
+      { sku: { contains: search, mode: 'insensitive' } },
     ];
   }
 
   return where;
 }
 
-export function buildCategoryFilters({ status, search, tenantId }) {
+export function buildCategoryFilters({ isActive, search, tenantId, includeDeleted = false }) {
   const where = {};
 
   if (tenantId) where.tenantId = tenantId;
-  if (status) where.status = status;
+  if (isActive !== undefined) where.isActive = isActive;
+
+  // By default, exclude deleted categories
+  if (!includeDeleted) {
+    where.isDeleted = false;
+  }
 
   if (search) {
     where.OR = [

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontAPI } from '../utils/api';
@@ -8,7 +8,7 @@ import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
 import CustomDropdown from '../components/CustomDropdown';
 import Cart from '../components/Cart';
-import Checkout from '../components/Checkout';
+import ProductCard from '../components/ProductCard';
 import {
   ShoppingCartIcon,
   CheckIcon,
@@ -28,8 +28,19 @@ const ProductDetailContent: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showCart, setShowCart] = useState(false);
   const [cartClosing, setCartClosing] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  
+  const similarProductsRef = useRef<HTMLDivElement>(null);
+
+  const scrollSimilarProducts = (direction: 'left' | 'right') => {
+    if (similarProductsRef.current) {
+      const scrollAmount = 300;
+      similarProductsRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product-detail', slug],
@@ -55,6 +66,52 @@ const ProductDetailContent: React.FC = () => {
     queryFn: () => storefrontAPI.getCategories(),
     retry: false,
   });
+
+  // Helper to find category by ID recursively
+  const findCategoryById = (id: string, categoriesList: any[] = []): any => {
+    for (const category of categoriesList) {
+      if (category.id === id) return category;
+      if (category.children?.length > 0) {
+        const found = findCategoryById(id, category.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // Get root category ID (top-level parent)
+  const getRootCategoryId = (categoryId: string | undefined): string | undefined => {
+    if (!categoryId || !categories) return undefined;
+    
+    let currentCat = findCategoryById(categoryId, categories);
+    if (!currentCat) return undefined;
+    
+    // Traverse up to find root
+    while (currentCat?.parentId) {
+      const parent = findCategoryById(currentCat.parentId, categories);
+      if (parent) {
+        currentCat = parent;
+      } else {
+        break;
+      }
+    }
+    
+    return currentCat?.id;
+  };
+
+  const rootCategoryId = getRootCategoryId(product?.category?.id);
+  const rootCategory = rootCategoryId ? findCategoryById(rootCategoryId, categories) : null;
+
+  // Fetch similar products from root category
+  const { data: similarProductsData } = useQuery({
+    queryKey: ['similar-products', rootCategoryId],
+    queryFn: () => storefrontAPI.getProducts({ categoryId: rootCategoryId, limit: 12 }),
+    enabled: !!rootCategoryId,
+    retry: false,
+  });
+
+  // Filter out the current product from similar products
+  const similarProducts = similarProductsData?.products?.filter(p => p.id !== product?.id) || [];
 
   if (error) {
     return <TenantNotFound />;
@@ -171,17 +228,6 @@ const ProductDetailContent: React.FC = () => {
     return hierarchy;
   };
 
-  const findCategoryById = (id: string, categoriesList: any[] = []): any => {
-    for (const category of categoriesList) {
-      if (category.id === id) return category;
-      if (category.children?.length > 0) {
-        const found = findCategoryById(id, category.children);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
   // Build category URL path (including parents)
   const buildCategoryPath = (categoryId: string): string => {
     const category = findCategoryById(categoryId, categories);
@@ -203,12 +249,35 @@ const ProductDetailContent: React.FC = () => {
     return '/category/' + slugs.join('/');
   };
 
+  // Handle category selection from sidebar
+  const handleCategorySelect = (categoryId: string) => {
+    const path = buildCategoryPath(categoryId);
+    if (path) {
+      navigate(path);
+    }
+  };
+
+  // Handle "All Products" click
+  const handleAllProductsClick = () => {
+    navigate('/');
+  };
+
   const categoryHierarchy = buildCategoryHierarchy(product?.category?.id);
+  
+  // Get IDs of all categories in the hierarchy for auto-expanding sidebar
+  const expandedCategoryIds = categoryHierarchy.map(cat => cat.id);
 
   const handleAddToCart = async () => {
     if (!isInStock) return;
 
     await addToCart(product.id, quantity, selectedVariant?.id);
+  };
+
+  const handleBuyNow = async () => {
+    if (!isInStock) return;
+
+    await addToCart(product.id, quantity, selectedVariant?.id);
+    navigate('/checkout');
   };
 
   const handleVariantChange = (variantId: string) => {
@@ -225,40 +294,45 @@ const ProductDetailContent: React.FC = () => {
       storeInfo={storeInfo}
       storeSettings={storeSettings}
       categories={categories}
+      selectedCategoryId={product?.category?.id}
+      expandedCategoryIds={expandedCategoryIds}
+      onCategorySelect={handleCategorySelect}
+      onAllProductsClick={handleAllProductsClick}
       onCartClick={handleCartToggle}
       isCartOpen={showCart}
-      hideSidebar={true}
+      hideSidebar={false}
     >
-      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 lg:py-8">
+      <div>
         {/* Breadcrumb */}
-        <nav className="mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
-          <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap">
-            <button
-              onClick={() => navigate('/')}
-              className="hover:text-gray-900 transition-colors flex-shrink-0"
-            >
-              Home
-            </button>
-            
-            {categoryHierarchy.map((cat) => (
-              <React.Fragment key={cat.id}>
-                <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+        <div className="mb-4 sm:mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 min-h-[42px]">
+            <nav className="overflow-x-auto scrollbar-hide py-2 sm:py-2.5">
+              <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
                 <button
-                  onClick={() => {
-                    const path = buildCategoryPath(cat.id);
-                    navigate(path);
-                  }}
-                  className="hover:text-gray-900 transition-colors flex-shrink-0"
+                  onClick={() => navigate('/')}
+                  className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
                 >
-                  {cat.name}
+                  Home
                 </button>
-              </React.Fragment>
-            ))}
-            
-            <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
-            <span className="text-gray-900 font-medium flex-shrink-0 max-w-[120px] sm:max-w-[200px] truncate">{product.title}</span>
+                
+                {categoryHierarchy.map((cat) => (
+                  <React.Fragment key={cat.id}>
+                    <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+                    <button
+                      onClick={() => handleCategorySelect(cat.id)}
+                      className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
+                    >
+                      {cat.name}
+                    </button>
+                  </React.Fragment>
+                ))}
+                
+                <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+                <span className="text-gray-900 font-medium flex-shrink-0 px-1">{product.title}</span>
+              </div>
+            </nav>
           </div>
-        </nav>
+        </div>
 
         {/* Main Product Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
@@ -288,7 +362,7 @@ const ProductDetailContent: React.FC = () => {
             )}
 
             {/* Main Image */}
-            <div className="lg:col-span-5">
+            <div className={product.images && product.images.length > 1 ? "lg:col-span-5" : "lg:col-span-6"}>
               <div 
                 className="aspect-square bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in border border-gray-200"
                 onClick={() => setLightboxOpen(true)}
@@ -332,34 +406,33 @@ const ProductDetailContent: React.FC = () => {
 
             {/* Product Info */}
             <div className="lg:col-span-6 space-y-3 sm:space-y-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">{product.title}</h1>
+              {/* Title and Stock Status */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 break-words">{product.title}</h1>
+                {shouldShowStockStatus && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    {isInStock ? (
+                      <>
+                        <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                        <span className="font-semibold text-green-700">{displayStock} in stock</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                        <span className="font-semibold text-red-700">Out of Stock</span>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Price */}
               <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
-                <span className="text-3xl sm:text-4xl font-bold text-gray-900">₾{displayPrice.toFixed(2)}</span>
+                <span className="text-2xl sm:text-3xl font-bold text-gray-900">₾{displayPrice.toFixed(2)}</span>
                 {hasVariants && !selectedVariant && (
                   <span className="text-xs sm:text-sm text-gray-500">Starting from</span>
                 )}
               </div>
-
-              {/* Stock Status - Only show for simple products or after variant selection */}
-              {shouldShowStockStatus && (
-                <div className="flex items-center gap-2 text-xs sm:text-sm">
-                  {isInStock ? (
-                    <>
-                      <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
-                      <span className="font-semibold text-green-700">In Stock ({displayStock} available)</span>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-                      <span className="font-semibold text-red-700">Out of Stock</span>
-                    </>
-                  )}
-                </div>
-              )}
 
               {/* Variants */}
               {hasVariants && (
@@ -409,6 +482,15 @@ const ProductDetailContent: React.FC = () => {
                 </div>
               </div>
 
+              {/* Description */}
+              {product.description && (
+                <div className="py-2 sm:py-3 border-y border-gray-100">
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed whitespace-pre-line break-words">
+                    {product.description}
+                  </p>
+                </div>
+              )}
+
               {/* Cart Status */}
               {cartQuantity > 0 && (
                 <div className="flex items-center gap-2 bg-green-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-green-200">
@@ -424,7 +506,7 @@ const ProductDetailContent: React.FC = () => {
                 <button
                   onClick={handleAddToCart}
                   disabled={!isInStock || (hasVariants && !selectedVariant)}
-                  className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${
+                  className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
                     !isInStock || (hasVariants && !selectedVariant)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-gray-700 to-gray-600 text-white hover:from-gray-600 hover:to-gray-500 shadow-sm hover:shadow-md'
@@ -436,9 +518,9 @@ const ProductDetailContent: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <button
-                    onClick={handleAddToCart}
+                    onClick={handleBuyNow}
                     disabled={!isInStock || (hasVariants && !selectedVariant)}
-                    className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold transition-all text-sm sm:text-base ${
+                    className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
                       !isInStock || (hasVariants && !selectedVariant)
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-gray-800 text-white hover:bg-gray-700'
@@ -458,7 +540,7 @@ const ProductDetailContent: React.FC = () => {
                         navigator.clipboard.writeText(window.location.href);
                       }
                     }}
-                    className="py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all text-sm sm:text-base"
+                    className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all text-xs sm:text-sm"
                   >
                     Share
                   </button>
@@ -468,27 +550,59 @@ const ProductDetailContent: React.FC = () => {
           </div>
         </div>
 
-        {/* Description Section */}
-        {product.description && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
-            <div className="text-sm sm:text-base text-gray-600 leading-relaxed whitespace-pre-line break-words">
-              {product.description}
-            </div>
-          </div>
-        )}
-
         {/* Specifications */}
         {product.attributes && Object.keys(product.attributes).length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Technical Specifications</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Technical Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {Object.entries(product.attributes).map(([key, value]) => (
                 <div 
                   key={key} 
-                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg gap-1 sm:gap-2"
+                  className="flex justify-between items-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg gap-2"
                 >
-                  <span className="font-semibold text-gray-700 text-sm sm:text-base break-words">{key}:</span>
-                  <span className="text-gray-900 text-sm sm:text-base break-words">{String(value)}</span>
+                  <span className="font-semibold text-gray-700 text-xs sm:text-sm">{key}:</span>
+                  <span className="text-gray-900 text-xs sm:text-sm text-right">{String(value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Similar Products */}
+        {similarProducts.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                More from {rootCategory?.name || product.category?.name}
+              </h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => scrollSimilarProducts('left')}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeftIcon className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => scrollSimilarProducts('right')}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRightIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div 
+              ref={similarProductsRef}
+              className="flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-2"
+            >
+              {similarProducts.map((similarProduct) => (
+                <div key={similarProduct.id} className="flex-shrink-0 w-32 sm:w-40 lg:w-44">
+                  <ProductCard
+                    product={similarProduct}
+                    cartQuantity={getCartItemQuantity(similarProduct.id)}
+                    hideDescription
+                  />
                 </div>
               ))}
             </div>
@@ -568,21 +682,10 @@ const ProductDetailContent: React.FC = () => {
       {/* Cart */}
       {showCart && (
         <Cart
-          onCheckout={() => {
-            setShowCart(false);
-            setCartClosing(false);
-            setShowCheckout(true);
-          }}
           onClose={handleCartCloseComplete}
           isClosing={cartClosing}
         />
       )}
-
-      {/* Checkout Modal */}
-      <Checkout
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-      />
     </>
   );
 };

@@ -190,7 +190,8 @@ const options = {
             slug: { type: 'string' },
             price: { type: 'number', description: 'Base price (can be overridden by variants)' },
             stockQuantity: { type: 'integer', description: 'Base stock (can be overridden by variants)' },
-            status: { type: 'string', enum: ['ACTIVE', 'DRAFT', 'DELETED'] },
+            isActive: { type: 'boolean', description: 'true = visible in storefront, false = draft/hidden' },
+            isDeleted: { type: 'boolean', description: 'Soft deletion flag' },
             attributes: {
               type: 'object',
               description: 'Custom product attributes (e.g., {"material": "Cotton", "brand": "Nike"})',

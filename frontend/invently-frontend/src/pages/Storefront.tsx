@@ -10,14 +10,12 @@ import CategorySection from '../components/CategorySection';
 import CategorySectionSkeleton from '../components/CategorySectionSkeleton';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import Cart from '../components/Cart';
-import Checkout from '../components/Checkout';
 import { CartProvider, useCart } from '../contexts/CartContext';
 import { CubeIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const StorefrontContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [showCheckout, setShowCheckout] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [cartClosing, setCartClosing] = useState(false);
   const [searchInput, setSearchInput] = useState(''); // User's input
@@ -254,6 +252,9 @@ const StorefrontContent = () => {
   };
 
   const categoryHierarchy = buildCategoryHierarchy(selectedCategoryId);
+  
+  // Get IDs of all categories in the hierarchy for auto-expanding sidebar
+  const expandedCategoryIds = categoryHierarchy.map((cat: any) => cat.id);
 
   const handleCategorySelect = (categoryId: string) => {
     if (categoryId === selectedCategoryId) {
@@ -304,6 +305,7 @@ const StorefrontContent = () => {
       categories={displayCategories}
       categoriesLoading={categoriesLoading}
       selectedCategoryId={selectedCategoryId}
+      expandedCategoryIds={expandedCategoryIds}
       onCategorySelect={handleCategorySelect}
       onAllProductsClick={handleAllProductsClick}
       onCartClick={handleCartToggle}
@@ -331,9 +333,9 @@ const StorefrontContent = () => {
           {/* Category Breadcrumb & Grid Controls */}
           {selectedCategory && (
             <div className="mb-4 sm:mb-6">
-              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 min-h-[42px]">
                 {/* Breadcrumb */}
-                <nav className="overflow-x-auto scrollbar-hide">
+                <nav className="overflow-x-auto scrollbar-hide py-2 sm:py-2.5">
                   <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
                     <button
                       onClick={handleAllProductsClick}
@@ -572,21 +574,10 @@ const StorefrontContent = () => {
       {/* Cart */}
       {showCart && (
         <Cart
-          onCheckout={() => {
-            setShowCart(false);
-            setCartClosing(false);
-            setShowCheckout(true);
-          }}
           onClose={handleCartCloseComplete}
           isClosing={cartClosing}
         />
       )}
-
-      {/* Checkout Modal */}
-      <Checkout
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-      />
     </StorefrontLayout>
   );
 };

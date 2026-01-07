@@ -14,12 +14,13 @@ export class CartService {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  // Validate product and variant availability
+  // Validate product and variant availability (for adding to cart - only active, non-deleted products)
   async validateProductForCart(productId, variantId, tenantId) {
     const product = await this.productRepository.findFirst({
       id: productId,
       tenantId,
-      status: 'ACTIVE',
+      isActive: true,
+      isDeleted: false,
     });
 
     if (!product) {
@@ -42,6 +43,36 @@ export class CartService {
     return { product, variant };
   }
 
+  // Get product info for cart display (includes deleted products for order history)
+  async getProductForDisplay(productId, tenantId) {
+    const product = await this.productRepository.findFirst(
+      { id: productId, tenantId },
+      {
+        include: {
+          images: {
+            orderBy: { sortOrder: 'asc' },
+            take: 1,
+          },
+        },
+      }
+    );
+
+    if (!product) {
+      return null;
+    }
+
+    // Add availability status for display
+    return {
+      ...product,
+      isAvailable: product.isActive && !product.isDeleted,
+      unavailableReason: product.isDeleted 
+        ? 'This product is no longer available' 
+        : !product.isActive 
+          ? 'This product is currently unavailable' 
+          : null,
+    };
+  }
+
   // Check stock availability
   checkStockAvailability(product, variant, quantity) {
     const availableStock = variant ? variant.stockQuantity : product.stockQuantity;
@@ -59,6 +90,7 @@ export class CartService {
   }
 
   // Get cart by session ID (create if doesn't exist)
+  // Includes product availability status for deleted/inactive products and stock info
   async getCart(sessionId, tenantId) {
     let cart = await this.cartRepository.getCartWithItems(sessionId, tenantId);
 
@@ -67,11 +99,67 @@ export class CartService {
       cart.items = [];
     }
 
-    const total = this.calculateCartTotal(cart.items);
+    // Add availability and stock status to each item
+    const itemsWithAvailability = cart.items.map(item => {
+      const product = item.product;
+      const variant = item.variant;
+      
+      // Check product availability (deleted/inactive)
+      const isProductAvailable = product && product.isActive && !product.isDeleted;
+      
+      // Check stock availability
+      const availableStock = variant ? variant.stockQuantity : (product?.stockQuantity || 0);
+      const hasEnoughStock = availableStock >= item.quantity;
+      const isOutOfStock = availableStock === 0;
+      
+      // Item is only available if product exists, is active, not deleted, AND has stock
+      const isAvailable = isProductAvailable && hasEnoughStock;
+      
+      // Determine the reason for unavailability (prioritize product issues over stock)
+      let unavailableReason = null;
+      if (!product) {
+        unavailableReason = 'Product no longer exists';
+      } else if (product.isDeleted) {
+        unavailableReason = 'This product is no longer available';
+      } else if (!product.isActive) {
+        unavailableReason = 'This product is currently unavailable';
+      } else if (isOutOfStock) {
+        unavailableReason = 'Out of stock';
+      } else if (!hasEnoughStock) {
+        unavailableReason = `Only ${availableStock} available (you have ${item.quantity} in cart)`;
+      }
+      
+      return {
+        ...item,
+        isAvailable,
+        unavailableReason,
+        availableStock,
+        hasEnoughStock,
+        isOutOfStock,
+      };
+    });
+
+    // Only count available items in total
+    const total = itemsWithAvailability
+      .filter(item => item.isAvailable)
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // Count of unavailable items for warning display
+    const unavailableCount = itemsWithAvailability.filter(item => !item.isAvailable).length;
+    
+    // Count of items with stock issues specifically
+    const stockIssueCount = itemsWithAvailability.filter(item => 
+      item.isAvailable === false && (item.isOutOfStock || !item.hasEnoughStock)
+    ).length;
 
     return {
       ...cart,
+      items: itemsWithAvailability,
       total,
+      hasUnavailableItems: unavailableCount > 0,
+      unavailableCount,
+      hasStockIssues: stockIssueCount > 0,
+      stockIssueCount,
     };
   }
 

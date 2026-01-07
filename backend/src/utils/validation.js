@@ -30,9 +30,10 @@ const schemas = {
     title: Joi.string().min(1).max(200).required(),
     description: Joi.string().max(2000).optional(),
     slug: Joi.string().pattern(slugRegex).required(),
+    sku: Joi.string().max(100).optional().allow(null, ''),
     price: Joi.number().positive().precision(2).required(),
     stockQuantity: Joi.number().integer().min(0).required(),
-    status: Joi.string().valid('ACTIVE', 'DRAFT').required(),
+    isActive: Joi.boolean().default(true), // true = visible in storefront, false = draft/hidden
     categoryId: Joi.string().uuid().optional().allow(null),
     // Custom attributes as JSON (e.g., {"material": "Cotton", "brand": "Nike"})
     attributes: Joi.object().optional(),
@@ -50,9 +51,10 @@ const schemas = {
     title: Joi.string().min(1).max(200).optional(),
     description: Joi.string().max(2000).optional(),
     slug: Joi.string().pattern(slugRegex).optional(),
+    sku: Joi.string().max(100).optional().allow(null, ''),
     price: Joi.number().positive().precision(2).optional(),
     stockQuantity: Joi.number().integer().min(0).optional(),
-    status: Joi.string().valid('ACTIVE', 'DRAFT').optional(),
+    isActive: Joi.boolean().optional(), // true = visible in storefront, false = draft/hidden
     categoryId: Joi.string().uuid().optional().allow(null),
     attributes: Joi.object().optional().allow(null)
   }),
@@ -89,7 +91,8 @@ const schemas = {
     sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
     search: Joi.string().max(100).optional(),
     categoryId: Joi.string().uuid().optional(),
-    status: Joi.string().valid('ACTIVE', 'DRAFT', 'DELETED').optional(),
+    isActive: Joi.boolean().optional(), // Filter by active/inactive status
+    isDeleted: Joi.boolean().optional(), // Filter by deleted status
     minPrice: Joi.number().min(0).optional(),
     maxPrice: Joi.number().min(0).optional()
   })

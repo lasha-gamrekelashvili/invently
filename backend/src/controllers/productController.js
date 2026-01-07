@@ -5,20 +5,33 @@ const productService = new ProductService();
 
 const createProduct = async (req, res) => {
   try {
-    const { title, description, slug, price, stockQuantity, status, categoryId, attributes, variants } = req.validatedData;
+    const { title, description, slug, sku, price, stockQuantity, isActive, categoryId, attributes, variants } = req.validatedData;
     const tenantId = req.tenantId;
 
     const product = await productService.createProduct(
-      { title, description, slug, price, stockQuantity, status, categoryId, attributes, variants },
+      { title, description, slug, sku, price, stockQuantity, isActive, categoryId, attributes, variants },
       tenantId
     );
 
-    res.status(201).json(ApiResponse.created(product, 'Product created successfully'));
+    // Include warning in response if product name matches deleted product
+    const response = ApiResponse.created(product, 'Product created successfully');
+    if (product._warning) {
+      response.warning = product._warning;
+      delete product._warning;
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     if (error.code === 'P2002') {
-      return res.status(400).json(ApiResponse.error('Product slug already exists in this store'));
+      return res.status(400).json(ApiResponse.error('Product slug or SKU already exists in this store'));
     }
     if (error.message === 'Category not found') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message.startsWith('SKU already exists')) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message === 'Slug already exists for another active product') {
       return res.status(400).json(ApiResponse.error(error.message));
     }
     console.error('Create product error:', error);
@@ -29,11 +42,11 @@ const createProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
     const tenantId = req.tenantId;
-    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', search, categoryId, status, minPrice, maxPrice } = req.validatedQuery;
+    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', search, categoryId, isActive, isDeleted, minPrice, maxPrice } = req.validatedQuery;
 
     const result = await productService.getProducts(
       tenantId,
-      { sortBy, sortOrder, search, categoryId, status, minPrice, maxPrice },
+      { sortBy, sortOrder, search, categoryId, isActive, isDeleted, minPrice, maxPrice },
       parseInt(page),
       parseInt(limit)
     );
@@ -84,24 +97,33 @@ const getProductBySlug = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, slug, price, stockQuantity, status, categoryId, attributes } = req.validatedData;
+    const { title, description, slug, sku, price, stockQuantity, categoryId, attributes, isActive } = req.validatedData;
     const tenantId = req.tenantId;
 
     const product = await productService.updateProduct(
       id,
-      { title, description, slug, price, stockQuantity, status, categoryId, attributes },
+      { title, description, slug, sku, price, stockQuantity, categoryId, attributes, isActive },
       tenantId
     );
 
     res.json(ApiResponse.updated(product, 'Product updated successfully'));
   } catch (error) {
     if (error.code === 'P2002') {
-      return res.status(400).json(ApiResponse.error('Product slug already exists in this store'));
+      return res.status(400).json(ApiResponse.error('Product slug or SKU already exists in this store'));
     }
     if (error.message === 'Product not found') {
       return res.status(404).json(ApiResponse.notFound('Product'));
     }
     if (error.message === 'Category not found') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message === 'Cannot update a deleted product. Restore it first.') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message.startsWith('SKU already exists')) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message === 'Slug already exists for another active product') {
       return res.status(400).json(ApiResponse.error(error.message));
     }
     console.error('Update product error:', error);
@@ -116,12 +138,38 @@ const deleteProduct = async (req, res) => {
 
     await productService.deleteProduct(id, tenantId);
 
-    res.json(ApiResponse.deleted('Product deleted successfully'));
+    res.json(ApiResponse.deleted('Product soft deleted successfully'));
   } catch (error) {
     if (error.message === 'Product not found') {
       return res.status(404).json(ApiResponse.notFound('Product'));
     }
+    if (error.message === 'Product is already deleted') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
     console.error('Delete product error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
+const restoreProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tenantId = req.tenantId;
+
+    const product = await productService.restoreProduct(id, tenantId);
+
+    res.json(ApiResponse.updated(product, 'Product restored successfully'));
+  } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json(ApiResponse.notFound('Product'));
+    }
+    if (error.message === 'Product is not deleted') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message.includes('Cannot restore')) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    console.error('Restore product error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
@@ -208,6 +256,7 @@ export {
   getProductBySlug,
   updateProduct,
   deleteProduct,
+  restoreProduct,
   createVariant,
   updateVariant,
   deleteVariant

@@ -16,6 +16,7 @@ interface StorefrontLayoutProps {
   categories?: any[];
   categoriesLoading?: boolean;
   selectedCategoryId?: string;
+  expandedCategoryIds?: string[];
   onCategorySelect?: (categoryId: string) => void;
   onAllProductsClick?: () => void;
   onCartClick: () => void;
@@ -36,6 +37,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   categories = [],
   categoriesLoading = false,
   selectedCategoryId,
+  expandedCategoryIds = [],
   onCategorySelect,
   onAllProductsClick,
   onCartClick,
@@ -113,6 +115,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                       categories={categories}
                       onSelect={onCategorySelect}
                       selectedCategoryId={selectedCategoryId}
+                      expandedCategoryIds={expandedCategoryIds}
                     />
                   ) : (
                     <div className="text-center py-8">
@@ -187,6 +190,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                         setSidebarOpen(false);
                       }}
                       selectedCategoryId={selectedCategoryId}
+                      expandedCategoryIds={expandedCategoryIds}
                     />
                   ) : (
                     <div className="text-center py-8">

@@ -15,6 +15,7 @@ import {
   XCircleIcon,
   ClockIcon,
   DocumentTextIcon,
+  CubeIcon,
 } from '@heroicons/react/24/outline';
 
 const OrderDetails = () => {
@@ -152,23 +153,71 @@ const OrderDetails = () => {
             </div>
             <div className="p-4 sm:p-6">
               <div className="space-y-3">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-gray-900 truncate">{item.title}</h4>
-                      <div className="flex items-center text-xs text-gray-500 mt-0.5">
-                        <span>{t('orders.orderDetails.sections.orderItems.quantity')}: {item.quantity}</span>
-                        <span className="mx-1.5">•</span>
-                        <span>{t('orders.orderDetails.sections.orderItems.unitPrice')}: ${item.price.toFixed(2)}</span>
+                {order.items.map((item) => {
+                  const productImage = item.product?.images?.[0]?.url;
+                  const isProductDeleted = item.product?.isDeleted;
+                  const canNavigate = item.product && item.productId;
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => canNavigate && navigate(`/admin/products/${item.productId}/edit`)}
+                      className={`flex items-center p-3 rounded-lg transition-all ${
+                        canNavigate 
+                          ? 'bg-gray-50 hover:bg-blue-50 hover:border-blue-200 cursor-pointer border border-transparent' 
+                          : 'bg-gray-50'
+                      } ${isProductDeleted ? 'opacity-75' : ''}`}
+                    >
+                      {/* Product Image */}
+                      <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-gray-200 mr-3">
+                        {productImage ? (
+                          <img
+                            src={productImage}
+                            alt={item.title}
+                            className={`w-full h-full object-cover ${isProductDeleted ? 'grayscale' : ''}`}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                            <CubeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className={`text-sm font-medium truncate ${
+                          canNavigate ? 'text-blue-600 hover:text-blue-800' : 'text-gray-900'
+                        } ${isProductDeleted ? 'line-through text-gray-500' : ''}`}>
+                          {item.title}
+                        </h4>
+                        {isProductDeleted && (
+                          <span className="text-xs text-red-500 font-medium">Product deleted</span>
+                        )}
+                        <div className="flex items-center text-xs text-gray-500 mt-0.5">
+                          <span>{t('orders.orderDetails.sections.orderItems.quantity')}: {item.quantity}</span>
+                          <span className="mx-1.5">•</span>
+                          <span>{t('orders.orderDetails.sections.orderItems.unitPrice')}: ${item.price.toFixed(2)}</span>
+                        </div>
+                        {item.variantData && Object.keys(item.variantData).length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {Object.entries(item.variantData).map(([key, value]) => (
+                              <span key={key} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                {key}: {value}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Item Total */}
+                      <div className="text-right ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="border-t border-gray-200 pt-3 mt-3">
                 <div className="flex justify-between items-center">

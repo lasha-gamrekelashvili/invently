@@ -30,6 +30,37 @@ export class OrderService {
     return true;
   }
 
+  // Validate that all cart items are available (not deleted/inactive)
+  validateCartItemsAvailable(cartItems) {
+    const unavailableItems = [];
+    
+    for (const item of cartItems) {
+      const product = item.product;
+      
+      if (!product) {
+        unavailableItems.push({ title: 'Unknown product', reason: 'Product no longer exists' });
+        continue;
+      }
+      
+      if (product.isDeleted) {
+        unavailableItems.push({ title: product.title, reason: 'has been deleted' });
+        continue;
+      }
+      
+      if (!product.isActive) {
+        unavailableItems.push({ title: product.title, reason: 'is no longer available' });
+        continue;
+      }
+    }
+    
+    if (unavailableItems.length > 0) {
+      const itemsList = unavailableItems.map(i => `"${i.title}" ${i.reason}`).join(', ');
+      throw new Error(`Cannot checkout: ${itemsList}. Please remove unavailable items from your cart.`);
+    }
+    
+    return true;
+  }
+
   // Create order from cart (checkout)
   async createOrder(orderData, tenantId) {
     const { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes } = orderData;
@@ -40,6 +71,9 @@ export class OrderService {
     if (!cart || cart.items.length === 0) {
       throw new Error('Cart is empty or not found');
     }
+
+    // Validate that all items are available (not deleted/inactive)
+    this.validateCartItemsAvailable(cart.items);
 
     // Validate stock for all items
     this.validateCartStock(cart.items);

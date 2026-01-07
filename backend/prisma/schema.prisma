@@ -49,6 +49,8 @@ model Category {
   parentId    String?
   tenantId    String
   isActive    Boolean    @default(true)
+  isDeleted   Boolean    @default(false)
+  deletedAt   DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
@@ -56,7 +58,9 @@ model Category {
   tenant      Tenant     @relation(fields: [tenantId], references: [id])
   products    Product[]
 
-  @@unique([slug, tenantId])
+  // Note: Unique constraint on slug is enforced at application level for non-deleted categories
+  @@index([tenantId, isDeleted])
+  @@index([slug, tenantId])
   @@map("categories")
 }
 
@@ -65,9 +69,12 @@ model Product {
   title         String
   description   String?
   slug          String
-  price         Float // Base price (can be overridden by variants)
+  sku           String?          // Stock Keeping Unit - globally unique across all products
+  price         Float            // Base price (can be overridden by variants)
   stockQuantity Int              @default(0) // Base stock (can be overridden by variants)
-  status        ProductStatus    @default(DRAFT)
+  isActive      Boolean          @default(true)  // true = visible in storefront, false = hidden/draft
+  isDeleted     Boolean          @default(false) // soft deletion flag
+  deletedAt     DateTime?
   tenantId      String
   categoryId    String?
   // Custom attributes stored as JSON (e.g., {"material": "Cotton", "brand": "Nike"})
@@ -81,7 +88,12 @@ model Product {
   category      Category?        @relation(fields: [categoryId], references: [id])
   tenant        Tenant           @relation(fields: [tenantId], references: [id])
 
-  @@unique([slug, tenantId])
+  // SKU is globally unique across ALL products (including deleted)
+  // Slug is unique only among non-deleted products (enforced via partial index in migration)
+  @@unique([sku, tenantId])
+  @@index([tenantId, isDeleted])
+  @@index([tenantId, isActive])
+  @@index([slug, tenantId])
   @@map("products")
 }
 
@@ -213,12 +225,6 @@ model StoreSettings {
 enum UserRole {
   PLATFORM_ADMIN
   STORE_OWNER
-}
-
-enum ProductStatus {
-  ACTIVE
-  DRAFT
-  DELETED
 }
 
 enum OrderStatus {

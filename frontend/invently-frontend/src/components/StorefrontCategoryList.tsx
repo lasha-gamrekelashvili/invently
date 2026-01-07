@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 interface Category {
@@ -13,14 +13,28 @@ interface StorefrontCategoryListProps {
   categories: Category[];
   onSelect?: (categoryId: string) => void;
   selectedCategoryId?: string;
+  expandedCategoryIds?: string[];
 }
 
 const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
   categories,
   onSelect,
   selectedCategoryId,
+  expandedCategoryIds = [],
 }) => {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  // Initialize with expandedCategoryIds
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set(expandedCategoryIds));
+
+  // Auto-expand categories when expandedCategoryIds changes
+  useEffect(() => {
+    if (expandedCategoryIds.length > 0) {
+      setExpandedNodes(prev => {
+        const newSet = new Set(prev);
+        expandedCategoryIds.forEach(id => newSet.add(id));
+        return newSet;
+      });
+    }
+  }, [expandedCategoryIds]);
 
   const toggleExpanded = (categoryId: string) => {
     const newExpanded = new Set(expandedNodes);

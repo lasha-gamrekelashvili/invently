@@ -40,8 +40,8 @@ const Dashboard = () => {
   });
 
   const totalCategories = allCategories?.pagination.total || 0;
-  const activeProducts = allProducts?.products?.filter(p => p.status === 'ACTIVE').length || 0;
-  const draftProducts = allProducts?.products?.filter(p => p.status === 'DRAFT').length || 0;
+  const activeProducts = allProducts?.products?.filter(p => p.isActive && !p.isDeleted).length || 0;
+  const draftProducts = allProducts?.products?.filter(p => !p.isActive && !p.isDeleted).length || 0;
   const pendingOrders = orderStats?.recentOrders?.filter(order => order.status === 'PENDING').length || 0;
 
   const stats = [

@@ -25,6 +25,7 @@ import Settings from './pages/Settings';
 import BulkUpload from './pages/BulkUpload';
 import Storefront from './pages/Storefront';
 import ProductDetail from './pages/ProductDetail';
+import CheckoutPage from './pages/CheckoutPage';
 import PlatformAdmin from './pages/PlatformAdmin';
 import LegalPage from './pages/LegalPage';
 
@@ -72,6 +73,7 @@ const AppRoutes = () => {
       <Route path="/store" element={<Storefront />} />
       <Route path="/category/*" element={<Storefront />} />
       <Route path="/product/:slug" element={<ProductDetail />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
 
       {/* Protected Admin Routes */}
       <Route

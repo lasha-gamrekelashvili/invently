@@ -15,11 +15,23 @@ export class ProductRepository extends BaseRepository {
     return await this.findFirst({ id, tenantId }, options);
   }
 
-  async findBySlugAndTenant(slug, tenantId, status = null) {
-    const where = { slug, tenantId };
-    if (status) where.status = status;
+  // Find by ID including deleted products (for cart/order access)
+  async findByIdIncludingDeleted(id, tenantId, options = {}) {
+    return await this.findFirst({ id, tenantId }, options);
+  }
+
+  async findBySlugAndTenant(slug, tenantId, activeOnly = false) {
+    const where = { slug, tenantId, isDeleted: false };
+    if (activeOnly) {
+      where.isActive = true;
+    }
 
     return await this.findFirst(where, productIncludes.fullWithFirstImage);
+  }
+
+  // Find active (non-deleted) products only
+  async findActiveByTenant(tenantId, options = {}) {
+    return await this.findMany({ tenantId, isDeleted: false }, options);
   }
 
   async findWithDetails(id, tenantId) {
@@ -27,6 +39,35 @@ export class ProductRepository extends BaseRepository {
       { id, tenantId },
       productIncludes.full
     );
+  }
+
+  // Check if SKU already exists among ALL products (including deleted)
+  // SKU must be globally unique across all products
+  async findBySku(sku, tenantId, excludeProductId = null) {
+    if (!sku) return null;
+    const where = { sku, tenantId };
+    if (excludeProductId) {
+      where.id = { not: excludeProductId };
+    }
+    return await this.findFirst(where);
+  }
+
+  // Check if slug already exists among active (non-deleted) products
+  async findBySlugActive(slug, tenantId, excludeProductId = null) {
+    const where = { slug, tenantId, isDeleted: false };
+    if (excludeProductId) {
+      where.id = { not: excludeProductId };
+    }
+    return await this.findFirst(where);
+  }
+
+  // Check if name matches a deleted product (for warning)
+  async findDeletedByTitle(title, tenantId) {
+    return await this.findFirst({
+      title: { equals: title, mode: 'insensitive' },
+      tenantId,
+      isDeleted: true,
+    });
   }
 
   async createProduct(data, tenantId) {
@@ -74,6 +115,25 @@ export class ProductRepository extends BaseRepository {
     return await this.update(id, data);
   }
 
+  // Soft delete a product
+  async softDelete(id) {
+    return await this.update(id, {
+      isActive: false,
+      isDeleted: true,
+      deletedAt: new Date(),
+    });
+  }
+
+  // Restore a soft-deleted product
+  async restore(id) {
+    return await this.update(id, {
+      isActive: true,
+      isDeleted: false,
+      deletedAt: null,
+    });
+  }
+
+  // Hard delete - only for exceptional cases
   async deleteProduct(id) {
     return await this.delete(id);
   }
@@ -82,8 +142,18 @@ export class ProductRepository extends BaseRepository {
     return await this.paginate({ tenantId, ...where }, page, limit, options);
   }
 
+  // Paginate only active (non-deleted) products
+  async paginateActiveByTenant(tenantId, where = {}, page = 1, limit = 10, options = {}) {
+    return await this.paginate({ tenantId, isDeleted: false, ...where }, page, limit, options);
+  }
+
   async countByTenant(tenantId, where = {}) {
     return await this.count({ tenantId, ...where });
+  }
+
+  // Count only active (non-deleted) products
+  async countActiveByTenant(tenantId, where = {}) {
+    return await this.count({ tenantId, isDeleted: false, ...where });
   }
 }
 

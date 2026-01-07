@@ -11,46 +11,105 @@ export class ProductService {
     this.categoryService = new CategoryService();
   }
 
-  // Validate category exists and belongs to tenant
+  // Validate category exists, belongs to tenant, and is not deleted
   async validateCategory(categoryId, tenantId) {
     if (!categoryId) return true;
 
-    const category = await this.categoryRepository.findByIdAndTenant(categoryId, tenantId);
+    const category = await this.categoryRepository.findActiveByIdAndTenant(categoryId, tenantId);
     if (!category) {
       throw new Error('Category not found');
     }
     return true;
   }
 
+  // Validate SKU uniqueness among ALL products (including deleted)
+  // SKU must be globally unique and cannot be reused
+  async validateSku(sku, tenantId, excludeProductId = null) {
+    if (!sku) return { valid: true };
+
+    const existingProduct = await this.productRepository.findBySku(sku, tenantId, excludeProductId);
+    if (existingProduct) {
+      const status = existingProduct.isDeleted ? ' (deleted product)' : '';
+      throw new Error(`SKU already exists for another product${status}`);
+    }
+    return { valid: true };
+  }
+
+  // Validate slug uniqueness among active products
+  async validateSlug(slug, tenantId, excludeProductId = null) {
+    const existingProduct = await this.productRepository.findBySlugActive(slug, tenantId, excludeProductId);
+    if (existingProduct) {
+      throw new Error('Slug already exists for another active product');
+    }
+    return { valid: true };
+  }
+
+  // Check if product name matches a deleted product (for warning)
+  async checkDeletedProductWarning(title, tenantId) {
+    const deletedProduct = await this.productRepository.findDeletedByTitle(title, tenantId);
+    return deletedProduct ? {
+      warning: true,
+      message: `A deleted product with the name "${title}" exists. You can restore it instead of creating a new one.`,
+      deletedProductId: deletedProduct.id,
+    } : { warning: false };
+  }
+
   // Create a new product
   async createProduct(data, tenantId) {
-    const { title, description, slug, price, stockQuantity, status, categoryId, attributes, variants } = data;
+    const { title, description, slug, sku, price, stockQuantity, isActive = true, categoryId, attributes, variants } = data;
 
     // Validate category if provided
     await this.validateCategory(categoryId, tenantId);
 
+    // Validate SKU uniqueness
+    await this.validateSku(sku, tenantId);
+
+    // Validate slug uniqueness
+    await this.validateSlug(slug, tenantId);
+
+    // Check for deleted product warning (optional - don't block creation)
+    const deletedWarning = await this.checkDeletedProductWarning(title, tenantId);
+
     // Create product with variants if provided
+    let product;
     if (variants && variants.length > 0) {
-      return await this.productRepository.createProductWithVariants(
-        { title, description, slug, price, stockQuantity, status, categoryId, attributes },
+      product = await this.productRepository.createProductWithVariants(
+        { title, description, slug, sku, price, stockQuantity, categoryId, attributes, isActive, isDeleted: false },
         tenantId,
         variants
       );
+    } else {
+      // Create product without variants
+      product = await this.productRepository.createProduct(
+        { title, description, slug, sku, price, stockQuantity, categoryId, attributes, isActive, isDeleted: false },
+        tenantId
+      );
     }
 
-    // Create product without variants
-    return await this.productRepository.createProduct(
-      { title, description, slug, price, stockQuantity, status, categoryId, attributes },
-      tenantId
-    );
+    // Attach warning if name matches deleted product
+    if (deletedWarning.warning) {
+      product._warning = deletedWarning;
+    }
+
+    return product;
   }
 
-  // Get products with filtering and pagination
-  async getProducts(tenantId, filters = {}, page = 1, limit = 10) {
-    const { sortBy = 'createdAt', sortOrder = 'desc', search, categoryId, status, minPrice, maxPrice } = filters;
+  // Get products with filtering and pagination (admin view - includes deleted with indicators)
+  async getProducts(tenantId, filters = {}, page = 1, limit = 10, includeDeleted = true) {
+    const { sortBy = 'createdAt', sortOrder = 'desc', search, categoryId, isActive, isDeleted, minPrice, maxPrice } = filters;
 
     // Build where clause
     const where = {};
+
+    // Handle isDeleted filter - explicit filter value takes precedence
+    if (isDeleted !== undefined) {
+      // Explicit isDeleted filter from query params
+      where.isDeleted = isDeleted === true || isDeleted === 'true';
+    } else if (!includeDeleted) {
+      // For public queries, exclude deleted products
+      where.isDeleted = false;
+    }
+    // If includeDeleted=true and no explicit isDeleted filter, show all (admin panel)
 
     // Handle hierarchical category filtering
     if (categoryId) {
@@ -60,12 +119,16 @@ export class ProductService {
       };
     }
 
-    if (status) where.status = status;
+    // Filter by isActive (true = active, false = inactive/draft)
+    if (isActive !== undefined) {
+      where.isActive = isActive === true || isActive === 'true';
+    }
 
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { sku: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -133,7 +196,7 @@ export class ProductService {
     const product = await this.productRepository.findBySlugAndTenant(
       slug,
       tenantId,
-      activeOnly ? 'ACTIVE' : null
+      activeOnly
     );
 
     return product;
@@ -141,33 +204,49 @@ export class ProductService {
 
   // Update a product
   async updateProduct(id, data, tenantId) {
-    const { title, description, slug, price, stockQuantity, status, categoryId, attributes } = data;
+    const { title, description, slug, sku, price, stockQuantity, categoryId, attributes, isActive } = data;
 
-    // Check if product exists and belongs to tenant
+    // Check if product exists and belongs to tenant (including deleted for admin access)
     const existingProduct = await this.productRepository.findByIdAndTenant(id, tenantId);
 
     if (!existingProduct) {
       throw new Error('Product not found');
     }
 
+    // Don't allow updates on deleted products (use restore first)
+    if (existingProduct.isDeleted) {
+      throw new Error('Cannot update a deleted product. Restore it first.');
+    }
+
     // Validate category if provided
     await this.validateCategory(categoryId, tenantId);
+
+    // Validate SKU uniqueness if changed
+    if (sku !== undefined && sku !== existingProduct.sku) {
+      await this.validateSku(sku, tenantId, id);
+    }
+
+    // Validate slug uniqueness if changed
+    if (slug !== undefined && slug !== existingProduct.slug) {
+      await this.validateSlug(slug, tenantId, id);
+    }
 
     // Build update data (only include defined fields)
     const updateData = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (slug !== undefined) updateData.slug = slug;
+    if (sku !== undefined) updateData.sku = sku;
     if (price !== undefined) updateData.price = price;
     if (stockQuantity !== undefined) updateData.stockQuantity = stockQuantity;
-    if (status !== undefined) updateData.status = status;
     if (categoryId !== undefined) updateData.categoryId = categoryId;
     if (attributes !== undefined) updateData.attributes = attributes;
+    if (isActive !== undefined) updateData.isActive = isActive;
 
     return await this.productRepository.update(id, updateData);
   }
 
-  // Delete a product
+  // Soft delete a product
   async deleteProduct(id, tenantId) {
     // Check if product exists and belongs to tenant
     const product = await this.productRepository.findByIdAndTenant(id, tenantId);
@@ -176,7 +255,56 @@ export class ProductService {
       throw new Error('Product not found');
     }
 
-    return await this.productRepository.delete(id);
+    if (product.isDeleted) {
+      throw new Error('Product is already deleted');
+    }
+
+    // Soft delete - products in cart/orders remain accessible
+    return await this.productRepository.softDelete(id);
+  }
+
+  // Restore a soft-deleted product
+  async restoreProduct(id, tenantId) {
+    const product = await this.productRepository.findByIdAndTenant(id, tenantId);
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    if (!product.isDeleted) {
+      throw new Error('Product is not deleted');
+    }
+
+    // Check if slug is still available for active products
+    const slugConflict = await this.productRepository.findBySlugActive(product.slug, tenantId, id);
+    if (slugConflict) {
+      throw new Error(`Cannot restore: slug "${product.slug}" is now used by another active product`);
+    }
+
+    // Note: SKU is globally unique (including deleted products), so no need to check SKU conflicts
+    // The deleted product already owns its SKU
+
+    return await this.productRepository.restore(id);
+  }
+
+  // Get product by ID (for admin - includes deleted products with indicator)
+  async getProductByIdAdmin(id, tenantId) {
+    const product = await this.productRepository.findFirst(
+      { id, tenantId },
+      {
+        include: {
+          category: true,
+          images: {
+            orderBy: { sortOrder: 'asc' },
+          },
+          variants: {
+            orderBy: { createdAt: 'asc' },
+          },
+        },
+      }
+    );
+
+    return product;
   }
 
   // Variant management methods

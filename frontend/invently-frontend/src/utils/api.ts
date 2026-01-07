@@ -165,7 +165,7 @@ export const categoriesAPI = {
 
 // Products API
 export const productsAPI = {
-  list: (params?: PaginationParams & { categoryId?: string; status?: string; search?: string; minPrice?: number; maxPrice?: number }): Promise<PaginatedResponse<Product>> =>
+  list: (params?: PaginationParams & { categoryId?: string; isActive?: boolean; isDeleted?: boolean; search?: string; minPrice?: number; maxPrice?: number }): Promise<PaginatedResponse<Product>> =>
     api.get('/products', { params }).then(res => res.data),
 
   create: (data: CreateProductData): Promise<Product> =>

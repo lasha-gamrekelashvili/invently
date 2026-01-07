@@ -16,7 +16,7 @@ const Products = () => {
   // Read all filters from URL
   const currentPage = parseInt(searchParams.get('page') || '1');
   const searchQuery = searchParams.get('search') || '';
-  const statusFilter = searchParams.get('status') || '';
+  const statusFilter = searchParams.get('status') || ''; // 'active', 'draft', 'deleted', or ''
   const categoryFilter = searchParams.get('categoryId') || '';
   
   // Local state for search input (debounced)
@@ -50,13 +50,27 @@ const Products = () => {
     setSearchParams(newParams);
   };
 
+  // Map status filter to isActive and isDeleted params
+  const getStatusParams = () => {
+    switch (statusFilter) {
+      case 'active':
+        return { isActive: true, isDeleted: false };
+      case 'draft':
+        return { isActive: false, isDeleted: false };
+      case 'deleted':
+        return { isDeleted: true };
+      default:
+        return {}; // All statuses - no filter
+    }
+  };
+
   const { data: productsData, isLoading } = useQuery({
     queryKey: ['products', currentPage, searchQuery, statusFilter, categoryFilter],
     queryFn: () => productsAPI.list({
       page: currentPage,
       limit: 20,
       search: searchQuery || undefined,
-      status: statusFilter || undefined,
+      ...getStatusParams(),
       categoryId: categoryFilter || undefined,
     }),
   });
@@ -115,8 +129,9 @@ const Products = () => {
       },
       options: [
         { value: '', label: t('products.allStatuses') },
-        { value: 'ACTIVE', label: t('products.status.active') },
-        { value: 'DRAFT', label: t('products.status.draft') },
+        { value: 'active', label: t('products.status.active') },
+        { value: 'draft', label: t('products.status.draft') },
+        { value: 'deleted', label: t('products.status.deleted') },
       ]
     },
     {

@@ -8,7 +8,9 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface StatusBadgeProps {
-  status: string;
+  status?: string; // For orders
+  isActive?: boolean; // For products (true = active, false = draft)
+  isDeleted?: boolean; // For products (soft deleted)
   type?: 'order' | 'product';
   showIcon?: boolean;
   size?: 'sm' | 'md';
@@ -16,15 +18,29 @@ interface StatusBadgeProps {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({
   status,
+  isActive,
+  isDeleted,
   type = 'order',
   showIcon = false,
   size = 'md'
 }) => {
   const { t } = useLanguage();
-  const getStatusIcon = (status: string) => {
+
+  // Get the effective status based on type
+  const getEffectiveStatus = (): string => {
+    if (type === 'product') {
+      if (isDeleted) return 'DELETED';
+      return isActive ? 'ACTIVE' : 'DRAFT';
+    }
+    return status || '';
+  };
+
+  const effectiveStatus = getEffectiveStatus();
+
+  const getStatusIcon = (statusValue: string) => {
     const iconClass = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
 
-    switch (status) {
+    switch (statusValue) {
       case 'PENDING':
         return <ClockIcon className={`${iconClass} text-yellow-600`} />;
       case 'CONFIRMED':
@@ -39,13 +55,15 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return <CheckCircleIcon className={`${iconClass} text-green-600`} />;
       case 'DRAFT':
         return <ClockIcon className={`${iconClass} text-yellow-600`} />;
+      case 'DELETED':
+        return <XCircleIcon className={`${iconClass} text-red-600`} />;
       default:
         return <ClockIcon className={`${iconClass} text-gray-600`} />;
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (statusValue: string) => {
+    switch (statusValue) {
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'CONFIRMED':
@@ -60,14 +78,16 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'bg-green-100 text-green-800';
       case 'DRAFT':
         return 'bg-yellow-100 text-yellow-800';
+      case 'DELETED':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (statusValue: string) => {
     if (type === 'product') {
-      switch (status) {
+      switch (statusValue) {
         case 'ACTIVE':
           return t('products.status.active');
         case 'DRAFT':
@@ -75,11 +95,11 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         case 'DELETED':
           return t('products.status.deleted');
         default:
-          return status;
+          return statusValue;
       }
     } else {
       // For orders, use order status translations
-      switch (status) {
+      switch (statusValue) {
         case 'PENDING':
           return t('orders.status.pending');
         case 'CONFIRMED':
@@ -91,7 +111,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         case 'CANCELLED':
           return t('orders.status.cancelled');
         default:
-          return status;
+          return statusValue;
       }
     }
   };
@@ -100,13 +120,13 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
 
   return (
     <div className="flex items-center">
-      {showIcon && getStatusIcon(status)}
+      {showIcon && getStatusIcon(effectiveStatus)}
       <span
         className={`${showIcon ? 'ml-2' : ''} inline-flex items-center ${sizeClasses} font-medium rounded-full ${
           type === 'order' ? 'border' : ''
-        } ${getStatusColor(status)}`}
+        } ${getStatusColor(effectiveStatus)}`}
       >
-        {getStatusText(status)}
+        {getStatusText(effectiveStatus)}
       </span>
     </div>
   );

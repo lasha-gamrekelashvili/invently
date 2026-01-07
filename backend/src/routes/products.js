@@ -6,6 +6,7 @@ import {
   getProductBySlug,
   updateProduct,
   deleteProduct,
+  restoreProduct,
   createVariant,
   updateVariant,
   deleteVariant
@@ -750,6 +751,51 @@ router.put(
 router.delete(
   '/:id',
   deleteProduct
+);
+
+/**
+ * @swagger
+ * /products/{id}/restore:
+ *   post:
+ *     summary: Restore a soft-deleted product
+ *     description: Restores a previously soft-deleted product back to active status
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/TenantHost'
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Product ID
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Product restored successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Product is not deleted or slug/SKU conflict
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+router.post(
+  '/:id/restore',
+  restoreProduct
 );
 
 // Variant routes

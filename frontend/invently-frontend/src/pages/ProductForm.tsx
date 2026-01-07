@@ -26,7 +26,7 @@ const ProductForm = () => {
     price: '',
     stockQuantity: '',
     categoryId: categoryIdFromUrl || '',
-    status: 'DRAFT' as 'ACTIVE' | 'DRAFT'
+    isActive: false // false = Draft, true = Active
   });
   const [error, setError] = useState('');
   const [images, setImages] = useState<any[]>([]);
@@ -67,7 +67,7 @@ const ProductForm = () => {
         price: existingProduct.price.toString(),
         stockQuantity: existingProduct.stockQuantity.toString(),
         categoryId: existingProduct.categoryId || '',
-        status: existingProduct.status as 'ACTIVE' | 'DRAFT',
+        isActive: existingProduct.isActive ?? false,
       });
       setAttributes(existingProduct.attributes || {});
       setVariants(existingProduct.variants || []);
@@ -261,7 +261,7 @@ const ProductForm = () => {
       slug,
       price: parseFloat(formData.price),
       stockQuantity: parseInt(formData.stockQuantity),
-      status: formData.status,
+      isActive: formData.isActive,
       categoryId: formData.categoryId || undefined,
       attributes: Object.keys(attributes).length > 0 ? attributes : undefined
     };
@@ -408,17 +408,17 @@ placeholder={t('products.form.stockQuantityPlaceholder')}
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="isActive" className="block text-sm font-semibold text-gray-700 mb-2">
 {t('products.form.status')} *
               </label>
               <CustomDropdown
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={(value) => setFormData(prev => ({ ...prev, status: value as 'DRAFT' | 'ACTIVE' }))}
+                id="isActive"
+                name="isActive"
+                value={formData.isActive ? 'true' : 'false'}
+                onChange={(value) => setFormData(prev => ({ ...prev, isActive: value === 'true' }))}
                 options={[
-                  { value: 'DRAFT', label: t('products.form.draft') },
-                  { value: 'ACTIVE', label: t('products.form.active') },
+                  { value: 'false', label: t('products.form.draft') },
+                  { value: 'true', label: t('products.form.active') },
                 ]}
 placeholder={t('products.form.selectStatus')}
                 required

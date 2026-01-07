@@ -24,6 +24,8 @@ export interface Category {
   parentId?: string;
   tenantId: string;
   isActive: boolean;
+  isDeleted: boolean; // Soft deletion flag
+  deletedAt?: string;
   createdAt: string;
   updatedAt: string;
   parent?: Category;
@@ -53,9 +55,12 @@ export interface Product {
   title: string;
   description?: string;
   slug: string;
+  sku?: string; // Stock Keeping Unit
   price: number; // Base price (can be overridden by variants)
   stockQuantity: number; // Base stock (can be overridden by variants)
-  status: 'ACTIVE' | 'DRAFT' | 'DELETED';
+  isActive: boolean; // true = visible in storefront, false = draft/hidden
+  isDeleted: boolean; // Soft deletion flag
+  deletedAt?: string;
   tenantId: string;
   categoryId?: string;
   attributes?: Record<string, any>; // Custom product attributes e.g., { "material": "Cotton", "brand": "Nike" }
@@ -124,9 +129,10 @@ export interface CreateProductData {
   title: string;
   description?: string;
   slug: string;
+  sku?: string;
   price: number;
   stockQuantity: number;
-  status: 'ACTIVE' | 'DRAFT';
+  isActive?: boolean; // true = visible in storefront, false = draft/hidden
   categoryId?: string;
   attributes?: Record<string, any>;
   variants?: Array<{
@@ -187,6 +193,11 @@ export interface CartItem {
   updatedAt: string;
   product: Product;
   variant?: ProductVariant;
+  isAvailable?: boolean; // false if product is deleted, inactive, or out of stock
+  unavailableReason?: string; // reason why item is unavailable
+  availableStock?: number; // current stock available
+  hasEnoughStock?: boolean; // true if stock >= quantity in cart
+  isOutOfStock?: boolean; // true if stock is 0
 }
 
 export interface Cart {
@@ -198,6 +209,10 @@ export interface Cart {
   updatedAt: string;
   items: CartItem[];
   total: number;
+  hasUnavailableItems?: boolean; // true if cart has deleted/inactive/out of stock items
+  unavailableCount?: number; // count of unavailable items
+  hasStockIssues?: boolean; // true if any items have stock problems
+  stockIssueCount?: number; // count of items with stock issues
 }
 
 export interface Order {

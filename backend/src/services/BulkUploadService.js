@@ -164,7 +164,9 @@ export class BulkUploadService {
         const baseRecord = productRecords[0];
         const categoryPath = baseRecord['Category']?.trim();
         const description = baseRecord['Product Description']?.trim() || '';
-        const status = (baseRecord['Status']?.trim().toUpperCase() || 'ACTIVE');
+        // Parse isActive from Status column: 'ACTIVE' or 'true' = true, anything else = false
+        const statusValue = baseRecord['Status']?.trim().toUpperCase() || 'ACTIVE';
+        const isActive = statusValue === 'ACTIVE' || statusValue === 'TRUE';
 
         // Find category
         let categoryId = null;
@@ -198,7 +200,7 @@ export class BulkUploadService {
             productRecords,
             categoryId,
             description,
-            status,
+            isActive,
             slug,
             tenantId,
             existing,
@@ -211,7 +213,7 @@ export class BulkUploadService {
             productName,
             categoryId,
             description,
-            status,
+            isActive,
             slug,
             tenantId,
             existing,
@@ -231,7 +233,7 @@ export class BulkUploadService {
   /**
    * Process a simple product without variants
    */
-  async processSimpleProduct(record, productName, categoryId, description, status, slug, tenantId, existing, results) {
+  async processSimpleProduct(record, productName, categoryId, description, isActive, slug, tenantId, existing, results) {
     const price = parseFloat(record['Price']) || 0;
     const stock = parseInt(record['Stock']) || 0;
     const sku = record['SKU']?.trim() || '';
@@ -253,7 +255,7 @@ export class BulkUploadService {
           description,
           price,
           stockQuantity: stock,
-          status,
+          isActive,
           categoryId,
           attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
         },
@@ -271,7 +273,7 @@ export class BulkUploadService {
           description,
           price,
           stockQuantity: stock,
-          status,
+          isActive,
           tenantId,
           categoryId,
           attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
@@ -287,7 +289,7 @@ export class BulkUploadService {
   /**
    * Process a product with variants
    */
-  async processProductWithVariants(productName, records, categoryId, description, status, slug, tenantId, existing, results) {
+  async processProductWithVariants(productName, records, categoryId, description, isActive, slug, tenantId, existing, results) {
     // Get base price from record without variant options (or first record)
     const baseRecord = records.find(r => !r['Variant Options']?.trim()) || records[0];
     const basePrice = parseFloat(baseRecord['Price']) || 0;
@@ -310,7 +312,7 @@ export class BulkUploadService {
           description,
           price: basePrice,
           stockQuantity: baseStock,
-          status,
+          isActive,
           categoryId,
           attributes: Object.keys(baseAttributes).length > 0 ? baseAttributes : undefined,
         },
@@ -328,7 +330,7 @@ export class BulkUploadService {
           description,
           price: basePrice,
           stockQuantity: baseStock,
-          status,
+          isActive,
           tenantId,
           categoryId,
           attributes: Object.keys(baseAttributes).length > 0 ? baseAttributes : undefined,

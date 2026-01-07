@@ -193,7 +193,7 @@ const ProductsList = ({
       key: 'status',
       header: t('common.status'),
       render: (product) => (
-        <StatusBadge status={product.status} type="product" />
+        <StatusBadge isActive={product.isActive} isDeleted={product.isDeleted} type="product" />
       )
     },
     {

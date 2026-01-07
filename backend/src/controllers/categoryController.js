@@ -13,12 +13,22 @@ const createCategory = async (req, res) => {
       tenantId
     );
 
-    res.status(201).json(ApiResponse.created(category, 'Category created successfully'));
+    // Include warning in response if category name matches deleted category
+    const response = ApiResponse.created(category, 'Category created successfully');
+    if (category._warning) {
+      response.warning = category._warning;
+      delete category._warning;
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     if (error.code === 'P2002') {
       return res.status(400).json(ApiResponse.error('Category slug already exists in this store'));
     }
     if (error.message === 'Parent category not found') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message === 'Slug already exists for another active category') {
       return res.status(400).json(ApiResponse.error(error.message));
     }
     console.error('Create category error:', error);
@@ -86,6 +96,12 @@ const updateCategory = async (req, res) => {
     if (error.message === 'Category cannot be its own parent' || error.message === 'Parent category not found') {
       return res.status(400).json(ApiResponse.error(error.message));
     }
+    if (error.message === 'Cannot update a deleted category. Restore it first.') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message === 'Slug already exists for another active category') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
     console.error('Update category error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
   }
@@ -96,17 +112,40 @@ const deleteCategory = async (req, res) => {
     const { id } = req.params;
     const tenantId = req.tenantId;
 
-    await categoryService.deleteCategory(id, tenantId);
+    const result = await categoryService.deleteCategory(id, tenantId);
 
-    res.json(ApiResponse.deleted('Category deleted successfully'));
+    res.json(ApiResponse.deleted(result.message || 'Category soft deleted successfully'));
   } catch (error) {
     if (error.message === 'Category not found') {
       return res.status(404).json(ApiResponse.notFound('Category'));
     }
-    if (error.message === 'Cannot delete category with subcategories' || error.message === 'Cannot delete category with products') {
+    if (error.message === 'Category is already deleted') {
       return res.status(400).json(ApiResponse.error(error.message));
     }
     console.error('Delete category error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
+const restoreCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tenantId = req.tenantId;
+
+    const category = await categoryService.restoreCategory(id, tenantId);
+
+    res.json(ApiResponse.updated(category, 'Category restored successfully'));
+  } catch (error) {
+    if (error.message === 'Category not found') {
+      return res.status(404).json(ApiResponse.notFound('Category'));
+    }
+    if (error.message === 'Category is not deleted') {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    if (error.message.includes('Cannot restore')) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+    console.error('Restore category error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
@@ -116,5 +155,6 @@ export {
   getCategories,
   getCategoryById,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  restoreCategory
 };

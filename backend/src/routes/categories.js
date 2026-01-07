@@ -4,7 +4,8 @@ import {
   getCategories,
   getCategoryById,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  restoreCategory
 } from '../controllers/categoryController.js';
 import { authenticateToken, requireStoreOwner } from '../middleware/auth.js';
 import tenantResolver from '../middleware/tenantResolver.js';
@@ -409,6 +410,51 @@ router.put(
 router.delete(
   '/:id',
   deleteCategory
+);
+
+/**
+ * @swagger
+ * /categories/{id}/restore:
+ *   post:
+ *     summary: Restore a soft-deleted category
+ *     description: Restores a previously soft-deleted category back to active status
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/TenantHost'
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Category ID
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Category restored successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *       400:
+ *         description: Category is not deleted or slug conflict
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+router.post(
+  '/:id/restore',
+  restoreCategory
 );
 
 export default router;
