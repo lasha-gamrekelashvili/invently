@@ -90,7 +90,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-700 border-t-transparent"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
             </div>
           ) : cart?.items && cart.items.length > 0 ? (
             <div className="space-y-4">
@@ -301,7 +301,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                 className={`w-full py-4 px-4 rounded-xl font-semibold transition-all shadow-lg ${
                   cart.hasUnavailableItems
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-gray-800 to-gray-700 text-white hover:from-gray-700 hover:to-gray-600 hover:shadow-xl active:scale-95'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-xl active:scale-95'
                 }`}
               >
                 {cart.hasUnavailableItems ? 'Remove Unavailable Items to Checkout' : 'Proceed to Checkout'}

@@ -144,7 +144,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
               <div className="p-5 border-t border-gray-200 bg-white">
                 <button
                   onClick={onAllProductsClick}
-                  className="w-full bg-gray-800 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+                  className="w-full bg-blue-600 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
                   Clear Filters
                 </button>
@@ -219,7 +219,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
               <div className="p-5 border-t border-gray-200 bg-white">
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="w-full bg-gray-800 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+                  className="w-full bg-blue-600 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
                   Apply Filters
                 </button>

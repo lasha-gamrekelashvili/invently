@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef, useEffect, useState } from 'react';
 import { ordersAPI } from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -16,13 +17,22 @@ import {
   ClockIcon,
   DocumentTextIcon,
   CubeIcon,
+  GlobeAltIcon,
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline';
+import { getRegionById, getDistrictById } from '../data/georgianRegions';
 
 const OrderDetails = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  
+  // Map refs and state
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const { data: order, isLoading, error } = useQuery({
     queryKey: ['order', id],
@@ -79,6 +89,74 @@ const OrderDetails = () => {
       updateOrderMutation.mutate({ id, status });
     }
   };
+
+  // Check if shipping address has Georgian format (new format with coordinates)
+  const isGeorgianAddress = order?.shippingAddress?.coordinates && order?.shippingAddress?.region;
+
+  // Load Google Maps script
+  useEffect(() => {
+    if (!isGeorgianAddress) return;
+    
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return;
+
+    if (window.google?.maps) {
+      setMapLoaded(true);
+      return;
+    }
+
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      const checkLoaded = setInterval(() => {
+        if (window.google?.maps) {
+          setMapLoaded(true);
+          clearInterval(checkLoaded);
+        }
+      }, 100);
+      return () => clearInterval(checkLoaded);
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google?.maps) {
+        setMapLoaded(true);
+      }
+    };
+    document.head.appendChild(script);
+  }, [isGeorgianAddress]);
+
+  // Initialize map with marker
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current || !order?.shippingAddress?.coordinates) return;
+
+    const { lat, lng } = order.shippingAddress.coordinates;
+
+    if (!mapInstanceRef.current) {
+      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+        center: { lat, lng },
+        zoom: 16,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
+        zoomControl: true,
+      });
+    } else {
+      mapInstanceRef.current.setCenter({ lat, lng });
+    }
+
+    if (markerRef.current) {
+      markerRef.current.setMap(null);
+    }
+
+    markerRef.current = new window.google.maps.Marker({
+      position: { lat, lng },
+      map: mapInstanceRef.current,
+      animation: window.google.maps.Animation.DROP,
+    });
+  }, [mapLoaded, order?.shippingAddress?.coordinates]);
 
   if (isLoading) {
     return (
@@ -151,7 +229,7 @@ const OrderDetails = () => {
             <div className="px-4 sm:px-6 py-3 border-b border-gray-100">
               <h3 className="text-sm font-medium text-gray-700">{t('orders.orderDetails.sections.orderItems.title')}</h3>
             </div>
-            <div className="p-4 sm:p-6">
+            <div className="px-4 py-2 sm:px-6 sm:py-3">
               <div className="space-y-3">
                 {order.items.map((item) => {
                   const productImage = item.product?.images?.[0]?.url;
@@ -238,7 +316,7 @@ const OrderDetails = () => {
                 {t('orders.orderDetails.sections.customerInfo.title')}
               </h3>
             </div>
-            <div className="p-4 sm:p-6">
+            <div className="px-4 py-2 sm:px-6 sm:py-3">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="flex items-center text-gray-500 mb-1.5">
@@ -258,38 +336,95 @@ const OrderDetails = () => {
             </div>
           </div>
 
-          {/* Addresses */}
-          {(order.shippingAddress || order.billingAddress) && (
+          {/* Shipping Address */}
+          {order.shippingAddress && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-4 sm:px-6 py-3 border-b border-gray-100">
                 <h3 className="text-sm font-medium text-gray-700 flex items-center">
                   <MapPinIcon className="h-4 w-4 mr-1.5 text-gray-500" />
-                  {t('orders.orderDetails.sections.addresses.title')}
+                  {t('orders.orderDetails.sections.addresses.shippingAddress')}
                 </h3>
               </div>
-              <div className="p-4 sm:p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {order.shippingAddress && (
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-700 mb-1.5">{t('orders.orderDetails.sections.addresses.shippingAddress')}</h4>
-                      <div className="text-xs text-gray-600 space-y-0.5">
-                        <p>{order.shippingAddress.street}</p>
-                        <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-                        <p>{order.shippingAddress.country}</p>
+              <div className="px-4 py-2 sm:px-6 sm:py-3">
+                {/* Georgian Format Address (New) */}
+                {isGeorgianAddress ? (
+                  (() => {
+                    const region = getRegionById(order.shippingAddress.region);
+                    const district = getDistrictById(order.shippingAddress.region, order.shippingAddress.district);
+                    const regionDisplayName = language === 'ka' ? (region?.nameKa || order.shippingAddress.region) : (region?.name || order.shippingAddress.region);
+                    const districtDisplayName = language === 'ka' ? (district?.nameKa || order.shippingAddress.district) : (district?.name || order.shippingAddress.district);
+                    
+                    return (
+                      <div className="space-y-4">
+                        {/* Address Details */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs font-medium text-gray-500 mb-1">{t('orders.orderDetails.sections.addresses.region')}</p>
+                            <p className="text-sm text-gray-900">{regionDisplayName}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium text-gray-500 mb-1">{t('orders.orderDetails.sections.addresses.district')}</p>
+                            <p className="text-sm text-gray-900">{districtDisplayName}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500 mb-1">{t('orders.orderDetails.sections.addresses.fullAddress')}</p>
+                          <p className="text-sm text-gray-900">{order.shippingAddress.address}</p>
+                        </div>
+                        {order.shippingAddress.notes && (
+                          <div>
+                            <p className="text-xs font-medium text-gray-500 mb-1">{t('orders.orderDetails.sections.addresses.notes')}</p>
+                            <p className="text-sm text-gray-900">{order.shippingAddress.notes}</p>
+                          </div>
+                        )}
+                        
+                        {/* Coordinates and Directions */}
+                        {order.shippingAddress.coordinates && (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center text-xs text-gray-500">
+                              <GlobeAltIcon className="h-3.5 w-3.5 mr-1" />
+                              <span>{order.shippingAddress.coordinates.lat.toFixed(6)}, {order.shippingAddress.coordinates.lng.toFixed(6)}</span>
+                            </div>
+                            <a
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.coordinates.lat},${order.shippingAddress.coordinates.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                            >
+                              <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 mr-1" />
+                              {t('orders.orderDetails.sections.addresses.getDirections')}
+                            </a>
+                          </div>
+                        )}
+
+                        {/* Map */}
+                        {order.shippingAddress.coordinates && (
+                          <div className="mt-3">
+                            <div 
+                              ref={mapRef} 
+                              className="w-full h-48 sm:h-64 rounded-lg border border-gray-200 bg-gray-100"
+                            >
+                              {!mapLoaded && (
+                                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                                  {t('orders.orderDetails.sections.addresses.loadingMap')}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  )}
-                  {order.billingAddress && (
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-700 mb-1.5">{t('orders.orderDetails.sections.addresses.billingAddress')}</h4>
-                      <div className="text-xs text-gray-600 space-y-0.5">
-                        <p>{order.billingAddress.street}</p>
-                        <p>{order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.zipCode}</p>
-                        <p>{order.billingAddress.country}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                    );
+                  })()
+                ) : (
+                  /* Legacy Format Address */
+                  <div className="text-sm text-gray-600 space-y-0.5">
+                    {order.shippingAddress.street && <p>{order.shippingAddress.street}</p>}
+                    {(order.shippingAddress.city || order.shippingAddress.state || order.shippingAddress.zipCode) && (
+                      <p>{[order.shippingAddress.city, order.shippingAddress.state, order.shippingAddress.zipCode].filter(Boolean).join(', ')}</p>
+                    )}
+                    {order.shippingAddress.country && <p>{order.shippingAddress.country}</p>}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -303,7 +438,7 @@ const OrderDetails = () => {
                   {t('orders.orderDetails.sections.orderNotes.title')}
                 </h3>
               </div>
-              <div className="p-4 sm:p-6">
+              <div className="px-4 py-2 sm:px-6 sm:py-3">
                 <p className="text-xs sm:text-sm text-gray-600">{order.notes}</p>
               </div>
             </div>
@@ -320,7 +455,7 @@ const OrderDetails = () => {
                 {t('orders.orderDetails.sections.payment.title')}
               </h3>
             </div>
-            <div className="p-4 sm:p-6">
+            <div className="px-4 py-2 sm:px-6 sm:py-3">
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">{t('orders.orderDetails.sections.payment.paymentStatus')}:</span>
@@ -345,7 +480,7 @@ const OrderDetails = () => {
             <div className="px-4 sm:px-6 py-3 border-b border-gray-100">
               <h3 className="text-sm font-medium text-gray-700">{t('orders.orderDetails.sections.statusManagement.title')}</h3>
             </div>
-            <div className="p-4 sm:p-6">
+            <div className="px-4 py-2 sm:px-6 sm:py-3">
               <div className="space-y-2">
                 {['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((status) => (
                   <button
@@ -372,7 +507,7 @@ const OrderDetails = () => {
             <div className="px-4 sm:px-6 py-3 border-b border-gray-100">
               <h3 className="text-sm font-medium text-gray-700">{t('orders.orderDetails.sections.timeline.title')}</h3>
             </div>
-            <div className="p-4 sm:p-6">
+            <div className="px-4 py-2 sm:px-6 sm:py-3">
               <div className="space-y-3">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mt-1.5"></div>

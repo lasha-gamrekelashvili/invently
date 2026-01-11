@@ -151,7 +151,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       href={settings.facebookUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all"
+                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
                       aria-label="Facebook"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -193,7 +193,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                       href={settings.linkedinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-800 hover:text-white transition-all"
+                      className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
                       aria-label="LinkedIn"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

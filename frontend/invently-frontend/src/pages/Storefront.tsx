@@ -370,7 +370,7 @@ const StorefrontContent = () => {
                   onClick={() => handleGridLayoutChange(2)}
                   className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
                     gridLayout === 2
-                      ? 'border-gray-700 bg-gray-50'
+                      ? 'border-blue-600 bg-blue-50'
                       : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
                   }`}
                   title="2 columns"
@@ -381,7 +381,7 @@ const StorefrontContent = () => {
                         key={i}
                         className={`w-1.5 sm:w-2 h-4 sm:h-5 rounded-sm transition-colors ${
                           gridLayout === 2
-                            ? 'bg-gray-700'
+                            ? 'bg-blue-600'
                             : 'bg-gray-400 group-hover:bg-gray-600'
                         }`}
                       />
@@ -394,7 +394,7 @@ const StorefrontContent = () => {
                   onClick={() => handleGridLayoutChange(3)}
                   className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
                     gridLayout === 3
-                      ? 'border-gray-700 bg-gray-50'
+                      ? 'border-blue-600 bg-blue-50'
                       : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
                   }`}
                   title="3 columns"
@@ -405,7 +405,7 @@ const StorefrontContent = () => {
                         key={i}
                         className={`w-1 sm:w-1.5 h-4 sm:h-5 rounded-sm transition-colors ${
                           gridLayout === 3
-                            ? 'bg-gray-700'
+                            ? 'bg-blue-600'
                             : 'bg-gray-400 group-hover:bg-gray-600'
                         }`}
                       />
@@ -418,7 +418,7 @@ const StorefrontContent = () => {
                   onClick={() => handleGridLayoutChange(4)}
                   className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
                     gridLayout === 4
-                      ? 'border-gray-700 bg-gray-50'
+                      ? 'border-blue-600 bg-blue-50'
                       : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
                   }`}
                   title="4 columns"
@@ -429,7 +429,7 @@ const StorefrontContent = () => {
                         key={i}
                         className={`w-1 sm:w-1.5 h-4 sm:h-5 rounded-sm transition-colors ${
                           gridLayout === 4
-                            ? 'bg-gray-700'
+                            ? 'bg-blue-600'
                             : 'bg-gray-400 group-hover:bg-gray-600'
                         }`}
                       />
@@ -482,7 +482,7 @@ const StorefrontContent = () => {
                       setPriceInput({ min: '', max: '' });
                       setPriceRange({ min: '', max: '' });
                     }}
-                    className="px-6 py-3 bg-gray-800 text-white font-medium rounded-xl hover:bg-gray-700 transition-colors shadow-lg hover:shadow-xl"
+                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
                   >
                     Clear Price Filter
                   </button>
@@ -558,7 +558,7 @@ const StorefrontContent = () => {
                       setPriceRange({ min: '', max: '' });
                       setCurrentPage(1);
                     }}
-                    className="px-6 py-3 bg-gray-800 text-white font-medium rounded-xl hover:bg-gray-700 transition-colors shadow-lg hover:shadow-xl"
+                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
                   >
                     Clear Filters
                   </button>

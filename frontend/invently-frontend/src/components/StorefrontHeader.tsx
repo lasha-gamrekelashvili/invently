@@ -70,7 +70,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
               placeholder="Search..."
               value={localSearchQuery}
               onChange={handleSearchChange}
-              className="block w-full pl-8 sm:pl-10 md:pl-12 pr-2 sm:pr-3 md:pr-4 py-1.5 sm:py-2 md:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-transparent transition-all"
+              className="block w-full pl-8 sm:pl-10 md:pl-12 pr-2 sm:pr-3 md:pr-4 py-1.5 sm:py-2 md:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -89,8 +89,8 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           {cartItemCount > 0 && (
             <span className={`absolute -top-1 -right-1 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white transition-all ${
               isCartOpen 
-                ? 'bg-gray-800 scale-110 ring-gray-100' 
-                : 'bg-gray-800 group-hover:scale-110'
+                ? 'bg-blue-600 scale-110 ring-blue-100' 
+                : 'bg-blue-600 group-hover:scale-110'
             }`}>
               {cartItemCount > 99 ? '99+' : cartItemCount}
             </span>

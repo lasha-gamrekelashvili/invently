@@ -11,25 +11,46 @@ const router = express.Router();
 router.use(tenantResolver);
 
 // Validation schemas
+// Georgian address format (new)
+const georgianAddressSchema = Joi.object({
+  region: Joi.string().required(),
+  regionName: Joi.object({
+    en: Joi.string().required(),
+    ka: Joi.string().required(),
+  }).optional(),
+  district: Joi.string().required(),
+  districtName: Joi.object({
+    en: Joi.string().required(),
+    ka: Joi.string().required(),
+  }).optional(),
+  address: Joi.string().required(),
+  notes: Joi.string().allow('').optional(),
+  coordinates: Joi.object({
+    lat: Joi.number().required(),
+    lng: Joi.number().required(),
+  }).allow(null).optional(),
+});
+
+// Legacy address format (for backwards compatibility)
+const legacyAddressSchema = Joi.object({
+  street: Joi.string().required(),
+  city: Joi.string().required(),
+  state: Joi.string().required(),
+  zipCode: Joi.string().required(),
+  country: Joi.string().required(),
+});
+
 const createOrderSchema = Joi.object({
   sessionId: Joi.string().required(),
   customerEmail: Joi.string().email().required(),
   customerName: Joi.string().required(),
-  shippingAddress: Joi.object({
-    street: Joi.string().required(),
-    city: Joi.string().required(),
-    state: Joi.string().required(),
-    zipCode: Joi.string().required(),
-    country: Joi.string().required(),
-  }).optional(),
-  billingAddress: Joi.object({
-    street: Joi.string().required(),
-    city: Joi.string().required(),
-    state: Joi.string().required(),
-    zipCode: Joi.string().required(),
-    country: Joi.string().required(),
-  }).optional(),
-  notes: Joi.string().optional(),
+  shippingAddress: Joi.alternatives()
+    .try(georgianAddressSchema, legacyAddressSchema)
+    .optional(),
+  billingAddress: Joi.alternatives()
+    .try(georgianAddressSchema, legacyAddressSchema)
+    .optional(),
+  notes: Joi.string().allow('').optional(),
 });
 
 const updateOrderStatusSchema = Joi.object({

@@ -258,24 +258,37 @@ export interface OrderStats {
   }>;
 }
 
+// Georgian address format
+export interface GeorgianAddress {
+  region: string;
+  regionName?: string | { en: string; ka: string };
+  district: string;
+  districtName?: string | { en: string; ka: string };
+  address: string;
+  notes?: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  } | null;
+}
+
+// Legacy address format
+export interface LegacyAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export type ShippingAddress = GeorgianAddress | LegacyAddress;
+
 export interface CreateOrderData {
   sessionId: string;
   customerEmail: string;
   customerName: string;
-  shippingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  billingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
+  shippingAddress?: ShippingAddress;
+  billingAddress?: ShippingAddress;
   notes?: string;
 }
 

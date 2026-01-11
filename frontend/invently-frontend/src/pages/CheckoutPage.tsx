@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { storefrontAPI, ordersAPI } from '../utils/api';
 import { useCart, CartProvider } from '../contexts/CartContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import StorefrontLayout from '../components/StorefrontLayout';
 import Cart from '../components/Cart';
+import CustomDropdown from '../components/CustomDropdown';
+import { georgianRegions, getRegionById } from '../data/georgianRegions';
 import {
   ShoppingBagIcon,
   TruckIcon,
@@ -12,16 +15,56 @@ import {
   CheckCircleIcon,
   ArrowLeftIcon,
   ExclamationTriangleIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
+// Google Maps types
+declare global {
+  interface Window {
+    google: any;
+    initMap: () => void;
+  }
+}
+
 const CheckoutContent: React.FC = () => {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
   const { cart, sessionId, clearCart } = useCart();
   const [step, setStep] = useState<'form' | 'processing' | 'success'>('form');
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [showCart, setShowCart] = useState(false);
   const [cartClosing, setCartClosing] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const geocoderRef = useRef<any>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<any>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Reverse geocode coordinates to get address from Google
+  const reverseGeocode = useCallback((lat: number, lng: number) => {
+    if (!geocoderRef.current) {
+      geocoderRef.current = new window.google.maps.Geocoder();
+    }
+
+    geocoderRef.current.geocode(
+      { location: { lat, lng } },
+      (results: any[], status: string) => {
+        if (status === 'OK' && results[0]) {
+          setFormData(prev => ({
+            ...prev,
+            shippingAddress: {
+              ...prev.shippingAddress,
+              address: results[0].formatted_address,
+              coordinates: { lat, lng },
+            },
+          }));
+        }
+      }
+    );
+  }, []);
 
   // Handle cart toggle with animation
   const handleCartToggle = () => {
@@ -42,13 +85,13 @@ const CheckoutContent: React.FC = () => {
     customerName: '',
     customerEmail: '',
     shippingAddress: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      country: 'US',
+      region: '',
+      district: '',
+      address: '',
+      notes: '',
+      coordinates: null as { lat: number; lng: number } | null,
     },
-    notes: '',
+    orderNotes: '',
   });
 
   const { data: storeInfo } = useQuery({
@@ -69,13 +112,253 @@ const CheckoutContent: React.FC = () => {
     retry: false,
   });
 
+  // Get districts for selected region
+  const selectedRegion = getRegionById(formData.shippingAddress.region);
+  const districtOptions = selectedRegion
+    ? [
+        { value: '', label: t('storefront.checkout.selectDistrict') },
+        ...selectedRegion.districts.map(d => ({
+          value: d.id,
+          label: language === 'ka' ? d.nameKa : d.name,
+        })),
+      ]
+    : [{ value: '', label: t('storefront.checkout.selectDistrict') }];
+
+  const regionOptions = [
+    { value: '', label: t('storefront.checkout.selectRegion') },
+    ...georgianRegions.map(r => ({
+      value: r.id,
+      label: language === 'ka' ? r.nameKa : r.name,
+    })),
+  ];
+
+  // Load Google Maps script
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    
+    // Skip if no API key
+    if (!apiKey) {
+      console.warn('Google Maps API key not configured. Map functionality disabled.');
+      return;
+    }
+
+    // Already loaded
+    if (window.google?.maps) {
+      setMapLoaded(true);
+      return;
+    }
+
+    // Check if script already exists
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      // Script exists, wait for it to load
+      const checkLoaded = setInterval(() => {
+        if (window.google?.maps) {
+          setMapLoaded(true);
+          clearInterval(checkLoaded);
+        }
+      }, 100);
+      return () => clearInterval(checkLoaded);
+    }
+
+    // Create and load script with Places library for autocomplete
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    
+    script.onload = () => {
+      if (window.google?.maps) {
+        setMapLoaded(true);
+      }
+    };
+
+    script.onerror = () => {
+      console.error('Failed to load Google Maps script');
+    };
+
+    document.head.appendChild(script);
+  }, []);
+
+  // Initialize map when region is selected
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current || !selectedRegion) return;
+
+    const center = selectedRegion.center;
+
+    if (!mapInstanceRef.current) {
+      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+        center,
+        zoom: 13,
+        mapTypeControl: true,
+        streetViewControl: false,
+        fullscreenControl: true,
+      });
+
+      // Add click listener to place marker
+      mapInstanceRef.current.addListener('click', (e: any) => {
+        const lat = e.latLng.lat();
+        const lng = e.latLng.lng();
+        placeMarker({ lat, lng });
+      });
+    } else {
+      // Update center when region changes
+      mapInstanceRef.current.setCenter(center);
+      mapInstanceRef.current.setZoom(13);
+    }
+
+    // If coordinates exist, place marker
+    if (formData.shippingAddress.coordinates) {
+      placeMarker(formData.shippingAddress.coordinates);
+    }
+  }, [mapLoaded, selectedRegion]);
+
+  const placeMarker = useCallback((position: { lat: number; lng: number }) => {
+    if (!mapInstanceRef.current) return;
+
+    // Remove existing marker
+    if (markerRef.current) {
+      markerRef.current.setMap(null);
+    }
+
+    // Create new marker
+    markerRef.current = new window.google.maps.Marker({
+      position,
+      map: mapInstanceRef.current,
+      draggable: true,
+      animation: window.google.maps.Animation.DROP,
+    });
+
+    // Update coordinates and address on drag
+    markerRef.current.addListener('dragend', (e: any) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      reverseGeocode(lat, lng);
+    });
+
+    // Reverse geocode the initial position
+    reverseGeocode(position.lat, position.lng);
+  }, [reverseGeocode]);
+
+  // Initialize Google Places Autocomplete
+  useEffect(() => {
+    if (!mapLoaded || !addressInputRef.current || !selectedRegion) return;
+    if (!window.google?.maps?.places) return;
+
+    // Destroy existing autocomplete
+    if (autocompleteRef.current) {
+      window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+    }
+
+    // Create autocomplete - use 'geocode' for neighborhoods, districts, and addresses
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(
+      addressInputRef.current,
+      {
+        componentRestrictions: { country: 'ge' }, // Restrict to Georgia
+        fields: ['formatted_address', 'geometry', 'name', 'address_components'],
+        types: ['geocode'], // Includes neighborhoods, districts, streets
+      }
+    );
+
+    // Bias results to selected region
+    if (selectedRegion.center) {
+      const bounds = new window.google.maps.LatLngBounds(
+        new window.google.maps.LatLng(selectedRegion.center.lat - 0.1, selectedRegion.center.lng - 0.1),
+        new window.google.maps.LatLng(selectedRegion.center.lat + 0.1, selectedRegion.center.lng + 0.1)
+      );
+      autocompleteRef.current.setBounds(bounds);
+    }
+
+    // Handle place selection
+    autocompleteRef.current.addListener('place_changed', () => {
+      const place = autocompleteRef.current.getPlace();
+      
+      if (place.geometry?.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        
+        // Update address field
+        setFormData(prev => ({
+          ...prev,
+          shippingAddress: {
+            ...prev.shippingAddress,
+            address: place.formatted_address || place.name || prev.shippingAddress.address,
+          },
+        }));
+
+        // Place marker and center map
+        placeMarker({ lat, lng });
+        
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setCenter({ lat, lng });
+          mapInstanceRef.current.setZoom(17);
+        }
+      }
+    });
+
+    return () => {
+      if (autocompleteRef.current) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+    };
+  }, [mapLoaded, selectedRegion, placeMarker]);
+
+  // Update map when district changes - geocode district name to get center
+  useEffect(() => {
+    if (!mapLoaded || !formData.shippingAddress.district || !selectedRegion) return;
+    if (!window.google?.maps) return;
+
+    const selectedDistrict = selectedRegion.districts.find(
+      d => d.id === formData.shippingAddress.district
+    );
+    if (!selectedDistrict) return;
+
+    // Initialize geocoder if needed
+    if (!geocoderRef.current) {
+      geocoderRef.current = new window.google.maps.Geocoder();
+    }
+
+    // Geocode the district name to find its center
+    const searchQuery = `${selectedDistrict.name}, ${selectedRegion.name}, Georgia`;
+    
+    geocoderRef.current.geocode(
+      { address: searchQuery },
+      (results: any[], status: string) => {
+        if (status === 'OK' && results[0]?.geometry?.location) {
+          const lat = results[0].geometry.location.lat();
+          const lng = results[0].geometry.location.lng();
+
+          // Center map on district
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setCenter({ lat, lng });
+            mapInstanceRef.current.setZoom(14);
+          }
+
+          // Place marker and get address
+          placeMarker({ lat, lng });
+        }
+      }
+    );
+  }, [mapLoaded, formData.shippingAddress.district, selectedRegion, placeMarker]);
+
   const createOrderMutation = useMutation({
     mutationFn: () => ordersAPI.createOrder({
       sessionId,
       customerEmail: formData.customerEmail,
       customerName: formData.customerName,
-      shippingAddress: formData.shippingAddress,
-      notes: formData.notes,
+      shippingAddress: {
+        region: formData.shippingAddress.region,
+        regionName: selectedRegion ? { en: selectedRegion.name, ka: selectedRegion.nameKa } : undefined,
+        district: formData.shippingAddress.district,
+        districtName: (() => {
+          const district = selectedRegion?.districts.find(d => d.id === formData.shippingAddress.district);
+          return district ? { en: district.name, ka: district.nameKa } : undefined;
+        })(),
+        address: formData.shippingAddress.address,
+        notes: formData.shippingAddress.notes,
+        coordinates: formData.shippingAddress.coordinates,
+      },
+      notes: formData.orderNotes,
     }),
     onSuccess: (order) => {
       setOrderNumber(order.orderNumber);
@@ -92,6 +375,25 @@ const CheckoutContent: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.shippingAddress.region) {
+      toast.error(t('storefront.checkout.selectRegion'));
+      return;
+    }
+    if (!formData.shippingAddress.district) {
+      toast.error(t('storefront.checkout.selectDistrict'));
+      return;
+    }
+    if (!formData.shippingAddress.address) {
+      toast.error(t('storefront.checkout.addressPlaceholder'));
+      return;
+    }
+    if (!formData.shippingAddress.coordinates) {
+      toast.error(t('storefront.checkout.pinLocationRequired'));
+      return;
+    }
+
     setStep('processing');
     setTimeout(() => {
       createOrderMutation.mutate();
@@ -106,8 +408,16 @@ const CheckoutContent: React.FC = () => {
         shippingAddress: {
           ...prev.shippingAddress,
           [addressField]: value,
+          // Reset district when region changes
+          ...(addressField === 'region' ? { district: '', coordinates: null } : {}),
         },
       }));
+      
+      // Remove marker when region changes
+      if (addressField === 'region' && markerRef.current) {
+        markerRef.current.setMap(null);
+        markerRef.current = null;
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -129,14 +439,18 @@ const CheckoutContent: React.FC = () => {
       >
         <div className="max-w-2xl mx-auto py-16 text-center">
           <ShoppingBagIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Your cart is empty</h1>
-          <p className="text-xs sm:text-sm text-gray-600 mb-6">Add some items to your cart to continue checkout.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+            {t('storefront.checkout.cartEmpty')}
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-600 mb-6">
+            {t('storefront.checkout.cartEmptyDescription')}
+          </p>
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4" />
-            Continue Shopping
+            {t('storefront.checkout.continueShopping')}
           </button>
         </div>
       </StorefrontLayout>
@@ -161,7 +475,7 @@ const CheckoutContent: React.FC = () => {
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeftIcon className="w-3.5 h-3.5" />
-              Go back
+              {t('storefront.checkout.goBack')}
             </button>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -171,37 +485,39 @@ const CheckoutContent: React.FC = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs sm:text-sm font-semibold">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs sm:text-sm font-semibold">
                       1
                     </div>
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">Customer Information</h2>
+                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                      {t('storefront.checkout.customerInfo')}
+                    </h2>
                   </div>
                 </div>
                 <div className="p-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
-                        Full Name <span className="text-red-500">*</span>
+                        {t('storefront.checkout.fullName')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
                         value={formData.customerName}
                         onChange={(e) => handleInputChange('customerName', e.target.value)}
-                        className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
+                        className="input-field"
                         placeholder="John Doe"
                       />
                     </div>
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
-                        Email Address <span className="text-red-500">*</span>
+                        {t('storefront.checkout.email')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="email"
                         required
                         value={formData.customerEmail}
                         onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                        className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
+                        className="input-field"
                         placeholder="john@example.com"
                       />
                     </div>
@@ -213,66 +529,104 @@ const CheckoutContent: React.FC = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs sm:text-sm font-semibold">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs sm:text-sm font-semibold">
                       2
                     </div>
                     <div className="flex items-center gap-2">
                       <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                      <h2 className="text-sm sm:text-base font-semibold text-gray-900">Shipping Address</h2>
+                      <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                        {t('storefront.checkout.shippingAddress')}
+                      </h2>
                     </div>
                   </div>
                 </div>
                 <div className="p-5 space-y-4">
+                  {/* Region & District */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                        {t('storefront.checkout.region')} <span className="text-red-500">*</span>
+                      </label>
+                      <CustomDropdown
+                        value={formData.shippingAddress.region}
+                        onChange={(value) => handleInputChange('shippingAddress.region', value)}
+                        options={regionOptions}
+                        placeholder={t('storefront.checkout.selectRegion')}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                        {t('storefront.checkout.district')} <span className="text-red-500">*</span>
+                      </label>
+                      <CustomDropdown
+                        value={formData.shippingAddress.district}
+                        onChange={(value) => handleInputChange('shippingAddress.district', value)}
+                        options={districtOptions}
+                        placeholder={t('storefront.checkout.selectDistrict')}
+                        disabled={!formData.shippingAddress.region}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Address */}
                   <div>
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
-                      Street Address
+                      {t('storefront.checkout.address')} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      ref={addressInputRef}
+                      type="text"
+                      required
+                      value={formData.shippingAddress.address}
+                      onChange={(e) => handleInputChange('shippingAddress.address', e.target.value)}
+                      className="input-field"
+                      placeholder={t('storefront.checkout.addressPlaceholder')}
+                      autoComplete="off"
+                    />
+                  </div>
+
+                  {/* Additional Notes */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                      {t('storefront.checkout.additionalNotes')}
                     </label>
                     <input
                       type="text"
-                      value={formData.shippingAddress.street}
-                      onChange={(e) => handleInputChange('shippingAddress.street', e.target.value)}
-                      className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
-                      placeholder="123 Main Street, Apt 4B"
+                      value={formData.shippingAddress.notes}
+                      onChange={(e) => handleInputChange('shippingAddress.notes', e.target.value)}
+                      className="input-field"
+                      placeholder={t('storefront.checkout.additionalNotesPlaceholder')}
                     />
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+                  {/* Map */}
+                  {formData.shippingAddress.region && (
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
-                        City
+                        {t('storefront.checkout.pinLocation')} <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={formData.shippingAddress.city}
-                        onChange={(e) => handleInputChange('shippingAddress.city', e.target.value)}
-                        className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
-                        placeholder="Tbilisi"
-                      />
+                      <div 
+                        ref={mapRef}
+                        className="w-full h-64 sm:h-80 rounded-lg border border-gray-300 bg-gray-100"
+                      >
+                        {!mapLoaded && (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                          </div>
+                        )}
+                      </div>
+                      {formData.shippingAddress.coordinates && (
+                        <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
+                          <MapPinIcon className="w-4 h-4" />
+                          <span>
+                            {language === 'ka' ? 'მდებარეობა მონიშნულია' : 'Location pinned'}: 
+                            {formData.shippingAddress.coordinates.lat.toFixed(6)}, 
+                            {formData.shippingAddress.coordinates.lng.toFixed(6)}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
-                        State / Region
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.shippingAddress.state}
-                        onChange={(e) => handleInputChange('shippingAddress.state', e.target.value)}
-                        className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
-                        placeholder="Tbilisi"
-                      />
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
-                        ZIP / Postal Code
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.shippingAddress.zipCode}
-                        onChange={(e) => handleInputChange('shippingAddress.zipCode', e.target.value)}
-                        className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all"
-                        placeholder="0100"
-                      />
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -283,17 +637,19 @@ const CheckoutContent: React.FC = () => {
                     <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs sm:text-sm font-semibold">
                       3
                     </div>
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">Additional Notes</h2>
+                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                      {t('storefront.checkout.orderNotes')}
+                    </h2>
                     <span className="text-xs text-gray-500">(Optional)</span>
                   </div>
                 </div>
                 <div className="p-5">
                   <textarea
                     rows={3}
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange('notes', e.target.value)}
-                    className="w-full px-4 py-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent transition-all resize-none"
-                    placeholder="Any special instructions for your order..."
+                    value={formData.orderNotes}
+                    onChange={(e) => handleInputChange('orderNotes', e.target.value)}
+                    className="input-field resize-none"
+                    placeholder={t('storefront.checkout.orderNotesPlaceholder')}
                   />
                 </div>
               </div>
@@ -305,7 +661,9 @@ const CheckoutContent: React.FC = () => {
                 <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
                   <div className="flex items-center gap-2">
                     <ShoppingBagIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">Order Summary</h2>
+                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                      {t('storefront.checkout.orderSummary')}
+                    </h2>
                   </div>
                 </div>
                 
@@ -338,13 +696,16 @@ const CheckoutContent: React.FC = () => {
                           {isProductGone && (
                             <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
                               <ExclamationTriangleIcon className="w-3 h-3" />
-                              No longer available
+                              {language === 'ka' ? 'აღარ არის ხელმისაწვდომი' : 'No longer available'}
                             </p>
                           )}
                           {hasStockIssue && (
                             <p className="text-xs text-amber-600 font-medium flex items-center gap-1 mt-0.5">
                               <ExclamationTriangleIcon className="w-3 h-3" />
-                              {item.isOutOfStock ? 'Out of stock' : `Only ${item.availableStock} available`}
+                              {item.isOutOfStock 
+                                ? (language === 'ka' ? 'მარაგი ამოწურულია' : 'Out of stock')
+                                : (language === 'ka' ? `მხოლოდ ${item.availableStock} ხელმისაწვდომია` : `Only ${item.availableStock} available`)
+                              }
                             </p>
                           )}
                           {item.variant && !isUnavailable && (
@@ -354,7 +715,7 @@ const CheckoutContent: React.FC = () => {
                           )}
                           <div className="flex items-center justify-between mt-1">
                             <span className={`text-xs ${hasStockIssue ? 'text-amber-600' : 'text-gray-500'}`}>
-                              Qty: {item.quantity}
+                              {language === 'ka' ? 'რაოდენობა' : 'Qty'}: {item.quantity}
                             </span>
                             <span className={`text-xs sm:text-sm font-semibold ${isUnavailable ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
                               ₾{(item.price * item.quantity).toFixed(2)}
@@ -369,15 +730,15 @@ const CheckoutContent: React.FC = () => {
                 {/* Totals */}
                 <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/30 space-y-2">
                   <div className="flex justify-between text-xs sm:text-sm text-gray-600">
-                    <span>Subtotal</span>
+                    <span>{t('storefront.checkout.subtotal')}</span>
                     <span>₾{cart?.total.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-xs sm:text-sm text-gray-600">
-                    <span>Shipping</span>
-                    <span className="text-green-600 font-medium">Free</span>
+                    <span>{t('storefront.checkout.shipping')}</span>
+                    <span className="text-green-600 font-medium">{t('storefront.checkout.shippingFree')}</span>
                   </div>
                   <div className="flex justify-between text-sm sm:text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
-                    <span>Total</span>
+                    <span>{t('storefront.checkout.total')}</span>
                     <span>₾{cart?.total.toFixed(2)}</span>
                   </div>
                 </div>
@@ -387,9 +748,11 @@ const CheckoutContent: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                     <CreditCardIcon className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs sm:text-sm font-medium text-amber-800">Demo Checkout</p>
+                      <p className="text-xs sm:text-sm font-medium text-amber-800">
+                        {t('storefront.checkout.demoCheckout')}
+                      </p>
                       <p className="text-xs text-amber-700 mt-0.5">
-                        No real payment will be processed. Orders are auto-confirmed.
+                        {t('storefront.checkout.demoCheckoutDescription')}
                       </p>
                     </div>
                   </div>
@@ -413,15 +776,22 @@ const CheckoutContent: React.FC = () => {
                           cart.hasStockIssues && cart.unavailableCount === cart.stockIssueCount
                             ? 'text-amber-800'
                             : 'text-red-800'
-                        }`}>Cannot place order</p>
+                        }`}>
+                          {language === 'ka' ? 'შეკვეთის გაფორმება შეუძლებელია' : 'Cannot place order'}
+                        </p>
                         <p className={`text-xs mt-0.5 ${
                           cart.hasStockIssues && cart.unavailableCount === cart.stockIssueCount
                             ? 'text-amber-600'
                             : 'text-red-600'
                         }`}>
                           {cart.hasStockIssues && cart.unavailableCount === cart.stockIssueCount
-                            ? 'Some items have insufficient stock - reduce quantities or remove items'
-                            : 'Remove unavailable items from your cart first'}
+                            ? (language === 'ka' 
+                                ? 'ზოგიერთ პროდუქტს არ აქვს საკმარისი მარაგი' 
+                                : 'Some items have insufficient stock')
+                            : (language === 'ka' 
+                                ? 'წაშალეთ მიუწვდომელი პროდუქტები კალათიდან' 
+                                : 'Remove unavailable items from your cart first')
+                          }
                         </p>
                       </div>
                     </div>
@@ -436,10 +806,13 @@ const CheckoutContent: React.FC = () => {
                     className={`w-full py-3 px-4 text-xs sm:text-sm font-semibold rounded-lg transition-all shadow-sm ${
                       cart?.hasUnavailableItems
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-gray-800 text-white hover:bg-gray-700 hover:shadow-md'
+                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
                     }`}
                   >
-                    {cart?.hasUnavailableItems ? 'Fix Cart Issues First' : 'Place Order'}
+                    {cart?.hasUnavailableItems 
+                      ? t('storefront.checkout.fixCartFirst') 
+                      : t('storefront.checkout.placeOrder')
+                    }
                   </button>
                 </div>
               </div>
@@ -451,10 +824,14 @@ const CheckoutContent: React.FC = () => {
       {step === 'processing' && (
         <div className="max-w-md mx-auto py-20 text-center">
           <div className="relative mb-8">
-            <div className="w-20 h-20 mx-auto rounded-full border-4 border-gray-200 border-t-gray-800 animate-spin"></div>
+            <div className="w-20 h-20 mx-auto rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin"></div>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Processing Your Order</h2>
-          <p className="text-xs sm:text-sm text-gray-600">Please wait while we confirm your order...</p>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+            {t('storefront.checkout.processing')}
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {language === 'ka' ? 'გთხოვთ დაელოდოთ შეკვეთის დადასტურებას...' : 'Please wait while we confirm your order...'}
+          </p>
         </div>
       )}
 
@@ -463,21 +840,23 @@ const CheckoutContent: React.FC = () => {
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
             <CheckCircleIcon className="w-12 h-12 text-green-600" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Order Confirmed!</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+            {t('storefront.checkout.success')}
+          </h2>
           <p className="text-xs sm:text-sm text-gray-600 mb-2">
-            Thank you for your order. Your order number is:
+            {language === 'ka' ? 'გმადლობთ შეკვეთისთვის. თქვენი შეკვეთის ნომერია:' : 'Thank you for your order. Your order number is:'}
           </p>
           <p className="text-base sm:text-lg font-bold text-gray-900 mb-6 font-mono bg-gray-100 inline-block px-4 py-2 rounded-lg">
             {orderNumber}
           </p>
           <p className="text-xs sm:text-sm text-gray-500 mb-8">
-            You will receive a confirmation email shortly.
+            {language === 'ka' ? 'თქვენ მალე მიიღებთ დადასტურების ელ-ფოსტას.' : 'You will receive a confirmation email shortly.'}
           </p>
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-gray-700 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-blue-700 transition-all"
           >
-            Continue Shopping
+            {t('storefront.checkout.continueShopping')}
           </button>
         </div>
       )}
@@ -502,4 +881,3 @@ const CheckoutPage: React.FC = () => {
 };
 
 export default CheckoutPage;
-

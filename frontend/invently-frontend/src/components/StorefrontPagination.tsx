@@ -86,7 +86,7 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
                     onClick={() => onPageChange(page as number)}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
                       currentPage === page
-                        ? 'bg-gray-800 text-white shadow-md'
+                        ? 'bg-blue-600 text-white shadow-md'
                         : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                     }`}
                   >
