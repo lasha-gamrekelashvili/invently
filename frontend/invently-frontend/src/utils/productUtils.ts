@@ -100,7 +100,6 @@ export const getVariantSummary = (product: Product, t?: (key: string, params?: a
 
   if (t) {
     const translated = t('products.variants.count', { count: activeVariants.length });
-    console.log('Translation result:', translated, 'for key: products.variants.count with params:', { count: activeVariants.length });
     return translated;
   }
 

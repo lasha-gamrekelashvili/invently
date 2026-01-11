@@ -129,22 +129,22 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
         onKeyDown={handleKeyDown}
         className={`
           w-full bg-white border border-gray-300 
-          rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:border-transparent 
+          rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
           hover:border-gray-400 appearance-none cursor-pointer
           text-left flex items-center justify-between transition-all
-          ${size === 'compact' ? 'px-2 py-1 pr-5 text-xs' : 'px-3 py-2 sm:py-2.5 pr-8 text-xs sm:text-sm'}
+          ${size === 'compact' ? 'px-2 py-1 pr-5 text-xs' : 'px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-8 md:pr-10 text-xs sm:text-sm'}
           ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-          ${isOpen ? 'ring-2 ring-gray-700 border-transparent' : ''}
+          ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
         `}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-labelledby={id ? `${id}-label` : undefined}
       >
-        <span className={`${selectedOption ? 'text-gray-900' : 'text-gray-400'} text-xs sm:text-sm`}>
+        <span className={`${selectedOption ? 'text-gray-900' : 'text-gray-400'} truncate text-xs sm:text-sm`}>
           {selectedOption ? selectedOption.label : (placeholder || t('common.selectOption'))}
         </span>
         <ChevronDownIcon 
-          className={`text-gray-400 transition-transform ${
+          className={`text-gray-400 transition-transform flex-shrink-0 ${
             size === 'compact' ? 'w-3 h-3' : 'w-4 h-4'
           } ${isOpen ? 'rotate-180' : ''}`} 
         />
@@ -163,7 +163,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
               disabled={option.disabled}
               className={`
                 block w-full text-left whitespace-nowrap overflow-hidden transition-colors
-                ${size === 'compact' ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-xs sm:text-sm'}
+                ${size === 'compact' ? 'px-2 py-1 text-xs' : 'px-3 py-2 md:px-4 md:py-2.5 text-xs sm:text-sm'}
                 ${index === highlightedIndex 
                   ? 'bg-gray-100 text-gray-900' 
                   : 'text-gray-700 hover:bg-gray-50'

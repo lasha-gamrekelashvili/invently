@@ -90,28 +90,28 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
       return (
         <div key={category.id} className="select-none">
           <div
-            className={`flex items-center py-2.5 px-3 rounded-xl group transition-all duration-200 ${
+            className={`flex items-center py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl group transition-all duration-200 ${
               isSelected
                 ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 shadow-sm'
                 : isDraft
                   ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50 hover:from-yellow-100 hover:to-yellow-200/50 border border-yellow-200'
                   : 'hover:bg-gray-100/80 hover:shadow-sm'
             }`}
-            style={{ marginLeft: `${level * 16}px` }}
+            style={{ marginLeft: `${level * 12}px` }}
           >
             {/* Expand/Collapse Button */}
             <button
               onClick={() => hasChildren && toggleExpanded(category.id)}
-              className="w-5 h-5 flex items-center justify-center mr-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="w-4 sm:w-5 h-4 sm:h-5 flex items-center justify-center mr-1.5 sm:mr-2 text-gray-400 hover:text-gray-600 transition-colors"
             >
               {hasChildren ? (
                 isExpanded ? (
-                  <ChevronDownIcon className="w-4 h-4" />
+                  <ChevronDownIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 ) : (
-                  <ChevronRightIcon className="w-4 h-4" />
+                  <ChevronRightIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 )
               ) : (
-                <div className="w-5 h-5" />
+                <div className="w-4 sm:w-5 h-4 sm:h-5" />
               )}
             </button>
 
@@ -122,23 +122,23 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
             >
               <div className="flex items-center">
                 {level === 0 ? (
-                  <FolderIcon className={`w-4 h-4 mr-3 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
+                  <FolderIcon className={`w-3.5 sm:w-4 h-3.5 sm:h-4 mr-2 sm:mr-3 flex-shrink-0 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
                 ) : (
-                  <TagIcon className={`w-4 h-4 mr-3 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
+                  <TagIcon className={`w-3.5 sm:w-4 h-3.5 sm:h-4 mr-2 sm:mr-3 flex-shrink-0 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
                 )}
                 <span className={`truncate font-medium ${
                   isDraft
-                    ? 'text-yellow-800 text-sm'
+                    ? 'text-yellow-800 text-xs sm:text-sm'
                     : isSelected
-                      ? 'text-blue-800 text-sm'
+                      ? 'text-blue-800 text-xs sm:text-sm'
                       : level === 0
-                        ? 'text-gray-900 text-sm font-semibold'
-                        : 'text-gray-600 text-sm hover:text-gray-900'
+                        ? 'text-gray-900 text-xs sm:text-sm font-semibold'
+                        : 'text-gray-600 text-xs sm:text-sm hover:text-gray-900'
                 }`}>
                   {category.name}
                 </span>
                 {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
-                  <span className={`ml-auto text-xs px-2 py-1 rounded-full font-medium ${
+                  <span className={`ml-auto text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium flex-shrink-0 ${
                     (category._recursiveCount || category._count?.products || 0) > 0
                       ? isSelected 
                         ? 'bg-blue-200 text-blue-800'
@@ -165,25 +165,25 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
     return (
       <div key={category.id} className="select-none">
         <div
-          className={`flex items-center py-2 px-3 rounded-lg group ${
+          className={`flex items-center py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg group ${
             isSelected 
               ? 'bg-blue-50 border border-blue-200' 
               : isDraft 
                 ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
                 : 'hover:bg-gray-50'
           }`}
-          style={{ marginLeft: `${level * 16}px` }}
+          style={{ marginLeft: `${level * 12}px` }}
         >
           {/* Expand/Collapse Button */}
           <button
             onClick={() => hasChildren && toggleExpanded(category.id)}
-            className="w-4 h-4 flex items-center justify-center mr-2 text-gray-400 hover:text-gray-600"
+            className="w-4 h-4 flex items-center justify-center mr-1.5 sm:mr-2 text-gray-400 hover:text-gray-600"
           >
             {hasChildren ? (
               isExpanded ? (
-                <ChevronDownIcon className="w-4 h-4" />
+                <ChevronDownIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
               ) : (
-                <ChevronRightIcon className="w-4 h-4" />
+                <ChevronRightIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
               )
             ) : (
               <div className="w-4 h-4" />
@@ -191,11 +191,11 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           </button>
 
           {/* Category Icon */}
-          <div className={`w-5 h-5 mr-2 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
+          <div className={`w-4 sm:w-5 h-4 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0 ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
             {level === 0 ? (
-              <FolderIcon className="w-5 h-5" />
+              <FolderIcon className="w-4 sm:w-5 h-4 sm:h-5" />
             ) : (
-              <TagIcon className="w-5 h-5" />
+              <TagIcon className="w-4 sm:w-5 h-4 sm:h-5" />
             )}
           </div>
 
@@ -205,11 +205,11 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
             className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
           >
             <div className="flex items-center">
-              <span className={`text-sm font-medium truncate ${isDraft ? 'text-yellow-800' : 'text-gray-900'}`}>
+              <span className={`text-xs sm:text-sm font-medium truncate ${isDraft ? 'text-yellow-800' : 'text-gray-900'}`}>
                 {category.name}
               </span>
               {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
-                <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
+                <span className={`ml-1.5 sm:ml-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full flex-shrink-0 ${
                   (category._recursiveCount || category._count?.products || 0) > 0 
                     ? 'bg-blue-50 text-blue-600 border border-blue-200' 
                     : 'bg-gray-50 text-gray-400 border border-gray-200'
@@ -219,34 +219,34 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
               )}
             </div>
             {category.description && (
-              <div className={`text-xs truncate ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
+              <div className={`text-[10px] sm:text-xs truncate ${isDraft ? 'text-yellow-600' : 'text-gray-500'}`}>
                 {category.description}
               </div>
             )}
           </button>
 
           {/* Action Buttons */}
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center space-x-0.5 sm:space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onAddChild?.(category.id)}
               className="p-1 text-gray-400 hover:text-blue-600 rounded"
               title="Add subcategory"
             >
-              <PlusIcon className="w-4 h-4" />
+              <PlusIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
             </button>
             <button
               onClick={() => onEdit?.(category)}
               className="p-1 text-gray-400 hover:text-blue-600 rounded"
               title="Edit category"
             >
-              <PencilIcon className="w-4 h-4" />
+              <PencilIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
             </button>
             <button
               onClick={() => onDelete?.(category)}
               className="p-1 text-gray-400 hover:text-red-600 rounded"
               title="Delete category"
             >
-              <TrashIcon className="w-4 h-4" />
+              <TrashIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
             </button>
           </div>
         </div>

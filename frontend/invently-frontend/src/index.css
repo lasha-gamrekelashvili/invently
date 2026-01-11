@@ -38,23 +38,23 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 sm:py-2.5 sm:px-5 md:py-3 md:px-6 text-xs sm:text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 
   .btn-secondary {
-    @apply bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500;
+    @apply bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 sm:py-2.5 sm:px-5 md:py-3 md:px-6 text-xs sm:text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500;
   }
 
   .btn-outline {
-    @apply border-2 border-gray-300 hover:border-blue-500 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-700 font-medium py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply border-2 border-gray-300 hover:border-blue-500 bg-white hover:bg-blue-50 text-gray-700 hover:text-blue-700 font-medium py-2 px-4 sm:py-2.5 sm:px-5 md:py-3 md:px-6 text-xs sm:text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400;
+    @apply w-full px-3 py-2 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400;
   }
 
   .select-field {
-    @apply w-full px-4 py-3 pr-10 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer;
+    @apply w-full px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-8 md:pr-10 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 12px center;
     background-repeat: no-repeat;
@@ -112,7 +112,7 @@
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+    @apply text-blue-600;
   }
 
   .sidebar-item {

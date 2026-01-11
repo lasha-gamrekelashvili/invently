@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PlusIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { ProductVariant, CreateVariantData } from '../types';
 import { productsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import { useLanguage } from '../contexts/LanguageContext';
 import { T } from './Translation';
+import ConfirmationModal from './ConfirmationModal';
+import CustomDropdown from './CustomDropdown';
 
 interface VariantManagerProps {
-  productId?: string; // For editing existing product
+  productId?: string;
   variants: ProductVariant[];
   onVariantsChange: (variants: ProductVariant[]) => void;
-  isCreating?: boolean; // True when creating new product
+  isCreating?: boolean;
 }
 
 interface VariantFormData {
@@ -28,8 +30,8 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   isCreating = false
 }) => {
   const { t } = useLanguage();
-  const [showForm, setShowForm] = useState(false);
-  const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
   const [formData, setFormData] = useState<VariantFormData>({
     sku: '',
     options: [{ key: '', value: '' }],
@@ -38,8 +40,12 @@ const VariantManager: React.FC<VariantManagerProps> = ({
     isActive: true
   });
   const [saving, setSaving] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; variant: ProductVariant | null }>({
+    isOpen: false,
+    variant: null
+  });
+  const [deleting, setDeleting] = useState(false);
 
-  // Reset form when closing
   const resetForm = () => {
     setFormData({
       sku: '',
@@ -48,28 +54,26 @@ const VariantManager: React.FC<VariantManagerProps> = ({
       stockQuantity: '0',
       isActive: true
     });
-    setShowForm(false);
-    setEditingVariant(null);
+    setShowAddForm(false);
+    setEditingVariantId(null);
   };
 
-  // Load variant data when editing
-  useEffect(() => {
-    if (editingVariant) {
-      const optionsArray = Object.entries(editingVariant.options).map(([key, value]) => ({
-        key,
-        value: String(value)
-      }));
+  const startEditing = (variant: ProductVariant) => {
+    const optionsArray = Object.entries(variant.options).map(([key, value]) => ({
+      key,
+      value: String(value)
+    }));
 
-      setFormData({
-        sku: editingVariant.sku || '',
-        options: optionsArray.length > 0 ? optionsArray : [{ key: '', value: '' }],
-        price: editingVariant.price?.toString() || '',
-        stockQuantity: editingVariant.stockQuantity.toString(),
-        isActive: editingVariant.isActive
-      });
-      setShowForm(true);
-    }
-  }, [editingVariant]);
+    setFormData({
+      sku: variant.sku || '',
+      options: optionsArray.length > 0 ? optionsArray : [{ key: '', value: '' }],
+      price: variant.price?.toString() || '',
+      stockQuantity: variant.stockQuantity.toString(),
+      isActive: variant.isActive
+    });
+    setEditingVariantId(variant.id);
+    setShowAddForm(false);
+  };
 
   const handleAddOption = () => {
     setFormData(prev => ({
@@ -95,7 +99,6 @@ const VariantManager: React.FC<VariantManagerProps> = ({
   };
 
   const handleSubmit = async () => {
-    // Validate options
     const validOptions = formData.options.filter(opt => opt.key.trim() && opt.value.trim());
     if (validOptions.length === 0) {
       handleApiError(new Error(t('products.variants.validationError')), t('common.error'));
@@ -116,7 +119,6 @@ const VariantManager: React.FC<VariantManagerProps> = ({
     };
 
     if (isCreating || !productId) {
-      // For new products, just add to local state
       const newVariant: ProductVariant = {
         id: `temp-${Date.now()}`,
         productId: productId || 'temp',
@@ -129,20 +131,19 @@ const VariantManager: React.FC<VariantManagerProps> = ({
         updatedAt: new Date().toISOString()
       };
 
-      if (editingVariant) {
-        onVariantsChange(variants.map(v => v.id === editingVariant.id ? { ...newVariant, id: editingVariant.id } : v));
+      if (editingVariantId) {
+        onVariantsChange(variants.map(v => v.id === editingVariantId ? { ...newVariant, id: editingVariantId } : v));
       } else {
         onVariantsChange([...variants, newVariant]);
       }
-      handleSuccess(editingVariant ? t('products.variants.success.updated') : t('products.variants.success.added'));
+      handleSuccess(editingVariantId ? t('products.variants.success.updated') : t('products.variants.success.added'));
       resetForm();
     } else {
-      // For existing products, save to backend
       setSaving(true);
       try {
-        if (editingVariant) {
-          const updated = await productsAPI.updateVariant(productId, editingVariant.id, variantData);
-          onVariantsChange(variants.map(v => v.id === editingVariant.id ? updated : v));
+        if (editingVariantId) {
+          const updated = await productsAPI.updateVariant(productId, editingVariantId, variantData);
+          onVariantsChange(variants.map(v => v.id === editingVariantId ? updated : v));
           handleSuccess(t('products.variants.success.updated'));
         } else {
           const created = await productsAPI.createVariant(productId, variantData);
@@ -158,245 +159,308 @@ const VariantManager: React.FC<VariantManagerProps> = ({
     }
   };
 
-  const handleDelete = async (variant: ProductVariant) => {
-    if (!confirm(t('common.confirm'))) return;
+  const handleDeleteClick = (variant: ProductVariant) => {
+    setDeleteModal({ isOpen: true, variant });
+  };
+
+  const handleConfirmDelete = async () => {
+    const variant = deleteModal.variant;
+    if (!variant) return;
 
     if (isCreating || !productId || variant.id.startsWith('temp-')) {
-      // Just remove from local state
       onVariantsChange(variants.filter(v => v.id !== variant.id));
       handleSuccess(t('products.variants.success.removed'));
+      setDeleteModal({ isOpen: false, variant: null });
     } else {
-      // Delete from backend
+      setDeleting(true);
       try {
         await productsAPI.deleteVariant(productId, variant.id);
         onVariantsChange(variants.filter(v => v.id !== variant.id));
         handleSuccess(t('products.variants.success.deleted'));
+        setDeleteModal({ isOpen: false, variant: null });
       } catch (error) {
         handleApiError(error, t('products.variants.errors.deleteFailed'));
+      } finally {
+        setDeleting(false);
       }
     }
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+  const isFormVisible = showAddForm || editingVariantId;
+
+  // Render the form as a card
+  const renderVariantForm = (isEditing: boolean) => (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 shadow-sm">
+      {/* Form Header */}
+      <div className="flex items-center justify-between mb-4 sm:mb-5">
+        <h4 className="text-base font-semibold text-gray-900">
+          <T tKey={isEditing ? 'products.variants.editVariant' : 'products.variants.newVariant'} />
+        </h4>
+        <button
+          type="button"
+          onClick={resetForm}
+          className="p-1 rounded text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <XMarkIcon className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="space-y-4 sm:space-y-5">
+        {/* Options */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700">
-            <T tKey="products.variants.title" />
+          <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+            <T tKey="products.variants.options" /> *
           </label>
-          <span className="text-xs text-gray-500">
-            <T tKey="products.variants.description" />
-          </span>
-        </div>
-        {!showForm && (
+          <div className="space-y-3">
+            {formData.options.map((option, index) => (
+              <div key={`option-${index}`} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <div className="flex gap-2 sm:gap-3 flex-1">
+                  <input
+                    type="text"
+                    value={option.key}
+                    onChange={(e) => handleOptionChange(index, 'key', e.target.value)}
+                    placeholder={t('products.variants.optionKeyPlaceholder')}
+                    className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  />
+                  <input
+                    type="text"
+                    value={option.value}
+                    onChange={(e) => handleOptionChange(index, 'value', e.target.value)}
+                    placeholder={t('products.variants.optionValuePlaceholder')}
+                    className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  />
+                  {formData.options.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveOption(index)}
+                      className="p-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
           <button
             type="button"
-            onClick={() => setShowForm(true)}
-            className="btn-primary text-sm px-3 py-2"
+            onClick={handleAddOption}
+            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
           >
-            <PlusIcon className="w-4 h-4 mr-1 inline" />
-            <T tKey="products.variants.addVariant" />
+            <PlusIcon className="w-4 h-4" />
+            <T tKey="products.variants.addOption" />
           </button>
-        )}
+        </div>
+
+        {/* SKU & Price */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <T tKey="products.variants.sku" />
+            </label>
+            <input
+              type="text"
+              value={formData.sku}
+              onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
+              placeholder={t('products.variants.skuPlaceholder')}
+              className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <T tKey="products.variants.priceOverride" />
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.price}
+              onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+              placeholder={t('products.variants.priceOverridePlaceholder')}
+              className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Stock & Status */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <T tKey="products.variants.stockQuantity" /> *
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={formData.stockQuantity}
+              onChange={(e) => setFormData(prev => ({ ...prev, stockQuantity: e.target.value }))}
+              className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <T tKey="products.variants.status" />
+            </label>
+            <CustomDropdown
+              value={formData.isActive ? 'active' : 'inactive'}
+              onChange={(value) => setFormData(prev => ({ ...prev, isActive: value === 'active' }))}
+              options={[
+                { value: 'active', label: t('products.variants.active') },
+                { value: 'inactive', label: t('products.variants.inactive') }
+              ]}
+            />
+          </div>
+        </div>
+
+        {/* Form Actions */}
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3">
+          <button
+            type="button"
+            onClick={resetForm}
+            className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <T tKey="products.variants.cancel" />
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={saving}
+            className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {saving ? t('products.variants.saving') : isEditing ? t('products.variants.update') : t('products.variants.addVariantButton')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-5">
+      {/* Section Header */}
+      <div>
+        <h3 className="text-base font-semibold text-gray-900">
+          <T tKey="products.variants.title" />
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">
+          <T tKey="products.variants.description" />
+        </p>
       </div>
 
       {/* Variant List */}
       {variants.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {variants.map((variant) => (
-            <div
-              key={variant.id}
-              className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  {variant.sku && (
-                    <span className="text-xs font-mono bg-gray-200 px-2 py-1 rounded">
-                      {variant.sku}
-                    </span>
-                  )}
-                  <div className="flex gap-1">
-                    {Object.entries(variant.options).map(([key, value]) => (
-                      <span
-                        key={key}
-                        className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+            <React.Fragment key={variant.id}>
+              {editingVariantId !== variant.id && (
+                <div className="bg-white border border-gray-200 rounded-lg p-4 group">
+                  <div className="flex items-start justify-between gap-4">
+                    {/* Variant Info */}
+                    <div className="flex-1 min-w-0">
+                      {/* Options as text */}
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-sm text-gray-900">
+                          {Object.entries(variant.options).map(([key, value], idx) => (
+                            <span key={key}>
+                              <span className="font-medium">{key}</span>
+                              <span className="text-gray-400 mx-1">-</span>
+                              <span>{value}</span>
+                              {idx < Object.entries(variant.options).length - 1 && (
+                                <span className="text-gray-300 mx-2">|</span>
+                              )}
+                            </span>
+                          ))}
+                        </span>
+                        {!variant.isActive && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">
+                            <T tKey="products.variants.inactive" />
+                          </span>
+                        )}
+                      </div>
+                      {/* Price and Stock info */}
+                      <div className="text-sm text-gray-600">
+                        <span>
+                          <T tKey="products.variants.priceLabel" />: {variant.price ? `$${variant.price.toFixed(2)}` : t('products.variants.basePrice')}
+                        </span>
+                        <span className="mx-2">•</span>
+                        <span>
+                          <T tKey="products.variants.stock" />: {variant.stockQuantity}
+                        </span>
+                        {variant.sku && (
+                          <>
+                            <span className="mx-2">•</span>
+                            <span className="font-mono text-xs">{variant.sku}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => startEditing(variant)}
+                        className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        title={t('common.edit')}
                       >
-                        {key}: {value}
-                      </span>
-                    ))}
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteClick(variant)}
+                        className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        title={t('common.delete')}
+                      >
+                        <XMarkIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  {!variant.isActive && (
-                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                      <T tKey="products.variants.inactive" />
-                    </span>
-                  )}
                 </div>
-                <div className="text-sm text-gray-600">
-                  <T tKey="products.variants.price" />: ${variant.price?.toFixed(2) || t('products.variants.basePrice')} • <T tKey="products.variants.stock" />: {variant.stockQuantity}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingVariant(variant)}
-                  className="text-blue-600 hover:text-blue-800 p-2"
-                >
-                  <PencilIcon className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(variant)}
-                  className="text-red-600 hover:text-red-800 p-2"
-                >
-                  <XMarkIcon className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+              )}
+
+              {/* Inline Edit Form */}
+              {editingVariantId === variant.id && renderVariantForm(true)}
+            </React.Fragment>
           ))}
         </div>
       )}
 
-      {/* Variant Form */}
-      {showForm && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">
-              <T tKey={editingVariant ? 'products.variants.editVariant' : 'products.variants.newVariant'} />
-            </h3>
-            <button
-              type="button"
-              onClick={resetForm}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <XMarkIcon className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Options */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              <T tKey="products.variants.options" />
-            </label>
-            {formData.options.map((option, index) => (
-              <div key={index} className="flex gap-2">
-                <input
-                  type="text"
-                  value={option.key}
-                  onChange={(e) => handleOptionChange(index, 'key', e.target.value)}
-                  placeholder={t('products.variants.optionKeyPlaceholder')}
-                  className="input-field flex-1"
-                />
-                <input
-                  type="text"
-                  value={option.value}
-                  onChange={(e) => handleOptionChange(index, 'value', e.target.value)}
-                  placeholder={t('products.variants.optionValuePlaceholder')}
-                  className="input-field flex-1"
-                />
-                {formData.options.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveOption(index)}
-                    className="text-red-600 hover:text-red-800 p-2"
-                  >
-                    <XMarkIcon className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddOption}
-              className="text-sm text-blue-600 hover:text-blue-800"
-            >
-              <T tKey="products.variants.addOption" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <T tKey="products.variants.sku" />
-              </label>
-              <input
-                type="text"
-                value={formData.sku}
-                onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
-                placeholder={t('products.variants.skuPlaceholder')}
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <T tKey="products.variants.priceOverride" />
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.price}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                placeholder={t('products.variants.priceOverridePlaceholder')}
-                className="input-field"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <T tKey="products.variants.stockQuantity" />
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={formData.stockQuantity}
-                onChange={(e) => setFormData(prev => ({ ...prev, stockQuantity: e.target.value }))}
-                className="input-field"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <T tKey="products.variants.status" />
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                  className="w-4 h-4 text-blue-600 rounded"
-                />
-                <span className="text-sm text-gray-700"><T tKey="products.variants.active" /></span>
-              </label>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={resetForm}
-              className="btn-outline text-sm px-4 py-2"
-            >
-              <T tKey="products.variants.cancel" />
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={saving}
-              className="btn-primary text-sm px-4 py-2 disabled:opacity-50"
-            >
-              {saving ? t('products.variants.saving') : editingVariant ? t('products.variants.update') : t('products.variants.addVariantButton')}
-            </button>
-          </div>
-        </div>
+      {/* Add New Variant Button */}
+      {!isFormVisible && (
+        <button
+          type="button"
+          onClick={() => {
+            resetForm();
+            setShowAddForm(true);
+          }}
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          <PlusIcon className="w-4 h-4" />
+          <T tKey="products.variants.addVariant" />
+        </button>
       )}
 
-      {variants.length === 0 && !showForm && (
-        <p className="text-sm text-gray-500 italic">
+      {/* Add New Variant Form */}
+      {showAddForm && !editingVariantId && renderVariantForm(false)}
+
+      {/* Empty State */}
+      {variants.length === 0 && !showAddForm && (
+        <p className="text-xs text-blue-500 italic">
           <T tKey="products.variants.noVariants" />
         </p>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, variant: null })}
+        onConfirm={handleConfirmDelete}
+        title={t('products.variants.deleteConfirm.title')}
+        message={t('products.variants.deleteConfirm.message')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        isLoading={deleting}
+        type="danger"
+      />
     </div>
   );
 };

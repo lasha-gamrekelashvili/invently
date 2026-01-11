@@ -28,7 +28,7 @@ const Layout = () => {
     { name: t('navigation.dashboard'), href: '/admin/dashboard', icon: ChartBarIcon, section: 'Store' },
     { name: t('navigation.categories'), href: '/admin/categories', icon: FolderIcon, section: 'Store' },
     { name: t('navigation.products'), href: '/admin/products', icon: CubeIcon, section: 'Store' },
-    { name: 'Bulk Upload', href: '/admin/bulk-upload', icon: ArrowUpTrayIcon, section: 'Store' },
+    { name: t('navigation.bulkUpload'), href: '/admin/bulk-upload', icon: ArrowUpTrayIcon, section: 'Store' },
     { name: t('navigation.orders'), href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
     { name: t('navigation.settings'), href: '/admin/settings', icon: CogIcon, section: 'Store' },
   ];

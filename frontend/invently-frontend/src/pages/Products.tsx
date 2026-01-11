@@ -27,28 +27,39 @@ const Products = () => {
     setSearchInput(searchQuery);
   }, [searchQuery]);
 
+  // Helper to update URL parameters - uses functional update to get latest params
+  const updateUrlParams = (updates: Record<string, string>) => {
+    setSearchParams(prevParams => {
+      const newParams = new URLSearchParams(prevParams);
+      
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value) {
+          newParams.set(key, value);
+        } else {
+          newParams.delete(key);
+        }
+      });
+      
+      return newParams;
+    });
+  };
+
   // Debounced search update
   const debouncedSetSearch = useMemo(
     () => debounce((value: string) => {
-      updateUrlParams({ search: value, page: '1' });
+      setSearchParams(prevParams => {
+        const newParams = new URLSearchParams(prevParams);
+        if (value) {
+          newParams.set('search', value);
+        } else {
+          newParams.delete('search');
+        }
+        newParams.set('page', '1');
+        return newParams;
+      });
     }, 300),
-    []
+    [setSearchParams]
   );
-
-  // Helper to update URL parameters
-  const updateUrlParams = (updates: Record<string, string>) => {
-    const newParams = new URLSearchParams(searchParams);
-    
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value) {
-        newParams.set(key, value);
-      } else {
-        newParams.delete(key);
-      }
-    });
-    
-    setSearchParams(newParams);
-  };
 
   // Map status filter to isActive and isDeleted params
   const getStatusParams = () => {
@@ -58,9 +69,9 @@ const Products = () => {
       case 'draft':
         return { isActive: false, isDeleted: false };
       case 'deleted':
-        return { isDeleted: true };
+        return { isDeleted: true }; // Show ONLY deleted items
       default:
-        return {}; // All statuses - no filter
+        return { isDeleted: false }; // Default: exclude deleted items
     }
   };
 
@@ -80,7 +91,7 @@ const Products = () => {
     queryFn: () => categoriesAPI.list({ limit: 1000 }),
   });
 
-  // Flatten category tree to include all categories with full path
+  // Flatten category tree to include all categories with full path, sorted alphabetically
   const flattenCategories = (categories: any[], parentPath = ''): any[] => {
     if (!categories) return [];
     
@@ -98,7 +109,8 @@ const Products = () => {
     return flattened;
   };
 
-  const allCategories = flattenCategories(categoriesData?.categories || []);
+  const allCategories = flattenCategories(categoriesData?.categories || [])
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const clearFilters = () => {
     setSearchParams(new URLSearchParams());
@@ -131,7 +143,7 @@ const Products = () => {
         { value: '', label: t('products.allStatuses') },
         { value: 'active', label: t('products.status.active') },
         { value: 'draft', label: t('products.status.draft') },
-        { value: 'deleted', label: t('products.status.deleted') },
+        { value: 'deleted', label: t('products.showDeleted') },
       ]
     },
     {

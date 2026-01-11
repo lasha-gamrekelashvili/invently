@@ -8,9 +8,8 @@ import { getProductPriceRange, getProductTotalStock, formatPriceRange, hasActive
 import DataTable, { Column } from './DataTable';
 import ConfirmationModal from './ConfirmationModal';
 import StatusBadge from './StatusBadge';
-import ActionButtonGroup from './ActionButtonGroup';
 import { T } from '../components/Translation';
-import { CubeIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
+import { CubeIcon, Squares2X2Icon, TrashIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import type { Product } from '../types';
 
 interface ProductsListProps {
@@ -60,12 +59,31 @@ const ProductsList = ({
     },
   });
 
+  const restoreMutation = useMutation({
+    mutationFn: (id: string) => productsAPI.restore(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      // Invalidate additional queries if provided
+      invalidateQueries.forEach(queryKey => {
+        queryClient.invalidateQueries({ queryKey });
+      });
+      handleSuccess(t('products.restoreSuccess'));
+    },
+    onError: (error: any) => {
+      handleApiError(error, t('products.restoreError'));
+    },
+  });
+
   const handleEditProduct = (product: Product) => {
     navigate(`/admin/products/${product.id}/edit`);
   };
 
   const handleDeleteProduct = (product: Product) => {
     setDeleteModal({ isOpen: true, product });
+  };
+
+  const handleRestoreProduct = (product: Product) => {
+    restoreMutation.mutate(product.id);
   };
 
   const handleConfirmDelete = () => {
@@ -202,15 +220,30 @@ const ProductsList = ({
       headerClassName: 'text-right',
       className: 'text-right',
       render: (product) => (
-        <ActionButtonGroup
-          actions={[
-            {
-              type: 'delete',
-              onClick: () => handleDeleteProduct(product),
-              title: t('common.delete')
-            }
-          ]}
-        />
+        product.isDeleted ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreProduct(product);
+            }}
+            disabled={restoreMutation.isPending}
+            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+            title={t('common.restore')}
+          >
+            <ArrowPathIcon className="w-5 h-5" />
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteProduct(product);
+            }}
+            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title={t('common.delete')}
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        )
       )
     }
   ];

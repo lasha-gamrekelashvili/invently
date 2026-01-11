@@ -160,32 +160,32 @@ const CategoryForm = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-center space-x-3 sm:space-x-4">
         <Link
           to="/admin/categories"
-          className="flex items-center text-gray-600 hover:text-gray-900"
+          className="flex items-center text-xs sm:text-sm text-gray-600 hover:text-gray-900"
         >
-          <ArrowLeftIcon className="h-5 w-5 mr-2" />
+          <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
 {t('common.back')} {t('navigation.categories')}
         </Link>
       </div>
 
-      <div className="card p-8">
-        <h1 className="text-3xl font-bold gradient-text mb-8">
+      <div className="card p-4 sm:p-6 md:p-8">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold gradient-text mb-4 sm:mb-6 md:mb-8">
 {isEditing ? t('categories.actions.edit') : t('categories.actions.create')}
         </h1>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded-xl mb-4 sm:mb-6 text-xs sm:text-sm">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="name" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
 {t('categories.form.name')} *
               </label>
               <input
@@ -201,7 +201,7 @@ placeholder={t('categories.form.namePlaceholder')}
             </div>
 
             <div>
-              <label htmlFor="parentId" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="parentId" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
 {t('categories.form.parentCategory')}
               </label>
               <CustomDropdown
@@ -219,7 +219,7 @@ placeholder={t('categories.form.namePlaceholder')}
 placeholder={t('categories.form.selectParent')}
               />
               {formData.parentId && (
-                <p className="mt-2 text-sm text-blue-600">
+                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-blue-600">
 {t('categories.form.parentCategoryHelp')}
                 </p>
               )}
@@ -227,7 +227,7 @@ placeholder={t('categories.form.selectParent')}
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
 {t('categories.form.description')}
             </label>
             <textarea
@@ -242,7 +242,7 @@ placeholder={t('categories.form.descriptionPlaceholder')}
           </div>
 
           <div>
-            <label htmlFor="isActive" className="block text-sm font-semibold text-gray-700 mb-2">
+            <label htmlFor="isActive" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
 {t('categories.form.status')} *
             </label>
             <CustomDropdown
@@ -257,22 +257,22 @@ placeholder={t('categories.form.descriptionPlaceholder')}
 placeholder={t('categories.form.selectStatus')}
               required
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs sm:text-sm text-gray-500">
 {t('categories.form.statusHelp')}
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div className="flex items-start space-x-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
+            <div className="flex items-start space-x-2 sm:space-x-3">
               <div className="flex-shrink-0">
-                <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">i</span>
+                <div className="w-4 h-4 sm:w-5 sm:h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-[10px] sm:text-xs font-bold">i</span>
                 </div>
               </div>
-              <div className="text-sm">
+              <div className="text-xs sm:text-sm">
                 <p className="text-blue-800 font-medium mb-1">{t('categories.form.urlPreview')}</p>
                 <p className="text-blue-700">
-                  {t('categories.form.urlPreviewText')} <span className="font-mono bg-blue-100 px-2 py-1 rounded">
+                  {t('categories.form.urlPreviewText')} <span className="font-mono bg-blue-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-[10px] sm:text-xs break-all">
                     /store/category/{formData.name ? generateSlug(formData.name) : 'category-slug'}
                   </span>
                 </p>
@@ -280,7 +280,7 @@ placeholder={t('categories.form.selectStatus')}
             </div>
           </div>
 
-          <div className="flex items-center justify-end space-x-4 pt-6">
+          <div className="flex items-center justify-end space-x-3 sm:space-x-4 pt-4 sm:pt-6">
             <Link
               to="/admin/categories"
               className="btn-outline"

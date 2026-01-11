@@ -177,6 +177,9 @@ export const productsAPI = {
   delete: (id: string): Promise<void> =>
     api.delete(`/products/${id}`).then(res => res.data),
 
+  restore: (id: string): Promise<Product> =>
+    api.post(`/products/${id}/restore`).then(res => res.data),
+
   getById: (id: string): Promise<Product> =>
     api.get(`/products/${id}`).then(res => res.data),
 

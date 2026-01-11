@@ -25,6 +25,7 @@ const ProductForm = () => {
     description: '',
     price: '',
     stockQuantity: '',
+    sku: '',
     categoryId: categoryIdFromUrl || '',
     isActive: false // false = Draft, true = Active
   });
@@ -66,6 +67,7 @@ const ProductForm = () => {
         description: existingProduct.description || '',
         price: existingProduct.price.toString(),
         stockQuantity: existingProduct.stockQuantity.toString(),
+        sku: existingProduct.sku || '',
         categoryId: existingProduct.categoryId || '',
         isActive: existingProduct.isActive ?? false,
       });
@@ -119,7 +121,8 @@ const ProductForm = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       handleSuccess(t('products.createSuccess', { title: data.title }));
-      navigate('/admin/products');
+      // Navigate to the edit page of the newly created product
+      navigate(`/admin/products/${data.id}/edit`, { replace: true });
     },
     onError: (error: any) => {
       const errorMessage = handleApiError(error, t('products.createError'));
@@ -132,8 +135,9 @@ const ProductForm = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', id] });
+      queryClient.invalidateQueries({ queryKey: ['product-images', id] });
       handleSuccess(t('products.updateSuccess', { title: data.title }));
-      navigate('/admin/products');
+      // Stay on the same page - data will be refreshed via query invalidation
     },
     onError: (error: any) => {
       const errorMessage = handleApiError(error, t('products.updateError'));
@@ -259,6 +263,7 @@ const ProductForm = () => {
       title: formData.title,
       description: formData.description || undefined,
       slug,
+      sku: formData.sku || undefined,
       price: parseFloat(formData.price),
       stockQuantity: parseInt(formData.stockQuantity),
       isActive: formData.isActive,
@@ -369,7 +374,7 @@ placeholder={t('products.form.descriptionPlaceholder')}
             isUploading={uploadingImages}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <div>
               <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
 {t('products.form.basePrice')} *
@@ -408,6 +413,22 @@ placeholder={t('products.form.stockQuantityPlaceholder')}
             </div>
 
             <div>
+              <label htmlFor="sku" className="block text-sm font-semibold text-gray-700 mb-2">
+{t('products.form.sku')}
+              </label>
+              <input
+                id="sku"
+                name="sku"
+                type="text"
+                value={formData.sku}
+                onChange={handleChange}
+                className="input-field"
+                placeholder={t('products.form.skuPlaceholder')}
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('products.form.skuHelp')}</p>
+            </div>
+
+            <div>
               <label htmlFor="isActive" className="block text-sm font-semibold text-gray-700 mb-2">
 {t('products.form.status')} *
               </label>
@@ -427,7 +448,7 @@ placeholder={t('products.form.selectStatus')}
           </div>
 
           {/* Custom Attributes */}
-          <div className="border-t pt-6">
+          <div className="border-t border-gray-200 pt-6">
             <AttributesEditor
               attributes={attributes}
               onChange={setAttributes}
@@ -435,7 +456,7 @@ placeholder={t('products.form.selectStatus')}
           </div>
 
           {/* Product Variants */}
-          <div className="border-t pt-6">
+          <div className="border-t border-gray-200 pt-6">
             <VariantManager
               productId={id}
               variants={variants}

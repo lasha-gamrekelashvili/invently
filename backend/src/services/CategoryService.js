@@ -181,12 +181,12 @@ export class CategoryService {
   }
 
   // Get categories with pagination and recursive counts (admin view - includes deleted with indicators)
-  async getCategories(tenantId, filters = {}, page = 1, limit = 10, includeDeleted = true) {
+  async getCategories(tenantId, filters = {}, page = 1, limit = 10, includeDeleted = false) {
     const { sortBy = 'createdAt', sortOrder = 'desc', search } = filters;
 
     const where = {};
 
-    // For admin panel, show all including deleted. For public, exclude deleted.
+    // Exclude deleted categories by default unless explicitly requested
     if (!includeDeleted) {
       where.isDeleted = false;
     }

@@ -4,6 +4,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "restore": "Restore",
     "edit": "Edit",
     "add": "Add",
     "create": "Create",
@@ -58,6 +59,7 @@
     "dashboard": "Dashboard",
     "products": "Products",
     "categories": "Categories",
+    "bulkUpload": "Bulk Upload",
     "orders": "Orders",
     "settings": "Settings",
     "logs": "Logs",
@@ -159,6 +161,7 @@
     "filterByStatus": "Filter by status",
     "allCategories": "All Categories",
     "allStatuses": "All Statuses",
+    "showDeleted": "Show Deleted",
     "columns": {
       "name": "Product Name",
       "category": "Category",
@@ -216,7 +219,7 @@
       "options": "Options (e.g., size, color) *",
       "optionKeyPlaceholder": "Key (e.g., size)",
       "optionValuePlaceholder": "Value (e.g., Medium)",
-      "addOption": "+ Add Option",
+      "addOption": "Add Option",
       "sku": "SKU (optional)",
       "skuPlaceholder": "e.g., TSHIRT-RED-M",
       "priceOverride": "Price Override (optional)",
@@ -227,6 +230,7 @@
       "inactive": "Inactive",
       "basePrice": "Base price",
       "price": "Price",
+      "priceLabel": "Price",
       "stock": "Stock",
       "cancel": "Cancel",
       "update": "Update",
@@ -248,6 +252,10 @@
       "errors": {
         "saveFailed": "Failed to save variant",
         "deleteFailed": "Failed to delete variant"
+      },
+      "deleteConfirm": {
+        "title": "Delete Variant",
+        "message": "Are you sure you want to delete this variant? This action cannot be undone."
       }
     },
     "attributes": {
@@ -256,7 +264,8 @@
       "keyPlaceholder": "Key (e.g., material)",
       "valuePlaceholder": "Value (e.g., Cotton)",
       "addValuePlaceholder": "Value (e.g., 100% Cotton)",
-      "noAttributes": "No custom attributes yet. Add attributes like material, brand, dimensions, etc."
+      "noAttributes": "No custom attributes yet. Add attributes like material, brand, dimensions, etc.",
+      "add": "Add"
     },
     "actions": {
       "edit": "Edit Product",
@@ -284,6 +293,8 @@
     },
     "deleteSuccess": "Product deleted successfully",
     "deleteError": "Failed to delete product",
+    "restoreSuccess": "Product restored successfully",
+    "restoreError": "Failed to restore product",
     "updateSuccess": "Product updated successfully",
     "updateError": "Failed to update product",
     "createSuccess": "Product \"{{title}}\" created successfully",
@@ -325,6 +336,9 @@
       "stockQuantity": "Base Stock Quantity",
       "stockQuantityPlaceholder": "0",
       "stockQuantityHelp": "Use 0 if managing stock via variants",
+      "sku": "SKU (optional)",
+      "skuPlaceholder": "e.g., PROD-001",
+      "skuHelp": "Auto-generated if left empty",
       "status": "Status",
       "active": "Active",
       "draft": "Draft",
@@ -481,6 +495,185 @@
         "delete": "Delete",
         "cancel": "Cancel"
       }
+    }
+  },
+  "bulkUpload": {
+    "title": "Bulk Upload",
+    "subtitle": "Import multiple categories and products at once using a CSV file",
+    "quickStart": {
+      "title": "Quick Start Guide",
+      "hideGuide": "Hide Detailed Guide",
+      "showGuide": "Show Detailed Guide",
+      "step1": "Download the CSV template below",
+      "step2": "Fill in your categories and products following the format",
+      "step3": "For nested categories, use \" > \" separator (e.g., \"Electronics > Phones\")",
+      "step4": "For product variants (sizes, colors, etc.), use multiple rows with the same product name but different \"Variant Options\"",
+      "step5": "Upload the completed CSV file"
+    },
+    "guide": {
+      "title": "Complete CSV Format Guide",
+      "columnsIntro": "The CSV file has 10 columns. Here's what each column means and how to use it:",
+      "category": {
+        "title": "Category",
+        "required": true,
+        "description": "The category path. Use \" > \" to create nested categories (parent > child).",
+        "example1": "Electronics",
+        "example2": "Electronics > Phones",
+        "example3": "Fashion > Men > Shirts"
+      },
+      "productName": {
+        "title": "Product Name",
+        "description": "The name of your product. Leave empty for category-only rows. Multiple rows with the same name = product with variants.",
+        "example1": "iPhone 14 Pro",
+        "example2": "Classic T-Shirt",
+        "hint": "Leave empty to create categories without products"
+      },
+      "variantOptions": {
+        "title": "Variant Options",
+        "description": "Optional. Format: key1:value1|key2:value2. Leave empty for simple products or first row of variant products.",
+        "example1": "size:M|color:Black",
+        "example2": "storage:256GB|color:White",
+        "example3": "material:Leather|size:Large",
+        "hint": "Leave empty for products without variants"
+      },
+      "productDescription": {
+        "title": "Product Description",
+        "description": "Detailed description of the product. Only needed on first row of product (not on variant rows).",
+        "example": "Latest iPhone with A16 Bionic chip and Dynamic Island"
+      },
+      "price": {
+        "title": "Price",
+        "required": true,
+        "description": "Product price (decimal number). For variants, each can have its own price.",
+        "example1": "999.99",
+        "example2": "29.99",
+        "badExample": "$29.99 (don't include currency symbol)"
+      },
+      "stock": {
+        "title": "Stock",
+        "required": true,
+        "description": "Available quantity (whole number). For variants, this is the stock for that specific variant.",
+        "example1": "50",
+        "example2": "0 (out of stock)",
+        "badExample": "10.5 (must be whole number)"
+      },
+      "sku": {
+        "title": "SKU",
+        "description": "Stock Keeping Unit (unique identifier). Auto-generated if left empty.",
+        "example1": "IPHONE14PRO-256-BLK",
+        "example2": "TSHIRT-M-WHT",
+        "hint": "Leave empty to auto-generate"
+      },
+      "status": {
+        "title": "Status",
+        "description": "Product status: ACTIVE or DRAFT. Defaults to ACTIVE if empty.",
+        "example1": "ACTIVE",
+        "example2": "DRAFT"
+      },
+      "imageUrls": {
+        "title": "Image URLs",
+        "description": "Product images. Multiple URLs separated by | (pipe). Only needed on first product row.",
+        "example1": "https://example.com/image1.jpg",
+        "example2": "https://example.com/img1.jpg|https://example.com/img2.jpg"
+      },
+      "attributes": {
+        "title": "Attributes",
+        "description": "Additional product info. Format: key1:value1|key2:value2",
+        "example1": "brand:Apple|warranty:1 year",
+        "example2": "material:Cotton|fit:Regular|care:Machine wash"
+      }
+    },
+    "examples": {
+      "title": "Complete Examples",
+      "categoriesOnly": {
+        "title": "Example 1: Creating Categories Only",
+        "description": "To create category structure without products, leave product columns empty:",
+        "comment": "Creates: Electronics (parent) with 2 subcategories (Phones, Laptops)"
+      },
+      "simpleProduct": {
+        "title": "Example 2: Simple Product (No Variants)",
+        "description": "Product without size/color variations:",
+        "comment": "Creates: 1 product with no variants"
+      },
+      "productWithVariants": {
+        "title": "Example 3: Product with Variants (T-Shirt with Sizes & Colors)",
+        "description": "First row = base product info, following rows = variants:",
+        "comment1": "Creates: 1 product \"Classic T-Shirt\" with 4 variants",
+        "comment2": "Note: Yellow row has base info + image, green rows define variants",
+        "comment3": "Black M has different price (32.99) than White variants (29.99)"
+      },
+      "phoneVariants": {
+        "title": "Example 4: Phone with Storage & Color Variants",
+        "comment1": "Creates: 1 product with 5 variants (different storage sizes and colors)",
+        "comment2": "Each storage upgrade increases price by $100"
+      }
+    },
+    "mistakes": {
+      "title": "Common Mistakes to Avoid",
+      "separator": {
+        "title": "Wrong separator for categories",
+        "description": "Use \" > \" not \"/\" or \">\" or \"-\"",
+        "bad": "Electronics/Phones",
+        "good": "Electronics > Phones (space before and after >)"
+      },
+      "currency": {
+        "title": "Including currency symbols in price",
+        "bad": "$29.99",
+        "good": "29.99"
+      },
+      "variantFormat": {
+        "title": "Forgetting variant options format",
+        "bad": "size=M, color=Black",
+        "good": "size:M|color:Black"
+      },
+      "extraRows": {
+        "title": "Adding extra rows or notes after data",
+        "description": "CSV should only contain header + data rows. No blank lines, no notes at the end."
+      }
+    },
+    "tips": {
+      "title": "Pro Tips",
+      "startSmall": "Start small: Test with 2-3 products first, then upload your full catalog",
+      "useExcel": "Use Excel/Google Sheets: Easier to edit, then export as CSV",
+      "keepBackup": "Keep a backup: Save your CSV file before uploading",
+      "reupload": "Re-upload to update: If a product with the same name exists, it will be updated instead of creating a duplicate",
+      "baseStock": "Stock = 0 on base product: When using variants, set stock to 0 on the first row (base product), only variants need real stock numbers"
+    },
+    "template": {
+      "title": "CSV Template",
+      "description": "Download the template to see the required format and examples",
+      "download": "Download Template"
+    },
+    "upload": {
+      "title": "Upload CSV File",
+      "dragDrop": "Drag and drop your CSV file here",
+      "or": "or",
+      "browse": "Browse Files",
+      "removeFile": "Remove file",
+      "uploadButton": "Upload & Import",
+      "processing": "Processing..."
+    },
+    "results": {
+      "title": "Import Results",
+      "categoriesCreated": "Categories Created",
+      "categoriesUpdated": "Categories Updated",
+      "productsCreated": "Products Created",
+      "productsUpdated": "Products Updated",
+      "variantsCreated": "Variants Created",
+      "variantsUpdated": "Variants Updated",
+      "errors": "Errors"
+    },
+    "errors": {
+      "selectCsv": "Please select a CSV file",
+      "selectFirst": "Please select a file first",
+      "uploadFailed": "Failed to upload file",
+      "downloadFailed": "Failed to download template",
+      "dropCsv": "Please drop a CSV file"
+    },
+    "success": {
+      "imported": "Successfully imported {{count}} items!",
+      "importedWithErrors": "Imported {{count}} items with {{errors}} errors",
+      "templateDownloaded": "Template downloaded!"
     }
   },
   "orders": {

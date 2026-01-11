@@ -8,165 +8,131 @@ interface AttributesEditorProps {
   onChange: (attributes: Record<string, any>) => void;
 }
 
+interface AttributeRow {
+  id: string;
+  key: string;
+  value: string;
+}
+
 const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChange }) => {
   const { t } = useLanguage();
+  const [rows, setRows] = useState<AttributeRow[]>([]);
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
-  const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [editingValue, setEditingValue] = useState<string | null>(null);
-  const [tempKey, setTempKey] = useState('');
-  const [tempValue, setTempValue] = useState('');
-  const [attributeOrder, setAttributeOrder] = useState<string[]>([]);
 
-  // Initialize attribute order when attributes change
+  // Sync rows with external attributes
   useEffect(() => {
-    const currentKeys = Object.keys(attributes || {});
-    setAttributeOrder(prevOrder => {
-      // Keep existing order for keys that still exist, add new keys at the end
-      const existingKeys = prevOrder.filter(key => key in (attributes || {}));
-      const newKeys = currentKeys.filter(key => !prevOrder.includes(key));
-      return [...existingKeys, ...newKeys];
-    });
+    const entries = Object.entries(attributes || {});
+    const newRows = entries.map(([key, value], index) => ({
+      id: `attr-${index}-${key}`,
+      key,
+      value: String(value)
+    }));
+    setRows(newRows);
   }, [attributes]);
+
+  // Update parent when rows change
+  const updateAttributes = (updatedRows: AttributeRow[]) => {
+    const newAttributes: Record<string, any> = {};
+    updatedRows.forEach(row => {
+      if (row.key.trim()) {
+        newAttributes[row.key.trim()] = row.value.trim();
+      }
+    });
+    onChange(newAttributes);
+  };
+
+  const handleRowKeyChange = (id: string, newKeyValue: string) => {
+    const updatedRows = rows.map(row =>
+      row.id === id ? { ...row, key: newKeyValue } : row
+    );
+    setRows(updatedRows);
+  };
+
+  const handleRowValueChange = (id: string, newValueValue: string) => {
+    const updatedRows = rows.map(row =>
+      row.id === id ? { ...row, value: newValueValue } : row
+    );
+    setRows(updatedRows);
+  };
+
+  const handleRowBlur = () => {
+    // Update parent on blur to save changes
+    updateAttributes(rows);
+  };
+
+  const handleRemoveRow = (id: string) => {
+    const updatedRows = rows.filter(row => row.id !== id);
+    setRows(updatedRows);
+    updateAttributes(updatedRows);
+  };
 
   const handleAddAttribute = () => {
     if (newKey.trim() && newValue.trim()) {
-      onChange({
-        ...attributes,
-        [newKey.trim()]: newValue.trim()
-      });
+      const newRow: AttributeRow = {
+        id: `attr-${Date.now()}`,
+        key: newKey.trim(),
+        value: newValue.trim()
+      };
+      const updatedRows = [...rows, newRow];
+      setRows(updatedRows);
+      updateAttributes(updatedRows);
       setNewKey('');
       setNewValue('');
     }
   };
 
-  const handleRemoveAttribute = (key: string) => {
-    const updated = { ...attributes };
-    delete updated[key];
-    // Remove from order array
-    setAttributeOrder(prevOrder => prevOrder.filter(k => k !== key));
-    onChange(updated);
-  };
-
-  const handleStartEditingKey = (key: string, value: string) => {
-    setEditingKey(key);
-    setTempKey(key);
-    setTempValue(value);
-  };
-
-  const handleStartEditingValue = (key: string, value: string) => {
-    setEditingValue(key);
-    setTempKey(key);
-    setTempValue(value);
-  };
-
-  const handleFinishEditing = () => {
-    if (editingKey && tempKey.trim() && tempValue.trim()) {
-      const updated = { ...attributes };
-      const newKey = tempKey.trim();
-      
-      if (editingKey !== newKey) {
-        delete updated[editingKey];
-        // Update the order array to reflect the key change
-        setAttributeOrder(prevOrder => 
-          prevOrder.map(key => key === editingKey ? newKey : key)
-        );
-      }
-      updated[newKey] = tempValue.trim();
-      onChange(updated);
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddAttribute();
     }
-    setEditingKey(null);
-    setEditingValue(null);
-    setTempKey('');
-    setTempValue('');
   };
-
-  const handleCancelEditing = () => {
-    setEditingKey(null);
-    setEditingValue(null);
-    setTempKey('');
-    setTempValue('');
-  };
-
-  // Create ordered attribute entries based on attributeOrder
-  const orderedAttributeEntries = attributeOrder
-    .filter(key => key in (attributes || {}))
-    .map(key => [key, attributes[key]] as [string, any]);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <label className="block text-sm font-semibold text-gray-700">
+      {/* Section Header */}
+      <div>
+        <h3 className="text-base font-semibold text-gray-900">
           <T tKey="products.attributes.title" />
-        </label>
-        <span className="text-xs text-gray-500">
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">
           <T tKey="products.attributes.description" />
-        </span>
+        </p>
       </div>
 
-      {/* Existing Attributes */}
-      {orderedAttributeEntries.length > 0 && (
-        <div className="space-y-2">
-          {orderedAttributeEntries.map(([key, value], index) => (
-            <div key={`attribute-${index}`} className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-              <input
-                type="text"
-                value={editingKey === key ? tempKey : key}
-                onChange={(e) => {
-                  if (editingKey === key) {
-                    setTempKey(e.target.value);
-                  } else {
-                    handleStartEditingKey(key, value);
-                    setTempKey(e.target.value);
-                  }
-                }}
-                onFocus={() => {
-                  if (editingKey !== key) {
-                    handleStartEditingKey(key, value);
-                  }
-                }}
-                onBlur={handleFinishEditing}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleFinishEditing();
-                  } else if (e.key === 'Escape') {
-                    handleCancelEditing();
-                  }
-                }}
-                className="input-field flex-1"
-                placeholder={t('products.attributes.keyPlaceholder')}
-              />
-              <input
-                type="text"
-                value={editingValue === key ? tempValue : value}
-                onChange={(e) => {
-                  if (editingValue === key) {
-                    setTempValue(e.target.value);
-                  } else {
-                    handleStartEditingValue(key, value);
-                    setTempValue(e.target.value);
-                  }
-                }}
-                onFocus={() => {
-                  if (editingValue !== key) {
-                    handleStartEditingValue(key, value);
-                  }
-                }}
-                onBlur={handleFinishEditing}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleFinishEditing();
-                  } else if (e.key === 'Escape') {
-                    handleCancelEditing();
-                  }
-                }}
-                className="input-field flex-1"
-                placeholder={t('products.attributes.valuePlaceholder')}
-              />
+      {/* Existing Attributes - Always as Input Fields */}
+      {rows.length > 0 && (
+        <div className="space-y-3">
+          {rows.map((row) => (
+            <div key={row.id} className="flex gap-3 items-center">
+              {/* Key Input */}
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={row.key}
+                  onChange={(e) => handleRowKeyChange(row.id, e.target.value)}
+                  onBlur={handleRowBlur}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder={t('products.attributes.keyPlaceholder')}
+                />
+              </div>
+              {/* Value Input */}
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={row.value}
+                  onChange={(e) => handleRowValueChange(row.id, e.target.value)}
+                  onBlur={handleRowBlur}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder={t('products.attributes.addValuePlaceholder')}
+                />
+              </div>
+              {/* Delete Button */}
               <button
                 type="button"
-                onClick={() => handleRemoveAttribute(key)}
-                className="text-red-600 hover:text-red-800 p-2"
+                onClick={() => handleRemoveRow(row.id)}
+                className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
               >
                 <XMarkIcon className="w-5 h-5" />
               </button>
@@ -175,36 +141,41 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
         </div>
       )}
 
-      {/* Add New Attribute */}
-      <div className="flex items-center gap-2 bg-blue-50 p-3 rounded-lg border border-blue-200">
-        <input
-          type="text"
-          value={newKey}
-          onChange={(e) => setNewKey(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleAddAttribute()}
-          className="input-field flex-1"
-          placeholder={t('products.attributes.keyPlaceholder')}
-        />
-        <input
-          type="text"
-          value={newValue}
-          onChange={(e) => setNewValue(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleAddAttribute()}
-          className="input-field flex-1"
-          placeholder={t('products.attributes.addValuePlaceholder')}
-        />
+      {/* Add New Attribute Row */}
+      <div className="flex gap-3 items-center">
+        <div className="flex-1">
+          <input
+            type="text"
+            value={newKey}
+            onChange={(e) => setNewKey(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            placeholder={t('products.attributes.keyPlaceholder')}
+          />
+        </div>
+        <div className="flex-1">
+          <input
+            type="text"
+            value={newValue}
+            onChange={(e) => setNewValue(e.target.value)}
+            onKeyPress={handleKeyPress}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            placeholder={t('products.attributes.addValuePlaceholder')}
+          />
+        </div>
         <button
           type="button"
           onClick={handleAddAttribute}
           disabled={!newKey.trim() || !newValue.trim()}
-          className="btn-primary px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
         </button>
       </div>
 
-      {orderedAttributeEntries.length === 0 && (
-        <p className="text-sm text-gray-500 italic">
+      {/* Empty State */}
+      {rows.length === 0 && !newKey && !newValue && (
+        <p className="text-xs text-blue-500 italic">
           <T tKey="products.attributes.noAttributes" />
         </p>
       )}

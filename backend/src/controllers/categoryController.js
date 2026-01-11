@@ -39,13 +39,17 @@ const createCategory = async (req, res) => {
 const getCategories = async (req, res) => {
   try {
     const tenantId = req.tenantId;
-    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', search } = req.validatedQuery;
+    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', search, includeDeleted } = req.validatedQuery;
+
+    // Default to excluding deleted categories unless explicitly requested
+    const showDeleted = includeDeleted === 'true' || includeDeleted === true;
 
     const result = await categoryService.getCategories(
       tenantId,
       { sortBy, sortOrder, search },
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
+      showDeleted
     );
 
     res.json(result);
