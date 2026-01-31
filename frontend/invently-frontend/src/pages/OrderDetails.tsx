@@ -55,7 +55,7 @@ const OrderDetails = () => {
       case 'PENDING':
         return <ClockIcon className="h-4 w-4 text-yellow-600" />;
       case 'CONFIRMED':
-        return <CheckCircleIcon className="h-4 w-4 text-blue-600" />;
+        return <CheckCircleIcon className="h-4 w-4 text-neutral-900" />;
       case 'SHIPPED':
         return <TruckIcon className="h-4 w-4 text-purple-600" />;
       case 'DELIVERED':
@@ -72,7 +72,7 @@ const OrderDetails = () => {
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'CONFIRMED':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-neutral-100 text-neutral-900 border-neutral-200';
       case 'SHIPPED':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'DELIVERED':
@@ -173,7 +173,7 @@ const OrderDetails = () => {
         <p className="text-gray-600 mb-4">{t('orders.orderDetails.notFound.description')}</p>
         <button
           onClick={() => navigate('/admin/orders')}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="inline-flex items-center px-4 py-2 bg-neutral-800 text-white rounded-full hover:bg-neutral-700 transition-colors"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-2" />
           {t('orders.orderDetails.notFound.backButton')}
@@ -242,8 +242,8 @@ const OrderDetails = () => {
                       onClick={() => canNavigate && navigate(`/admin/products/${item.productId}/edit`)}
                       className={`flex items-center p-3 rounded-lg transition-all ${
                         canNavigate 
-                          ? 'bg-gray-50 hover:bg-blue-50 hover:border-blue-200 cursor-pointer border border-transparent' 
-                          : 'bg-gray-50'
+                          ? 'bg-neutral-50 hover:bg-neutral-100 hover:border-neutral-200 cursor-pointer border border-transparent' 
+                          : 'bg-neutral-50'
                       } ${isProductDeleted ? 'opacity-75' : ''}`}
                     >
                       {/* Product Image */}
@@ -264,8 +264,8 @@ const OrderDetails = () => {
                       {/* Product Info */}
                       <div className="flex-1 min-w-0">
                         <h4 className={`text-sm font-medium truncate ${
-                          canNavigate ? 'text-blue-600 hover:text-blue-800' : 'text-gray-900'
-                        } ${isProductDeleted ? 'line-through text-gray-500' : ''}`}>
+                          canNavigate ? 'text-neutral-900 hover:text-neutral-700' : 'text-neutral-900'
+                        } ${isProductDeleted ? 'line-through text-neutral-500' : ''}`}>
                           {item.title}
                         </h4>
                         {isProductDeleted && (
@@ -389,7 +389,7 @@ const OrderDetails = () => {
                               href={`https://www.google.com/maps/dir/?api=1&destination=${order.shippingAddress.coordinates.lat},${order.shippingAddress.coordinates.lng}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                              className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-neutral-900 bg-neutral-50 hover:bg-neutral-100 rounded-lg transition-colors"
                             >
                               <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 mr-1" />
                               {t('orders.orderDetails.sections.addresses.getDirections')}
@@ -489,10 +489,10 @@ const OrderDetails = () => {
                     disabled={updateOrderMutation.isPending || order.status === status}
                     className={`w-full px-3 py-2 text-xs sm:text-sm font-medium rounded-lg border transition-all ${
                       order.status === status
-                        ? 'bg-blue-50 text-blue-800 border-blue-200 cursor-not-allowed'
+                        ? 'bg-neutral-100 text-neutral-900 border-neutral-200 cursor-not-allowed'
                         : updateOrderMutation.isPending
-                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                        ? 'bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed'
+                        : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50 hover:border-neutral-400'
                     }`}
                   >
                     {updateOrderMutation.isPending ? t('orders.orderDetails.sections.statusManagement.updating') : t(`orders.status.${status.toLowerCase()}`)}
@@ -518,7 +518,7 @@ const OrderDetails = () => {
                 </div>
                 {order.updatedAt !== order.createdAt && (
                   <div className="flex items-start">
-                    <div className="flex-shrink-0 w-2 h-2 bg-blue-400 rounded-full mt-1.5"></div>
+                    <div className="flex-shrink-0 w-2 h-2 bg-neutral-400 rounded-full mt-1.5"></div>
                     <div className="ml-3">
                       <p className="text-xs sm:text-sm text-gray-900 font-medium">{t('orders.orderDetails.sections.timeline.lastUpdated')}</p>
                       <p className="text-xs text-gray-500 mt-0.5">{new Date(order.updatedAt).toLocaleDateString()}</p>

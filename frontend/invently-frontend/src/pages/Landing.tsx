@@ -1,21 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
-  ShoppingBagIcon,
-  ChartBarIcon,
-  CubeIcon,
-  BoltIcon,
-  GlobeAltIcon,
-  ShieldCheckIcon,
   ArrowRightIcon,
   XMarkIcon,
-  MagnifyingGlassPlusIcon
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { T } from '../components/Translation';
 import LandingHeader from '../components/LandingHeader';
-import ShopsCarousel from '../components/ShopsCarousel';
-import dashboardImage from '../../assets/dashboard-image.png';
-import categoryImage from '../../assets/category-image.png';
+import dashboardImage from '../../assets/dashboard.png';
+import categoryImage from '../../assets/Categories.png';
+import productsImage from '../../assets/Products.png';
 
 const Landing = () => {
   const [currentImage, setCurrentImage] = useState(0);
@@ -23,109 +18,147 @@ const Landing = () => {
 
   const images = [
     { src: dashboardImage, alt: 'Dashboard Preview' },
-    { src: categoryImage, alt: 'Category Management Preview' }
+    { src: categoryImage, alt: 'Category Management Preview' },
+    { src: productsImage, alt: 'Products Management Preview' }
   ];
 
-
-  const features = [
+  // Why Shopu comparison points - simplified
+  const whyShopuPoints = [
     {
-      icon: ShoppingBagIcon,
-      titleKey: 'landing.features.items.storefronts.title',
-      descriptionKey: 'landing.features.items.storefronts.description',
-      iconColor: 'text-blue-400'
+      titleKey: 'landing.whyShopu.points.local.title',
+      descriptionKey: 'landing.whyShopu.points.local.description'
     },
     {
-      icon: CubeIcon,
-      titleKey: 'landing.features.items.inventory.title',
-      descriptionKey: 'landing.features.items.inventory.description',
-      iconColor: 'text-purple-400'
+      titleKey: 'landing.whyShopu.points.language.title',
+      descriptionKey: 'landing.whyShopu.points.language.description'
     },
     {
-      icon: ChartBarIcon,
-      titleKey: 'landing.features.items.analytics.title',
-      descriptionKey: 'landing.features.items.analytics.description',
-      iconColor: 'text-indigo-400'
+      titleKey: 'landing.whyShopu.points.support.title',
+      descriptionKey: 'landing.whyShopu.points.support.description'
     },
     {
-      icon: GlobeAltIcon,
-      titleKey: 'landing.features.items.multilanguage.title',
-      descriptionKey: 'landing.features.items.multilanguage.description',
-      iconColor: 'text-green-400'
-    },
-    {
-      icon: BoltIcon,
-      titleKey: 'landing.features.items.fast.title',
-      descriptionKey: 'landing.features.items.fast.description',
-      iconColor: 'text-orange-400'
-    },
-    {
-      icon: ShieldCheckIcon,
-      titleKey: 'landing.features.items.secure.title',
-      descriptionKey: 'landing.features.items.secure.description',
-      iconColor: 'text-emerald-400'
+      titleKey: 'landing.whyShopu.points.simple.title',
+      descriptionKey: 'landing.whyShopu.points.simple.description'
     }
   ];
 
+  // How it works steps - simplified
+  const howItWorksSteps = [
+    {
+      number: '01',
+      titleKey: 'landing.howItWorks.steps.create.title',
+      descriptionKey: 'landing.howItWorks.steps.create.description'
+    },
+    {
+      number: '02',
+      titleKey: 'landing.howItWorks.steps.add.title',
+      descriptionKey: 'landing.howItWorks.steps.add.description'
+    },
+    {
+      number: '03',
+      titleKey: 'landing.howItWorks.steps.sell.title',
+      descriptionKey: 'landing.howItWorks.steps.sell.description'
+    }
+  ];
+
+  // Features - simplified
+  const features = [
+    {
+      titleKey: 'landing.features.items.storefronts.title',
+      descriptionKey: 'landing.features.items.storefronts.description'
+    },
+    {
+      titleKey: 'landing.features.items.inventory.title',
+      descriptionKey: 'landing.features.items.inventory.description'
+    },
+    {
+      titleKey: 'landing.features.items.analytics.title',
+      descriptionKey: 'landing.features.items.analytics.description'
+    },
+    {
+      titleKey: 'landing.features.items.multilanguage.title',
+      descriptionKey: 'landing.features.items.multilanguage.description'
+    },
+    {
+      titleKey: 'landing.features.items.fast.title',
+      descriptionKey: 'landing.features.items.fast.description'
+    },
+    {
+      titleKey: 'landing.features.items.secure.title',
+      descriptionKey: 'landing.features.items.secure.description'
+    }
+  ];
+
+  // Monthly plan
+  const monthlyPlan = {
+    price: '49',
+    period: 'landing.pricing.period'
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Navigation */}
       <LandingHeader showAuthButtons={true} />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
+      {/* ===== HERO SECTION ===== */}
+      <section className="relative bg-neutral-950 text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Left - Text Content */}
-            <div className="fade-in">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight sm:leading-normal pb-1">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight leading-[1.1] mb-6">
                 <T tKey="landing.hero.title" />
-                {' '}
-                <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent pb-2 inline-block">
-                  <T tKey="landing.hero.titleGradient" />
+                <span className="block mt-3 font-medium text-neutral-300">
+                  <T tKey="landing.hero.titleHighlight" />
                 </span>
               </h1>
-
-              <p className="fade-in fade-in-delay-1 text-sm sm:text-base lg:text-lg text-gray-300 mt-4 sm:mt-6 mb-6 sm:mb-8 leading-relaxed">
+              
+              <p className="text-lg text-neutral-400 mb-4 max-w-lg mx-auto lg:mx-0 leading-relaxed">
                 <T tKey="landing.hero.subtitle" />
               </p>
-
-              <div className="fade-in fade-in-delay-2 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              
+              <p className="text-sm text-neutral-500 mb-8 max-w-md mx-auto lg:mx-0">
+                <T tKey="landing.hero.reassurance" />
+              </p>
+              
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl"
+                  className="group inline-flex items-center justify-center gap-3 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-all"
                 >
-                  <T tKey="landing.hero.startFreeTrial" />
-                  <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <T tKey="landing.hero.primaryCta" />
+                  <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 sm:px-7 py-3 sm:py-3.5 rounded-xl font-semibold text-sm sm:text-base transition-all"
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center justify-center gap-2 text-neutral-300 hover:text-white px-8 py-4 rounded-full font-medium transition-colors border border-neutral-700 hover:border-neutral-500"
                 >
-                  <T tKey="landing.hero.watchDemo" />
-                </Link>
+                  <T tKey="landing.hero.secondaryCta" />
+                </a>
               </div>
             </div>
 
             {/* Right - Product Preview */}
-            <div className="fade-in fade-in-delay-3">
-              <div className="bg-white/5 rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border border-white/10 shadow-2xl">
+            <div>
+              <div className="bg-neutral-900 rounded-2xl p-1.5 border border-neutral-600">
                 {/* Browser bar */}
-                <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 border-b border-white/10">
-                  <div className="flex gap-1 sm:gap-1.5">
-                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-400/80" />
-                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-400/80" />
-                    <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-400/80" />
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
                   </div>
-                  <div className="flex-1 flex justify-center overflow-hidden">
-                    <div className="px-2 sm:px-4 py-0.5 sm:py-1 rounded-md bg-white/10 text-[10px] sm:text-xs text-gray-400 truncate">
+                  <div className="flex-1 flex justify-center">
+                    <div className="px-4 py-1 rounded-md bg-neutral-800 text-xs text-neutral-500">
                       shopu.ge/dashboard
                     </div>
                   </div>
                 </div>
                 
-                {/* Image - Click to zoom */}
+                {/* Image */}
                 <div 
-                  className="relative overflow-hidden rounded-b-lg sm:rounded-b-xl bg-gray-800 cursor-zoom-in group"
+                  className="relative overflow-hidden rounded-b-xl bg-neutral-900 cursor-pointer group"
                   onClick={() => setLightboxOpen(true)}
                 >
                   {images.map((image, index) => (
@@ -133,27 +166,23 @@ const Landing = () => {
                       key={index}
                       src={image.src}
                       alt={image.alt}
-                      className={`w-full h-auto transition-all duration-500 group-hover:scale-105 ${
+                      className={`w-full h-auto transition-opacity duration-500 ${
                         index === currentImage ? 'opacity-100' : 'opacity-0 absolute inset-0'
                       }`}
                     />
                   ))}
-                  {/* Zoom hint overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                    <MagnifyingGlassPlusIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white opacity-0 group-hover:opacity-80 transition-opacity" />
-                  </div>
                 </div>
 
                 {/* Indicators */}
-                <div className="flex justify-center gap-1.5 sm:gap-2 py-3 sm:py-4">
+                <div className="flex justify-center gap-2 py-4">
                   {images.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImage(index)}
-                      className={`h-1 sm:h-1.5 rounded-full transition-all duration-300 ${
+                      className={`h-1 rounded-full transition-all duration-300 ${
                         index === currentImage
-                          ? 'w-6 sm:w-8 bg-blue-500'
-                          : 'w-1 sm:w-1.5 bg-white/30 hover:bg-white/50'
+                          ? 'w-6 bg-white'
+                          : 'w-1 bg-neutral-600 hover:bg-neutral-500'
                       }`}
                       aria-label={`Go to slide ${index + 1}`}
                     />
@@ -165,34 +194,207 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Shops Carousel */}
-      <ShopsCarousel />
+      {/* ===== HOW IT WORKS SECTION ===== */}
+      <section id="how-it-works" className="py-16 sm:py-20 bg-neutral-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="text-center mb-10 lg:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-light text-neutral-900 mb-4 tracking-tight">
+              <T tKey="landing.howItWorks.title" />
+            </h2>
+            <p className="text-lg text-neutral-500 max-w-xl mx-auto">
+              <T tKey="landing.howItWorks.subtitle" />
+            </p>
+          </div>
 
-      {/* Features Section */}
-      <section className="py-12 sm:py-16 lg:py-28 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">
+          {/* Steps */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            {howItWorksSteps.map((step, index) => (
+              <div key={index} className="text-center">
+                <div className="text-5xl font-extralight text-neutral-300 mb-6">
+                  {step.number}
+                </div>
+                <h3 className="text-lg font-medium text-neutral-900 mb-3">
+                  <T tKey={step.titleKey} />
+                </h3>
+                <p className="text-neutral-500 leading-relaxed">
+                  <T tKey={step.descriptionKey} />
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Time estimate */}
+          <div className="text-center mt-8">
+            <span className="inline-block px-5 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-medium">
+              <T tKey="landing.howItWorks.timeEstimate" />
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== WHY SHOPU SECTION ===== */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="text-center mb-10 lg:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-light text-neutral-900 mb-4 tracking-tight">
+              <T tKey="landing.whyShopu.title" />
+            </h2>
+            <p className="text-lg text-neutral-500 max-w-2xl mx-auto">
+              <T tKey="landing.whyShopu.subtitle" />
+            </p>
+          </div>
+
+          {/* Points */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+            {whyShopuPoints.map((point, index) => (
+              <div key={index} className="flex gap-5">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 font-light text-sm">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                    <T tKey={point.titleKey} />
+                  </h3>
+                  <p className="text-neutral-500 leading-relaxed">
+                    <T tKey={point.descriptionKey} />
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Comparison callout */}
+          <div className="mt-10 p-8 sm:p-10 rounded-2xl bg-neutral-50 border border-neutral-100">
+            <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+              <div className="flex-1">
+                <h3 className="text-xl font-medium text-neutral-900 mb-2">
+                  <T tKey="landing.whyShopu.comparison.title" />
+                </h3>
+                <p className="text-neutral-500">
+                  <T tKey="landing.whyShopu.comparison.description" />
+                </p>
+              </div>
+              <Link
+                to="/register"
+                className="flex-shrink-0 inline-flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white px-6 py-3 rounded-full font-medium transition-colors"
+              >
+                <T tKey="landing.whyShopu.comparison.cta" />
+                <ArrowRightIcon className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PRICING SECTION ===== */}
+      <section id="pricing" className="py-16 sm:py-20 bg-neutral-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="text-center mb-10 lg:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-light text-neutral-900 mb-4 tracking-tight">
+              <T tKey="landing.pricing.title" />
+            </h2>
+            <p className="text-lg text-neutral-500 max-w-xl mx-auto">
+              <T tKey="landing.pricing.subtitle" />
+            </p>
+          </div>
+
+          {/* Pricing Card */}
+          <div className="max-w-2xl mx-auto">
+            <div className="p-10 sm:p-12 rounded-2xl bg-neutral-900 text-white">
+              {/* Pricing Flow */}
+              <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-6">
+                {/* 1 GEL */}
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-6xl sm:text-7xl font-light">1</span>
+                    <span className="text-2xl sm:text-3xl font-light text-neutral-400">
+                      <T tKey="landing.pricing.currency" />
+                    </span>
+                  </div>
+                  <p className="text-neutral-400 text-sm">
+                    <T tKey="landing.pricing.entryPoint.title" />
+                  </p>
+                </div>
+
+                {/* Arrow */}
+                <div className="hidden md:block text-neutral-600">
+                  <ArrowRightIcon className="w-8 h-8" />
+                </div>
+                <div className="md:hidden text-neutral-600 rotate-90">
+                  <ArrowRightIcon className="w-8 h-8" />
+                </div>
+
+                {/* 49 GEL/month */}
+                <div className="text-center">
+                  <div className="flex items-baseline justify-center gap-1 mb-2">
+                    <span className="text-6xl sm:text-7xl font-light">
+                      {monthlyPlan.price}
+                    </span>
+                    <span className="text-2xl sm:text-3xl font-light text-neutral-400">
+                      <T tKey={monthlyPlan.period} />
+                    </span>
+                  </div>
+                  <p className="text-neutral-400 text-sm">
+                    <T tKey="landing.pricing.monthlyPlan.description" />
+                  </p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-center text-neutral-300 mb-6 max-w-lg mx-auto">
+                <T tKey="landing.pricing.flowDescription" />
+              </p>
+
+              {/* CTA Button */}
+              <div className="text-center">
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-colors text-lg"
+                >
+                  <T tKey="landing.pricing.entryPoint.cta" />
+                  <ArrowRightIcon className="w-5 h-5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust note */}
+          <div className="text-center mt-8">
+            <p className="text-neutral-400 text-sm">
+              <T tKey="landing.pricing.trustNote" />
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FEATURES SECTION ===== */}
+      <section className="py-16 sm:py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10 lg:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-light text-neutral-900 mb-4 tracking-tight">
               <T tKey="landing.features.title" />
             </h2>
-            <p className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto px-4">
+            <p className="text-lg text-neutral-500 max-w-xl mx-auto">
               <T tKey="landing.features.subtitle" />
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="feature-card bg-gray-900 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:bg-gray-800 transition-colors"
+                className="group"
               >
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-6`}>
-                  <feature.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${feature.iconColor}`} />
+                <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center mb-4 text-neutral-400 font-light text-sm">
+                  {String(index + 1).padStart(2, '0')}
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3">
+                <h3 className="text-lg font-medium text-neutral-900 mb-2">
                   <T tKey={feature.titleKey} />
                 </h3>
-                <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
+                <p className="text-neutral-500 leading-relaxed">
                   <T tKey={feature.descriptionKey} />
                 </p>
               </div>
@@ -201,95 +403,100 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 lg:py-28 bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6 px-4">
+      {/* ===== CTA SECTION ===== */}
+      <section className="py-16 sm:py-20 bg-neutral-950">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-light text-white mb-4 tracking-tight">
             <T tKey="landing.cta.title" />
           </h2>
-          <p className="text-base sm:text-lg text-gray-300 mb-8 sm:mb-10 max-w-xl mx-auto px-4">
+          <p className="text-lg text-neutral-400 mb-8 max-w-xl mx-auto">
             <T tKey="landing.cta.subtitle" />
           </p>
           <Link
             to="/register"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl"
+            className="inline-flex items-center gap-3 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-colors"
           >
             <T tKey="landing.cta.button" />
-            <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <ArrowRightIcon className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
-      {/* Footer with Legal Info */}
-      <footer className="bg-white border-t border-gray-200 py-8 sm:py-10 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 md:gap-16 lg:gap-24 text-center md:text-left w-full max-w-3xl">
-              {/* Company Info */}
-              <div>
-                <h4 className="text-gray-900 font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
-                  <T tKey="landing.footer.company.title" />
-                </h4>
-                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                  <li>
-                    <Link to="/about" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.company.aboutUs" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/contact" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.company.contact" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/services" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.company.services" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/pricing" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.company.pricing" />
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Legal */}
-              <div>
-                <h4 className="text-gray-900 font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
-                  <T tKey="landing.footer.legal.title" />
-                </h4>
-                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                  <li>
-                    <Link to="/terms" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.legal.terms" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/privacy" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.legal.privacy" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/refund-policy" className="text-gray-500 hover:text-gray-900 transition-colors">
-                      <T tKey="landing.footer.legal.refundPolicy" />
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Contact */}
-              <div className="sm:col-span-2 md:col-span-1">
-                <h4 className="text-gray-900 font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
-                  <T tKey="landing.footer.contactInfo.title" />
-                </h4>
-                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-500">
-                  <li><T tKey="landing.footer.contactInfo.email" /></li>
-                  <li><T tKey="landing.footer.contactInfo.phone" /></li>
-                  <li><T tKey="landing.footer.contactInfo.address" /></li>
-                </ul>
-              </div>
+      {/* ===== FOOTER ===== */}
+      <footer className="bg-neutral-50 border-t border-neutral-100 py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center md:text-left">
+            {/* Company Info */}
+            <div>
+              <h4 className="text-neutral-900 font-medium mb-4 text-sm uppercase tracking-wide">
+                <T tKey="landing.footer.company.title" />
+              </h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link to="/about" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.company.aboutUs" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.company.contact" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/services" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.company.services" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/pricing" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.company.pricing" />
+                  </Link>
+                </li>
+              </ul>
             </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-neutral-900 font-medium mb-4 text-sm uppercase tracking-wide">
+                <T tKey="landing.footer.legal.title" />
+              </h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link to="/terms" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.legal.terms" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.legal.privacy" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/refund-policy" className="text-neutral-500 hover:text-neutral-900 transition-colors">
+                    <T tKey="landing.footer.legal.refundPolicy" />
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-neutral-900 font-medium mb-4 text-sm uppercase tracking-wide">
+                <T tKey="landing.footer.contactInfo.title" />
+              </h4>
+              <ul className="space-y-3 text-sm text-neutral-500">
+                <li><T tKey="landing.footer.contactInfo.email" /></li>
+                <li><T tKey="landing.footer.contactInfo.phone" /></li>
+                <li><T tKey="landing.footer.contactInfo.address" /></li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Copyright */}
+          <div className="mt-10 pt-6 border-t border-neutral-200 text-center">
+            <p className="text-neutral-400 text-sm">
+              <T tKey="landing.footer.copyright" />
+            </p>
           </div>
         </div>
       </footer>
@@ -297,47 +504,43 @@ const Landing = () => {
       {/* Lightbox Modal */}
       {lightboxOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-2 sm:p-4"
+          className="fixed inset-0 z-50 bg-neutral-950/95 flex items-center justify-center p-4"
           onClick={() => setLightboxOpen(false)}
         >
-          {/* Close button */}
           <button 
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white/80 hover:text-white p-1.5 sm:p-2 z-10"
+            className="absolute top-6 right-6 text-neutral-400 hover:text-white p-2 z-10 transition-colors"
             onClick={() => setLightboxOpen(false)}
           >
-            <XMarkIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+            <XMarkIcon className="w-6 h-6" />
           </button>
 
-          {/* Navigation arrows */}
           <button
-            className="absolute left-2 sm:left-4 text-white/80 hover:text-white p-1.5 sm:p-2 z-10"
+            className="absolute left-6 text-neutral-400 hover:text-white p-2 z-10 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
             }}
           >
-            <ArrowRightIcon className="w-6 h-6 sm:w-8 sm:h-8 rotate-180" />
+            <ChevronLeftIcon className="w-6 h-6" />
           </button>
           <button
-            className="absolute right-2 sm:right-4 text-white/80 hover:text-white p-1.5 sm:p-2 z-10"
+            className="absolute right-6 text-neutral-400 hover:text-white p-2 z-10 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setCurrentImage((prev) => (prev + 1) % images.length);
             }}
           >
-            <ArrowRightIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+            <ChevronRightIcon className="w-6 h-6" />
           </button>
 
-          {/* Image */}
           <img
             src={images[currentImage].src}
             alt={images[currentImage].alt}
-            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            className="max-w-full max-h-[90vh] object-contain rounded-xl"
             onClick={(e) => e.stopPropagation()}
           />
 
-          {/* Indicators */}
-          <div className="absolute bottom-4 sm:bottom-6 flex gap-1.5 sm:gap-2">
+          <div className="absolute bottom-8 flex gap-2">
             {images.map((_, index) => (
               <button
                 key={index}
@@ -345,10 +548,10 @@ const Landing = () => {
                   e.stopPropagation();
                   setCurrentImage(index);
                 }}
-                className={`h-1.5 sm:h-2 rounded-full transition-all ${
+                className={`h-1.5 rounded-full transition-all ${
                   index === currentImage
-                    ? 'w-6 sm:w-8 bg-white'
-                    : 'w-1.5 sm:w-2 bg-white/40 hover:bg-white/60'
+                    ? 'w-6 bg-white'
+                    : 'w-1.5 bg-neutral-600 hover:bg-neutral-400'
                 }`}
               />
             ))}
@@ -356,6 +559,25 @@ const Landing = () => {
         </div>
       )}
 
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-33.33%);
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll linear infinite;
+          width: max-content;
+        }
+
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 };

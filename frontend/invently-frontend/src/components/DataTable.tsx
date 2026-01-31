@@ -39,7 +39,7 @@ function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+      <div className="bg-white rounded-2xl border border-neutral-200">
         <div className="p-8 text-center">
           <LoadingSpinner />
         </div>
@@ -59,15 +59,15 @@ function DataTable<T extends Record<string, any>>({
   }
 
   return (
-    <div className={`bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden ${className}`}>
+    <div className={`bg-white rounded-2xl border border-neutral-200 overflow-hidden ${className}`}>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-neutral-200">
+          <thead className="bg-neutral-50">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                  className={`px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider ${
                     column.headerClassName || ''
                   }`}
                 >
@@ -76,11 +76,11 @@ function DataTable<T extends Record<string, any>>({
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-neutral-200">
             {data.map((item, index) => (
               <tr
                 key={item.id || index}
-                className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''} ${
+                className={`hover:bg-neutral-50 ${onRowClick ? 'cursor-pointer' : ''} ${
                   getRowClassName ? getRowClassName(item, index) : ''
                 }`}
                 onClick={() => onRowClick?.(item)}

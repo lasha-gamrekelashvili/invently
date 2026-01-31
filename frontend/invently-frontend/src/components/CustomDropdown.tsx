@@ -128,13 +128,13 @@ const CustomDropdown: React.FC<CustomDropdownProps> = React.memo(({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         className={`
-          w-full bg-white border border-gray-300 
-          rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-          hover:border-gray-400 appearance-none cursor-pointer
+          w-full bg-white border border-neutral-300 
+          rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 
+          hover:border-neutral-400 appearance-none cursor-pointer
           text-left flex items-center justify-between transition-all
           ${size === 'compact' ? 'px-2 py-1 pr-5 text-xs' : 'px-3 py-2 sm:py-2.5 md:px-4 md:py-3 pr-8 md:pr-10 text-xs sm:text-sm'}
-          ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-          ${isOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
+          ${disabled ? 'opacity-50 cursor-not-allowed bg-neutral-100' : ''}
+          ${isOpen ? 'ring-2 ring-neutral-500 border-neutral-500' : ''}
         `}
         aria-haspopup="listbox"
         aria-expanded={isOpen}

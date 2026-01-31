@@ -336,23 +336,23 @@ const StorefrontContent = () => {
               <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 min-h-[42px]">
                 {/* Breadcrumb */}
                 <nav className="overflow-x-auto scrollbar-hide py-2 sm:py-2.5">
-                  <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
+                  <div className="flex items-center text-xs sm:text-sm text-neutral-600 whitespace-nowrap min-w-max">
                     <button
                       onClick={handleAllProductsClick}
-                      className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
+                      className="hover:text-neutral-900 transition-colors flex-shrink-0 px-1"
                     >
                       Home
                     </button>
                     
                     {categoryHierarchy.map((cat, index) => (
                       <React.Fragment key={cat.id}>
-                        <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+                        <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-neutral-400" />
                         <button
                           onClick={() => handleCategorySelect(cat.id)}
                           className={`transition-colors flex-shrink-0 px-1 ${
                             index === categoryHierarchy.length - 1
-                              ? 'text-gray-900 font-medium'
-                              : 'hover:text-gray-900'
+                              ? 'text-neutral-900 font-medium'
+                              : 'hover:text-neutral-900'
                           }`}
                         >
                           {cat.name}
@@ -364,14 +364,14 @@ const StorefrontContent = () => {
 
                 {/* Grid Layout Controls - Available on all screen sizes */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-xs sm:text-sm text-gray-600 px-1">View:</span>
+                <span className="text-xs sm:text-sm text-neutral-600 px-1">View:</span>
                 {/* 2 columns */}
                 <button
                   onClick={() => handleGridLayoutChange(2)}
                   className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
                     gridLayout === 2
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
+                      ? 'border-neutral-800 bg-neutral-100'
+                      : 'border-neutral-300 bg-white hover:border-neutral-400 hover:bg-neutral-50'
                   }`}
                   title="2 columns"
                 >
@@ -381,8 +381,8 @@ const StorefrontContent = () => {
                         key={i}
                         className={`w-1.5 sm:w-2 h-4 sm:h-5 rounded-sm transition-colors ${
                           gridLayout === 2
-                            ? 'bg-blue-600'
-                            : 'bg-gray-400 group-hover:bg-gray-600'
+                            ? 'bg-neutral-800'
+                            : 'bg-neutral-400 group-hover:bg-neutral-600'
                         }`}
                       />
                     ))}
@@ -394,8 +394,8 @@ const StorefrontContent = () => {
                   onClick={() => handleGridLayoutChange(3)}
                   className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
                     gridLayout === 3
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
+                      ? 'border-neutral-800 bg-neutral-100'
+                      : 'border-neutral-300 bg-white hover:border-neutral-400 hover:bg-neutral-50'
                   }`}
                   title="3 columns"
                 >
@@ -405,8 +405,8 @@ const StorefrontContent = () => {
                         key={i}
                         className={`w-1 sm:w-1.5 h-4 sm:h-5 rounded-sm transition-colors ${
                           gridLayout === 3
-                            ? 'bg-blue-600'
-                            : 'bg-gray-400 group-hover:bg-gray-600'
+                            ? 'bg-neutral-800'
+                            : 'bg-neutral-400 group-hover:bg-neutral-600'
                         }`}
                       />
                     ))}
@@ -418,8 +418,8 @@ const StorefrontContent = () => {
                   onClick={() => handleGridLayoutChange(4)}
                   className={`group relative p-2 sm:p-2.5 rounded-md border transition-all ${
                     gridLayout === 4
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-300 bg-white hover:border-gray-400 hover:bg-gray-50'
+                      ? 'border-neutral-800 bg-neutral-100'
+                      : 'border-neutral-300 bg-white hover:border-neutral-400 hover:bg-neutral-50'
                   }`}
                   title="4 columns"
                 >
@@ -429,8 +429,8 @@ const StorefrontContent = () => {
                         key={i}
                         className={`w-1 sm:w-1.5 h-4 sm:h-5 rounded-sm transition-colors ${
                           gridLayout === 4
-                            ? 'bg-blue-600'
-                            : 'bg-gray-400 group-hover:bg-gray-600'
+                            ? 'bg-neutral-800'
+                            : 'bg-neutral-400 group-hover:bg-neutral-600'
                         }`}
                       />
                     ))}
@@ -465,12 +465,14 @@ const StorefrontContent = () => {
                   ))}
               </div>
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-                <CubeIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <div className="text-center py-20 px-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 mb-6">
+                  <CubeIcon className="w-8 h-8 text-neutral-400" />
+                </div>
+                <h3 className="text-xl font-light tracking-tight text-neutral-900 mb-3">
                   No products available
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-neutral-500 text-sm max-w-md mx-auto leading-relaxed">
                   {priceRange.min || priceRange.max
                     ? 'No products found in this price range. Try adjusting the price filter.'
                     : 'Check back later for new products!'
@@ -482,9 +484,9 @@ const StorefrontContent = () => {
                       setPriceInput({ min: '', max: '' });
                       setPriceRange({ min: '', max: '' });
                     }}
-                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                    className="mt-6 text-sm text-neutral-600 hover:text-neutral-900 font-medium transition-colors underline underline-offset-4"
                   >
-                    Clear Price Filter
+                    Clear price filter
                   </button>
                 )}
               </div>
@@ -533,12 +535,14 @@ const StorefrontContent = () => {
                 )}
               </>
             ) : (
-              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-                <CubeIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <div className="text-center py-20 px-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-100 mb-6">
+                  <CubeIcon className="w-8 h-8 text-neutral-400" />
+                </div>
+                <h3 className="text-xl font-light tracking-tight text-neutral-900 mb-3">
                   {selectedCategory ? `No products found in ${selectedCategory.name}` : 'No products found'}
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-neutral-500 text-sm max-w-md mx-auto leading-relaxed">
                   {selectedCategory
                     ? 'Try selecting a different category or browse all products.'
                     : searchQuery
@@ -558,9 +562,9 @@ const StorefrontContent = () => {
                       setPriceRange({ min: '', max: '' });
                       setCurrentPage(1);
                     }}
-                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                    className="mt-6 text-sm text-neutral-600 hover:text-neutral-900 font-medium transition-colors underline underline-offset-4"
                   >
-                    Clear Filters
+                    Clear all filters
                   </button>
                 )}
               </div>

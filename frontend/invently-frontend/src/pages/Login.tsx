@@ -34,24 +34,20 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Navigation */}
       <LandingHeader />
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"></div>
-        
-        <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
+      <div className="bg-neutral-950 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-6 leading-tight tracking-tight">
             <T tKey="auth.login.heroTitle" />{' '}
-            <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="font-medium text-neutral-300">
               <T tKey="auth.login.heroBrand" />
             </span>
           </h1>
-          <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-neutral-400 leading-relaxed max-w-2xl mx-auto">
             <T tKey="auth.login.heroDescription" />
           </p>
         </div>
@@ -61,7 +57,7 @@ const Login = () => {
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-10">
             <form className="space-y-6" onSubmit={handleSubmit}>
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
@@ -71,12 +67,12 @@ const Login = () => {
 
               <div className="space-y-5">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
                     <T tKey="auth.login.email" />
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                      <EnvelopeIcon className="h-5 w-5 text-neutral-400" />
                     </div>
                     <input
                       id="email"
@@ -86,19 +82,19 @@ const Login = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="block w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
                       placeholder={t('auth.login.email')}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-2">
                     <T tKey="auth.login.password" />
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                      <LockClosedIcon className="h-5 w-5 text-neutral-400" />
                     </div>
                     <input
                       id="password"
@@ -108,7 +104,7 @@ const Login = () => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="block w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="block w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
                       placeholder={t('auth.login.password')}
                     />
                   </div>
@@ -119,7 +115,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3.5 px-4 rounded-xl font-semibold text-base hover:from-blue-600 hover:to-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-full bg-neutral-900 text-white py-3.5 px-4 rounded-full font-medium text-base hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 >
                   {isLoading ? (
                     <LoadingSpinner size="sm" />
@@ -131,11 +127,11 @@ const Login = () => {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-neutral-600">
                 <T tKey="auth.login.noAccount" />{' '}
                 <Link
                   to="/register"
-                  className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                  className="font-medium text-neutral-900 hover:text-neutral-700 transition-colors"
                 >
                   <T tKey="auth.login.signUpLink" />
                 </Link>
@@ -146,12 +142,12 @@ const Login = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-gray-100 mt-auto">
+      <footer className="border-t border-neutral-200 bg-neutral-50 mt-auto">
         <div className="max-w-4xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-gray-400 text-sm">
+          <p className="text-neutral-400 text-sm">
             © 2025 Shopu.ge
           </p>
-          <Link to="/" className="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors">
+          <Link to="/" className="text-neutral-500 hover:text-neutral-900 text-sm font-medium transition-colors">
             <T tKey="legal.footer.backToHome" />
           </Link>
         </div>

@@ -272,7 +272,7 @@ export const adminAPI = {
 
 // Settings API
 export const settingsAPI = {
-  getSettings: (): Promise<{ data: StoreSettings }> =>
+  getSettings: (): Promise<StoreSettings> =>
     api.get('/settings').then(res => res.data),
 
   updateSettings: (data: UpdateStoreSettingsData): Promise<{ data: StoreSettings; message: string }> =>

@@ -66,7 +66,7 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
           ) : (
             <button
               onClick={() => onCategorySelect?.(category.id)}
-              className="text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[80px] sm:max-w-none"
+              className="text-neutral-900 hover:text-neutral-700 hover:underline truncate max-w-[80px] sm:max-w-none"
             >
               {category.name}
             </button>

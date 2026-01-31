@@ -40,7 +40,7 @@ const ShopsCarousel: React.FC = () => {
   const animationDuration = Math.max(12, shops.length * 3);
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
+    <section className="pt-12 pb-8 sm:pt-16 sm:pb-10 lg:pt-20 lg:pb-12 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
       <div className="max-w-full">
         {/* Scrolling text carousel */}
         <div className="relative">
@@ -79,7 +79,7 @@ const ShopsCarousel: React.FC = () => {
         </div>
 
         {/* Subtitle */}
-        <div className="text-center mt-8 sm:mt-10 lg:mt-12 px-4">
+        <div className="text-center mt-6 sm:mt-8 lg:mt-10 px-4">
           <p className="text-xs sm:text-sm md:text-base text-gray-500 font-medium tracking-wide">
             JOIN {shops.length}+ BUSINESSES SELLING WITH SHOPU
           </p>

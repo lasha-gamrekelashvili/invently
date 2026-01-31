@@ -78,19 +78,19 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-gray-900/50 z-40"
+        className="fixed inset-0 bg-neutral-900/50 z-40"
         onClick={handleClose}
       />
 
       {/* Cart Panel */}
-      <div className={`fixed right-0 top-14 sm:top-16 md:top-20 bottom-0 w-full sm:w-[450px] bg-white shadow-2xl border-t border-gray-200 z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
+      <div className={`fixed right-0 top-14 sm:top-16 md:top-20 bottom-0 w-full sm:w-[450px] bg-white border-t border-neutral-200 z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
         isVisible ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Cart Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-800 border-t-transparent"></div>
             </div>
           ) : cart?.items && cart.items.length > 0 ? (
             <div className="space-y-4">
@@ -108,7 +108,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                         ? 'from-red-50 to-red-100 border-red-300 opacity-75'
                         : hasStockIssue
                           ? 'from-amber-50 to-orange-50 border-amber-300'
-                          : 'from-gray-50 to-white border-gray-200 hover:shadow-md'
+                          : 'from-neutral-50 to-white border-neutral-200 hover:shadow-md'
                     }`}
                   >
                     {/* Warning Banner - different colors for different issues */}
@@ -131,7 +131,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                     
                     <div className="flex items-start space-x-4">
                       {/* Product Image */}
-                      <div className={`w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden ${isProductGone ? 'grayscale' : ''}`}>
+                      <div className={`w-20 h-20 bg-neutral-200 rounded-xl flex-shrink-0 overflow-hidden ${isProductGone ? 'grayscale' : ''}`}>
                         {item.product.images?.[0] ? (
                           <img
                             src={item.product.images[0].url}
@@ -139,13 +139,13 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300"></div>
+                          <div className="w-full h-full bg-gradient-to-br from-neutral-200 to-neutral-300"></div>
                         )}
                       </div>
 
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
-                        <h3 className={`font-semibold text-sm mb-1 line-clamp-2 ${isProductGone ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                        <h3 className={`font-medium text-sm mb-1 line-clamp-2 ${isProductGone ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}>
                           {item.product.title}
                         </h3>
                         {item.variant && (
@@ -153,14 +153,14 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                             {Object.entries(item.variant.options).map(([key, value]) => (
                               <span
                                 key={key}
-                                className="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded"
+                                className="text-xs bg-neutral-100 text-neutral-800 px-2 py-0.5 rounded"
                               >
                                 {key}: {value}
                               </span>
                             ))}
                           </div>
                         )}
-                        <p className={`text-sm ${isProductGone ? 'text-gray-400' : 'text-gray-600'}`}>
+                        <p className={`text-sm ${isProductGone ? 'text-neutral-400' : 'text-neutral-600'}`}>
                           ${item.price.toFixed(2)} each
                         </p>
                         
@@ -175,29 +175,29 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                         <div className="flex items-center space-x-3 mt-3">
                           {/* Show quantity controls if product exists and has some stock */}
                           {canAdjustQuantity && (
-                            <div className={`flex items-center bg-white border rounded-lg ${
-                              hasStockIssue ? 'border-amber-300' : 'border-gray-300'
+                            <div className={`flex items-center bg-white border rounded-xl ${
+                              hasStockIssue ? 'border-amber-300' : 'border-neutral-300'
                             }`}>
                               <button
                                 onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
-                                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-l-lg transition-colors"
+                                className="p-2 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-l-xl transition-colors"
                               >
                                 <MinusIcon className="h-4 w-4" />
                               </button>
-                              <span className={`px-4 py-2 text-sm font-semibold border-x ${
+                              <span className={`px-4 py-2 text-sm font-medium border-x ${
                                 hasStockIssue 
                                   ? 'text-amber-700 border-amber-300' 
-                                  : 'text-gray-900 border-gray-300'
+                                  : 'text-neutral-900 border-neutral-300'
                               }`}>
                                 {item.quantity}
                               </span>
                               <button
                                 onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
                                 disabled={item.quantity >= (item.availableStock ?? 0)}
-                                className={`p-2 rounded-r-lg transition-colors ${
+                                className={`p-2 rounded-r-xl transition-colors ${
                                   item.quantity >= (item.availableStock ?? 0)
-                                    ? 'text-gray-300 cursor-not-allowed'
-                                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                                    ? 'text-neutral-300 cursor-not-allowed'
+                                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
                                 }`}
                               >
                                 <PlusIcon className="h-4 w-4" />
@@ -220,7 +220,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
 
                       {/* Item Total */}
                       <div className="text-right">
-                        <p className={`text-lg font-bold ${isUnavailable ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                        <p className={`text-lg font-medium ${isUnavailable ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
                           ${(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
@@ -231,18 +231,18 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
             </div>
           ) : (
             <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ShoppingCartIcon className="h-12 w-12 text-gray-400" />
+              <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShoppingCartIcon className="h-12 w-12 text-neutral-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
-              <p className="text-gray-600">Add some products to get started!</p>
+              <h3 className="text-lg font-light tracking-tight text-neutral-900 mb-2">Your cart is empty</h3>
+              <p className="text-neutral-600">Add some products to get started!</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
         {cart?.items && cart.items.length > 0 && (
-          <div className="border-t border-gray-200 p-6 bg-gray-50 space-y-4">
+          <div className="border-t border-neutral-200 p-6 bg-neutral-50 space-y-4">
             {/* Stock Issues Warning */}
             {cart.hasStockIssues && !cart.hasUnavailableItems && (
               <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
@@ -281,16 +281,16 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
 
             {/* Subtotal */}
             <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm text-gray-600">
+              <div className="flex justify-between items-center text-sm text-neutral-600">
                 <span>Subtotal</span>
                 <span>${cartTotal.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Total */}
-            <div className="flex justify-between items-center pt-3 border-t border-gray-300">
-              <span className="text-lg font-bold text-gray-900">Total</span>
-              <span className="text-2xl font-bold text-gray-900">${cartTotal.toFixed(2)}</span>
+            <div className="flex justify-between items-center pt-3 border-t border-neutral-300">
+              <span className="text-lg font-medium text-neutral-900">Total</span>
+              <span className="text-2xl font-medium text-neutral-900">${cartTotal.toFixed(2)}</span>
             </div>
 
             {/* Actions */}
@@ -298,17 +298,17 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
               <button
                 onClick={handleCheckout}
                 disabled={cart.hasUnavailableItems}
-                className={`w-full py-4 px-4 rounded-xl font-semibold transition-all shadow-lg ${
+                className={`w-full py-4 px-4 rounded-full font-medium transition-all ${
                   cart.hasUnavailableItems
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-xl active:scale-95'
+                    ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                    : 'bg-neutral-800 text-white hover:bg-neutral-700'
                 }`}
               >
                 {cart.hasUnavailableItems ? 'Remove Unavailable Items to Checkout' : 'Proceed to Checkout'}
               </button>
               <button
                 onClick={clearCart}
-                className="w-full bg-white border-2 border-gray-300 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-colors"
+                className="w-full bg-white border-2 border-neutral-300 text-neutral-700 py-3 px-4 rounded-full font-medium hover:bg-neutral-50 hover:border-neutral-400 transition-colors"
               >
                 Clear Cart
               </button>

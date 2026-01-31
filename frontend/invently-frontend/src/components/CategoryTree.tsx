@@ -92,10 +92,10 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           <div
             className={`flex items-center py-2 sm:py-2.5 px-2 sm:px-3 rounded-xl group transition-all duration-200 ${
               isSelected
-                ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 shadow-sm'
+                ? 'bg-neutral-100 border border-neutral-200 shadow-sm'
                 : isDraft
-                  ? 'bg-gradient-to-r from-yellow-50 to-yellow-100/50 hover:from-yellow-100 hover:to-yellow-200/50 border border-yellow-200'
-                  : 'hover:bg-gray-100/80 hover:shadow-sm'
+                  ? 'bg-neutral-50 hover:bg-neutral-100 border border-neutral-200'
+                  : 'hover:bg-neutral-50 hover:shadow-sm'
             }`}
             style={{ marginLeft: `${level * 12}px` }}
           >
@@ -118,22 +118,22 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
             {/* Category Info */}
             <button
               onClick={() => onSelect?.(category.id)}
-              className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
+              className="flex-1 min-w-0 text-left hover:text-neutral-900 transition-colors"
             >
               <div className="flex items-center">
                 {level === 0 ? (
-                  <FolderIcon className={`w-3.5 sm:w-4 h-3.5 sm:h-4 mr-2 sm:mr-3 flex-shrink-0 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
+                  <FolderIcon className={`w-3.5 sm:w-4 h-3.5 sm:h-4 mr-2 sm:mr-3 flex-shrink-0 ${isDraft ? 'text-neutral-500' : isSelected ? 'text-neutral-900' : 'text-neutral-500'}`} />
                 ) : (
-                  <TagIcon className={`w-3.5 sm:w-4 h-3.5 sm:h-4 mr-2 sm:mr-3 flex-shrink-0 ${isDraft ? 'text-yellow-600' : isSelected ? 'text-blue-600' : 'text-gray-500'}`} />
+                  <TagIcon className={`w-3.5 sm:w-4 h-3.5 sm:h-4 mr-2 sm:mr-3 flex-shrink-0 ${isDraft ? 'text-neutral-500' : isSelected ? 'text-neutral-900' : 'text-neutral-500'}`} />
                 )}
                 <span className={`truncate font-medium ${
                   isDraft
-                    ? 'text-yellow-800 text-xs sm:text-sm'
+                    ? 'text-neutral-600 text-xs sm:text-sm'
                     : isSelected
-                      ? 'text-blue-800 text-xs sm:text-sm'
+                      ? 'text-neutral-900 text-xs sm:text-sm'
                       : level === 0
-                        ? 'text-gray-900 text-xs sm:text-sm font-semibold'
-                        : 'text-gray-600 text-xs sm:text-sm hover:text-gray-900'
+                        ? 'text-neutral-900 text-xs sm:text-sm font-semibold'
+                        : 'text-neutral-600 text-xs sm:text-sm hover:text-neutral-900'
                 }`}>
                   {category.name}
                 </span>
@@ -141,9 +141,9 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
                   <span className={`ml-auto text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-medium flex-shrink-0 ${
                     (category._recursiveCount || category._count?.products || 0) > 0
                       ? isSelected 
-                        ? 'bg-blue-200 text-blue-800'
-                        : 'bg-gray-200 text-gray-600'
-                      : 'bg-gray-100 text-gray-400'
+                        ? 'bg-neutral-200 text-neutral-900'
+                        : 'bg-neutral-200 text-neutral-600'
+                      : 'bg-neutral-100 text-neutral-400'
                   }`}>
                     {category._recursiveCount || category._count?.products || 0}
                   </span>
@@ -167,10 +167,10 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
         <div
           className={`flex items-center py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg group ${
             isSelected 
-              ? 'bg-blue-50 border border-blue-200' 
+              ? 'bg-neutral-100 border border-neutral-200' 
               : isDraft 
-                ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
-                : 'hover:bg-gray-50'
+                ? 'bg-neutral-50 hover:bg-neutral-100 border border-neutral-200' 
+                : 'hover:bg-neutral-50'
           }`}
           style={{ marginLeft: `${level * 12}px` }}
         >
@@ -202,17 +202,17 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           {/* Category Info */}
           <button
             onClick={() => onSelect?.(category.id)}
-            className="flex-1 min-w-0 text-left hover:text-blue-600 transition-colors"
+            className="flex-1 min-w-0 text-left hover:text-neutral-900 transition-colors"
           >
             <div className="flex items-center">
-              <span className={`text-xs sm:text-sm font-medium truncate ${isDraft ? 'text-yellow-800' : 'text-gray-900'}`}>
+              <span className={`text-xs sm:text-sm font-medium truncate ${isDraft ? 'text-neutral-600' : 'text-neutral-900'}`}>
                 {category.name}
               </span>
               {showProductCounts && (category._recursiveCount !== undefined || category._count) && (
                 <span className={`ml-1.5 sm:ml-2 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full flex-shrink-0 ${
                   (category._recursiveCount || category._count?.products || 0) > 0 
-                    ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                    : 'bg-gray-50 text-gray-400 border border-gray-200'
+                    ? 'bg-neutral-100 text-neutral-900 border border-neutral-200' 
+                    : 'bg-neutral-50 text-neutral-400 border border-neutral-200'
                 }`}>
                   {category._recursiveCount || category._count?.products || 0}
                 </span>
@@ -229,14 +229,14 @@ const CategoryTree: React.FC<CategoryTreeProps> = ({
           <div className="flex items-center space-x-0.5 sm:space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onAddChild?.(category.id)}
-              className="p-1 text-gray-400 hover:text-blue-600 rounded"
+              className="p-1 text-neutral-400 hover:text-neutral-900 rounded"
               title="Add subcategory"
             >
               <PlusIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
             </button>
             <button
               onClick={() => onEdit?.(category)}
-              className="p-1 text-gray-400 hover:text-blue-600 rounded"
+              className="p-1 text-neutral-400 hover:text-neutral-900 rounded"
               title="Edit category"
             >
               <PencilIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />

@@ -22,8 +22,8 @@ const Settings = () => {
 
   // Pre-fill form data when settings are loaded
   useEffect(() => {
-    if (settingsResponse?.data) {
-      setFormData(settingsResponse.data);
+    if (settingsResponse) {
+      setFormData(settingsResponse);
     }
   }, [settingsResponse]);
 
@@ -88,7 +88,7 @@ const Settings = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-neutral-900 text-neutral-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >

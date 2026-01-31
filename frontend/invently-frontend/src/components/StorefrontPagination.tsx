@@ -52,14 +52,14 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm mt-8">
+    <div className="bg-white rounded-xl border border-neutral-200 mt-8">
       <div className="px-6 py-4">
         {/* Desktop View */}
         <div className="hidden sm:flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Showing <span className="font-semibold text-gray-900">{startItem}</span> to{' '}
-            <span className="font-semibold text-gray-900">{endItem}</span> of{' '}
-            <span className="font-semibold text-gray-900">{totalItems}</span> products
+          <div className="text-sm text-neutral-500">
+            Showing <span className="font-medium text-neutral-900">{startItem}</span> to{' '}
+            <span className="font-medium text-neutral-900">{endItem}</span> of{' '}
+            <span className="font-medium text-neutral-900">{totalItems}</span> products
           </div>
 
           <nav className="flex items-center space-x-2">
@@ -67,7 +67,7 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+              className="flex items-center px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
             >
               <ChevronLeftIcon className="w-4 h-4 mr-1" />
               Previous
@@ -77,7 +77,7 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
             <div className="flex items-center space-x-1">
               {pageNumbers.map((page, index) =>
                 page === '...' ? (
-                  <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
+                  <span key={`ellipsis-${index}`} className="px-3 py-2 text-neutral-500">
                     ...
                   </span>
                 ) : (
@@ -86,8 +86,8 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
                     onClick={() => onPageChange(page as number)}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
                       currentPage === page
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        ? 'bg-neutral-900 text-white'
+                        : 'text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-50'
                     }`}
                   >
                     {page}
@@ -100,7 +100,7 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
+              className="flex items-center px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white transition-colors"
             >
               Next
               <ChevronRightIcon className="w-4 h-4 ml-1" />
@@ -110,15 +110,15 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
 
         {/* Mobile View */}
         <div className="sm:hidden space-y-3">
-          <div className="text-sm text-center text-gray-600">
-            Page <span className="font-semibold text-gray-900">{currentPage}</span> of{' '}
-            <span className="font-semibold text-gray-900">{totalPages}</span>
+          <div className="text-sm text-center text-neutral-500">
+            Page <span className="font-medium text-neutral-900">{currentPage}</span> of{' '}
+            <span className="font-medium text-neutral-900">{totalPages}</span>
           </div>
           <div className="flex items-center justify-between space-x-3">
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeftIcon className="w-4 h-4 mr-1" />
               Previous
@@ -126,7 +126,7 @@ const StorefrontPagination: React.FC<StorefrontPaginationProps> = ({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 flex items-center justify-center px-4 py-3 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
               <ChevronRightIcon className="w-4 h-4 ml-1" />

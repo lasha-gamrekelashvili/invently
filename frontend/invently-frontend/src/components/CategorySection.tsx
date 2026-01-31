@@ -23,16 +23,16 @@ const CategorySection: React.FC<CategorySectionProps> = ({
   const displayProducts = products.slice(0, 6);
 
   return (
-    <div className="mb-12">
+    <div className="mb-16">
       {/* Category Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light tracking-tight text-neutral-900">
           {categoryName}
         </h2>
         
         <button
           onClick={onViewAll}
-          className="flex items-center gap-2 px-4 py-2 text-gray-900 hover:text-black font-medium text-sm sm:text-base transition-all group"
+          className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-medium text-sm sm:text-base transition-colors group"
         >
           <span>სრულად</span>
           <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

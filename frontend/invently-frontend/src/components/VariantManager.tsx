@@ -208,8 +208,8 @@ const VariantManager: React.FC<VariantManagerProps> = ({
       <div className="space-y-4 sm:space-y-5">
         {/* Options */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
-            <T tKey="products.variants.options" /> *
+          <label className="block text-sm font-medium text-neutral-700 mb-2 sm:mb-3">
+            <T tKey="products.variants.options" />
           </label>
           <div className="space-y-3">
             {formData.options.map((option, index) => (
@@ -220,14 +220,14 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                     value={option.key}
                     onChange={(e) => handleOptionChange(index, 'key', e.target.value)}
                     placeholder={t('products.variants.optionKeyPlaceholder')}
-                    className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
                   />
                   <input
                     type="text"
                     value={option.value}
                     onChange={(e) => handleOptionChange(index, 'value', e.target.value)}
                     placeholder={t('products.variants.optionValuePlaceholder')}
-                    className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
                   />
                   {formData.options.length > 1 && (
                     <button
@@ -245,7 +245,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
           <button
             type="button"
             onClick={handleAddOption}
-            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-neutral-900 hover:text-neutral-700"
           >
             <PlusIcon className="w-4 h-4" />
             <T tKey="products.variants.addOption" />
@@ -255,7 +255,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
         {/* SKU & Price */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
               <T tKey="products.variants.sku" />
             </label>
             <input
@@ -263,11 +263,11 @@ const VariantManager: React.FC<VariantManagerProps> = ({
               value={formData.sku}
               onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
               placeholder={t('products.variants.skuPlaceholder')}
-              className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full px-3 sm:px-4 py-2.5 border border-neutral-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
               <T tKey="products.variants.priceOverride" />
             </label>
             <input
@@ -277,7 +277,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
               value={formData.price}
               onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
               placeholder={t('products.variants.priceOverridePlaceholder')}
-              className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full px-3 sm:px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -285,20 +285,20 @@ const VariantManager: React.FC<VariantManagerProps> = ({
         {/* Stock & Status */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <T tKey="products.variants.stockQuantity" /> *
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <T tKey="products.variants.stockQuantity" />
             </label>
             <input
               type="number"
               min="0"
               value={formData.stockQuantity}
               onChange={(e) => setFormData(prev => ({ ...prev, stockQuantity: e.target.value }))}
-              className="w-full px-3 sm:px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full px-3 sm:px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">
               <T tKey="products.variants.status" />
             </label>
             <CustomDropdown
@@ -317,7 +317,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
           <button
             type="button"
             onClick={resetForm}
-            className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-5 py-2.5 text-sm font-medium text-neutral-700 bg-white border-2 border-neutral-300 rounded-full hover:border-neutral-900 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
           >
             <T tKey="products.variants.cancel" />
           </button>
@@ -325,7 +325,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={saving}
-            className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2.5 text-sm font-medium text-white bg-neutral-800 rounded-full hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {saving ? t('products.variants.saving') : isEditing ? t('products.variants.update') : t('products.variants.addVariantButton')}
           </button>
@@ -399,7 +399,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                       <button
                         type="button"
                         onClick={() => startEditing(variant)}
-                        className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        className="p-2 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 transition-colors"
                         title={t('common.edit')}
                       >
                         <PencilIcon className="w-5 h-5" />
@@ -432,7 +432,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
             resetForm();
             setShowAddForm(true);
           }}
-          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-neutral-700"
         >
           <PlusIcon className="w-4 h-4" />
           <T tKey="products.variants.addVariant" />
@@ -444,7 +444,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
 
       {/* Empty State */}
       {variants.length === 0 && !showAddForm && (
-        <p className="text-xs text-blue-500 italic">
+        <p className="text-xs text-neutral-500 italic">
           <T tKey="products.variants.noVariants" />
         </p>
       )}

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { T } from './Translation';
 import LanguageSelector from './LanguageSelector';
-import Logo from './Logo';
 
 interface LandingHeaderProps {
   showAuthButtons?: boolean;
@@ -30,7 +29,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
   showLogo = true,
 }) => {
   return (
-    <nav className="bg-gray-100 border-b border-gray-200 sticky top-0 z-50 w-full">
+    <nav className="bg-white border-b border-neutral-200 sticky top-0 z-50 w-full">
       <div className="w-full px-2 sm:px-4 lg:px-12">
         <div className="flex justify-between items-center h-14 sm:h-16 md:h-20 gap-1 sm:gap-2 md:gap-4">
           {/* Mobile Search Expanded View */}
@@ -52,15 +51,11 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
                     <h1 className="text-base md:text-xl lg:text-2xl font-bold text-gray-900 capitalize truncate">{shopName}</h1>
                   )}
                   {showLogo && (
-                    <div className="flex-shrink-0">
-                      {/* Use smaller logo on mobile */}
-                      <div className="block sm:hidden">
-                        <Logo variant="full" size="sm" theme="dark" />
-                      </div>
-                      <div className="hidden sm:block">
-                        <Logo variant="full" size="lg" theme="dark" />
-                      </div>
-                    </div>
+                    <Link to="/" className="flex-shrink-0">
+                      <span className="text-xl sm:text-2xl md:text-3xl font-light tracking-tight text-neutral-900 hover:text-neutral-700 transition-colors">
+                        Shopu
+                      </span>
+                    </Link>
                   )}
                   {/* Mobile Search Button */}
                   {!showLogo && mobileSearchButton && (
@@ -93,13 +88,13 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
                   <>
                     <Link
                       to="/login"
-                      className="hidden xs:inline-block px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-xs sm:text-sm md:text-base text-gray-700 hover:text-gray-900 font-semibold transition-colors whitespace-nowrap"
+                      className="hidden xs:inline-block px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-xs sm:text-sm md:text-base text-neutral-700 hover:text-neutral-900 font-medium transition-colors whitespace-nowrap"
                     >
                       <T tKey="navigation.login" />
                     </Link>
                     <Link
                       to="/register"
-                      className="px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-xs sm:text-sm md:text-base font-bold bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-600 hover:via-indigo-700 hover:to-purple-700 transition-all whitespace-nowrap"
+                      className="px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 text-xs sm:text-sm md:text-base font-medium text-neutral-900 hover:text-neutral-700 transition-colors whitespace-nowrap"
                     >
                       <span className="hidden xs:inline"><T tKey="landing.nav.getStarted" /></span>
                       <span className="xs:hidden">Start</span>

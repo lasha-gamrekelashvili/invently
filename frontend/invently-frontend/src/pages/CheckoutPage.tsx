@@ -438,16 +438,16 @@ const CheckoutContent: React.FC = () => {
         hideSidebar={true}
       >
         <div className="max-w-2xl mx-auto py-16 text-center">
-          <ShoppingBagIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+          <ShoppingBagIcon className="w-20 h-20 text-neutral-300 mx-auto mb-4" />
+          <h1 className="text-xl sm:text-2xl font-light tracking-tight text-neutral-900 mb-3">
             {t('storefront.checkout.cartEmpty')}
           </h1>
-          <p className="text-xs sm:text-sm text-gray-600 mb-6">
+          <p className="text-xs sm:text-sm text-neutral-600 mb-6">
             {t('storefront.checkout.cartEmptyDescription')}
           </p>
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-neutral-700 transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4" />
             {t('storefront.checkout.continueShopping')}
@@ -472,7 +472,7 @@ const CheckoutContent: React.FC = () => {
           <div className="mb-4 sm:mb-6">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
             >
               <ArrowLeftIcon className="w-3.5 h-3.5" />
               {t('storefront.checkout.goBack')}
@@ -482,13 +482,13 @@ const CheckoutContent: React.FC = () => {
             {/* Left Column - Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* Customer Information Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+                <div className="px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs sm:text-sm font-semibold">
+                    <div className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center text-xs sm:text-sm font-medium">
                       1
                     </div>
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                    <h2 className="text-sm sm:text-base font-light tracking-tight text-neutral-900">
                       {t('storefront.checkout.customerInfo')}
                     </h2>
                   </div>
@@ -496,7 +496,7 @@ const CheckoutContent: React.FC = () => {
                 <div className="p-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                         {t('storefront.checkout.fullName')} <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -509,7 +509,7 @@ const CheckoutContent: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                         {t('storefront.checkout.email')} <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -526,15 +526,15 @@ const CheckoutContent: React.FC = () => {
               </div>
 
               {/* Shipping Address Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+                <div className="px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs sm:text-sm font-semibold">
+                    <div className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center text-xs sm:text-sm font-medium">
                       2
                     </div>
                     <div className="flex items-center gap-2">
-                      <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                      <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                      <TruckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600" />
+                      <h2 className="text-sm sm:text-base font-light tracking-tight text-neutral-900">
                         {t('storefront.checkout.shippingAddress')}
                       </h2>
                     </div>
@@ -544,7 +544,7 @@ const CheckoutContent: React.FC = () => {
                   {/* Region & District */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                         {t('storefront.checkout.region')} <span className="text-red-500">*</span>
                       </label>
                       <CustomDropdown
@@ -555,7 +555,7 @@ const CheckoutContent: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                         {t('storefront.checkout.district')} <span className="text-red-500">*</span>
                       </label>
                       <CustomDropdown
@@ -570,7 +570,7 @@ const CheckoutContent: React.FC = () => {
 
                   {/* Address */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                       {t('storefront.checkout.address')} <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -587,7 +587,7 @@ const CheckoutContent: React.FC = () => {
 
                   {/* Additional Notes */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                       {t('storefront.checkout.additionalNotes')}
                     </label>
                     <input
@@ -602,16 +602,16 @@ const CheckoutContent: React.FC = () => {
                   {/* Map */}
                   {formData.shippingAddress.region && (
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
                         {t('storefront.checkout.pinLocation')} <span className="text-red-500">*</span>
                       </label>
                       <div 
                         ref={mapRef}
-                        className="w-full h-64 sm:h-80 rounded-lg border border-gray-300 bg-gray-100"
+                        className="w-full h-64 sm:h-80 rounded-lg border border-neutral-300 bg-neutral-100"
                       >
                         {!mapLoaded && (
                           <div className="w-full h-full flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-800"></div>
                           </div>
                         )}
                       </div>
@@ -631,16 +631,16 @@ const CheckoutContent: React.FC = () => {
               </div>
 
               {/* Order Notes Card */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+                <div className="px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs sm:text-sm font-semibold">
+                    <div className="w-8 h-8 rounded-full bg-neutral-200 text-neutral-600 flex items-center justify-center text-xs sm:text-sm font-medium">
                       3
                     </div>
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                    <h2 className="text-sm sm:text-base font-light tracking-tight text-neutral-900">
                       {t('storefront.checkout.orderNotes')}
                     </h2>
-                    <span className="text-xs text-gray-500">(Optional)</span>
+                    <span className="text-xs text-neutral-500">(Optional)</span>
                   </div>
                 </div>
                 <div className="p-5">
@@ -657,11 +657,11 @@ const CheckoutContent: React.FC = () => {
 
             {/* Right Column - Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-24">
-                <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+              <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden sticky top-24">
+                <div className="px-5 py-4 border-b border-neutral-100 bg-neutral-50/50">
                   <div className="flex items-center gap-2">
-                    <ShoppingBagIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                    <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                    <ShoppingBagIcon className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600" />
+                    <h2 className="text-sm sm:text-base font-light tracking-tight text-neutral-900">
                       {t('storefront.checkout.orderSummary')}
                     </h2>
                   </div>
@@ -676,7 +676,7 @@ const CheckoutContent: React.FC = () => {
                     
                     return (
                       <div key={item.id} className={`flex gap-3 ${isUnavailable ? 'opacity-75' : ''}`}>
-                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 ${isProductGone ? 'grayscale' : ''}`}>
+                        <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0 ${isProductGone ? 'grayscale' : ''}`}>
                           {item.product.images?.[0]?.url ? (
                             <img
                               src={item.product.images[0].url}
@@ -685,12 +685,12 @@ const CheckoutContent: React.FC = () => {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <ShoppingBagIcon className="w-6 h-6 text-gray-400" />
+                              <ShoppingBagIcon className="w-6 h-6 text-neutral-400" />
                             </div>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className={`text-xs sm:text-sm font-medium truncate ${isProductGone ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                          <h4 className={`text-xs sm:text-sm font-medium truncate ${isProductGone ? 'text-neutral-500 line-through' : 'text-neutral-900'}`}>
                             {item.product.title}
                           </h4>
                           {isProductGone && (
@@ -709,15 +709,15 @@ const CheckoutContent: React.FC = () => {
                             </p>
                           )}
                           {item.variant && !isUnavailable && (
-                            <p className="text-xs text-gray-500 mt-0.5">
+                            <p className="text-xs text-neutral-500 mt-0.5">
                               {Object.values(item.variant.options || {}).join(' / ')}
                             </p>
                           )}
                           <div className="flex items-center justify-between mt-1">
-                            <span className={`text-xs ${hasStockIssue ? 'text-amber-600' : 'text-gray-500'}`}>
+                            <span className={`text-xs ${hasStockIssue ? 'text-amber-600' : 'text-neutral-500'}`}>
                               {language === 'ka' ? 'რაოდენობა' : 'Qty'}: {item.quantity}
                             </span>
-                            <span className={`text-xs sm:text-sm font-semibold ${isUnavailable ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                            <span className={`text-xs sm:text-sm font-medium ${isUnavailable ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
                               ₾{(item.price * item.quantity).toFixed(2)}
                             </span>
                           </div>
@@ -728,16 +728,16 @@ const CheckoutContent: React.FC = () => {
                 </div>
 
                 {/* Totals */}
-                <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/30 space-y-2">
-                  <div className="flex justify-between text-xs sm:text-sm text-gray-600">
+                <div className="px-5 py-4 border-t border-neutral-100 bg-neutral-50/30 space-y-2">
+                  <div className="flex justify-between text-xs sm:text-sm text-neutral-600">
                     <span>{t('storefront.checkout.subtotal')}</span>
                     <span>₾{cart?.total.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-xs sm:text-sm text-gray-600">
+                  <div className="flex justify-between text-xs sm:text-sm text-neutral-600">
                     <span>{t('storefront.checkout.shipping')}</span>
                     <span className="text-green-600 font-medium">{t('storefront.checkout.shippingFree')}</span>
                   </div>
-                  <div className="flex justify-between text-sm sm:text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
+                  <div className="flex justify-between text-sm sm:text-base font-medium text-neutral-900 pt-2 border-t border-neutral-200">
                     <span>{t('storefront.checkout.total')}</span>
                     <span>₾{cart?.total.toFixed(2)}</span>
                   </div>
@@ -799,14 +799,14 @@ const CheckoutContent: React.FC = () => {
                 )}
 
                 {/* Action Button */}
-                <div className="px-5 py-4 border-t border-gray-100">
+                <div className="px-5 py-4 border-t border-neutral-100">
                   <button
                     onClick={handleSubmit}
                     disabled={cart?.hasUnavailableItems}
-                    className={`w-full py-3 px-4 text-xs sm:text-sm font-semibold rounded-lg transition-all shadow-sm ${
+                    className={`w-full py-3 px-4 text-xs sm:text-sm font-medium rounded-full transition-all ${
                       cart?.hasUnavailableItems
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md'
+                        ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                        : 'bg-neutral-800 text-white hover:bg-neutral-700'
                     }`}
                   >
                     {cart?.hasUnavailableItems 
@@ -824,12 +824,12 @@ const CheckoutContent: React.FC = () => {
       {step === 'processing' && (
         <div className="max-w-md mx-auto py-20 text-center">
           <div className="relative mb-8">
-            <div className="w-20 h-20 mx-auto rounded-full border-4 border-gray-200 border-t-blue-600 animate-spin"></div>
+            <div className="w-20 h-20 mx-auto rounded-full border-4 border-neutral-200 border-t-neutral-800 animate-spin"></div>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+          <h2 className="text-lg sm:text-xl font-light tracking-tight text-neutral-900 mb-2">
             {t('storefront.checkout.processing')}
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-neutral-600">
             {language === 'ka' ? 'გთხოვთ დაელოდოთ შეკვეთის დადასტურებას...' : 'Please wait while we confirm your order...'}
           </p>
         </div>
@@ -840,21 +840,21 @@ const CheckoutContent: React.FC = () => {
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
             <CheckCircleIcon className="w-12 h-12 text-green-600" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-xl sm:text-2xl font-light tracking-tight text-neutral-900 mb-3">
             {t('storefront.checkout.success')}
           </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mb-2">
+          <p className="text-xs sm:text-sm text-neutral-600 mb-2">
             {language === 'ka' ? 'გმადლობთ შეკვეთისთვის. თქვენი შეკვეთის ნომერია:' : 'Thank you for your order. Your order number is:'}
           </p>
-          <p className="text-base sm:text-lg font-bold text-gray-900 mb-6 font-mono bg-gray-100 inline-block px-4 py-2 rounded-lg">
+          <p className="text-base sm:text-lg font-medium text-neutral-900 mb-6 font-mono bg-neutral-100 inline-block px-4 py-2 rounded-lg">
             {orderNumber}
           </p>
-          <p className="text-xs sm:text-sm text-gray-500 mb-8">
+          <p className="text-xs sm:text-sm text-neutral-500 mb-8">
             {language === 'ka' ? 'თქვენ მალე მიიღებთ დადასტურების ელ-ფოსტას.' : 'You will receive a confirmation email shortly.'}
           </p>
           <button
             onClick={() => navigate('/')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-xs sm:text-sm font-semibold rounded-lg hover:bg-blue-700 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-neutral-700 transition-all"
           >
             {t('storefront.checkout.continueShopping')}
           </button>

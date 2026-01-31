@@ -65,7 +65,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
   }, [sidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Header */}
       <StorefrontHeader
         storeInfo={storeInfo}
@@ -81,23 +81,23 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && !hideSidebar && (
           <div
-            className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+            className="fixed inset-0 z-40 bg-neutral-900 bg-opacity-50 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         {/* Desktop Sidebar - Always visible on large screens */}
         {!hideSidebar && (
-          <aside className="hidden lg:flex lg:flex-col flex-shrink-0 bg-white shadow-lg border-r border-gray-200 sticky top-14 sm:top-16 md:top-20 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]" style={{ width: '320px' }}>
+          <aside className="hidden lg:flex lg:flex-col flex-shrink-0 bg-white border-r border-neutral-200 sticky top-14 sm:top-16 md:top-20 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]" style={{ width: '320px' }}>
             <div className="flex flex-col h-full">
               <div className="flex-1 overflow-y-auto p-5 space-y-6">
                 {/* All Products Button */}
                 <button
                   onClick={onAllProductsClick}
-                  className={`w-full px-3 py-2 text-sm rounded-lg transition-colors ${
+                  className={`w-full px-4 py-2.5 text-sm rounded-lg transition-all ${
                     !selectedCategoryId
-                      ? 'bg-gray-100 text-gray-900 font-medium'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-neutral-100 text-neutral-900 font-medium'
+                      : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                   }`}
                 >
                   All Products
@@ -105,7 +105,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 
                 {/* Categories */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 px-3 uppercase tracking-wider">
+                  <h3 className="text-xs font-medium text-neutral-500 mb-4 px-1 uppercase tracking-wider">
                     Categories
                   </h3>
                   {categoriesLoading ? (
@@ -119,14 +119,14 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     />
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-sm text-gray-500">No categories available</p>
+                      <p className="text-sm text-neutral-500">No categories available</p>
                     </div>
                   )}
                 </div>
 
                 {/* Price Filter */}
                 <div className="pt-2">
-                  <hr className="border-gray-200 my-3" />
+                  <hr className="border-neutral-200 my-4" />
                   {priceRangeLoading ? (
                     <PriceRangeSliderSkeleton />
                   ) : (
@@ -139,23 +139,13 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                   )}
                 </div>
               </div>
-
-              {/* Desktop Apply Button */}
-              <div className="p-5 border-t border-gray-200 bg-white">
-                <button
-                  onClick={onAllProductsClick}
-                  className="w-full bg-blue-600 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Clear Filters
-                </button>
-              </div>
             </div>
           </aside>
         )}
 
         {/* Mobile Sidebar Drawer - Only on mobile */}
         {!hideSidebar && (
-          <aside className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-[85vw] max-w-sm bg-white shadow-lg border-r border-t border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          <aside className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-[85vw] max-w-sm bg-white border-r border-t border-neutral-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}>
             <div className="flex flex-col h-full">
@@ -166,10 +156,10 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     onAllProductsClick?.();
                     setSidebarOpen(false);
                   }}
-                  className={`w-full px-3 py-2 text-sm rounded-lg transition-colors ${
+                  className={`w-full px-4 py-2.5 text-sm rounded-lg transition-all ${
                     !selectedCategoryId
-                      ? 'bg-gray-100 text-gray-900 font-medium'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-neutral-100 text-neutral-900 font-medium'
+                      : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                   }`}
                 >
                   All Products
@@ -177,7 +167,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
 
                 {/* Categories */}
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-500 mb-3 px-3 uppercase tracking-wider">
+                  <h3 className="text-xs font-medium text-neutral-500 mb-4 px-1 uppercase tracking-wider">
                     Categories
                   </h3>
                   {categoriesLoading ? (
@@ -194,14 +184,14 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     />
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-sm text-gray-500">No categories available</p>
+                      <p className="text-sm text-neutral-500">No categories available</p>
                     </div>
                   )}
                 </div>
 
                 {/* Price Filter */}
                 <div className="pt-2">
-                  <hr className="border-gray-200 my-3" />
+                  <hr className="border-neutral-200 my-3" />
                   {priceRangeLoading ? (
                     <PriceRangeSliderSkeleton />
                   ) : (
@@ -213,16 +203,6 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
                     />
                   )}
                 </div>
-              </div>
-
-              {/* Mobile Apply Button */}
-              <div className="p-5 border-t border-gray-200 bg-white">
-                <button
-                  onClick={() => setSidebarOpen(false)}
-                  className="w-full bg-blue-600 text-white py-2.5 px-6 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Apply Filters
-                </button>
               </div>
             </div>
           </aside>

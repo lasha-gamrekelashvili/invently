@@ -219,7 +219,7 @@ placeholder={t('categories.form.namePlaceholder')}
 placeholder={t('categories.form.selectParent')}
               />
               {formData.parentId && (
-                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-blue-600">
+                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-neutral-600">
 {t('categories.form.parentCategoryHelp')}
                 </p>
               )}
@@ -262,17 +262,17 @@ placeholder={t('categories.form.selectStatus')}
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4">
+          <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3 sm:p-4">
             <div className="flex items-start space-x-2 sm:space-x-3">
               <div className="flex-shrink-0">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-4 h-4 sm:w-5 sm:h-5 bg-neutral-900 rounded-full flex items-center justify-center">
                   <span className="text-white text-[10px] sm:text-xs font-bold">i</span>
                 </div>
               </div>
               <div className="text-xs sm:text-sm">
-                <p className="text-blue-800 font-medium mb-1">{t('categories.form.urlPreview')}</p>
-                <p className="text-blue-700">
-                  {t('categories.form.urlPreviewText')} <span className="font-mono bg-blue-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-[10px] sm:text-xs break-all">
+                <p className="text-neutral-900 font-medium mb-1">{t('categories.form.urlPreview')}</p>
+                <p className="text-neutral-600">
+                  {t('categories.form.urlPreviewText')} <span className="font-mono bg-neutral-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded text-[10px] sm:text-xs break-all">
                     /store/category/{formData.name ? generateSlug(formData.name) : 'category-slug'}
                   </span>
                 </p>

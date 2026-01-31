@@ -96,10 +96,10 @@ const Orders = () => {
       header: t('orders.columns.orderNumber'),
       render: (order) => (
         <div>
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-neutral-900">
             {order.orderNumber}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-neutral-500">
             {order.items.length} {t('common.items')}
           </div>
         </div>
@@ -110,10 +110,10 @@ const Orders = () => {
       header: t('orders.columns.customer'),
       render: (order) => (
         <div>
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-neutral-900">
             {order.customerName}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-neutral-500">
             {order.customerEmail}
           </div>
         </div>
@@ -130,7 +130,7 @@ const Orders = () => {
       key: 'totalAmount',
       header: t('common.total'),
       render: (order) => (
-        <span className="text-sm text-gray-900">
+        <span className="text-sm text-neutral-900">
           ${order.totalAmount.toFixed(2)}
         </span>
       )
@@ -139,7 +139,7 @@ const Orders = () => {
       key: 'createdAt',
       header: t('common.date'),
       render: (order) => (
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-neutral-500">
           {new Date(order.createdAt).toLocaleDateString()}
         </span>
       )

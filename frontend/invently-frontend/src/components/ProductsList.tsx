@@ -121,11 +121,11 @@ const ProductsList = ({
           </div>
           <div className="ml-4">
             <div className="flex items-center">
-              <div className="text-sm font-medium text-gray-900 hover:text-blue-600 cursor-pointer">
+              <div className="text-sm font-medium text-neutral-900 hover:text-neutral-700 cursor-pointer">
                 {product.title}
               </div>
               {hasActiveVariants(product) && (
-                <div className="ml-2 flex items-center text-xs text-blue-600">
+                <div className="ml-2 flex items-center text-xs text-neutral-600">
                   <Squares2X2Icon className="h-3 w-3 mr-1" />
                   {t('products.variants.label')}
                 </div>

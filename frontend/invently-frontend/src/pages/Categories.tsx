@@ -145,7 +145,7 @@ const Categories = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tree View */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-4">
             <div className="flex items-center justify-between mb-4">
             </div>
             <CategoryTree
@@ -161,31 +161,31 @@ const Categories = () => {
 
         {/* Details View */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6">
             {selectedCategoryId && selectedCategory ? (
               <div>
                 {/* Header with actions */}
                 <div className="mb-6">
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1 min-w-0">
-                      <h2 className="text-xl font-semibold text-gray-900 truncate">
+                      <h2 className="text-xl font-light text-neutral-900 truncate tracking-tight">
                         {selectedCategory.name}
                       </h2>
-                      <p className="text-sm text-gray-500 font-mono mt-1">
+                      <p className="text-sm text-neutral-500 font-mono mt-1">
                         {selectedCategory.slug}
                       </p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <button
                         onClick={() => handleEditCategory(selectedCategory)}
-                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
                         title="Edit category"
                       >
                         <PencilIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteCategory(selectedCategory)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors"
                         title="Delete category"
                       >
                         <TrashIcon className="h-5 w-5" />
@@ -197,14 +197,14 @@ const Categories = () => {
                   <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => setShowAddProductModal(true)}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-full text-white bg-neutral-800 hover:bg-neutral-700 transition-colors"
                     >
                       <CubeIcon className="h-4 w-4 mr-2" />
                       <T tKey="categories.addProduct" />
                     </button>
                     <button
                       onClick={() => handleAddChild(selectedCategory.id)}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 border border-neutral-300 text-sm font-medium rounded-full text-neutral-700 bg-white hover:bg-neutral-50 transition-colors"
                     >
                       <PlusIcon className="h-4 w-4 mr-2" />
                       <T tKey="categories.addChild" />
@@ -213,29 +213,29 @@ const Categories = () => {
                 </div>
 
                 {/* Category info - more subtle */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-6 border-b border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-6 border-b border-neutral-200">
                   {selectedCategory.description && (
                     <div className="sm:col-span-2">
-                      <p className="text-sm text-gray-600">{selectedCategory.description}</p>
+                      <p className="text-sm text-neutral-500">{selectedCategory.description}</p>
                     </div>
                   )}
 
                   <div className="flex items-center gap-2">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       selectedCategory.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-neutral-100 text-neutral-900' 
+                        : 'bg-neutral-50 text-neutral-600'
                     }`}>
                       <T tKey={`categories.status.${selectedCategory.isActive ? 'active' : 'draft'}`} />
                     </span>
                     {selectedCategory.parent && (
-                      <span className="text-xs text-gray-500">
-                        in <span className="font-medium text-gray-700">{selectedCategory.parent.name}</span>
+                      <span className="text-xs text-neutral-500">
+                        in <span className="font-medium text-neutral-700">{selectedCategory.parent.name}</span>
                       </span>
                     )}
                   </div>
 
-                  <div className="text-xs text-gray-500 sm:text-right">
+                  <div className="text-xs text-neutral-500 sm:text-right">
                     <T tKey="common.created" />: {new Date(selectedCategory.createdAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -244,12 +244,12 @@ const Categories = () => {
                 {selectedCategory.allProducts && selectedCategory.allProducts.length > 0 ? (
                   <div className="mt-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-gray-700">
+                      <h3 className="text-sm font-medium text-neutral-700">
                         <T tKey="categories.products.countInCategory" params={{ count: selectedCategory.allProducts.length }} />
                       </h3>
                       <Link
                         to={`/admin/products?categoryId=${selectedCategory.id}`}
-                        className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        className="text-sm text-neutral-900 hover:text-neutral-700 font-medium transition-colors"
                       >
                         <T tKey="categories.products.viewAllProducts" />
                       </Link>
@@ -264,14 +264,14 @@ const Categories = () => {
                     />
                   </div>
                 ) : (
-                  <div className="mt-6 text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                    <CubeIcon className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                    <p className="text-sm text-gray-600 mb-3">
+                  <div className="mt-6 text-center py-8 bg-neutral-50 rounded-xl border border-dashed border-neutral-300">
+                    <CubeIcon className="w-10 h-10 text-neutral-400 mx-auto mb-3" />
+                    <p className="text-sm text-neutral-500 mb-3">
                       <T tKey="categories.products.noProductsInCategory" />
                     </p>
                     <button
                       onClick={() => setShowAddProductModal(true)}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      className="text-sm text-neutral-900 hover:text-neutral-700 font-medium"
                     >
                       <T tKey="categories.addProduct" />
                     </button>
@@ -280,11 +280,11 @@ const Categories = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <FolderIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <FolderIcon className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
+                <h3 className="text-lg font-light text-neutral-900 mb-2">
                   <T tKey="categories.emptyState.selectCategory" />
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-neutral-500">
                   <T tKey="categories.emptyState.selectCategoryDescription" />
                 </p>
               </div>
@@ -295,9 +295,9 @@ const Categories = () => {
 
       {/* Add Product Modal */}
       {showAddProductModal && selectedCategory && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="fixed inset-0 bg-neutral-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+          <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-light text-neutral-900 mb-4 tracking-tight">
               <T tKey="categories.modals.addProduct.title" params={{ categoryName: selectedCategory.name }} />
             </h3>
             <div className="space-y-4">
@@ -306,7 +306,7 @@ const Categories = () => {
                   setShowAddProductModal(false);
                   navigate(`/admin/products/new?categoryId=${selectedCategory.id}`);
                 }}
-                className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-full text-white bg-neutral-800 hover:bg-neutral-700 transition-colors"
               >
                 <PlusIcon className="w-5 h-5 mr-2" />
                 <T tKey="categories.modals.addProduct.createNewProduct" />
@@ -314,15 +314,15 @@ const Categories = () => {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+                  <div className="w-full border-t border-neutral-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500"><T tKey="categories.modals.addProduct.or" /></span>
+                  <span className="px-2 bg-white text-neutral-500"><T tKey="categories.modals.addProduct.or" /></span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   <T tKey="categories.modals.addProduct.selectExistingProduct" />
                 </label>
                 <CustomDropdown
@@ -349,7 +349,7 @@ const Categories = () => {
                   }
                 }}
                 disabled={!selectedProductId || assignProductMutation.isPending}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-4 py-3 border border-neutral-300 text-sm font-medium rounded-full text-neutral-700 bg-white hover:bg-neutral-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <CubeIcon className="w-5 h-5 mr-2" />
                 {assignProductMutation.isPending ? t('categories.modals.addProduct.adding') : t('categories.modals.addProduct.addSelectedProduct')}
@@ -361,7 +361,7 @@ const Categories = () => {
                   setShowAddProductModal(false);
                   setSelectedProductId('');
                 }}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                className="w-full px-4 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-900"
               >
                 <T tKey="categories.modals.addProduct.cancel" />
               </button>

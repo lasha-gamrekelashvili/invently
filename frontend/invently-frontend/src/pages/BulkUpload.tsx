@@ -110,20 +110,20 @@ const BulkUpload: React.FC = () => {
       </div>
 
       {/* Instructions Card */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
+      <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <h2 className="text-base sm:text-lg font-semibold text-blue-900">
+          <h2 className="text-base sm:text-lg font-light text-neutral-900 tracking-tight">
             <T tKey="bulkUpload.quickStart.title" />
           </h2>
           <button
             onClick={() => setShowGuide(!showGuide)}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 self-start sm:self-auto"
+            className="text-neutral-900 hover:text-neutral-700 text-sm font-medium flex items-center gap-1 self-start sm:self-auto"
           >
             {showGuide ? t('bulkUpload.quickStart.hideGuide') : t('bulkUpload.quickStart.showGuide')}
             <QuestionMarkCircleIcon className="w-5 h-5" />
           </button>
         </div>
-        <ol className="space-y-2 text-xs sm:text-sm text-blue-800">
+        <ol className="space-y-2 text-xs sm:text-sm text-neutral-700">
           <li className="flex items-start">
             <span className="font-semibold mr-2">1.</span>
             <span><T tKey="bulkUpload.quickStart.step1" /></span>
@@ -159,7 +159,7 @@ const BulkUpload: React.FC = () => {
 
           {/* Column Descriptions */}
           <div className="space-y-4">
-            <div className="border-l-4 border-blue-500 pl-3 sm:pl-4">
+            <div className="border-l-4 border-neutral-900 pl-3 sm:pl-4">
               <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">1. <T tKey="bulkUpload.guide.category.title" /> <span className="text-red-500">*</span></h4>
               <p className="text-xs sm:text-sm text-gray-600 mb-2">
                 <T tKey="bulkUpload.guide.category.description" />
@@ -297,7 +297,7 @@ const BulkUpload: React.FC = () => {
               <h4 className="font-semibold text-gray-800 mb-2 text-sm sm:text-base"><T tKey="bulkUpload.examples.simpleProduct.title" /></h4>
               <p className="text-xs sm:text-sm text-gray-600 mb-2"><T tKey="bulkUpload.examples.simpleProduct.description" /></p>
               <div className="bg-gray-900 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto text-xs font-mono">
-                <div className="text-blue-400 whitespace-nowrap">Category,Product Name,Variant Options,Description,Price,Stock,SKU,Status,Images,Attributes</div>
+                <div className="text-neutral-400 whitespace-nowrap">Category,Product Name,Variant Options,Description,Price,Stock,SKU,Status,Images,Attributes</div>
                 <div className="text-green-400 whitespace-nowrap">Electronics &gt; Laptops,MacBook Pro 16,,Powerful laptop with M2 Pro chip,2499.99,30,MBP16,ACTIVE,https://example.com/mbp.jpg,brand:Apple|ram:16GB</div>
                 <div className="text-gray-400 mt-2">// <T tKey="bulkUpload.examples.simpleProduct.comment" /></div>
               </div>
@@ -308,7 +308,7 @@ const BulkUpload: React.FC = () => {
               <h4 className="font-semibold text-gray-800 mb-2 text-sm sm:text-base"><T tKey="bulkUpload.examples.productWithVariants.title" /></h4>
               <p className="text-xs sm:text-sm text-gray-600 mb-2"><T tKey="bulkUpload.examples.productWithVariants.description" /></p>
               <div className="bg-gray-900 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto text-xs font-mono">
-                <div className="text-blue-400 whitespace-nowrap">Category,Product Name,Variant Options,Description,Price,Stock,SKU,Status,Images,Attributes</div>
+                <div className="text-neutral-400 whitespace-nowrap">Category,Product Name,Variant Options,Description,Price,Stock,SKU,Status,Images,Attributes</div>
                 <div className="text-yellow-400 whitespace-nowrap">Fashion &gt; Men &gt; Shirts,Classic T-Shirt,,100% organic cotton tee,29.99,0,TSHIRT-BASE,ACTIVE,https://example.com/tshirt.jpg,material:Cotton|fit:Regular</div>
                 <div className="text-green-400 whitespace-nowrap">Fashion &gt; Men &gt; Shirts,Classic T-Shirt,size:S|color:White,,29.99,50,TSHIRT-S-WHT,ACTIVE,,</div>
                 <div className="text-green-400 whitespace-nowrap">Fashion &gt; Men &gt; Shirts,Classic T-Shirt,size:M|color:White,,29.99,100,TSHIRT-M-WHT,ACTIVE,,</div>
@@ -324,7 +324,7 @@ const BulkUpload: React.FC = () => {
             <div className="mb-6">
               <h4 className="font-semibold text-gray-800 mb-2 text-sm sm:text-base"><T tKey="bulkUpload.examples.phoneVariants.title" /></h4>
               <div className="bg-gray-900 text-gray-100 p-3 sm:p-4 rounded-lg overflow-x-auto text-xs font-mono">
-                <div className="text-blue-400 whitespace-nowrap">Category,Product Name,Variant Options,Description,Price,Stock,SKU,Status,Images,Attributes</div>
+                <div className="text-neutral-400 whitespace-nowrap">Category,Product Name,Variant Options,Description,Price,Stock,SKU,Status,Images,Attributes</div>
                 <div className="text-yellow-400 whitespace-nowrap">Electronics &gt; Phones,iPhone 14 Pro,,Latest iPhone with A16 chip,999.99,0,IPHONE14PRO,ACTIVE,https://example.com/iphone.jpg,brand:Apple|warranty:1 year</div>
                 <div className="text-green-400 whitespace-nowrap">Electronics &gt; Phones,iPhone 14 Pro,storage:128GB|color:Black,,999.99,30,IP14-128-BLK,ACTIVE,,</div>
                 <div className="text-green-400 whitespace-nowrap">Electronics &gt; Phones,iPhone 14 Pro,storage:256GB|color:Black,,1099.99,25,IP14-256-BLK,ACTIVE,,</div>
@@ -430,7 +430,7 @@ const BulkUpload: React.FC = () => {
           </div>
           <button
             onClick={handleDownloadTemplate}
-            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md text-sm sm:text-base whitespace-nowrap"
+            className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-neutral-800 text-white font-medium rounded-full hover:bg-neutral-700 transition-colors text-sm sm:text-base whitespace-nowrap"
           >
             <DocumentArrowDownIcon className="w-5 h-5" />
             <T tKey="bulkUpload.template.download" />
@@ -447,7 +447,7 @@ const BulkUpload: React.FC = () => {
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          className="border-2 border-dashed border-gray-300 rounded-xl p-8 sm:p-12 text-center hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer"
+          className="border-2 border-dashed border-neutral-300 rounded-xl p-8 sm:p-12 text-center hover:border-neutral-400 hover:bg-neutral-50/50 transition-all cursor-pointer"
         >
           <ArrowUpTrayIcon className="w-12 sm:w-16 h-12 sm:h-16 text-gray-400 mx-auto mb-4" />
           
@@ -538,11 +538,11 @@ const BulkUpload: React.FC = () => {
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-green-900">{uploadResults.categories.created}</div>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-              <div className="text-blue-600 text-xs sm:text-sm font-semibold mb-1">
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 sm:p-4">
+              <div className="text-neutral-600 text-xs sm:text-sm font-medium mb-1">
                 <T tKey="bulkUpload.results.categoriesUpdated" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold text-blue-900">{uploadResults.categories.updated}</div>
+              <div className="text-2xl sm:text-3xl font-light text-neutral-900">{uploadResults.categories.updated}</div>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
               <div className="text-green-600 text-xs sm:text-sm font-semibold mb-1">
@@ -550,11 +550,11 @@ const BulkUpload: React.FC = () => {
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-green-900">{uploadResults.products.created}</div>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-              <div className="text-blue-600 text-xs sm:text-sm font-semibold mb-1">
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 sm:p-4">
+              <div className="text-neutral-600 text-xs sm:text-sm font-medium mb-1">
                 <T tKey="bulkUpload.results.productsUpdated" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold text-blue-900">{uploadResults.products.updated}</div>
+              <div className="text-2xl sm:text-3xl font-light text-neutral-900">{uploadResults.products.updated}</div>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
               <div className="text-green-600 text-xs sm:text-sm font-semibold mb-1">
@@ -562,11 +562,11 @@ const BulkUpload: React.FC = () => {
               </div>
               <div className="text-2xl sm:text-3xl font-bold text-green-900">{uploadResults.variants?.created || 0}</div>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-              <div className="text-blue-600 text-xs sm:text-sm font-semibold mb-1">
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 sm:p-4">
+              <div className="text-neutral-600 text-xs sm:text-sm font-medium mb-1">
                 <T tKey="bulkUpload.results.variantsUpdated" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold text-blue-900">{uploadResults.variants?.updated || 0}</div>
+              <div className="text-2xl sm:text-3xl font-light text-neutral-900">{uploadResults.variants?.updated || 0}</div>
             </div>
           </div>
 

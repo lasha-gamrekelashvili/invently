@@ -93,10 +93,10 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
     <div className="space-y-4">
       {/* Section Header */}
       <div>
-        <h3 className="text-base font-semibold text-gray-900">
+        <h3 className="text-base font-light text-neutral-900 tracking-tight">
           <T tKey="products.attributes.title" />
         </h3>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-neutral-500 mt-1">
           <T tKey="products.attributes.description" />
         </p>
       </div>
@@ -113,7 +113,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
                   value={row.key}
                   onChange={(e) => handleRowKeyChange(row.id, e.target.value)}
                   onBlur={handleRowBlur}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
                   placeholder={t('products.attributes.keyPlaceholder')}
                 />
               </div>
@@ -124,7 +124,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
                   value={row.value}
                   onChange={(e) => handleRowValueChange(row.id, e.target.value)}
                   onBlur={handleRowBlur}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
                   placeholder={t('products.attributes.addValuePlaceholder')}
                 />
               </div>
@@ -132,7 +132,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
               <button
                 type="button"
                 onClick={() => handleRemoveRow(row.id)}
-                className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                className="p-2 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 transition-colors"
               >
                 <XMarkIcon className="w-5 h-5" />
               </button>
@@ -149,7 +149,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
             value={newKey}
             onChange={(e) => setNewKey(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            className="w-full px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
             placeholder={t('products.attributes.keyPlaceholder')}
           />
         </div>
@@ -159,7 +159,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
             value={newValue}
             onChange={(e) => setNewValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            className="w-full px-4 py-2.5 border border-neutral-300 rounded-xl text-sm focus:ring-2 focus:ring-neutral-500 focus:border-neutral-500 outline-none transition-all"
             placeholder={t('products.attributes.addValuePlaceholder')}
           />
         </div>
@@ -167,7 +167,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
           type="button"
           onClick={handleAddAttribute}
           disabled={!newKey.trim() || !newValue.trim()}
-          className="p-2 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-colors"
+          className="p-2 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-neutral-400 transition-colors"
         >
           <PlusIcon className="w-5 h-5" />
         </button>
@@ -175,7 +175,7 @@ const AttributesEditor: React.FC<AttributesEditorProps> = ({ attributes, onChang
 
       {/* Empty State */}
       {rows.length === 0 && !newKey && !newValue && (
-        <p className="text-xs text-blue-500 italic">
+        <p className="text-xs text-neutral-500 italic">
           <T tKey="products.attributes.noAttributes" />
         </p>
       )}

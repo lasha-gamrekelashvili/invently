@@ -41,15 +41,15 @@ const ActionButtonGroup: React.FC<ActionButtonGroupProps> = ({
   const getDefaultClassName = (type: string) => {
     switch (type) {
       case 'edit':
-        return 'text-gray-400 hover:text-blue-600';
+        return 'text-neutral-400 hover:text-neutral-900';
       case 'delete':
-        return 'text-gray-400 hover:text-red-600';
+        return 'text-neutral-400 hover:text-neutral-900';
       case 'save':
-        return 'text-green-600 hover:text-green-700';
+        return 'text-neutral-900 hover:text-neutral-700';
       case 'cancel':
-        return 'text-gray-400 hover:text-gray-600';
+        return 'text-neutral-400 hover:text-neutral-600';
       default:
-        return 'text-gray-400 hover:text-blue-600';
+        return 'text-neutral-400 hover:text-neutral-900';
     }
   };
 

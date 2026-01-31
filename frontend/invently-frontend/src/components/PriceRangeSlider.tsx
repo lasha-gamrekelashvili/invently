@@ -168,15 +168,15 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
   };
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {/* Header with Price Display */}
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-500 tracking-wide uppercase">
+        <h3 className="text-xs font-medium text-neutral-500 tracking-wide uppercase">
           Price Range
         </h3>
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+        <div className="flex items-center gap-2 text-sm font-medium text-neutral-700">
           <span>{formatPrice(sliderValues[0])}</span>
-          <span>-</span>
+          <span className="text-neutral-400">-</span>
           <span>{formatPrice(sliderValues[1])}</span>
         </div>
       </div>
@@ -187,13 +187,13 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
           <div ref={sliderRef} className="relative h-6 cursor-pointer">
             {/* Track */}
             <div 
-              className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 rounded-full transform -translate-y-1/2 cursor-pointer"
+              className="absolute top-1/2 left-0 right-0 h-1.5 bg-neutral-200 rounded-full transform -translate-y-1/2 cursor-pointer"
               onClick={handleTrackClick}
             />
             
             {/* Active Range */}
             <div
-              className="absolute top-1/2 h-1 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full transform -translate-y-1/2"
+              className="absolute top-1/2 h-1.5 bg-neutral-800 rounded-full transform -translate-y-1/2"
               style={{
                 left: `${getSliderPercentage(sliderValues[0])}%`,
                 width: `${getSliderPercentage(sliderValues[1]) - getSliderPercentage(sliderValues[0])}%`,
@@ -202,16 +202,16 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
 
             {/* Thumbs */}
             <div
-              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-gray-700 rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 transition-transform ${
-                isDragging && dragIndex === 0 ? 'scale-110 shadow-xl' : 'hover:scale-110'
+              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-neutral-800 rounded-full shadow-md cursor-pointer transform -translate-y-1/2 transition-all ${
+                isDragging && dragIndex === 0 ? 'scale-110 shadow-lg border-neutral-900' : 'hover:scale-110 hover:shadow-lg'
               }`}
               style={{ left: `calc(${getSliderPercentage(sliderValues[0])}% - 10px)` }}
               onMouseDown={handleMouseDown(0)}
               onTouchStart={handleTouchStart(0)}
             />
             <div
-              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-gray-700 rounded-full shadow-lg cursor-pointer transform -translate-y-1/2 transition-transform ${
-                isDragging && dragIndex === 1 ? 'scale-110 shadow-xl' : 'hover:scale-110'
+              className={`absolute top-1/2 w-5 h-5 bg-white border-2 border-neutral-800 rounded-full shadow-md cursor-pointer transform -translate-y-1/2 transition-all ${
+                isDragging && dragIndex === 1 ? 'scale-110 shadow-lg border-neutral-900' : 'hover:scale-110 hover:shadow-lg'
               }`}
               style={{ left: `calc(${getSliderPercentage(sliderValues[1])}% - 10px)` }}
               onMouseDown={handleMouseDown(1)}

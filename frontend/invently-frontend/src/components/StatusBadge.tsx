@@ -44,7 +44,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       case 'PENDING':
         return <ClockIcon className={`${iconClass} text-yellow-600`} />;
       case 'CONFIRMED':
-        return <CheckCircleIcon className={`${iconClass} text-blue-600`} />;
+        return <CheckCircleIcon className={`${iconClass} text-neutral-900`} />;
       case 'SHIPPED':
         return <TruckIcon className={`${iconClass} text-purple-600`} />;
       case 'DELIVERED':
@@ -67,7 +67,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'CONFIRMED':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-neutral-100 text-neutral-900 border-neutral-200';
       case 'SHIPPED':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'DELIVERED':

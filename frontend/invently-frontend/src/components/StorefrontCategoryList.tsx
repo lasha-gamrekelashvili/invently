@@ -69,34 +69,47 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
     return (
       <div key={category.id}>
         <div
-          className={`flex items-center py-2 px-3 rounded-lg transition-colors ${
+          className={`group flex items-center py-2.5 px-3 rounded-lg transition-all ${
             isSelected
-              ? 'bg-gray-100 text-gray-900 font-medium'
-              : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-neutral-100 text-neutral-900'
+              : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
           }`}
-          style={{ marginLeft: `${level * 16}px` }}
+          style={{ marginLeft: `${level * 20}px` }}
         >
           {/* Expand/Collapse Button */}
           {hasChildren ? (
             <button
-              onClick={() => toggleExpanded(category.id)}
-              className="w-4 h-4 flex items-center justify-center mr-2 text-gray-400 hover:text-gray-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpanded(category.id);
+              }}
+              className={`w-5 h-5 flex items-center justify-center mr-2.5 rounded transition-all ${
+                isExpanded
+                  ? 'text-neutral-700 bg-neutral-100'
+                  : 'text-neutral-400 group-hover:text-neutral-600 group-hover:bg-neutral-100'
+              }`}
             >
               {isExpanded ? (
-                <ChevronDownIcon className="w-3.5 h-3.5" />
+                <ChevronDownIcon className="w-4 h-4" />
               ) : (
-                <ChevronRightIcon className="w-3.5 h-3.5" />
+                <ChevronRightIcon className="w-4 h-4" />
               )}
             </button>
           ) : (
-            <div className="w-4 h-4 mr-2" />
+            <div className="w-5 h-5 mr-2.5 flex items-center justify-center">
+              <div className="w-1.5 h-1.5 rounded-full bg-neutral-300"></div>
+            </div>
           )}
 
           {/* Category Name */}
           <button
             onClick={() => onSelect?.(category.id)}
-            className={`flex-1 text-left text-sm ${
-              level === 0 ? 'font-medium' : ''
+            className={`flex-1 text-left text-sm transition-colors ${
+              level === 0 
+                ? 'font-medium' 
+                : 'font-normal'
+            } ${
+              isSelected ? 'text-neutral-900' : ''
             }`}
           >
             {category.name}
@@ -105,7 +118,7 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
 
         {/* Children */}
         {hasChildren && isExpanded && (
-          <div className="mt-0.5">
+          <div className="mt-1 ml-2 border-l border-neutral-200 pl-2">
             {category.children!.map(child => renderCategoryNode(child, level + 1))}
           </div>
         )}
@@ -116,9 +129,9 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
   const tree = buildTree(categories);
 
   return (
-    <div className="space-y-0.5">
+    <div className="space-y-1">
       {tree.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-neutral-500">
           <p className="text-sm">No categories available</p>
         </div>
       ) : (

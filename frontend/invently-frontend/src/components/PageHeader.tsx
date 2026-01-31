@@ -24,12 +24,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   return (
     <div className="flex items-start sm:items-center justify-between gap-3">
       <div className="min-w-0 flex-1">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
-          {Icon && <Icon className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />}
+        <h1 className="text-xl sm:text-2xl font-light text-neutral-900 flex items-center tracking-tight">
+          {Icon && <Icon className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-neutral-900 flex-shrink-0" />}
           <span className="truncate">{title}</span>
         </h1>
         {subtitle && (
-          <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">{subtitle}</p>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 sm:mt-1">{subtitle}</p>
         )}
       </div>
       <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">

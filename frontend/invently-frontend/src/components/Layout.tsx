@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { isOnSubdomain } from '../utils/api';
 import { T } from './Translation';
 import LandingHeader from './LandingHeader';
 import {
@@ -18,10 +17,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Layout = () => {
-  const { user, tenants, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
-  const [currentTenant, setCurrentTenant] = useState<any>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
@@ -37,33 +35,16 @@ const Layout = () => {
     navigation.push({ name: t('navigation.admin'), href: '/admin/platform', icon: CogIcon, section: 'Admin' });
   }
 
-  // Handle tenant resolution
-  useEffect(() => {
-    if (isOnSubdomain()) {
-      // On subdomain, we need to get tenant info from the subdomain
-      // This will be resolved by the backend based on the Host header
-      const subdomain = window.location.hostname.split('.')[0];
-      setCurrentTenant({ 
-        name: subdomain.charAt(0).toUpperCase() + subdomain.slice(1) + ' Store',
-        subdomain: subdomain
-      });
-    } else {
-      // On main domain, use the first tenant from context
-      setCurrentTenant(tenants[0]);
-    }
-  }, [tenants]);
-
   return (
-    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-neutral-50 flex flex-col overflow-hidden">
       {/* Top Header - Full Width */}
       <div className="flex-shrink-0 z-50">
         <LandingHeader 
           showAuthButtons={false}
-          shopName={currentTenant?.subdomain || currentTenant?.name || ''}
           mobileMenuButton={
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              className="p-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100"
             >
               <Bars3Icon className="w-6 h-6" />
             </button>
@@ -76,13 +57,13 @@ const Layout = () => {
         {/* Mobile sidebar backdrop */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+            className="fixed inset-0 z-40 bg-neutral-900 bg-opacity-50 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
 
         {/* Sidebar */}
-        <div className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-auto lg:w-64 flex flex-col ${
+        <div className={`fixed top-14 sm:top-16 md:top-20 bottom-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-neutral-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:top-auto lg:w-64 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}>
           <div className="flex flex-col flex-1 min-h-0">
@@ -90,7 +71,7 @@ const Layout = () => {
           <nav className="flex-1 p-4 overflow-y-auto">
             {/* Store Section */}
             <div className="mb-6">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
                 <T tKey="navigation.storefront" />
               </h3>
               <div className="space-y-1">
@@ -102,8 +83,8 @@ const Layout = () => {
                       to={item.href}
                       className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isActive 
-                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' 
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'bg-neutral-100 text-neutral-900' 
+                          : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                       }`}
                     >
                       <item.icon className="h-5 w-5 mr-3" />
@@ -117,7 +98,7 @@ const Layout = () => {
             {/* Admin Section */}
             {navigation.filter(item => item.section === 'Admin').length > 0 && (
               <div className="mb-6">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
                   <T tKey="navigation.admin" />
                 </h3>
                 <div className="space-y-1">
@@ -129,8 +110,8 @@ const Layout = () => {
                         to={item.href}
                         className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive 
-                            ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' 
-                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-neutral-100 text-neutral-900' 
+                            : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                         }`}
                       >
                         <item.icon className="h-5 w-5 mr-3" />
@@ -144,18 +125,18 @@ const Layout = () => {
           </nav>
 
           {/* User Menu - Always at bottom */}
-          <div className="p-4 border-t border-gray-200 flex-shrink-0">
+          <div className="p-4 border-t border-neutral-200 flex-shrink-0">
             <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-3">
-                <span className="text-xs font-bold text-white">
+              <div className="w-8 h-8 bg-neutral-900 rounded-full flex items-center justify-center mr-3">
+                <span className="text-xs font-medium text-white">
                   {user?.firstName?.[0]}{user?.lastName?.[0]}
                 </span>
               </div>
               <div className="flex-1">
-                <div className="font-medium text-gray-900 text-sm">
+                <div className="font-medium text-neutral-900 text-sm">
                   {user?.firstName} {user?.lastName}
                 </div>
-                <div className="text-xs text-gray-500">{user?.email}</div>
+                <div className="text-xs text-neutral-500">{user?.email}</div>
               </div>
             </div>
             
@@ -165,7 +146,7 @@ const Layout = () => {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors mb-3"
+              className="flex items-center text-sm text-neutral-900 hover:text-neutral-700 transition-colors mb-3"
             >
               <BuildingStorefrontIcon className="h-4 w-4 mr-2" />
               <T tKey="navigation.storefront" />
@@ -173,7 +154,7 @@ const Layout = () => {
             
             <button
               onClick={logout}
-              className="flex items-center text-sm text-gray-600 hover:text-red-600 transition-colors"
+              className="flex items-center text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
             >
               <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
               <T tKey="navigation.logout" />

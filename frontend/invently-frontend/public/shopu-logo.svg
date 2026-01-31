@@ -1,13 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" role="img" aria-label="Shopu.ge logo">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8B5CF6"/>
-      <stop offset="1" stop-color="#60A5FA"/>
-    </linearGradient>
-  </defs>
-
   <!-- Icon -->
-  <g transform="translate(40,10)" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+  <g transform="translate(40,10)" fill="none" stroke="#171717" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
     <!-- Bag body -->
     <rect x="0" y="40" width="140" height="140" rx="34"/>
     <!-- Handle -->
@@ -16,8 +9,8 @@
     <path d="M100 55 L100 70"/>
 
     <!-- Face -->
-    <circle cx="52" cy="100" r="6" fill="url(#g)" stroke="none"/>
-    <circle cx="88" cy="100" r="6" fill="url(#g)" stroke="none"/>
+    <circle cx="52" cy="100" r="6" fill="#171717" stroke="none"/>
+    <circle cx="88" cy="100" r="6" fill="#171717" stroke="none"/>
     <path d="M52 125 C62 140, 78 140, 88 125"/>
   </g>
 
@@ -27,8 +20,8 @@
           font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
           font-size="92"
           font-weight="700"
-          fill="#111827">
-      Shopu<tspan fill="url(#g)">.ge</tspan>
+          fill="#171717">
+      Shopu<tspan fill="#171717">.ge</tspan>
     </text>
   </g>
 </svg>

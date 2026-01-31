@@ -159,11 +159,11 @@ const ProductDetailContent: React.FC = () => {
         hideSidebar={true}
       >
         <div className="text-center py-16">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-          <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-light tracking-tight text-neutral-900 mb-4">Product Not Found</h1>
+          <p className="text-neutral-600 mb-6">The product you're looking for doesn't exist.</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-neutral-800 text-white font-medium rounded-full hover:bg-neutral-700 transition-colors"
           >
             Back to Store
           </button>
@@ -188,7 +188,6 @@ const ProductDetailContent: React.FC = () => {
   // For products with variants, only show stock status after a variant is selected
   // For simple products (no variants), show stock status immediately
   const isInStock = displayStock > 0;
-  const shouldShowStockStatus = !hasVariants || selectedVariant !== null;
 
   const cartQuantity = getCartItemQuantity(product.id, selectedVariant?.id);
 
@@ -307,35 +306,35 @@ const ProductDetailContent: React.FC = () => {
         <div className="mb-4 sm:mb-6">
           <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 min-h-[42px]">
             <nav className="overflow-x-auto scrollbar-hide py-2 sm:py-2.5">
-              <div className="flex items-center text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-max">
+              <div className="flex items-center text-xs sm:text-sm text-neutral-600 whitespace-nowrap min-w-max">
                 <button
                   onClick={() => navigate('/')}
-                  className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
+                  className="hover:text-neutral-900 transition-colors flex-shrink-0 px-1"
                 >
                   Home
                 </button>
                 
                 {categoryHierarchy.map((cat) => (
                   <React.Fragment key={cat.id}>
-                    <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
+                    <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-neutral-400" />
                     <button
                       onClick={() => handleCategorySelect(cat.id)}
-                      className="hover:text-gray-900 transition-colors flex-shrink-0 px-1"
+                      className="hover:text-neutral-900 transition-colors flex-shrink-0 px-1"
                     >
                       {cat.name}
                     </button>
                   </React.Fragment>
                 ))}
                 
-                <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-gray-400" />
-                <span className="text-gray-900 font-medium flex-shrink-0 px-1">{product.title}</span>
+                <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-neutral-400" />
+                <span className="text-neutral-900 font-medium flex-shrink-0 px-1">{product.title}</span>
               </div>
             </nav>
           </div>
         </div>
 
         {/* Main Product Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Vertical Thumbnails - Desktop Only */}
@@ -347,8 +346,8 @@ const ProductDetailContent: React.FC = () => {
                     onClick={() => setCurrentImageIndex(index)}
                     className={`aspect-square rounded-md overflow-hidden border-2 transition-all ${
                       index === currentImageIndex
-                        ? 'border-blue-600'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-neutral-800'
+                        : 'border-neutral-200 hover:border-neutral-300'
                     }`}
                   >
                     <img
@@ -364,7 +363,7 @@ const ProductDetailContent: React.FC = () => {
             {/* Main Image */}
             <div className={product.images && product.images.length > 1 ? "lg:col-span-5" : "lg:col-span-6"}>
               <div 
-                className="aspect-square bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in border border-gray-200"
+                className="aspect-square bg-neutral-50 rounded-lg overflow-hidden cursor-zoom-in border border-neutral-200"
                 onClick={() => setLightboxOpen(true)}
               >
                 {currentImage ? (
@@ -375,7 +374,7 @@ const ProductDetailContent: React.FC = () => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <p className="text-gray-400">No image available</p>
+                    <p className="text-neutral-400">No image available</p>
                   </div>
                 )}
               </div>
@@ -389,8 +388,8 @@ const ProductDetailContent: React.FC = () => {
                       onClick={() => setCurrentImageIndex(index)}
                       className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${
                         index === currentImageIndex
-                          ? 'border-blue-600'
-                          : 'border-gray-200'
+                          ? 'border-neutral-800'
+                          : 'border-neutral-200'
                       }`}
                     >
                       <img
@@ -406,38 +405,23 @@ const ProductDetailContent: React.FC = () => {
 
             {/* Product Info */}
             <div className="lg:col-span-6 space-y-3 sm:space-y-4">
-              {/* Title and Stock Status */}
+              {/* Title */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 break-words">{product.title}</h1>
-                {shouldShowStockStatus && (
-                  <div className="flex items-center gap-1.5 text-xs">
-                    {isInStock ? (
-                      <>
-                        <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
-                        <span className="font-semibold text-green-700">{displayStock} in stock</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
-                        <span className="font-semibold text-red-700">Out of Stock</span>
-                      </>
-                    )}
-                  </div>
-                )}
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-light tracking-tight text-neutral-900 break-words">{product.title}</h1>
               </div>
 
               {/* Price */}
               <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
-                <span className="text-2xl sm:text-3xl font-bold text-gray-900">₾{displayPrice.toFixed(2)}</span>
+                <span className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">₾{displayPrice.toFixed(2)}</span>
                 {hasVariants && !selectedVariant && (
-                  <span className="text-xs sm:text-sm text-gray-500">Starting from</span>
+                  <span className="text-xs sm:text-sm text-neutral-500">Starting from</span>
                 )}
               </div>
 
               {/* Variants */}
               {hasVariants && (
                 <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">Options:</label>
+                  <label className="text-sm font-medium text-neutral-700 block mb-2">Options:</label>
                   <CustomDropdown
                     value={selectedVariant?.id || ''}
                     onChange={handleVariantChange}
@@ -455,37 +439,37 @@ const ProductDetailContent: React.FC = () => {
 
               {/* Quantity */}
               <div>
-                <label className="text-xs sm:text-sm font-semibold text-gray-700 block mb-2">Quantity:</label>
+                <label className="text-xs sm:text-sm font-medium text-neutral-700 block mb-2">Quantity:</label>
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <div className="flex items-center border border-gray-300 rounded-md">
+                  <div className="flex items-center border border-neutral-300 rounded-xl">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1}
-                      className="px-2 sm:px-3 py-2 hover:bg-gray-50 disabled:opacity-50 text-base sm:text-lg"
+                      className="px-2 sm:px-3 py-2 hover:bg-neutral-50 disabled:opacity-50 text-base sm:text-lg"
                       aria-label="Decrease quantity"
                     >
                       −
                     </button>
-                    <span className="px-3 sm:px-4 py-2 font-semibold border-x border-gray-300 min-w-[45px] sm:min-w-[50px] text-center text-sm sm:text-base">
+                    <span className="px-3 sm:px-4 py-2 font-medium border-x border-neutral-300 min-w-[45px] sm:min-w-[50px] text-center text-sm sm:text-base">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(Math.min(displayStock, quantity + 1))}
                       disabled={quantity >= displayStock}
-                      className="px-2 sm:px-3 py-2 hover:bg-gray-50 disabled:opacity-50 text-base sm:text-lg"
+                      className="px-2 sm:px-3 py-2 hover:bg-neutral-50 disabled:opacity-50 text-base sm:text-lg"
                       aria-label="Increase quantity"
                     >
                       +
                     </button>
                   </div>
-                  <span className="text-xs text-gray-500">Max: {displayStock}</span>
+                  <span className="text-xs text-neutral-500">Max: {displayStock}</span>
                 </div>
               </div>
 
               {/* Description */}
               {product.description && (
-                <div className="py-2 sm:py-3 border-y border-gray-100">
-                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed whitespace-pre-line break-words">
+                <div className="py-2 sm:py-3 border-y border-neutral-100">
+                  <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed whitespace-pre-line break-words">
                     {product.description}
                   </p>
                 </div>
@@ -493,9 +477,9 @@ const ProductDetailContent: React.FC = () => {
 
               {/* Cart Status */}
               {cartQuantity > 0 && (
-                <div className="flex items-center gap-2 bg-green-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-green-200">
-                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-semibold text-green-700">
+                <div className="flex items-center gap-2 bg-neutral-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-neutral-200">
+                  <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-neutral-700">
                     {cartQuantity} in cart
                   </span>
                 </div>
@@ -506,10 +490,10 @@ const ProductDetailContent: React.FC = () => {
                 <button
                   onClick={handleAddToCart}
                   disabled={!isInStock || (hasVariants && !selectedVariant)}
-                  className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+                  className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 sm:px-6 rounded-full font-medium transition-all text-xs sm:text-sm ${
                     !isInStock || (hasVariants && !selectedVariant)
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-sm hover:shadow-md'
+                      ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                      : 'bg-neutral-800 text-white hover:bg-neutral-700'
                   }`}
                 >
                   <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -520,10 +504,10 @@ const ProductDetailContent: React.FC = () => {
                   <button
                     onClick={handleBuyNow}
                     disabled={!isInStock || (hasVariants && !selectedVariant)}
-                    className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+                    className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium transition-all text-xs sm:text-sm ${
                       !isInStock || (hasVariants && !selectedVariant)
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-green-600 text-white hover:bg-green-700'
+                        ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
+                        : 'bg-neutral-800 text-white hover:bg-neutral-700'
                     }`}
                   >
                     Buy Now
@@ -540,7 +524,7 @@ const ProductDetailContent: React.FC = () => {
                         navigator.clipboard.writeText(window.location.href);
                       }
                     }}
-                    className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all text-xs sm:text-sm"
+                    className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-all text-xs sm:text-sm"
                   >
                     Share
                   </button>
@@ -552,16 +536,16 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Specifications */}
         {product.attributes && Object.keys(product.attributes).length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">Technical Specifications</h3>
+          <div className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-light tracking-tight text-neutral-900 mb-3 sm:mb-4">Technical Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {Object.entries(product.attributes).map(([key, value]) => (
                 <div 
                   key={key} 
-                  className="flex justify-between items-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 rounded-lg gap-2"
+                  className="flex justify-between items-center px-3 sm:px-4 py-2 sm:py-3 bg-neutral-50 rounded-lg gap-2"
                 >
-                  <span className="font-semibold text-gray-700 text-xs sm:text-sm">{key}:</span>
-                  <span className="text-gray-900 text-xs sm:text-sm text-right">{String(value)}</span>
+                  <span className="font-medium text-neutral-700 text-xs sm:text-sm">{key}:</span>
+                  <span className="text-neutral-900 text-xs sm:text-sm text-right">{String(value)}</span>
                 </div>
               ))}
             </div>
@@ -570,22 +554,22 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">
+              <h3 className="text-base sm:text-lg font-light tracking-tight text-neutral-900">
                 More from {rootCategory?.name || product.category?.name}
               </h3>
               <div className="flex gap-2">
                 <button
                   onClick={() => scrollSimilarProducts('left')}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                  className="p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors"
                   aria-label="Scroll left"
                 >
                   <ChevronLeftIcon className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => scrollSimilarProducts('right')}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                  className="p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors"
                   aria-label="Scroll right"
                 >
                   <ChevronRightIcon className="w-5 h-5" />

@@ -1090,61 +1090,147 @@
       "getStarted": "Get Started"
     },
     "hero": {
-      "badge": "Launch your online store in minutes",
-      "title": "Your Complete",
-      "titleGradient": "E-commerce Platform",
-      "subtitle": "Manage inventory, create beautiful storefronts, and grow your business with Shopu. Everything you need to sell online, all in one place.",
-      "startFreeTrial": "Start Free Trial",
-      "watchDemo": "Watch Demo",
-      "dashboardPreview": "Dashboard Preview"
+      "badge": "For Georgian Businesses",
+      "title": "Your Online Store,",
+      "titleHighlight": "Simplified",
+      "subtitle": "A modern e-commerce platform designed for Georgian businesses. Launch your store and start selling online with ease.",
+      "reassurance": "Professional tools. Local support. No technical expertise required.",
+      "primaryCta": "Get Started",
+      "secondaryCta": "Learn More",
+      "dashboardPreview": "Dashboard Preview",
+      "trust": {
+        "noCreditCard": "No credit card required",
+        "cancelAnytime": "Cancel anytime",
+        "secureReliable": "Secure & reliable"
+      }
+    },
+    "whyShopu": {
+      "badge": "Why Shopu",
+      "title": "Designed for Georgian Commerce",
+      "subtitle": "A platform tailored to the Georgian market, with local payment support and native language interface.",
+      "points": {
+        "local": {
+          "title": "Local Market Focus",
+          "description": "Built for Georgian businesses with local payment integrations, Georgian Lari support, and region-specific features."
+        },
+        "language": {
+          "title": "Bilingual Interface",
+          "description": "Complete Georgian and English language support throughout the platform and your storefront."
+        },
+        "support": {
+          "title": "Dedicated Support",
+          "description": "Local support team available in your timezone, fluent in Georgian and ready to assist."
+        },
+        "simple": {
+          "title": "Streamlined Experience",
+          "description": "Everything configured and ready from day one. No plugins, no complex setup processes."
+        }
+      },
+      "comparison": {
+        "title": "Focus on what matters",
+        "description": "Spend less time on technical setup and more time growing your business.",
+        "cta": "Start Now"
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "A straightforward process to get your store online.",
+      "steps": {
+        "create": {
+          "title": "Create Your Account",
+          "description": "Register and configure your store settings. Choose your store name and customize your branding."
+        },
+        "add": {
+          "title": "Add Products",
+          "description": "Upload product images, set pricing, and organize your catalog with intuitive management tools."
+        },
+        "sell": {
+          "title": "Start Selling",
+          "description": "Share your store link and begin accepting orders. Receive notifications for every new purchase."
+        }
+      },
+      "timeEstimate": "Ready in minutes"
+    },
+    "pricing": {
+      "badge": "Pricing",
+      "title": "Transparent Pricing",
+      "subtitle": "Simple pricing that scales with your business",
+      "currency": "GEL",
+      "entryPoint": {
+        "title": "One-Time Setup",
+        "description": "Create your professional online store with a simple one-time fee.",
+        "cta": "Get Started"
+      },
+      "afterTrial": "Then just 49 GEL per month:",
+      "popular": "Recommended",
+      "choosePlan": "Get Started",
+      "trustNote": "14-day money-back guarantee. No hidden fees.",
+      "period": "GEL/month",
+      "flowDescription": "Start with a one-time payment of 1 GEL to create your store, then continue with 49 GEL per month.",
+      "monthlyPlan": {
+        "description": "Everything included"
+      }
+    },
+    "realStores": {
+      "title": "Trusted by Georgian Businesses",
+      "subtitle": "Join merchants already growing their business with Shopu",
+      "stats": {
+        "stores": "Active stores",
+        "products": "Products listed"
+      },
+      "testimonial": {
+        "quote": "Shopu provided exactly what we needed — a professional online presence without the complexity of traditional e-commerce platforms.",
+        "author": "Nino M.",
+        "role": "Handmade Jewelry Store"
+      }
     },
     "features": {
-      "title": "Everything You Need to Succeed",
-      "subtitle": "Powerful features designed to help you manage and grow your online business",
+      "title": "Platform Features",
+      "subtitle": "Tools designed for modern commerce",
       "items": {
         "storefronts": {
-          "title": "Beautiful Storefronts",
-          "description": "Create stunning, customizable online stores with your own subdomain"
+          "title": "Professional Storefront",
+          "description": "A polished online store that reflects your brand identity and values."
         },
         "inventory": {
           "title": "Inventory Management",
-          "description": "Track products, variants, and stock levels with ease"
+          "description": "Real-time stock tracking and automated inventory updates across all channels."
         },
         "analytics": {
-          "title": "Real-time Analytics",
-          "description": "Monitor sales, orders, and performance with comprehensive dashboards"
+          "title": "Business Analytics",
+          "description": "Comprehensive insights into sales performance, customer behavior, and growth trends."
         },
         "multilanguage": {
-          "title": "Multi-language Support",
-          "description": "Reach global audiences with built-in translation capabilities"
+          "title": "Multilingual Support",
+          "description": "Serve customers in Georgian and English with automatic language detection."
         },
         "fast": {
-          "title": "Lightning Fast",
-          "description": "Optimized performance for seamless shopping experiences"
+          "title": "Optimized Performance",
+          "description": "Fast loading times and responsive design for seamless mobile and desktop experience."
         },
         "secure": {
-          "title": "Secure & Reliable",
-          "description": "Enterprise-grade security with automated backups"
+          "title": "Enterprise Security",
+          "description": "Industry-standard security protocols protecting your business and customer data."
         }
       }
     },
     "cta": {
-      "title": "Ready to Start Selling?",
-      "subtitle": "Join thousands of businesses already using Shopu to power their online stores",
-      "button": "Create Your Store Now"
+      "title": "Begin Your Journey",
+      "subtitle": "Create your online store and join the growing community of Georgian e-commerce businesses.",
+      "button": "Create Your Store"
     },
     "footer": {
-      "copyright": "© 2025 Shopu.ge. All rights reserved.",
+      "copyright": "© 2026 Shopu.ge. All rights reserved.",
       "company": {
         "title": "Company",
-        "aboutUs": "About Us",
-        "contact": "Contact Information",
-        "services": "Service Description",
+        "aboutUs": "About",
+        "contact": "Contact",
+        "services": "Services",
         "pricing": "Pricing"
       },
       "legal": {
         "title": "Legal",
-        "terms": "Terms & Conditions",
+        "terms": "Terms of Service",
         "privacy": "Privacy Policy",
         "refundPolicy": "Refund Policy"
       },
@@ -1152,7 +1238,7 @@
         "title": "Contact",
         "email": "support@shopu.ge",
         "phone": "+995 XXX XX XX XX",
-        "address": "Georgia, Tbilisi"
+        "address": "Tbilisi, Georgia"
       }
     }
   },

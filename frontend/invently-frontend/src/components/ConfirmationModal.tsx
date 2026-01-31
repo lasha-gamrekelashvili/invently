@@ -34,7 +34,7 @@ const ConfirmationModal = ({
       case 'warning':
         return 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500';
       case 'info':
-        return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+        return 'bg-neutral-800 hover:bg-neutral-700 focus:ring-neutral-500';
       default:
         return 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
     }
@@ -47,7 +47,7 @@ const ConfirmationModal = ({
       case 'warning':
         return 'text-yellow-600';
       case 'info':
-        return 'text-blue-600';
+        return 'text-neutral-900';
       default:
         return 'text-red-600';
     }
