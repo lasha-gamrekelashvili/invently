@@ -8,10 +8,10 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface StatusBadgeProps {
-  status?: string; // For orders
+  status?: string; // For orders/subscriptions
   isActive?: boolean; // For products (true = active, false = draft)
   isDeleted?: boolean; // For products (soft deleted)
-  type?: 'order' | 'product';
+  type?: 'order' | 'product' | 'subscription';
   showIcon?: boolean;
   size?: 'sm' | 'md';
 }
@@ -57,6 +57,12 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return <ClockIcon className={`${iconClass} text-yellow-600`} />;
       case 'DELETED':
         return <XCircleIcon className={`${iconClass} text-red-600`} />;
+      case 'CANCELLED':
+        return <XCircleIcon className={`${iconClass} text-red-600`} />;
+      case 'EXPIRED':
+        return <XCircleIcon className={`${iconClass} text-red-600`} />;
+      case 'TRIAL':
+        return <ClockIcon className={`${iconClass} text-blue-600`} />;
       default:
         return <ClockIcon className={`${iconClass} text-gray-600`} />;
     }
@@ -80,6 +86,12 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'bg-yellow-100 text-yellow-800';
       case 'DELETED':
         return 'bg-red-100 text-red-800';
+      case 'CANCELLED':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'EXPIRED':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'TRIAL':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -94,6 +106,19 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           return t('products.status.draft');
         case 'DELETED':
           return t('products.status.deleted');
+        default:
+          return statusValue;
+      }
+    } else if (type === 'subscription') {
+      switch (statusValue) {
+        case 'ACTIVE':
+          return t('billing.status.active');
+        case 'CANCELLED':
+          return t('billing.status.cancelled');
+        case 'EXPIRED':
+          return t('billing.status.expired');
+        case 'TRIAL':
+          return t('billing.status.trial');
         default:
           return statusValue;
       }

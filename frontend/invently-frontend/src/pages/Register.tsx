@@ -17,6 +17,7 @@ const Register = () => {
     confirmPassword: '',
     tenantName: '',
     subdomain: '',
+    iban: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -270,6 +271,26 @@ const Register = () => {
                     placeholder={t('auth.register.confirmPassword')}
                   />
                 </div>
+              </div>
+
+              {/* IBAN (Optional) */}
+              <div>
+                <label htmlFor="iban" className="block text-sm font-medium text-neutral-700 mb-2">
+                  <T tKey="auth.register.iban" /> <span className="text-neutral-500 font-normal text-xs">(<T tKey="auth.register.optional" />)</span>
+                </label>
+                <input
+                  id="iban"
+                  name="iban"
+                  type="text"
+                  value={formData.iban}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+                  placeholder={t('auth.register.ibanPlaceholder')}
+                  maxLength={34}
+                />
+                <p className="mt-2 text-xs text-neutral-500">
+                  <T tKey="auth.register.ibanHelp" />
+                </p>
               </div>
 
               <div className="pt-2">

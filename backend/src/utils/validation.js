@@ -10,7 +10,8 @@ const schemas = {
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
     tenantName: Joi.string().min(2).max(100).required(),
-    subdomain: Joi.string().alphanum().min(3).max(50).required()
+    subdomain: Joi.string().alphanum().min(3).max(50).required(),
+    iban: Joi.string().max(34).optional().allow(null, '') // IBAN can be up to 34 characters
   }),
 
   login: Joi.object({
@@ -95,6 +96,17 @@ const schemas = {
     isDeleted: Joi.boolean().optional(), // Filter by deleted status
     minPrice: Joi.number().min(0).optional(),
     maxPrice: Joi.number().min(0).optional()
+  }),
+
+  processPayment: Joi.object({
+    paymentMethod: Joi.string().optional().default('MOCK'),
+    cardNumber: Joi.string().optional(), // For future real payment integration
+    expiryDate: Joi.string().optional(),
+    cvv: Joi.string().optional(),
+  }),
+
+  updateIban: Joi.object({
+    iban: Joi.string().max(34).required()
   })
 };
 

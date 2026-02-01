@@ -25,9 +25,8 @@ const authenticateToken = async (req, res, next) => {
         lastName: true,
         role: true,
         ownedTenants: {
-          where: {
-            isActive: true
-          }
+          // Include all tenants for frontend status checking
+          // Frontend will handle filtering active tenants
         }
       }
     });

@@ -44,6 +44,14 @@ const options = {
       {
         name: 'Orders',
         description: 'Order management endpoints'
+      },
+      {
+        name: 'Payments',
+        description: 'Payment and subscription management endpoints'
+      },
+      {
+        name: 'Authentication',
+        description: 'User authentication and registration endpoints'
       }
     ],
     components: {
@@ -143,6 +151,12 @@ const options = {
               enum: ['PLATFORM_ADMIN', 'STORE_OWNER'],
               description: 'User role'
             },
+            iban: {
+              type: 'string',
+              nullable: true,
+              maxLength: 34,
+              description: 'International Bank Account Number for receiving payouts'
+            },
             createdAt: { 
               type: 'string', 
               format: 'date-time',
@@ -155,6 +169,7 @@ const options = {
             firstName: 'John',
             lastName: 'Doe',
             role: 'STORE_OWNER',
+            iban: 'GE00XX0000000000000000',
             createdAt: '2023-09-27T10:30:00Z'
           }
         },
@@ -365,6 +380,143 @@ const options = {
             limit: 20,
             total: 45,
             pages: 3
+          }
+        },
+        Payment: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Payment identifier'
+            },
+            userId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'User who made the payment'
+            },
+            tenantId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Tenant/store associated with the payment'
+            },
+            type: {
+              type: 'string',
+              enum: ['SETUP_FEE', 'MONTHLY_SUBSCRIPTION'],
+              description: 'Type of payment'
+            },
+            amount: {
+              type: 'number',
+              description: 'Payment amount in GEL'
+            },
+            status: {
+              type: 'string',
+              enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED'],
+              description: 'Payment status'
+            },
+            paymentMethod: {
+              type: 'string',
+              nullable: true,
+              description: 'Payment method (e.g., MOCK, BANK_OF_GEORGIA)'
+            },
+            transactionId: {
+              type: 'string',
+              nullable: true,
+              description: 'External payment provider transaction ID'
+            },
+            metadata: {
+              type: 'object',
+              nullable: true,
+              description: 'Additional payment metadata',
+              additionalProperties: true
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Payment creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Payment last update timestamp'
+            }
+          },
+          example: {
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+            userId: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
+            tenantId: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
+            type: 'SETUP_FEE',
+            amount: 1.0,
+            status: 'PAID',
+            paymentMethod: 'MOCK',
+            transactionId: 'MOCK-1769937784380-4ob4pry2x',
+            metadata: {
+              processedAt: '2026-02-01T09:23:04.380Z'
+            },
+            createdAt: '2026-02-01T09:20:16.607Z',
+            updatedAt: '2026-02-01T09:23:04.381Z'
+          }
+        },
+        Subscription: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Subscription identifier'
+            },
+            tenantId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Tenant/store associated with the subscription'
+            },
+            status: {
+              type: 'string',
+              enum: ['ACTIVE', 'CANCELLED', 'EXPIRED', 'TRIAL'],
+              description: 'Subscription status'
+            },
+            currentPeriodStart: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Start date of current billing period'
+            },
+            currentPeriodEnd: {
+              type: 'string',
+              format: 'date-time',
+              description: 'End date of current billing period'
+            },
+            nextBillingDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Next billing date'
+            },
+            cancelledAt: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Subscription cancellation timestamp'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Subscription creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Subscription last update timestamp'
+            }
+          },
+          example: {
+            id: 'f47ac10b-58cc-4372-a567-0e02b2c3d482',
+            tenantId: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
+            status: 'ACTIVE',
+            currentPeriodStart: '2026-02-01T00:00:00Z',
+            currentPeriodEnd: '2026-02-28T23:59:59Z',
+            nextBillingDate: '2026-03-01T00:00:00Z',
+            cancelledAt: null,
+            createdAt: '2026-02-01T09:23:04.380Z',
+            updatedAt: '2026-02-01T09:23:04.380Z'
           }
         }
       },

@@ -28,9 +28,7 @@ export class AuthRepository extends BaseRepository {
       {
         include: {
           ownedTenants: {
-            where: {
-              isActive: true,
-            },
+            // Include all tenants (active and inactive) for frontend status checking
           },
         },
       }
@@ -43,9 +41,8 @@ export class AuthRepository extends BaseRepository {
       {
         include: {
           ownedTenants: {
-            where: {
-              isActive: true,
-            },
+            // Include ALL tenants (active and inactive) so frontend can check status
+            // Don't filter by isActive here - let frontend handle it
           },
         },
       }

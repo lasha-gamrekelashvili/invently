@@ -31,7 +31,7 @@ const pageContentConfig: Record<string, { paragraphs: string[]; strongParagraphs
   about: { paragraphs: ['p1', 'p2', 'p3', 'p4'], strongParagraphs: ['p3'] },
   contact: { paragraphs: [], strongParagraphs: [] }, // Special rendering
   services: { paragraphs: ['p1', 'p2', 'p3'], strongParagraphs: ['p3'] },
-  pricing: { paragraphs: ['p1', 'p2', 'p3'], strongParagraphs: ['p3'] },
+  pricing: { paragraphs: ['p1', 'p2', 'p3', 'p4'], strongParagraphs: ['p3'] },
   refundPolicy: { paragraphs: ['p1', 'p2', 'p3'], strongParagraphs: ['p3'] },
   privacy: { paragraphs: ['p1', 'p2', 'p3', 'p4'], strongParagraphs: ['p4'] },
   terms: { paragraphs: ['p1', 'p2', 'p3'], strongParagraphs: ['p3'] },
@@ -42,39 +42,41 @@ const LegalContent: React.FC<{ translationKey: string }> = ({ translationKey }) 
   // Special handling for contact page with structured data
   if (translationKey === 'contact') {
     return (
-      <div className="space-y-8 text-neutral-600 leading-relaxed">
+      <div className="space-y-10">
         <section>
-          <h2 className="text-xl font-medium text-neutral-900 mb-4">
+          <h2 className="text-xl font-light text-neutral-900 mb-4 tracking-tight">
             <T tKey="legal.pages.contact.platform.title" />
           </h2>
-          <ul className="space-y-2">
+          <ul className="space-y-3 text-base text-neutral-600 leading-relaxed">
             <li>
-              <strong><T tKey="legal.pages.contact.platform.companyName" />:</strong>{' '}
+              <span className="font-medium text-neutral-900"><T tKey="legal.pages.contact.platform.companyName" />:</span>{' '}
               <T tKey="legal.pages.contact.platform.companyNameValue" />
             </li>
             <li>
-              <strong><T tKey="legal.pages.contact.platform.email" />:</strong>{' '}
+              <span className="font-medium text-neutral-900"><T tKey="legal.pages.contact.platform.email" />:</span>{' '}
               <T tKey="legal.pages.contact.platform.emailValue" />
             </li>
             <li>
-              <strong><T tKey="legal.pages.contact.platform.phone" />:</strong>{' '}
+              <span className="font-medium text-neutral-900"><T tKey="legal.pages.contact.platform.phone" />:</span>{' '}
               <T tKey="legal.pages.contact.platform.phoneValue" />
             </li>
             <li>
-              <strong><T tKey="legal.pages.contact.platform.address" />:</strong>{' '}
+              <span className="font-medium text-neutral-900"><T tKey="legal.pages.contact.platform.address" />:</span>{' '}
               <T tKey="legal.pages.contact.platform.addressValue" />
             </li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-medium text-neutral-900 mb-4">
+          <h2 className="text-xl font-light text-neutral-900 mb-4 tracking-tight">
             <T tKey="legal.pages.contact.merchants.title" />
           </h2>
-          <p><T tKey="legal.pages.contact.merchants.p1" /></p>
-          <p className="mt-4">
-            <strong><T tKey="legal.pages.contact.merchants.p2" /></strong>
-          </p>
+          <div className="space-y-4 text-base text-neutral-600 leading-relaxed">
+            <p><T tKey="legal.pages.contact.merchants.p1" /></p>
+            <p className="font-medium text-neutral-900">
+              <T tKey="legal.pages.contact.merchants.p2" />
+            </p>
+          </div>
         </section>
       </div>
     );
@@ -89,38 +91,32 @@ const LegalContent: React.FC<{ translationKey: string }> = ({ translationKey }) 
   // Special handling for services page with subtitle
   if (translationKey === 'services') {
     return (
-      <div className="space-y-6 text-neutral-600 leading-relaxed">
-        <p className="text-sm text-neutral-500 uppercase tracking-wide">
+      <div className="space-y-6">
+        <p className="text-sm text-neutral-500 uppercase tracking-wide mb-6">
           <T tKey="legal.pages.services.subtitle" />
         </p>
-        {paragraphs.map((key) => {
-          const isStrong = strongParagraphs.includes(key);
-          return (
-            <p key={key}>
-              {isStrong ? (
-                <strong><T tKey={`legal.pages.${translationKey}.content.${key}`} /></strong>
-              ) : (
+        <div className="space-y-4 text-base text-neutral-600 leading-relaxed">
+          {paragraphs.map((key) => {
+            const isStrong = strongParagraphs.includes(key);
+            return (
+              <p key={key} className={isStrong ? 'font-medium text-neutral-900' : ''}>
                 <T tKey={`legal.pages.${translationKey}.content.${key}`} />
-              )}
-            </p>
-          );
-        })}
+              </p>
+            );
+          })}
+        </div>
       </div>
     );
   }
 
   // Default rendering for other pages
   return (
-    <div className="space-y-6 text-neutral-600 leading-relaxed">
+    <div className="space-y-4 text-base text-neutral-500 leading-relaxed font-light">
       {paragraphs.map((key) => {
         const isStrong = strongParagraphs.includes(key);
         return (
-          <p key={key}>
-            {isStrong ? (
-              <strong><T tKey={`legal.pages.${translationKey}.content.${key}`} /></strong>
-            ) : (
-              <T tKey={`legal.pages.${translationKey}.content.${key}`} />
-            )}
+          <p key={key} className={isStrong ? 'text-neutral-900' : ''}>
+            <T tKey={`legal.pages.${translationKey}.content.${key}`} />
           </p>
         );
       })}
@@ -143,10 +139,10 @@ const LegalPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-light text-neutral-900 mb-4">
+          <h1 className="text-3xl font-light text-neutral-900 mb-6 tracking-tight">
             <T tKey="legal.notFound.title" />
           </h1>
-          <Link to="/" className="text-neutral-900 hover:text-neutral-700">
+          <Link to="/" className="text-lg text-neutral-500 hover:text-neutral-900 transition-colors">
             <T tKey="legal.notFound.backToHome" />
           </Link>
         </div>
@@ -161,12 +157,12 @@ const LegalPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-10">
-          <div className="grid lg:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="grid lg:grid-cols-4 gap-12">
             {/* Sidebar Navigation */}
             <aside className="lg:col-span-1">
               <nav className="sticky top-24">
-                <h3 className="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-4">
+                <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-6">
                   <T tKey="legal.nav.title" />
                 </h3>
                 <ul className="space-y-1">
@@ -174,10 +170,10 @@ const LegalPage: React.FC = () => {
                     <li key={link.path}>
                       <Link
                         to={link.path}
-                        className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`block px-3 py-2.5 rounded-lg text-sm transition-colors ${
                           location.pathname === link.path
                             ? 'bg-neutral-100 text-neutral-900 font-medium'
-                            : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+                            : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
                         }`}
                       >
                         <T tKey={link.labelKey} />
@@ -190,7 +186,7 @@ const LegalPage: React.FC = () => {
 
             {/* Content */}
             <main className="lg:col-span-3">
-              <h1 className="text-3xl font-light text-neutral-900 mb-8 tracking-tight">
+              <h1 className="text-3xl sm:text-4xl font-light text-neutral-900 mb-8 tracking-tight leading-[1.1]">
                 <T tKey={`legal.pages.${translationKey}.title`} />
               </h1>
               <LegalContent translationKey={translationKey} />
@@ -201,11 +197,11 @@ const LegalPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="border-t border-neutral-200 bg-neutral-50">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-neutral-400 text-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-neutral-500 text-sm">
             <T tKey="legal.footer.copyright" />
           </p>
-          <Link to="/" className="text-neutral-500 hover:text-neutral-900 text-sm">
+          <Link to="/" className="text-neutral-500 hover:text-neutral-900 text-sm transition-colors">
             <T tKey="legal.footer.backToHome" />
           </Link>
         </div>

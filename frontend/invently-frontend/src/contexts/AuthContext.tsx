@@ -129,6 +129,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
+      // Redirect to payment page if payment is pending
+      if (response.payment && response.payment.status === 'PENDING' && response.tenant) {
+        const currentHost = window.location.hostname;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const token = response.token;
+        const paymentId = response.payment.id;
+
+        let redirectUrl: string;
+
+        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+          // For localhost development
+          redirectUrl = `http://${response.tenant.subdomain}.localhost${port}/payment/${paymentId}#token=${encodeURIComponent(token)}`;
+        } else {
+          // For production
+          redirectUrl = `https://${response.tenant.subdomain}.${currentHost}/payment/${paymentId}#token=${encodeURIComponent(token)}`;
+        }
+
+        window.location.replace(redirectUrl);
+        return;
+      }
+
       // Only redirect to subdomain if we're on the main domain
       if (!isOnSubdomain() && response.tenant) {
         const currentHost = window.location.hostname;

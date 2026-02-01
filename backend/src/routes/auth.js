@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, me } from '../controllers/authController.js';
+import { register, login, me, updateIban } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { validate, schemas } from '../utils/validation.js';
 
@@ -62,6 +62,12 @@ const router = express.Router();
  *                 maxLength: 50
  *                 description: Unique subdomain for the store
  *                 example: johnstore
+ *               iban:
+ *                 type: string
+ *                 maxLength: 34
+ *                 nullable: true
+ *                 description: International Bank Account Number (optional during registration)
+ *                 example: GE00XX0000000000000000
  *     responses:
  *       201:
  *         description: User and store created successfully
@@ -81,6 +87,22 @@ const router = express.Router();
  *                   type: string
  *                   description: JWT access token
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 payment:
+ *                   type: object
+ *                   description: Setup fee payment record
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                     type:
+ *                       type: string
+ *                       enum: [SETUP_FEE]
+ *                     amount:
+ *                       type: number
+ *                       example: 1.0
+ *                     status:
+ *                       type: string
+ *                       enum: [PENDING]
  *       400:
  *         description: Validation error or user/tenant already exists
  *         content:
@@ -221,6 +243,54 @@ const router = express.Router();
  *         $ref: '#/components/responses/ServerError'
  */
 
+/**
+ * @swagger
+ * /auth/iban:
+ *   put:
+ *     summary: Update user IBAN
+ *     description: Updates the IBAN (International Bank Account Number) for the authenticated user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - iban
+ *             properties:
+ *               iban:
+ *                 type: string
+ *                 maxLength: 34
+ *                 description: International Bank Account Number
+ *                 example: GE00XX0000000000000000
+ *     responses:
+ *       200:
+ *         description: IBAN updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         description: User not found
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // 100 attempts per window (increased for testing)
@@ -232,5 +302,6 @@ const authLimiter = rateLimit({
 router.post('/register', authLimiter, validate(schemas.register), register);
 router.post('/login', authLimiter, validate(schemas.login), login);
 router.get('/me', authenticateToken, me);
+router.put('/iban', authenticateToken, validate(schemas.updateIban), updateIban);
 
 export default router;

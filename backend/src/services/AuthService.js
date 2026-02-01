@@ -2,11 +2,13 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../repositories/AuthRepository.js';
 import { TenantRepository } from '../repositories/TenantRepository.js';
+import { PaymentService } from './PaymentService.js';
 
 export class AuthService {
   constructor() {
     this.authRepository = new AuthRepository();
     this.tenantRepository = new TenantRepository();
+    this.paymentService = new PaymentService();
   }
 
   generateToken(userId) {
@@ -18,7 +20,7 @@ export class AuthService {
   }
 
   async register(userData) {
-    const { email, password, firstName, lastName, tenantName, subdomain } = userData;
+    const { email, password, firstName, lastName, tenantName, subdomain, iban } = userData;
 
     // Check if user already exists
     const existingUser = await this.authRepository.findByEmail(email);
@@ -36,6 +38,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user and tenant in a transaction
+    // Tenant is created as inactive until payment is successful
     const result = await this.authRepository.createUserWithTenant(
       {
         email,
@@ -43,11 +46,21 @@ export class AuthService {
         firstName,
         lastName,
         role: 'STORE_OWNER',
+        iban: iban || null,
       },
       {
         name: tenantName,
         subdomain,
+        isActive: false, // Tenant is inactive until payment succeeds
       }
+    );
+
+    // Create setup fee payment record
+    const payment = await this.paymentService.createPayment(
+      result.user.id,
+      result.tenant.id,
+      'SETUP_FEE',
+      1.0 // 1 GEL setup fee
     );
 
     // Generate token
@@ -60,11 +73,18 @@ export class AuthService {
         firstName: result.user.firstName,
         lastName: result.user.lastName,
         role: result.user.role,
+        iban: result.user.iban,
       },
       tenant: {
         id: result.tenant.id,
         name: result.tenant.name,
         subdomain: result.tenant.subdomain,
+      },
+      payment: {
+        id: payment.id,
+        amount: payment.amount,
+        status: payment.status,
+        type: payment.type,
       },
       token,
     };
@@ -102,6 +122,7 @@ export class AuthService {
         id: tenant.id,
         name: tenant.name,
         subdomain: tenant.subdomain,
+        isActive: tenant.isActive, // Include status so frontend can check
       })),
       token,
     };
@@ -114,6 +135,7 @@ export class AuthService {
       throw new Error('User not found');
     }
 
+    // Return ALL tenants (including inactive ones) so frontend can check status
     return {
       user: {
         id: user.id,
@@ -121,12 +143,37 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        iban: user.iban,
       },
       tenants: user.ownedTenants.map(tenant => ({
         id: tenant.id,
         name: tenant.name,
         subdomain: tenant.subdomain,
+        isActive: tenant.isActive, // Include inactive tenants so frontend can check
       })),
+    };
+  }
+
+  async updateIban(userId, iban) {
+    const user = await this.authRepository.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const updatedUser = await this.authRepository.update(userId, {
+      iban,
+    });
+
+    return {
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        role: updatedUser.role,
+        iban: updatedUser.iban,
+      },
     };
   }
 }

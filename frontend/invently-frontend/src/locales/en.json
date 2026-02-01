@@ -61,6 +61,7 @@
     "categories": "Categories",
     "bulkUpload": "Bulk Upload",
     "orders": "Orders",
+    "billing": "Billing & Subscription",
     "settings": "Settings",
     "logs": "Logs",
     "storefront": "See your public store",
@@ -73,9 +74,9 @@
     "login": {
       "title": "Sign In",
       "subtitle": "Welcome back! Please sign in to your account.",
-      "heroTitle": "Welcome back to",
+      "heroTitle": "Sign In to",
       "heroBrand": "Shopu",
-      "heroDescription": "Manage your inventory, track your sales, and grow your business all in one powerful platform.",
+      "heroDescription": "Access your e-commerce dashboard and manage your online store.",
       "email": "Email Address",
       "password": "Password",
       "rememberMe": "Remember me",
@@ -88,10 +89,10 @@
     "register": {
       "title": "Create Account",
       "subtitle": "Get started with your new store",
-      "heroTitle": "Start your",
-      "heroTitleHighlight": "journey",
-      "heroTitleEnd": "today",
-      "heroDescription": "Join thousands of businesses already using Shopu to manage their inventory and grow their sales.",
+      "heroTitle": "Create Your",
+      "heroTitleHighlight": "Account",
+      "heroTitleEnd": "",
+      "heroDescription": "Set up your online store and start selling in minutes.",
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email Address",
@@ -101,6 +102,10 @@
       "subdomain": "Store URL",
       "subdomainPlaceholder": "your-store",
       "subdomainHelp": "This will be your store's web address: your-store.shopu.ge",
+      "iban": "IBAN",
+      "ibanPlaceholder": "GE00XX0000000000000000",
+      "ibanHelp": "Your bank account IBAN for receiving payments (can be added later)",
+      "optional": "Optional",
       "createAccountButton": "Create Account",
       "hasAccount": "Already have an account?",
       "signInLink": "Sign in here",
@@ -820,7 +825,8 @@
     "tabs": {
       "content": "Page Content",
       "social": "Social Media",
-      "links": "Quick Links"
+      "links": "Quick Links",
+      "account": "Account"
     },
     "content": {
       "title": "Page Content",
@@ -892,6 +898,15 @@
         "label": "Track Order URL",
         "placeholder": "https://yourstore.com/track-order",
         "helpText": "URL where customers can track their orders"
+      }
+    },
+    "account": {
+      "title": "Account Settings",
+      "description": "Manage your account information and payment details.",
+      "iban": {
+        "label": "IBAN",
+        "placeholder": "GE00XX0000000000000000",
+        "helpText": "Your bank account IBAN for receiving payments from customer orders"
       }
     },
     "actions": {
@@ -1268,10 +1283,10 @@
       "about": {
         "title": "About Shopu.ge",
         "content": {
-          "p1": "Shopu.ge is an e-commerce technology platform (SaaS) that enables users to create and manage their own online stores in minutes.",
-          "p2": "The platform provides online store creation, product management, order fulfillment, payment integration, and an administrative panel.",
-          "p3": "Shopu.ge does not sell physical products or services.",
-          "p4": "Products and services displayed on the platform are sold by independent merchants who are solely responsible for their activities."
+          "p1": "Shopu.ge is an e-commerce technology platform operating as a Software-as-a-Service (SaaS) solution that enables registered users to create, configure, and manage their own online retail stores through the platform's digital infrastructure.",
+          "p2": "The platform provides comprehensive e-commerce functionality including, but not limited to: online store creation and customization, product catalog management, order processing and fulfillment, payment gateway integration, and administrative dashboard access.",
+          "p3": "Shopu.ge operates exclusively as a technology service provider and does not engage in the sale, distribution, or fulfillment of physical products or services to end consumers.",
+          "p4": "All products and services displayed, advertised, or offered for sale through the platform are sold by independent third-party merchants who operate their own online stores. Each merchant is solely and exclusively responsible for all aspects of their business operations, including but not limited to product quality, pricing, delivery, customer service, and compliance with applicable laws and regulations."
         }
       },
       "contact": {
@@ -1289,52 +1304,119 @@
         },
         "merchants": {
           "title": "Merchants (Online Stores)",
-          "p1": "Each merchant using the Shopu.ge platform is required to provide contact information in their online store, including phone number, email address, and physical address if applicable.",
-          "p2": "The merchant is solely responsible for the accuracy of the information they provide."
+          "p1": "Pursuant to the platform's terms of service, each merchant utilizing the Shopu.ge platform is legally obligated to maintain and display accurate, current, and complete contact information within their online store. This information must include, at minimum: a valid telephone number, a functional email address, and a physical business address where applicable under Georgian law.",
+          "p2": "Each merchant bears full legal responsibility for the accuracy, completeness, and currency of all information provided through their online store. Merchants are required to promptly update any changes to their contact information and are liable for any consequences arising from inaccurate or outdated information."
         }
       },
       "services": {
         "title": "Product / Service Description",
         "subtitle": "(Shopu.ge Product)",
         "content": {
-          "p1": "Shopu.ge offers users a digital service — an online store creation and management platform.",
-          "p2": "The service includes online store design creation, product addition, order management, payment integration, and administrative functionality.",
-          "p3": "Shopu.ge is not the final seller of products or services and does not participate in sales conducted by merchants."
+          "p1": "Shopu.ge provides a digital Software-as-a-Service (SaaS) platform that enables registered users to create, customize, and manage online retail stores through a web-based interface.",
+          "p2": "The service encompasses the following core functionalities: online store design and customization tools, product catalog management and inventory control, order processing and fulfillment systems, payment gateway integration and transaction processing, and comprehensive administrative dashboard access for store management.",
+          "p3": "Shopu.ge operates solely as an intermediary technology platform and service provider. The platform does not act as a seller, distributor, or agent for any products or services offered by merchants. Shopu.ge has no involvement in, and assumes no responsibility for, the actual sale, delivery, or fulfillment of products or services transacted between merchants and their customers."
         }
       },
       "pricing": {
         "title": "Product / Service Pricing",
         "content": {
-          "p1": "Shopu.ge services are available through free and paid subscription plans.",
-          "p2": "Pricing, currency, and available features for paid plans are listed on the website's Pricing page.",
-          "p3": "The price, currency, and additional costs (e.g., delivery) for products and services sold by merchants are determined by the merchants themselves."
+          "p1": "Shopu.ge platform services are provided through a subscription-based pricing model. To initialize and activate an online store on the platform, a one-time setup fee of 1 Georgian Lari (GEL) is required.",
+          "p2": "Following the initial setup, a recurring monthly subscription fee of 49 Georgian Lari (GEL) per month applies for continued access to the platform's services and features. The monthly subscription fee is automatically charged on a recurring basis unless the subscription is cancelled in accordance with the platform's terms and conditions.",
+          "p3": "The prices, currency, and any additional costs (including but not limited to delivery fees) for products and services sold by merchants through the platform are determined solely by the individual merchants and are not controlled or set by Shopu.ge.",
+          "p4": "During online payment transactions processed through the platform, payment processing fees may apply as determined by the payment service providers (such as Bank of Georgia or other financial institutions). These fees, which may include a percentage-based fee (e.g., 1%) plus a fixed transaction amount, are charged directly by the payment provider and deducted from the merchant's transaction proceeds. Shopu.ge does not charge, collect, or receive any portion of these payment processing fees, and merchants are solely responsible for all costs associated with payment processing."
         }
       },
       "refundPolicy": {
         "title": "Delivery, Returns, Cancellation & Refund Policy",
         "content": {
-          "p1": "Shopu.ge is a technology platform and does not participate in product delivery, returns, or refund processes.",
-          "p2": "Delivery, returns, order cancellation, and refund policies are determined individually by each merchant and are available in the merchant's online store.",
-          "p3": "Customers are required to review the specific store's policies before making a payment."
+          "p1": "Shopu.ge operates exclusively as a technology platform provider and does not participate in, facilitate, or assume any responsibility for product delivery, shipping, returns, exchanges, order cancellations, or refund processes. All such transactions and related obligations are exclusively between the merchant and the end customer.",
+          "p2": "Each merchant operating on the platform is required to establish, publish, and maintain their own policies regarding product delivery, shipping terms, return and exchange procedures, order cancellation terms, and refund eligibility criteria. These policies must be clearly displayed and accessible to customers within the merchant's online store and must comply with applicable Georgian consumer protection laws and regulations.",
+          "p3": "Customers are strongly advised and expected to carefully review and understand the specific merchant's delivery, return, cancellation, and refund policies before completing any purchase transaction. Shopu.ge assumes no liability for disputes arising from delivery, returns, cancellations, or refunds between merchants and customers."
         }
       },
       "privacy": {
         "title": "Privacy Policy",
         "content": {
-          "p1": "Shopu.ge respects user privacy and protects personal data in accordance with applicable laws.",
-          "p2": "The platform collects only the data necessary for account creation, service delivery, and payment processing.",
-          "p3": "Merchants receive only the information necessary to fulfill orders.",
-          "p4": "Shopu.ge does not share personal data with third parties except as required by law."
+          "p1": "Shopu.ge is committed to protecting user privacy and personal data in strict compliance with applicable data protection laws, including but not limited to the Law of Georgia on Personal Data Protection and relevant European Union data protection regulations where applicable.",
+          "p2": "The platform collects, processes, and stores only the personal data that is strictly necessary and directly related to the following purposes: user account creation and authentication, service delivery and platform functionality, payment processing and financial transactions, order fulfillment facilitation, and compliance with legal obligations. All data collection is conducted with explicit user consent where required by law.",
+          "p3": "Merchants receive access only to the minimum personal information necessary to process and fulfill customer orders, including but not limited to: customer name, delivery address, contact information, and order details. Merchants are contractually obligated to protect this information and use it solely for order fulfillment purposes.",
+          "p4": "Shopu.ge does not sell, rent, or otherwise disclose personal data to third parties except: (a) as required by applicable law or legal process, (b) with explicit user consent, (c) to trusted service providers who are contractually bound to maintain confidentiality and use data only for specified purposes, or (d) in connection with business transfers or mergers as permitted by law. Users have the right to access, rectify, and request deletion of their personal data in accordance with applicable data protection laws."
         }
       },
       "terms": {
         "title": "Terms & Conditions",
         "content": {
-          "p1": "By using the website, users agree to Shopu.ge's Terms & Conditions.",
-          "p2": "Using the platform for illegal, fraudulent, or activities that violate third-party rights is prohibited.",
-          "p3": "Shopu.ge reserves the right to temporarily or permanently restrict user account access in case of policy violations."
+          "p1": "By accessing, browsing, or using the Shopu.ge platform, website, or any associated services, users acknowledge that they have read, understood, and agree to be legally bound by these Terms and Conditions, as well as the platform's Privacy Policy and all applicable laws and regulations of Georgia.",
+          "p2": "Users are strictly prohibited from using the platform for any illegal, fraudulent, deceptive, or unauthorized purposes. Prohibited activities include, but are not limited to: violation of any applicable local, national, or international laws; infringement of intellectual property rights, trademarks, or copyrights; distribution of harmful, offensive, or illegal content; engaging in fraudulent transactions; violation of third-party rights; and any activity that may harm, disrupt, or compromise the platform's security, integrity, or functionality.",
+          "p3": "Shopu.ge reserves the absolute right, at its sole discretion, to suspend, restrict, or permanently terminate any user account or merchant account, with or without prior notice, in the event of: violation of these Terms and Conditions, violation of applicable laws or regulations, fraudulent or illegal activity, non-payment of fees, or any other conduct deemed harmful to the platform, other users, or third parties. Users whose accounts are terminated forfeit all access to the platform and any data associated with their accounts, subject to applicable data retention requirements."
         }
       }
+    }
+  },
+  "payment": {
+    "title": "Complete Payment",
+    "subtitle": "Please complete your payment to activate your store",
+    "type": "Payment Type",
+    "amount": "Amount",
+    "status": "Status",
+    "statusPaid": "Paid",
+    "statusPending": "Pending",
+    "instructions": "Payment Instructions",
+    "mockPaymentNote": "This is a mock payment system. In production, this will be replaced with a real payment gateway.",
+    "step1": "Click the 'Process Payment' button below",
+    "step2": "The payment will be processed automatically",
+    "step3": "You will be redirected to your dashboard upon successful payment",
+    "processButton": "Process Payment",
+    "processing": "Processing...",
+    "successMessage": "Payment processed successfully! Redirecting to dashboard...",
+    "goToDashboard": "Go to Dashboard"
+  },
+  "billing": {
+    "title": "Billing & Subscription",
+    "subscriptionStatus": "Subscription Status",
+    "monthlyFee": "Monthly Fee",
+    "currentPeriod": "Current Period",
+    "nextBilling": "Next Billing Date",
+    "recentPayments": "Recent Payments",
+    "accountInfo": "Account Information",
+    "iban": "IBAN",
+    "noIban": "Not set",
+    "addIban": "Add IBAN",
+    "setupFee": "Setup Fee",
+    "monthlySubscription": "Monthly Subscription",
+    "viewAllPayments": "View all payments",
+    "noPayments": "No payments yet",
+    "subtitle": "Manage your subscription and payment information",
+    "paymentHistory": "Payment History",
+    "noPaymentsDescription": "Your payment history will appear here once you make payments.",
+    "manageAccount": "Manage account settings",
+    "noSubscription": "No Active Subscription",
+    "noSubscriptionDescription": "Your subscription information will appear here once your account is fully activated.",
+    "setupFeePaid": "Setup Fee Paid",
+    "setupFeePaidDescription": "Your setup fee has been processed. Your subscription should be activated shortly.",
+    "subscriptionPending": "Subscription Activation Pending",
+    "subscriptionPendingDescription": "Your payment has been processed, but subscription activation is pending. Click 'Retry Activation' to attempt to create your subscription.",
+    "retryActivation": "Retry Activation",
+    "contactSupport": "If you continue to see this message after retrying, please contact support for assistance.",
+    "cancelSubscription": "Cancel Subscription",
+    "cancelConfirmation": "Are you sure you want to cancel your subscription? Your store will remain active until the end of the current billing period.",
+    "confirmCancel": "Yes, Cancel Subscription",
+    "cancelError": "Failed to cancel subscription",
+    "subscriptionCancelled": "Subscription cancelled successfully",
+    "cancelledNotice": "Subscription Cancelled",
+    "accessUntil": "Your store will remain active until",
+    "noFurtherCharges": "No further charges will be processed.",
+    "reactivateSubscription": "Reactivate Subscription",
+    "reactivating": "Reactivating...",
+    "subscriptionReactivated": "Subscription reactivated successfully",
+    "reactivateError": "Failed to reactivate subscription",
+    "expiredNotice": "Subscription Expired",
+    "expiredDescription": "Your subscription has expired. Reactivate to continue using your store.",
+    "status": {
+      "active": "Active",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "trial": "Trial"
     }
   }
 }

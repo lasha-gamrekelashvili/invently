@@ -18,7 +18,9 @@ import type {
   OrderStats,
   CreateOrderData,
   StoreSettings,
-  UpdateStoreSettingsData
+  UpdateStoreSettingsData,
+  Payment,
+  Subscription
 } from '../types';
 
 // Debounce utility function
@@ -143,6 +145,9 @@ export const authAPI = {
 
   me: (): Promise<{ user: User; tenants: any[] }> =>
     api.get('/auth/me').then(res => res.data),
+
+  updateIban: (iban: string): Promise<{ user: User }> =>
+    api.put('/auth/iban', { iban }).then(res => res.data),
 };
 
 // Categories API
@@ -341,6 +346,33 @@ export const bulkUploadAPI = {
     api.get('/bulk-upload/template', {
       responseType: 'blob',
     }).then(res => res.data),
+};
+
+// Payment API
+export const paymentAPI = {
+  processPayment: (paymentId: string, paymentData?: any): Promise<Payment> =>
+    api.post(`/payments/${paymentId}/process`, paymentData || {}).then(res => res.data),
+
+  getPayment: (paymentId: string): Promise<Payment> =>
+    api.get(`/payments/${paymentId}`).then(res => res.data),
+
+  getUserPayments: (): Promise<Payment[]> =>
+    api.get('/payments/user/payments').then(res => res.data),
+
+  getPendingSetupFee: (): Promise<Payment> =>
+    api.get('/payments/user/pending-setup-fee').then(res => res.data),
+
+  getTenantPayments: (): Promise<Payment[]> =>
+    api.get('/payments/tenant/payments').then(res => res.data),
+
+  getSubscription: (): Promise<Subscription> =>
+    api.get('/payments/subscription').then(res => res.data),
+
+  cancelSubscription: (): Promise<Subscription> =>
+    api.post('/payments/subscription/cancel').then(res => res.data),
+
+  reactivateSubscription: (): Promise<Subscription> =>
+    api.post('/payments/subscription/reactivate').then(res => res.data),
 };
 
 export default api;

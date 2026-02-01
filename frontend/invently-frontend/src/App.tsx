@@ -8,6 +8,7 @@ import { isOnSubdomain } from './utils/api';
 // Components
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
+import TenantStatusCheck from './components/TenantStatusCheck';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Pages
@@ -28,6 +29,8 @@ import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
 import PlatformAdmin from './pages/PlatformAdmin';
 import LegalPage from './pages/LegalPage';
+import PaymentPage from './pages/PaymentPage';
+import Billing from './pages/Billing';
 
 const AppRoutes = () => {
   const { isLoading, user } = useAuth();
@@ -80,7 +83,9 @@ const AppRoutes = () => {
         path="/admin"
         element={
           <PrivateRoute>
-            <Layout />
+            <TenantStatusCheck>
+              <Layout />
+            </TenantStatusCheck>
           </PrivateRoute>
         }
       >
@@ -95,6 +100,7 @@ const AppRoutes = () => {
         <Route path="bulk-upload" element={<BulkUpload />} />
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<OrderDetails />} />
+        <Route path="billing" element={<Billing />} />
         <Route path="settings" element={<Settings />} />
 
         {/* Platform Admin Routes */}
@@ -102,6 +108,16 @@ const AppRoutes = () => {
           <Route path="platform" element={<PlatformAdmin />} />
         )}
       </Route>
+
+      {/* Payment Route (protected) */}
+      <Route
+        path="/payment/:paymentId"
+        element={
+          <PrivateRoute>
+            <PaymentPage />
+          </PrivateRoute>
+        }
+      />
 
       {/* Catch-all route for subdomain */}
       <Route path="*" element={<Navigate to="/" replace />} />

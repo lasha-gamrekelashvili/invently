@@ -141,16 +141,16 @@ const Landing = () => {
 
             {/* Right - Product Preview */}
             <div>
-              <div className="bg-neutral-900 rounded-2xl p-1.5 border border-neutral-600">
+              <div className="bg-neutral-800 rounded-2xl p-1.5 border border-neutral-600">
                 {/* Browser bar */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-800">
                   <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-400" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-400" />
                   </div>
                   <div className="flex-1 flex justify-center">
-                    <div className="px-4 py-1 rounded-md bg-neutral-800 text-xs text-neutral-500">
+                    <div className="px-4 py-1 rounded-md bg-neutral-200 text-xs text-neutral-700">
                       shopu.ge/dashboard
                     </div>
                   </div>

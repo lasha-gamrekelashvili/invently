@@ -4,6 +4,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'PLATFORM_ADMIN' | 'STORE_OWNER';
+  iban?: string;
 }
 
 export interface Tenant {
@@ -93,6 +94,7 @@ export interface AuthResponse {
   tenants?: Tenant[];
   tenant?: Tenant;
   token: string;
+  payment?: Payment;
 }
 
 export interface PaginationParams {
@@ -175,6 +177,50 @@ export interface RegisterData {
   lastName: string;
   tenantName: string;
   subdomain: string;
+  iban?: string;
+}
+
+export interface Payment {
+  id: string;
+  userId: string;
+  tenantId: string;
+  type: 'SETUP_FEE' | 'MONTHLY_SUBSCRIPTION';
+  amount: number;
+  status: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+  paymentMethod?: string;
+  transactionId?: string;
+  metadata?: any;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+  };
+  tenant?: {
+    id: string;
+    name: string;
+    subdomain: string;
+  };
+}
+
+export interface Subscription {
+  id: string;
+  tenantId: string;
+  status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED' | 'TRIAL';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  nextBillingDate: string;
+  cancelledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  tenant?: {
+    id: string;
+    name: string;
+    subdomain: string;
+    isActive: boolean;
+  };
 }
 
 export interface LoginData {

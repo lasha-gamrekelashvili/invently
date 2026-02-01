@@ -14,9 +14,11 @@ model User {
   firstName    String
   lastName     String
   role         UserRole @default(STORE_OWNER)
+  iban         String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   ownedTenants Tenant[]
+  payments     Payment[]
 
   @@map("users")
 }
@@ -36,6 +38,8 @@ model Tenant {
   productImages ProductImage[]
   products      Product[]
   settings      StoreSettings?
+  payments      Payment[]
+  subscription  Subscription?
   owner         User           @relation(fields: [ownerId], references: [id])
 
   @@map("tenants")
@@ -240,4 +244,52 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+enum PaymentType {
+  SETUP_FEE
+  MONTHLY_SUBSCRIPTION
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String
+  tenantId      String
+  type          PaymentType
+  amount        Float
+  status        PaymentStatus @default(PENDING)
+  paymentMethod String?       // MOCK, BANK_OF_GEORGIA, etc.
+  transactionId String?       // External payment provider transaction ID
+  metadata      Json?         // Additional payment data
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Subscription {
+  id                String            @id @default(uuid())
+  tenantId           String            @unique
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  nextBillingDate    DateTime
+  cancelledAt        DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  tenant             Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }

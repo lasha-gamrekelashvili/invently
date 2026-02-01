@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { settingsAPI } from '../utils/api';
+import { settingsAPI, authAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import { UpdateStoreSettingsData } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHeader from '../components/PageHeader';
-import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon } from '@heroicons/react/24/outline';
+import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
 const Settings = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links' | 'account'>('content');
   const [formData, setFormData] = useState<UpdateStoreSettingsData>({});
+  const [iban, setIban] = useState(user?.iban || '');
 
   // Fetch settings
   const { data: settingsResponse, isLoading } = useQuery({
@@ -39,6 +42,20 @@ const Settings = () => {
     },
   });
 
+  // Update IBAN mutation
+  const updateIbanMutation = useMutation({
+    mutationFn: authAPI.updateIban,
+    onSuccess: (data) => {
+      handleSuccess('IBAN updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      // Update local state
+      setIban(data.user.iban || '');
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to update IBAN');
+    },
+  });
+
   const handleInputChange = (field: keyof UpdateStoreSettingsData, value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -58,13 +75,18 @@ const Settings = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettingsMutation.mutate(formData);
+    if (activeTab === 'account') {
+      updateIbanMutation.mutate(iban);
+    } else {
+      updateSettingsMutation.mutate(formData);
+    }
   };
 
   const tabs = [
     { id: 'content', name: t('settings.tabs.content'), icon: DocumentTextIcon },
     { id: 'social', name: t('settings.tabs.social'), icon: LinkIcon },
     { id: 'links', name: t('settings.tabs.links'), icon: BoltIcon },
+    { id: 'account', name: t('settings.tabs.account'), icon: UserCircleIcon },
   ];
 
   if (isLoading) {
@@ -336,14 +358,45 @@ const Settings = () => {
           </div>
         )}
 
+        {/* Account Tab */}
+        {activeTab === 'account' && (
+          <div className="space-y-6">
+            <h3 className="text-lg font-medium text-gray-900">{t('settings.account.title')}</h3>
+            <p className="text-sm text-gray-600">
+              {t('settings.account.description')}
+            </p>
+
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('settings.account.iban.label')}
+                </label>
+                <input
+                  type="text"
+                  value={iban}
+                  onChange={(e) => setIban(e.target.value)}
+                  className="input-field"
+                  placeholder={t('settings.account.iban.placeholder')}
+                  maxLength={34}
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  {t('settings.account.iban.helpText')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={updateSettingsMutation.isPending}
+            disabled={updateSettingsMutation.isPending || updateIbanMutation.isPending}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {updateSettingsMutation.isPending ? t('settings.actions.saving') : t('settings.actions.saveSettings')}
+            {(updateSettingsMutation.isPending || updateIbanMutation.isPending) 
+              ? t('settings.actions.saving') 
+              : t('settings.actions.saveSettings')}
           </button>
         </div>
       </form>
