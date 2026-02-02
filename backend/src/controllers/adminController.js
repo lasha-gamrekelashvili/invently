@@ -3,6 +3,9 @@ import { ApiResponse } from '../utils/responseFormatter.js';
 
 const adminService = new AdminService();
 
+/**
+ * Gets all tenants with filtering and pagination
+ */
 const getAllTenants = async (req, res) => {
   try {
     const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'desc', isActive } = req.query;
@@ -20,6 +23,9 @@ const getAllTenants = async (req, res) => {
   }
 };
 
+/**
+ * Gets a tenant by ID
+ */
 const getTenantById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -36,6 +42,9 @@ const getTenantById = async (req, res) => {
   }
 };
 
+/**
+ * Updates tenant status
+ */
 const updateTenantStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,6 +62,9 @@ const updateTenantStatus = async (req, res) => {
   }
 };
 
+/**
+ * Gets all users with filtering and pagination
+ */
 const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 20, search, role, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
@@ -87,6 +99,9 @@ const getAuditLogs = async (req, res) => {
   }
 };
 
+/**
+ * Gets system statistics
+ */
 const getSystemStats = async (req, res) => {
   try {
     const result = await adminService.getSystemStats();

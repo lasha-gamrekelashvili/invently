@@ -3,6 +3,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * Authenticates request using JWT token from Authorization header
+ */
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -15,19 +18,14 @@ const authenticateToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await prisma.user.findUnique({
-      where: {
-        id: decoded.userId
-      },
+      where: { id: decoded.userId },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
         role: true,
-        ownedTenants: {
-          // Include all tenants for frontend status checking
-          // Frontend will handle filtering active tenants
-        }
+        ownedTenants: {},
       }
     });
 
@@ -45,6 +43,9 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+/**
+ * Requires user to be a platform admin
+ */
 const requirePlatformAdmin = (req, res, next) => {
   if (!req.user || req.user.role !== 'PLATFORM_ADMIN') {
     return res.status(403).json({ error: 'Platform admin access required' });
@@ -52,6 +53,9 @@ const requirePlatformAdmin = (req, res, next) => {
   next();
 };
 
+/**
+ * Requires user to be the store owner or platform admin
+ */
 const requireStoreOwner = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });

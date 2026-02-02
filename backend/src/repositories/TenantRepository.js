@@ -6,18 +6,30 @@ export class TenantRepository extends BaseRepository {
     super(prisma.tenant);
   }
 
+  /**
+   * Finds a tenant by subdomain
+   */
   async findBySubdomain(subdomain, options = {}) {
     return await this.findFirst({ subdomain }, options);
   }
 
+  /**
+   * Finds tenants by owner ID
+   */
   async findByOwner(ownerId, options = {}) {
     return await this.findMany({ ownerId }, options);
   }
 
+  /**
+   * Finds active tenants
+   */
   async findActiveTenants(where = {}, options = {}) {
     return await this.findMany({ ...where, isActive: true }, options);
   }
 
+  /**
+   * Finds a tenant with owner details
+   */
   async findWithOwner(id, options = {}) {
     return await this.findFirst(
       { id },
@@ -38,6 +50,9 @@ export class TenantRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Finds a tenant with statistics
+   */
   async findWithStats(id) {
     return await this.findFirst(
       { id },
@@ -83,6 +98,9 @@ export class TenantRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Paginates tenants with owner details
+   */
   async paginateWithOwner(where = {}, page = 1, limit = 20, options = {}) {
     return await this.paginate(
       where,
@@ -110,6 +128,9 @@ export class TenantRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Updates tenant status
+   */
   async updateTenantStatus(id, isActive) {
     return await this.update(id, { isActive });
   }

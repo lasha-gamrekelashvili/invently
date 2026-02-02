@@ -4,15 +4,13 @@ import multer from 'multer';
 
 const bulkUploadService = new BulkUploadService();
 
-// Configure multer for file upload (memory storage)
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
-    // Accept only CSV files
     if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
       cb(null, true);
     } else {
@@ -22,10 +20,11 @@ const upload = multer({
 });
 
 const bulkUploadController = {
-  // Middleware for handling file upload
   uploadMiddleware: upload.single('file'),
 
-  // Import products and categories from CSV
+  /**
+   * Imports products and categories from CSV
+   */
   async importCSV(req, res) {
     try {
       if (!req.file) {
@@ -37,10 +36,8 @@ const bulkUploadController = {
 
       console.log(`Processing CSV upload for tenant ${tenantId}, size: ${req.file.size} bytes`);
 
-      // Process the CSV
       const results = await bulkUploadService.importFromCSV(csvContent, tenantId);
 
-      // Prepare response message
       const summary = {
         categories: {
           created: results.categories.created,
@@ -82,7 +79,9 @@ const bulkUploadController = {
     }
   },
 
-  // Download CSV template
+  /**
+   * Downloads CSV template
+   */
   async downloadTemplate(req, res) {
     try {
       const template = bulkUploadService.generateTemplate();

@@ -13,6 +13,9 @@ export class AdminService {
     this.productRepository = new ProductRepository();
   }
 
+  /**
+   * Gets all tenants with filtering and pagination
+   */
   async getAllTenants(filters = {}, page = 1, limit = 20) {
     const { search, sortBy = 'createdAt', sortOrder = 'desc', isActive } = filters;
 
@@ -48,6 +51,9 @@ export class AdminService {
     };
   }
 
+  /**
+   * Gets a tenant by ID with statistics
+   */
   async getTenantById(id) {
     const tenant = await this.tenantRepository.findWithStats(id);
 
@@ -58,6 +64,9 @@ export class AdminService {
     return tenant;
   }
 
+  /**
+   * Updates tenant status
+   */
   async updateTenantStatus(id, isActive) {
     const existingTenant = await this.tenantRepository.findById(id);
 
@@ -68,10 +77,12 @@ export class AdminService {
     const tenant = await this.tenantRepository.findWithOwner(id);
     await this.tenantRepository.updateTenantStatus(id, isActive);
 
-    // Refetch with owner details
     return await this.tenantRepository.findWithOwner(id);
   }
 
+  /**
+   * Gets all users with filtering and pagination
+   */
   async getAllUsers(filters = {}, page = 1, limit = 20) {
     const { search, role, sortBy = 'createdAt', sortOrder = 'desc' } = filters;
 
@@ -107,6 +118,9 @@ export class AdminService {
     };
   }
 
+  /**
+   * Gets audit logs with filtering and pagination
+   */
   async getAuditLogs(filters = {}, page = 1, limit = 50) {
     const { tenantId, userId, resource, action } = filters;
 
@@ -129,6 +143,9 @@ export class AdminService {
     };
   }
 
+  /**
+   * Gets system statistics
+   */
   async getSystemStats() {
     const [
       totalTenants,

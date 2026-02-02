@@ -5,7 +5,6 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { PrismaClient } from '@prisma/client';
 
-// Import routes
 import publicRoutes from './src/routes/public.js';
 import authRoutes from './src/routes/auth.js';
 import categoryRoutes from './src/routes/categories.js';
@@ -19,8 +18,9 @@ import settingsRoutes from './src/routes/settings.js';
 import bulkUploadRoutes from './src/routes/bulkUpload.js';
 import paymentRoutes from './src/routes/payments.js';
 
-// Import swagger config
 import { serve, setup } from './src/config/swagger.js';
+
+import { startSubscriptionExpiryJob, stopSubscriptionExpiryJob } from './src/jobs/subscriptionJobs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,22 +29,19 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const prisma = new PrismaClient();
 
-// Middleware
+let subscriptionJobId = null;
+
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    // Allow localhost for development
     if (origin.includes('localhost')) return callback(null, true);
     
-    // Allow your main domain and all subdomains
     const allowedDomains = [
       'https://shopu.ge',
       'http://shopu.ge',
       /^https:\/\/[a-zA-Z0-9-]+\.shopu\.ge$/,
       /^http:\/\/[a-zA-Z0-9-]+\.shopu\.ge$/,
-      // Legacy domain support (can be removed later)
       /^https:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/,
       /^http:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/
     ];
@@ -70,16 +67,12 @@ app.use(cors({
 app.use(json({ limit: '10mb' }));
 app.use(urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve uploaded images
 app.use('/api/images', expressStatic(join(__dirname, process.env.UPLOAD_PATH || './uploads')));
 
-// API Documentation
 app.use('/api/docs', serve, setup);
 
-// Health check endpoints
 app.get('/healthz', async (req, res) => {
   try {
-    // Check database connection
     await prisma.$queryRaw`SELECT 1`;
     res.json({
       status: 'healthy',
@@ -98,10 +91,8 @@ app.get('/healthz', async (req, res) => {
 
 app.get('/readyz', async (req, res) => {
   try {
-    // More comprehensive readiness check
     await prisma.$queryRaw`SELECT 1`;
 
-    // Check if uploads directory exists
     const { existsSync, mkdirSync } = await import('fs');
     const uploadPath = process.env.UPLOAD_PATH || './uploads';
     if (!existsSync(uploadPath)) {
@@ -123,7 +114,6 @@ app.get('/readyz', async (req, res) => {
   }
 });
 
-// API Routes
 app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -137,7 +127,6 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/bulk-upload', bulkUploadRoutes);
 app.use('/api/payments', paymentRoutes);
 
-// Root endpoint
 app.get('/', (req, res) => {
   res.json({
     message: 'Shopu Multi-Tenant Shop API',
@@ -148,7 +137,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Unhandled error:', error);
 
@@ -166,20 +154,20 @@ app.use((error, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('Received SIGINT, shutting down gracefully...');
+  stopSubscriptionExpiryJob(subscriptionJobId);
   await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('Received SIGTERM, shutting down gracefully...');
+  stopSubscriptionExpiryJob(subscriptionJobId);
   await prisma.$disconnect();
   process.exit(0);
 });
@@ -187,4 +175,6 @@ process.on('SIGTERM', async () => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log(`API documentation available at http://localhost:${PORT}/api/docs`);
+
+  subscriptionJobId = startSubscriptionExpiryJob(60 * 60 * 1000);
 });

@@ -6,6 +6,9 @@ export class PaymentRepository extends BaseRepository {
     super(prisma.payment);
   }
 
+  /**
+   * Finds a payment by ID with user and tenant relations
+   */
   async findById(id, options = {}) {
     return await this.findFirst({ id }, {
       include: {
@@ -29,6 +32,9 @@ export class PaymentRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Finds a payment by tenant ID
+   */
   async findByTenantId(tenantId, options = {}) {
     return await this.findFirst({ tenantId }, options);
   }

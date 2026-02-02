@@ -2,12 +2,18 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * Base repository with common CRUD operations
+ */
 export class BaseRepository {
   constructor(model) {
     this.model = model;
     this.prisma = prisma;
   }
 
+  /**
+   * Finds a record by ID
+   */
   async findById(id, options = {}) {
     return await this.model.findUnique({
       where: { id },
@@ -15,6 +21,9 @@ export class BaseRepository {
     });
   }
 
+  /**
+   * Finds the first record matching the where clause
+   */
   async findFirst(where, options = {}) {
     return await this.model.findFirst({
       where,
@@ -22,6 +31,9 @@ export class BaseRepository {
     });
   }
 
+  /**
+   * Finds multiple records matching the where clause
+   */
   async findMany(where = {}, options = {}) {
     return await this.model.findMany({
       where,
@@ -36,6 +48,9 @@ export class BaseRepository {
     });
   }
 
+  /**
+   * Updates a record by ID
+   */
   async update(id, data, options = {}) {
     return await this.model.update({
       where: { id },
@@ -44,16 +59,25 @@ export class BaseRepository {
     });
   }
 
+  /**
+   * Deletes a record by ID
+   */
   async delete(id) {
     return await this.model.delete({
       where: { id },
     });
   }
 
+  /**
+   * Counts records matching the where clause
+   */
   async count(where = {}) {
     return await this.model.count({ where });
   }
 
+  /**
+   * Paginates records matching the where clause
+   */
   async paginate(where = {}, page = 1, limit = 10, options = {}) {
     const skip = (page - 1) * limit;
 

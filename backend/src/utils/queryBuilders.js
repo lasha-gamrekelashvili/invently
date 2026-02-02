@@ -1,5 +1,3 @@
-// Reusable Prisma query fragments
-
 export const productIncludes = {
   withImages: {
     include: {
@@ -131,7 +129,6 @@ export const categoryIncludes = {
     },
   },
 
-  // Active children only (non-deleted)
   withActiveChildren: {
     include: {
       children: {
@@ -146,7 +143,6 @@ export const categoryIncludes = {
     },
   },
 
-  // Active products only (non-deleted)
   withActiveProducts: {
     include: {
       products: {
@@ -163,7 +159,6 @@ export const categoryIncludes = {
     },
   },
 
-  // Full with active items only
   fullActive: {
     include: {
       parent: true,
@@ -177,7 +172,6 @@ export const categoryIncludes = {
   },
 };
 
-// Common ordering patterns
 export const orderByPatterns = {
   newest: { createdAt: 'desc' },
   oldest: { createdAt: 'asc' },
@@ -188,7 +182,6 @@ export const orderByPatterns = {
   sortOrder: { sortOrder: 'asc' },
 };
 
-// Pagination helper
 export function buildPagination(page = 1, limit = 10) {
   const skip = (page - 1) * limit;
   return {
@@ -197,19 +190,16 @@ export function buildPagination(page = 1, limit = 10) {
   };
 }
 
-// Filter builders
 export function buildProductFilters({ categoryId, isActive, isDeleted, minPrice, maxPrice, search, tenantId, includeDeleted = false }) {
   const where = {};
 
   if (tenantId) where.tenantId = tenantId;
-  if (categoryId) where.categoryId = categoryId; // UUID string, don't parse as int
+  if (categoryId) where.categoryId = categoryId;
   if (isActive !== undefined) where.isActive = isActive;
   
-  // Handle isDeleted filter - explicit value takes precedence
   if (isDeleted !== undefined) {
     where.isDeleted = isDeleted;
   } else if (!includeDeleted) {
-    // By default, exclude deleted products unless includeDeleted is true
     where.isDeleted = false;
   }
 
@@ -236,7 +226,6 @@ export function buildCategoryFilters({ isActive, search, tenantId, includeDelete
   if (tenantId) where.tenantId = tenantId;
   if (isActive !== undefined) where.isActive = isActive;
 
-  // By default, exclude deleted categories
   if (!includeDeleted) {
     where.isDeleted = false;
   }

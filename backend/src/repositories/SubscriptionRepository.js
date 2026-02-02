@@ -6,8 +6,10 @@ export class SubscriptionRepository extends BaseRepository {
     super(prisma.subscription);
   }
 
+  /**
+   * Finds a subscription by tenant ID
+   */
   async findByTenantId(tenantId, options = {}) {
-    // Use direct Prisma query to ensure it works correctly
     try {
       const result = await this.prisma.subscription.findFirst({
         where: { tenantId },
@@ -24,17 +26,14 @@ export class SubscriptionRepository extends BaseRepository {
         ...options,
       });
       
-      // Debug logging
       if (!result) {
         console.log(`[SubscriptionRepository] No subscription found for tenantId: ${tenantId}`);
-        // Check if tenant exists
         const tenant = await this.prisma.tenant.findUnique({
           where: { id: tenantId },
           select: { id: true, name: true, subdomain: true, isActive: true }
         });
         console.log(`[SubscriptionRepository] Tenant exists:`, tenant ? `Yes (isActive: ${tenant.isActive})` : 'No');
         
-        // List all subscriptions to debug
         const allSubs = await this.prisma.subscription.findMany({
           select: { id: true, tenantId: true, status: true },
         });
@@ -48,6 +47,9 @@ export class SubscriptionRepository extends BaseRepository {
     }
   }
 
+  /**
+   * Finds active subscriptions due for renewal
+   */
   async findActiveSubscriptions() {
     return await this.prisma.subscription.findMany({
       where: {

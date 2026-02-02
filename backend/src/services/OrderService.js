@@ -9,17 +9,23 @@ export class OrderService {
     this.cartRepository = new CartRepository();
   }
 
-  // Generate unique order number
+  /**
+   * Generates a unique order number
+   */
   generateOrderNumber() {
     return `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
   }
 
-  // Calculate order total
+  /**
+   * Calculates order total from cart items
+   */
   calculateOrderTotal(cartItems) {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
-  // Validate stock for all cart items
+  /**
+   * Validates stock availability for all cart items
+   */
   validateCartStock(cartItems) {
     for (const item of cartItems) {
       const availableStock = item.variant ? item.variant.stockQuantity : item.product.stockQuantity;
@@ -30,63 +36,58 @@ export class OrderService {
     return true;
   }
 
-  // Validate that all cart items are available (not deleted/inactive)
+  /**
+   * Validates that all cart items are available (not deleted/inactive)
+   */
   validateCartItemsAvailable(cartItems) {
     const unavailableItems = [];
-    
+
     for (const item of cartItems) {
       const product = item.product;
-      
+
       if (!product) {
         unavailableItems.push({ title: 'Unknown product', reason: 'Product no longer exists' });
         continue;
       }
-      
+
       if (product.isDeleted) {
         unavailableItems.push({ title: product.title, reason: 'has been deleted' });
         continue;
       }
-      
+
       if (!product.isActive) {
         unavailableItems.push({ title: product.title, reason: 'is no longer available' });
         continue;
       }
     }
-    
+
     if (unavailableItems.length > 0) {
       const itemsList = unavailableItems.map(i => `"${i.title}" ${i.reason}`).join(', ');
       throw new Error(`Cannot checkout: ${itemsList}. Please remove unavailable items from your cart.`);
     }
-    
+
     return true;
   }
 
-  // Create order from cart (checkout)
+  /**
+   * Creates an order from cart (checkout)
+   */
   async createOrder(orderData, tenantId) {
     const { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes } = orderData;
 
-    // Get cart with items
     const cart = await this.cartRepository.getCartWithItems(sessionId, tenantId);
 
     if (!cart || cart.items.length === 0) {
       throw new Error('Cart is empty or not found');
     }
 
-    // Validate that all items are available (not deleted/inactive)
     this.validateCartItemsAvailable(cart.items);
-
-    // Validate stock for all items
     this.validateCartStock(cart.items);
 
-    // Calculate total
     const totalAmount = this.calculateOrderTotal(cart.items);
-
-    // Generate order number
     const orderNumber = this.generateOrderNumber();
 
-    // Create order with transaction
     const order = await prisma.$transaction(async (tx) => {
-      // Create order
       const newOrder = await tx.order.create({
         data: {
           orderNumber,
@@ -102,7 +103,6 @@ export class OrderService {
         },
       });
 
-      // Create order items and update stock
       for (const item of cart.items) {
         await tx.orderItem.create({
           data: {
@@ -116,29 +116,19 @@ export class OrderService {
           },
         });
 
-        // Update stock (variant stock takes priority if variant selected)
         if (item.variantId) {
           await tx.productVariant.update({
             where: { id: item.variantId },
-            data: {
-              stockQuantity: {
-                decrement: item.quantity,
-              },
-            },
+            data: { stockQuantity: { decrement: item.quantity } },
           });
         } else {
           await tx.product.update({
             where: { id: item.productId },
-            data: {
-              stockQuantity: {
-                decrement: item.quantity,
-              },
-            },
+            data: { stockQuantity: { decrement: item.quantity } },
           });
         }
       }
 
-      // Clear cart items
       await tx.cartItem.deleteMany({
         where: { cartId: cart.id },
       });
@@ -146,14 +136,12 @@ export class OrderService {
       return newOrder;
     });
 
-    // Mock payment processing - always succeeds
     await this.orderRepository.update(order.id, {
       paymentStatus: 'PAID',
       status: 'CONFIRMED',
     });
 
-    // Fetch final order with all details
-    const finalOrder = await this.orderRepository.findFirst(
+    return await this.orderRepository.findFirst(
       { id: order.id },
       {
         include: {
@@ -161,10 +149,7 @@ export class OrderService {
             include: {
               product: {
                 include: {
-                  images: {
-                    orderBy: { sortOrder: 'asc' },
-                    take: 1,
-                  },
+                  images: { orderBy: { sortOrder: 'asc' }, take: 1 },
                 },
               },
               variant: true,
@@ -173,11 +158,11 @@ export class OrderService {
         },
       }
     );
-
-    return finalOrder;
   }
 
-  // Build date filter based on filter type or custom range
+  /**
+   * Builds date filter based on filter type or custom range
+   */
   buildDateFilter(dateFilter, startDate, endDate) {
     const now = new Date();
 
@@ -186,11 +171,7 @@ export class OrderService {
       start.setHours(0, 0, 0, 0);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
-
-      return {
-        gte: start,
-        lte: end,
-      };
+      return { gte: start, lte: end };
     }
 
     if (!dateFilter) return null;
@@ -236,16 +217,15 @@ export class OrderService {
     }
 
     if (startOfPeriod && endOfPeriod) {
-      return {
-        gte: startOfPeriod,
-        lte: endOfPeriod,
-      };
+      return { gte: startOfPeriod, lte: endOfPeriod };
     }
 
     return null;
   }
 
-  // Get orders with filtering and pagination
+  /**
+   * Gets orders with filtering and pagination
+   */
   async getOrders(tenantId, filters = {}, page = 1, limit = 10) {
     const { status, search, dateFilter, startDate, endDate } = filters;
 
@@ -261,7 +241,6 @@ export class OrderService {
       ];
     }
 
-    // Handle date filtering
     const dateRange = this.buildDateFilter(dateFilter, startDate, endDate);
     if (dateRange) {
       where.createdAt = dateRange;
@@ -271,13 +250,7 @@ export class OrderService {
       include: {
         items: {
           include: {
-            product: {
-              select: {
-                id: true,
-                title: true,
-                slug: true,
-              },
-            },
+            product: { select: { id: true, title: true, slug: true } },
             variant: true,
           },
         },
@@ -298,7 +271,9 @@ export class OrderService {
     };
   }
 
-  // Get single order
+  /**
+   * Gets a single order by ID
+   */
   async getOrder(id, tenantId) {
     const order = await this.orderRepository.findByIdAndTenant(id, tenantId, true);
 
@@ -309,7 +284,9 @@ export class OrderService {
     return order;
   }
 
-  // Update order status
+  /**
+   * Updates order status
+   */
   async updateOrderStatus(id, status, tenantId) {
     const validStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
@@ -322,25 +299,23 @@ export class OrderService {
       throw new Error('Order not found');
     }
 
-    const updatedOrder = await this.orderRepository.update(id, { status });
+    await this.orderRepository.update(id, { status });
 
-    // Fetch with full details
     return await this.orderRepository.findFirst(
       { id },
       {
         include: {
           items: {
-            include: {
-              product: true,
-              variant: true,
-            },
+            include: { product: true, variant: true },
           },
         },
       }
     );
   }
 
-  // Get order statistics for dashboard
+  /**
+   * Gets order statistics for dashboard
+   */
   async getOrderStats(tenantId) {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -356,19 +331,9 @@ export class OrderService {
       ordersByStatus,
     ] = await Promise.all([
       this.orderRepository.countOrders({ tenantId }),
-      this.orderRepository.countOrders({
-        tenantId,
-        createdAt: { gte: startOfMonth },
-      }),
-      this.orderRepository.countOrders({
-        tenantId,
-        createdAt: { gte: startOfWeek },
-      }),
-      this.orderRepository.aggregateRevenue({
-        tenantId,
-        paymentStatus: 'PAID',
-        createdAt: { gte: startOfMonth },
-      }),
+      this.orderRepository.countOrders({ tenantId, createdAt: { gte: startOfMonth } }),
+      this.orderRepository.countOrders({ tenantId, createdAt: { gte: startOfWeek } }),
+      this.orderRepository.aggregateRevenue({ tenantId, paymentStatus: 'PAID', createdAt: { gte: startOfMonth } }),
       this.orderRepository.getRecentOrders(tenantId, 5),
       this.orderRepository.groupByStatus(tenantId),
     ]);

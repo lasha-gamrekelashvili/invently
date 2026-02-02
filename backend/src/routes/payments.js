@@ -22,13 +22,18 @@ const router = express.Router();
  *   description: Payment and subscription management endpoints
  */
 
+// All payment routes require authentication
+router.use(authenticateToken);
+
 /**
  * @swagger
  * /api/payments/{paymentId}/process:
  *   post:
  *     summary: Process a payment (mock payment gateway)
- *     description: Processes a payment using the mock payment gateway. For setup fees, this activates the tenant and creates a subscription upon success.
+ *     description: Processes a payment using the mock payment gateway. For setup fees, this activates the tenant and creates a subscription upon success. User must own the payment.
  *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: paymentId
@@ -61,15 +66,16 @@ const router = express.Router();
  *                   $ref: '#/components/schemas/Payment'
  *                 message:
  *                   type: string
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
 router.post('/:paymentId/process', validate(schemas.processPayment), processPayment);
-
-// Authenticated routes
-router.use(authenticateToken);
 
 /**
  * @swagger

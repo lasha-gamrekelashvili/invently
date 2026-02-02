@@ -7,19 +7,30 @@ export class ProductRepository extends BaseRepository {
     super(prisma.product);
   }
 
+  /**
+   * Finds products by tenant ID
+   */
   async findByTenant(tenantId, options = {}) {
     return await this.findMany({ tenantId }, options);
   }
 
+  /**
+   * Finds a product by ID and tenant ID
+   */
   async findByIdAndTenant(id, tenantId, options = {}) {
     return await this.findFirst({ id, tenantId }, options);
   }
 
-  // Find by ID including deleted products (for cart/order access)
+  /**
+   * Finds a product by ID including deleted products
+   */
   async findByIdIncludingDeleted(id, tenantId, options = {}) {
     return await this.findFirst({ id, tenantId }, options);
   }
 
+  /**
+   * Finds a product by slug and tenant ID
+   */
   async findBySlugAndTenant(slug, tenantId, activeOnly = false) {
     const where = { slug, tenantId, isDeleted: false };
     if (activeOnly) {
@@ -29,11 +40,16 @@ export class ProductRepository extends BaseRepository {
     return await this.findFirst(where, productIncludes.fullWithFirstImage);
   }
 
-  // Find active (non-deleted) products only
+  /**
+   * Finds active (non-deleted) products by tenant ID
+   */
   async findActiveByTenant(tenantId, options = {}) {
     return await this.findMany({ tenantId, isDeleted: false }, options);
   }
 
+  /**
+   * Finds a product with full details
+   */
   async findWithDetails(id, tenantId) {
     return await this.findFirst(
       { id, tenantId },
@@ -41,8 +57,9 @@ export class ProductRepository extends BaseRepository {
     );
   }
 
-  // Check if SKU already exists among ALL products (including deleted)
-  // SKU must be globally unique across all products
+  /**
+   * Finds a product by SKU (checks all products including deleted)
+   */
   async findBySku(sku, tenantId, excludeProductId = null) {
     if (!sku) return null;
     const where = { sku, tenantId };
@@ -52,7 +69,9 @@ export class ProductRepository extends BaseRepository {
     return await this.findFirst(where);
   }
 
-  // Check if slug already exists among active (non-deleted) products
+  /**
+   * Finds an active product by slug
+   */
   async findBySlugActive(slug, tenantId, excludeProductId = null) {
     const where = { slug, tenantId, isDeleted: false };
     if (excludeProductId) {
@@ -61,7 +80,9 @@ export class ProductRepository extends BaseRepository {
     return await this.findFirst(where);
   }
 
-  // Check if name matches a deleted product (for warning)
+  /**
+   * Finds a deleted product by title
+   */
   async findDeletedByTitle(title, tenantId) {
     return await this.findFirst({
       title: { equals: title, mode: 'insensitive' },
@@ -70,6 +91,9 @@ export class ProductRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Creates a new product
+   */
   async createProduct(data, tenantId) {
     return await this.create({
       ...data,
@@ -77,6 +101,9 @@ export class ProductRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Creates a product with variants
+   */
   async createProductWithVariants(data, tenantId, variants = []) {
     return await prisma.product.create({
       data: {
@@ -111,11 +138,16 @@ export class ProductRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Updates a product
+   */
   async updateProduct(id, data) {
     return await this.update(id, data);
   }
 
-  // Soft delete a product
+  /**
+   * Soft deletes a product
+   */
   async softDelete(id) {
     return await this.update(id, {
       isActive: false,
@@ -124,7 +156,9 @@ export class ProductRepository extends BaseRepository {
     });
   }
 
-  // Restore a soft-deleted product
+  /**
+   * Restores a soft-deleted product
+   */
   async restore(id) {
     return await this.update(id, {
       isActive: true,
@@ -133,25 +167,37 @@ export class ProductRepository extends BaseRepository {
     });
   }
 
-  // Hard delete - only for exceptional cases
+  /**
+   * Hard deletes a product
+   */
   async deleteProduct(id) {
     return await this.delete(id);
   }
 
+  /**
+   * Paginates products by tenant ID
+   */
   async paginateByTenant(tenantId, where = {}, page = 1, limit = 10, options = {}) {
     return await this.paginate({ tenantId, ...where }, page, limit, options);
   }
 
-  // Paginate only active (non-deleted) products
+  /**
+   * Paginates active (non-deleted) products by tenant ID
+   */
   async paginateActiveByTenant(tenantId, where = {}, page = 1, limit = 10, options = {}) {
     return await this.paginate({ tenantId, isDeleted: false, ...where }, page, limit, options);
   }
 
+  /**
+   * Counts products by tenant ID
+   */
   async countByTenant(tenantId, where = {}) {
     return await this.count({ tenantId, ...where });
   }
 
-  // Count only active (non-deleted) products
+  /**
+   * Counts active (non-deleted) products by tenant ID
+   */
   async countActiveByTenant(tenantId, where = {}) {
     return await this.count({ tenantId, isDeleted: false, ...where });
   }
@@ -162,14 +208,23 @@ export class ProductVariantRepository extends BaseRepository {
     super(prisma.productVariant);
   }
 
+  /**
+   * Finds variants by product ID
+   */
   async findByProduct(productId, options = {}) {
     return await this.findMany({ productId }, options);
   }
 
+  /**
+   * Finds a variant by ID and product ID
+   */
   async findByIdAndProduct(id, productId) {
     return await this.findFirst({ id, productId });
   }
 
+  /**
+   * Creates a variant for a product
+   */
   async createVariant(productId, data) {
     return await this.create({
       ...data,
@@ -177,19 +232,31 @@ export class ProductVariantRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Updates a variant
+   */
   async updateVariant(id, data) {
     return await this.update(id, data);
   }
 
+  /**
+   * Deletes a variant
+   */
   async deleteVariant(id) {
     return await this.delete(id);
   }
 
+  /**
+   * Checks if variant has sufficient stock
+   */
   async checkStockAvailable(variantId, quantity) {
     const variant = await this.findById(variantId);
     return variant && variant.stockQuantity >= quantity;
   }
 
+  /**
+   * Updates variant stock quantity
+   */
   async updateStock(variantId, quantity) {
     const variant = await this.findById(variantId);
     if (!variant) throw new Error('Variant not found');

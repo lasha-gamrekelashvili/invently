@@ -7,6 +7,9 @@ export class StorefrontService {
     this.productRepository = new ProductRepository();
   }
 
+  /**
+   * Gets store information
+   */
   async getStoreInfo(tenant) {
     if (!tenant) {
       throw new Error('Store not found');
@@ -20,12 +23,14 @@ export class StorefrontService {
     };
   }
 
+  /**
+   * Gets public categories (active and non-deleted only)
+   */
   async getPublicCategories(tenantId) {
     if (!tenantId) {
       throw new Error('Store not found');
     }
 
-    // Only show active and non-deleted categories for public storefront
     const categories = await this.categoryService.categoryRepository.findMany(
       {
         tenantId,
@@ -55,16 +60,18 @@ export class StorefrontService {
       }
     );
 
-    // Add recursive counts to all categories using CategoryService helper (only count active products)
     const categoriesWithRecursiveCounts = await this.categoryService.addRecursiveCounts(
       categories,
       tenantId,
-      false // Don't include deleted
+      false
     );
 
     return categoriesWithRecursiveCounts;
   }
 
+  /**
+   * Gets public products (active and non-deleted only)
+   */
   async getPublicProducts(tenantId, filters = {}, page = 1, limit = 20) {
     if (!tenantId) {
       throw new Error('Store not found');
@@ -72,13 +79,11 @@ export class StorefrontService {
 
     const { categoryId, search, minPrice, maxPrice, sortBy = 'createdAt', sortOrder = 'desc' } = filters;
 
-    // Get all category IDs including children recursively (only active categories)
     let categoryIds = null;
     if (categoryId) {
       categoryIds = await this.categoryService.getAllChildCategoryIds(categoryId, tenantId, false);
     }
 
-    // Only show active and non-deleted products for public storefront
     const where = {
       tenantId,
       isActive: true,
@@ -177,6 +182,9 @@ export class StorefrontService {
     return product;
   }
 
+  /**
+   * Gets products by category slug (active and non-deleted only)
+   */
   async getProductsByCategory(categorySlug, tenantId, filters = {}, page = 1, limit = 20) {
     if (!tenantId) {
       throw new Error('Store not found');
@@ -184,7 +192,6 @@ export class StorefrontService {
 
     const { search, sortBy = 'createdAt', sortOrder = 'desc' } = filters;
 
-    // Find the category (only active and non-deleted)
     const category = await this.categoryService.categoryRepository.findFirst(
       {
         slug: categorySlug,
@@ -198,7 +205,6 @@ export class StorefrontService {
       throw new Error('Category not found');
     }
 
-    // Only show active and non-deleted products
     const where = {
       categoryId: category.id,
       tenantId,

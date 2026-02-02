@@ -7,8 +7,10 @@ export class MediaService {
     this.productRepository = new ProductRepository();
   }
 
+  /**
+   * Uploads a product image
+   */
   async uploadProductImage(productId, tenantId, fileData, metadata = {}) {
-    // Verify product exists and belongs to tenant
     const product = await this.productRepository.findByIdAndTenant(productId, tenantId);
 
     if (!product) {
@@ -32,8 +34,10 @@ export class MediaService {
     return productImage;
   }
 
+  /**
+   * Adds a product image by URL
+   */
   async addProductImageByUrl(productId, tenantId, imageData) {
-    // Verify product exists and belongs to tenant
     const product = await this.productRepository.findByIdAndTenant(productId, tenantId);
 
     if (!product) {
@@ -46,14 +50,12 @@ export class MediaService {
       throw new Error('Image URL is required');
     }
 
-    // Basic URL validation
     try {
       new URL(url);
     } catch (error) {
       throw new Error('Invalid URL format');
     }
 
-    // Extract filename from URL for storage purposes
     const urlParts = url.split('/');
     const filename = urlParts[urlParts.length - 1] || `image-${Date.now()}`;
 
@@ -69,8 +71,10 @@ export class MediaService {
     return productImage;
   }
 
+  /**
+   * Gets all images for a product
+   */
   async getProductImages(productId, tenantId) {
-    // Verify product exists and belongs to tenant
     const product = await this.productRepository.findByIdAndTenant(productId, tenantId);
 
     if (!product) {
@@ -82,8 +86,10 @@ export class MediaService {
     return images;
   }
 
+  /**
+   * Updates a product image
+   */
   async updateProductImage(imageId, tenantId, updateData) {
-    // Verify image exists and belongs to tenant
     const existingImage = await this.mediaRepository.findByIdAndTenant(imageId, tenantId);
 
     if (!existingImage) {
@@ -101,8 +107,10 @@ export class MediaService {
     return image;
   }
 
+  /**
+   * Deletes a product image
+   */
   async deleteProductImage(imageId, tenantId) {
-    // Verify image exists and belongs to tenant
     const image = await this.mediaRepository.findByIdAndTenant(imageId, tenantId);
 
     if (!image) {

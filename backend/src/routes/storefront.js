@@ -11,7 +11,6 @@ import tenantResolver from '../middleware/tenantResolver.js';
 
 const router = express.Router();
 
-// Apply tenant resolver to all storefront routes
 router.use(tenantResolver);
 
 /**

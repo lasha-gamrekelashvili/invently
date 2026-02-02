@@ -6,6 +6,9 @@ export class AuditLogRepository extends BaseRepository {
     super(prisma.auditLog);
   }
 
+  /**
+   * Finds audit logs with user and tenant relations
+   */
   async findWithRelations(where = {}, options = {}) {
     return await this.findMany(
       where,
@@ -33,6 +36,9 @@ export class AuditLogRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Paginates audit logs with relations
+   */
   async paginateWithRelations(where = {}, page = 1, limit = 50) {
     const skip = (page - 1) * limit;
 
@@ -53,6 +59,9 @@ export class AuditLogRepository extends BaseRepository {
     };
   }
 
+  /**
+   * Creates an audit log entry
+   */
   async createLog(data) {
     return await this.create(data);
   }

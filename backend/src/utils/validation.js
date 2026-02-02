@@ -1,6 +1,5 @@
 import Joi from 'joi';
 
-// Updated regex to support Georgian characters and other Unicode letters
 const slugRegex = /^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u;
 
 const schemas = {
@@ -11,7 +10,7 @@ const schemas = {
     lastName: Joi.string().min(2).max(50).required(),
     tenantName: Joi.string().min(2).max(100).required(),
     subdomain: Joi.string().alphanum().min(3).max(50).required(),
-    iban: Joi.string().max(34).optional().allow(null, '') // IBAN can be up to 34 characters
+    iban: Joi.string().max(34).optional().allow(null, '') 
   }),
 
   login: Joi.object({
@@ -34,14 +33,12 @@ const schemas = {
     sku: Joi.string().max(100).optional().allow(null, ''),
     price: Joi.number().positive().precision(2).required(),
     stockQuantity: Joi.number().integer().min(0).required(),
-    isActive: Joi.boolean().default(true), // true = visible in storefront, false = draft/hidden
+    isActive: Joi.boolean().default(true),
     categoryId: Joi.string().uuid().optional().allow(null),
-    // Custom attributes as JSON (e.g., {"material": "Cotton", "brand": "Nike"})
     attributes: Joi.object().optional(),
-    // Variants array for creating product with variants
     variants: Joi.array().items(Joi.object({
       sku: Joi.string().max(100).optional(),
-      options: Joi.object().required(), // e.g., {"size": "M", "color": "Red"}
+      options: Joi.object().required(),
       price: Joi.number().positive().precision(2).optional().allow(null),
       stockQuantity: Joi.number().integer().min(0).optional(),
       isActive: Joi.boolean().optional()
@@ -55,14 +52,14 @@ const schemas = {
     sku: Joi.string().max(100).optional().allow(null, ''),
     price: Joi.number().positive().precision(2).optional(),
     stockQuantity: Joi.number().integer().min(0).optional(),
-    isActive: Joi.boolean().optional(), // true = visible in storefront, false = draft/hidden
+    isActive: Joi.boolean().optional(),
     categoryId: Joi.string().uuid().optional().allow(null),
     attributes: Joi.object().optional().allow(null)
   }),
 
   variant: Joi.object({
     sku: Joi.string().max(100).optional(),
-    options: Joi.object().required(), // e.g., {"size": "M", "color": "Red"}
+    options: Joi.object().required(), 
     price: Joi.number().positive().precision(2).optional().allow(null),
     stockQuantity: Joi.number().integer().min(0).optional(),
     isActive: Joi.boolean().optional()
@@ -84,7 +81,6 @@ const schemas = {
     search: Joi.string().max(100).optional()
   }),
 
-  // More flexible pagination for admin and dashboard queries
   paginationLarge: Joi.object({
     page: Joi.number().integer().min(1).default(1),
     limit: Joi.number().integer().min(1).max(1000).default(20),
@@ -92,15 +88,15 @@ const schemas = {
     sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
     search: Joi.string().max(100).optional(),
     categoryId: Joi.string().uuid().optional(),
-    isActive: Joi.boolean().optional(), // Filter by active/inactive status
-    isDeleted: Joi.boolean().optional(), // Filter by deleted status
+    isActive: Joi.boolean().optional(),
+    isDeleted: Joi.boolean().optional(),
     minPrice: Joi.number().min(0).optional(),
     maxPrice: Joi.number().min(0).optional()
   }),
 
   processPayment: Joi.object({
     paymentMethod: Joi.string().optional().default('MOCK'),
-    cardNumber: Joi.string().optional(), // For future real payment integration
+    cardNumber: Joi.string().optional(),
     expiryDate: Joi.string().optional(),
     cvv: Joi.string().optional(),
   }),

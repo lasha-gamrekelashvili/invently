@@ -6,14 +6,6 @@ const prisma = new PrismaClient();
 export class BulkUploadService {
   /**
    * Parse and import categories and products from CSV
-   * CSV Format:
-   * Category,Product Name,Variant Options,Product Description,Price,Stock,SKU,Status,Image URLs,Attributes
-   * 
-   * Examples:
-   * Electronics,,,,,,,,, (Category only)
-   * Electronics > Phones,,,,,,,,, (Subcategory)
-   * Electronics > Phones,iPhone 14,,Best phone,999.99,50,IPHONE14,ACTIVE,url1.jpg,brand:Apple
-   * Electronics > Phones,iPhone 14,storage:128GB|color:Black,,999.99,30,IPHONE14-128-BLK,ACTIVE,,
    */
   async importFromCSV(csvContent, tenantId) {
     const results = {
@@ -23,21 +15,18 @@ export class BulkUploadService {
     };
 
     try {
-      // Parse CSV
       const records = parse(csvContent, {
         columns: true,
         skip_empty_lines: true,
         trim: true,
-        bom: true, // Handle BOM in UTF-8 files
+        bom: true,
       });
 
       console.log(`Parsed ${records.length} rows from CSV`);
 
-      // First pass: Create all categories
-      const categoryMap = new Map(); // slug -> category
+      const categoryMap = new Map();
       await this.processCategories(records, tenantId, categoryMap, results);
 
-      // Second pass: Create all products with variants
       await this.processProductsWithVariants(records, tenantId, categoryMap, results);
 
       return results;
@@ -53,15 +42,12 @@ export class BulkUploadService {
   async processCategories(records, tenantId, categoryMap, results) {
     const uniqueCategories = new Set();
     
-    // Collect all unique category paths
     for (const record of records) {
       const categoryPath = record['Category']?.trim();
       if (!categoryPath) continue;
 
-      // Split by > to get hierarchy (e.g., "Electronics > Phones > Samsung")
       const parts = categoryPath.split('>').map(p => p.trim()).filter(Boolean);
       
-      // Add each level to unique categories
       for (let i = 0; i < parts.length; i++) {
         const path = parts.slice(0, i + 1).join(' > ');
         uniqueCategories.add(path);
@@ -70,28 +56,23 @@ export class BulkUploadService {
 
     console.log(`Found ${uniqueCategories.size} unique categories`);
 
-    // Sort categories by depth (parents first)
     const sortedCategories = Array.from(uniqueCategories).sort((a, b) => {
       return a.split(' > ').length - b.split(' > ').length;
     });
 
-    // Create categories in order
     for (const categoryPath of sortedCategories) {
       try {
         const parts = categoryPath.split(' > ').map(p => p.trim());
         const categoryName = parts[parts.length - 1];
         const parentPath = parts.length > 1 ? parts.slice(0, -1).join(' > ') : null;
 
-        // Generate slug
         const slug = this.generateSlug(categoryName);
 
-        // Find parent category if exists
         let parentId = null;
         if (parentPath && categoryMap.has(parentPath)) {
           parentId = categoryMap.get(parentPath).id;
         }
 
-        // Check if category already exists
         const existing = await prisma.category.findFirst({
           where: {
             slug,
@@ -102,7 +83,6 @@ export class BulkUploadService {
 
         let category;
         if (existing) {
-          // Update existing
           category = await prisma.category.update({
             where: { id: existing.id },
             data: {
@@ -112,7 +92,6 @@ export class BulkUploadService {
           });
           results.categories.updated++;
         } else {
-          // Create new
           category = await prisma.category.create({
             data: {
               name: categoryName,
@@ -125,7 +104,6 @@ export class BulkUploadService {
           results.categories.created++;
         }
 
-        // Store in map for later reference
         categoryMap.set(categoryPath, category);
         
         console.log(`Processed category: ${categoryPath} (${existing ? 'updated' : 'created'})`);
@@ -144,12 +122,11 @@ export class BulkUploadService {
    * Groups rows by product name - multiple rows with same name become variants
    */
   async processProductsWithVariants(records, tenantId, categoryMap, results) {
-    // Group records by product name
     const productGroups = new Map();
     
     for (const record of records) {
       const productName = record['Product Name']?.trim();
-      if (!productName) continue; // Skip category-only rows
+      if (!productName) continue;
       
       if (!productGroups.has(productName)) {
         productGroups.set(productName, []);
@@ -157,27 +134,21 @@ export class BulkUploadService {
       productGroups.set(productName, [...productGroups.get(productName), record]);
     }
 
-    // Process each product group
     for (const [productName, productRecords] of productGroups) {
       try {
-        // Get base product info from first record
         const baseRecord = productRecords[0];
         const categoryPath = baseRecord['Category']?.trim();
         const description = baseRecord['Product Description']?.trim() || '';
-        // Parse isActive from Status column: 'ACTIVE' or 'true' = true, anything else = false
         const statusValue = baseRecord['Status']?.trim().toUpperCase() || 'ACTIVE';
         const isActive = statusValue === 'ACTIVE' || statusValue === 'TRUE';
 
-        // Find category
         let categoryId = null;
         if (categoryPath && categoryMap.has(categoryPath)) {
           categoryId = categoryMap.get(categoryPath).id;
         }
 
-        // Generate slug
         const slug = this.generateSlug(productName);
 
-        // Check if product exists
         const existing = await prisma.product.findFirst({
           where: {
             tenantId,
@@ -188,13 +159,10 @@ export class BulkUploadService {
           },
         });
 
-        let product;
         
-        // Check if this is a product with variants (multiple rows with same name)
         const hasVariants = productRecords.some(r => r['Variant Options']?.trim());
 
         if (hasVariants) {
-          // Product with variants
           await this.processProductWithVariants(
             productName,
             productRecords,
@@ -207,7 +175,6 @@ export class BulkUploadService {
             results
           );
         } else {
-          // Simple product without variants (use first record)
           await this.processSimpleProduct(
             baseRecord,
             productName,
@@ -240,14 +207,10 @@ export class BulkUploadService {
     const imageUrls = record['Image URLs']?.trim() || '';
     const attributesStr = record['Attributes']?.trim() || '';
 
-    // Parse image URLs
     const images = this.parseImageUrls(imageUrls, productName);
-
-    // Parse attributes
     const attributes = this.parseAttributes(attributesStr, sku);
 
     if (existing) {
-      // Update existing product
       await prisma.product.update({
         where: { id: existing.id },
         data: {
@@ -261,11 +224,9 @@ export class BulkUploadService {
         },
       });
 
-      // Update images
       await this.updateProductImages(existing.id, images, tenantId);
       results.products.updated++;
     } else {
-      // Create new product
       const product = await prisma.product.create({
         data: {
           title: productName,
@@ -280,7 +241,6 @@ export class BulkUploadService {
         },
       });
 
-      // Create images
       await this.createProductImages(product.id, images, tenantId);
       results.products.created++;
     }
@@ -290,21 +250,18 @@ export class BulkUploadService {
    * Process a product with variants
    */
   async processProductWithVariants(productName, records, categoryId, description, isActive, slug, tenantId, existing, results) {
-    // Get base price from record without variant options (or first record)
     const baseRecord = records.find(r => !r['Variant Options']?.trim()) || records[0];
     const basePrice = parseFloat(baseRecord['Price']) || 0;
     const baseStock = parseInt(baseRecord['Stock']) || 0;
     const baseImageUrls = baseRecord['Image URLs']?.trim() || '';
     const baseAttributesStr = baseRecord['Attributes']?.trim() || '';
 
-    // Parse base images and attributes
     const baseImages = this.parseImageUrls(baseImageUrls, productName);
     const baseAttributes = this.parseAttributes(baseAttributesStr, '');
 
     let product;
     
     if (existing) {
-      // Update existing product
       product = await prisma.product.update({
         where: { id: existing.id },
         data: {
@@ -318,11 +275,9 @@ export class BulkUploadService {
         },
       });
 
-      // Update base images
       await this.updateProductImages(product.id, baseImages, tenantId);
       results.products.updated++;
     } else {
-      // Create new product
       product = await prisma.product.create({
         data: {
           title: productName,
@@ -337,12 +292,10 @@ export class BulkUploadService {
         },
       });
 
-      // Create base images
       await this.createProductImages(product.id, baseImages, tenantId);
       results.products.created++;
     }
 
-    // Process variants
     const variantRecords = records.filter(r => r['Variant Options']?.trim());
     
     for (const variantRecord of variantRecords) {
@@ -350,7 +303,6 @@ export class BulkUploadService {
         const variantOptionsStr = variantRecord['Variant Options']?.trim();
         if (!variantOptionsStr) continue;
 
-        // Parse variant options (format: key1:value1|key2:value2)
         const options = {};
         variantOptionsStr.split('|').forEach(pair => {
           const [key, value] = pair.split(':').map(s => s.trim());
@@ -363,11 +315,9 @@ export class BulkUploadService {
         const variantStock = parseInt(variantRecord['Stock']) || 0;
         const variantSku = variantRecord['SKU']?.trim() || this.generateSKU();
 
-        // Check if variant exists (by SKU)
         const existingVariant = existing?.variants.find(v => v.sku === variantSku);
 
         if (existingVariant) {
-          // Update existing variant
           await prisma.productVariant.update({
             where: { id: existingVariant.id },
             data: {
@@ -379,7 +329,6 @@ export class BulkUploadService {
           });
           results.variants.updated++;
         } else {
-          // Create new variant
           await prisma.productVariant.create({
             data: {
               productId: product.id,
@@ -474,12 +423,10 @@ export class BulkUploadService {
   async updateProductImages(productId, images, tenantId) {
     if (images.length === 0) return;
     
-    // Delete old images
     await prisma.productImage.deleteMany({
       where: { productId },
     });
 
-    // Create new images
     for (const img of images) {
       await prisma.productImage.create({
         data: {
@@ -497,9 +444,9 @@ export class BulkUploadService {
   generateSlug(text) {
     return text
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
       .trim();
   }
 

@@ -1,6 +1,7 @@
 import { PaymentRepository } from '../repositories/PaymentRepository.js';
 import { SubscriptionRepository } from '../repositories/SubscriptionRepository.js';
 import prisma from '../repositories/BaseRepository.js';
+import { PRICING, calculateBillingPeriod } from '../config/pricing.js';
 
 export class PaymentService {
   constructor() {
@@ -9,118 +10,163 @@ export class PaymentService {
   }
 
   /**
-   * Create a payment record
+   * Creates a payment record with PENDING status
    */
-  async createPayment(userId, tenantId, type, amount, paymentMethod = 'MOCK') {
+  async createPayment(userId, tenantId, type, amount = null, paymentMethod = 'MOCK') {
+    const finalAmount = amount ?? (type === 'SETUP_FEE' ? PRICING.SETUP_FEE : PRICING.MONTHLY_SUBSCRIPTION);
+
     return await this.paymentRepository.create({
       userId,
       tenantId,
       type,
-      amount,
+      amount: finalAmount,
       status: 'PENDING',
       paymentMethod,
     }, {});
   }
 
   /**
-   * Process mock payment (always succeeds for now)
-   * In production, this would integrate with a real payment gateway
+   * Processes a payment with transaction safety and idempotency.
+   * For SETUP_FEE: activates tenant and creates subscription.
+   * For MONTHLY_SUBSCRIPTION: renews the subscription period.
    */
   async processMockPayment(paymentId, paymentData = {}) {
-    const payment = await this.paymentRepository.findById(paymentId);
-    
-    if (!payment) {
-      throw new Error('Payment not found');
-    }
-
-    if (payment.status === 'PAID') {
-      return payment; // Already processed
-    }
-
-    try {
-      // Simulate payment processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Simulate potential payment failure (for testing - remove in production)
-      // Uncomment the line below to test payment failure scenario
-      // if (Math.random() < 0.1) throw new Error('Payment processing failed');
-
-      // Update payment status to PAID
-      const updatedPayment = await this.paymentRepository.update(paymentId, {
-        status: 'PAID',
-        transactionId: `MOCK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        metadata: {
-          processedAt: new Date().toISOString(),
-          ...paymentData,
-        },
+    return await prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findUnique({
+        where: { id: paymentId },
       });
 
-      // If this is a setup fee, activate tenant and create subscription
-      // Only activate tenant AFTER successful payment
-      if (payment.type === 'SETUP_FEE') {
-        // Activate the tenant
-        await prisma.tenant.update({
-          where: { id: payment.tenantId },
-          data: { isActive: true },
+      if (!payment) {
+        throw new Error('Payment not found');
+      }
+
+      if (payment.status === 'PAID') {
+        return payment;
+      }
+
+      if (payment.status === 'FAILED') {
+        throw new Error('Payment already failed. Please create a new payment.');
+      }
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const transactionId = `MOCK-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+
+        const updatedPayment = await tx.payment.update({
+          where: { id: paymentId },
+          data: {
+            status: 'PAID',
+            transactionId,
+            metadata: {
+              processedAt: new Date().toISOString(),
+              ...paymentData,
+            },
+          },
         });
-        
-        // Create subscription
-        await this.createSubscription(payment.tenantId);
-      }
 
-      // If this is a monthly subscription, update subscription period
-      if (payment.type === 'MONTHLY_SUBSCRIPTION') {
-        await this.renewSubscription(payment.tenantId);
-      }
+        if (payment.type === 'SETUP_FEE') {
+          await tx.tenant.update({
+            where: { id: payment.tenantId },
+            data: { isActive: true },
+          });
 
-      return updatedPayment;
-    } catch (error) {
-      // If payment processing fails, mark payment as failed
-      // Tenant remains inactive
-      await this.paymentRepository.update(paymentId, {
-        status: 'FAILED',
-        metadata: {
-          error: error.message,
-          failedAt: new Date().toISOString(),
-        },
-      });
-      
-      throw new Error(`Payment processing failed: ${error.message}`);
-    }
+          const { periodStart, periodEnd, nextBillingDate } = calculateBillingPeriod();
+
+          const existingSubscription = await tx.subscription.findUnique({
+            where: { tenantId: payment.tenantId },
+          });
+
+          if (!existingSubscription) {
+            await tx.subscription.create({
+              data: {
+                tenantId: payment.tenantId,
+                status: 'ACTIVE',
+                currentPeriodStart: periodStart,
+                currentPeriodEnd: periodEnd,
+                nextBillingDate,
+              },
+            });
+          }
+        }
+
+        if (payment.type === 'MONTHLY_SUBSCRIPTION') {
+          await this.renewSubscriptionInTransaction(tx, payment.tenantId);
+        }
+
+        return updatedPayment;
+
+      } catch (error) {
+        await tx.payment.update({
+          where: { id: paymentId },
+          data: {
+            status: 'FAILED',
+            metadata: {
+              error: error.message,
+              failedAt: new Date().toISOString(),
+            },
+          },
+        });
+
+        throw new Error(`Payment processing failed: ${error.message}`);
+      }
+    }, {
+      isolationLevel: 'Serializable',
+      timeout: 30000,
+    });
   }
 
   /**
-   * Create subscription for a tenant
+   * Renews subscription within a transaction.
+   * Starts from today if expired, otherwise extends from nextBillingDate.
    */
-  async createSubscription(tenantId) {
-    // Check if subscription already exists
-    const existing = await this.subscriptionRepository.findByTenantId(tenantId);
-    if (existing) {
-      console.log(`Subscription already exists for tenant ${tenantId}`);
-      return existing;
+  async renewSubscriptionInTransaction(tx, tenantId) {
+    const subscription = await tx.subscription.findUnique({
+      where: { tenantId },
+    });
+
+    if (!subscription) {
+      throw new Error('Subscription not found');
     }
 
     const now = new Date();
-    const nextBillingDate = new Date(now);
-    nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+    const oldNextBillingDate = new Date(subscription.nextBillingDate);
+    const newPeriodStart = oldNextBillingDate < now ? now : oldNextBillingDate;
+    const { periodEnd, nextBillingDate } = calculateBillingPeriod(newPeriodStart);
 
-    const periodEnd = new Date(nextBillingDate);
-    periodEnd.setDate(periodEnd.getDate() - 1);
+    await tx.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        status: 'ACTIVE',
+        currentPeriodStart: newPeriodStart,
+        currentPeriodEnd: periodEnd,
+        nextBillingDate,
+        cancelledAt: null,
+      },
+    });
+  }
+
+  /**
+   * Creates a subscription for a tenant (standalone, for recovery scenarios)
+   */
+  async createSubscription(tenantId) {
+    const existing = await this.subscriptionRepository.findByTenantId(tenantId);
+    if (existing) {
+      return existing;
+    }
+
+    const { periodStart, periodEnd, nextBillingDate } = calculateBillingPeriod();
 
     try {
-      const subscription = await this.subscriptionRepository.create({
+      return await this.subscriptionRepository.create({
         tenantId,
         status: 'ACTIVE',
-        currentPeriodStart: now,
+        currentPeriodStart: periodStart,
         currentPeriodEnd: periodEnd,
         nextBillingDate,
       });
-      console.log(`Successfully created subscription for tenant ${tenantId}`);
-      return subscription;
     } catch (error) {
-      // If unique constraint error, subscription was created by another process
       if (error.code === 'P2002') {
-        console.log(`Subscription already exists (race condition) for tenant ${tenantId}`);
         return await this.subscriptionRepository.findByTenantId(tenantId);
       }
       throw error;
@@ -128,42 +174,40 @@ export class PaymentService {
   }
 
   /**
-   * Renew subscription (extend period by 1 month)
+   * Renews subscription by extending the period by 1 month.
+   * Starts from today if expired, otherwise extends from nextBillingDate.
    */
   async renewSubscription(tenantId) {
     const subscription = await this.subscriptionRepository.findByTenantId(tenantId);
-    
+
     if (!subscription) {
       throw new Error('Subscription not found');
     }
 
     const now = new Date();
-    const nextBillingDate = new Date(subscription.nextBillingDate);
-    nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
-
-    const periodEnd = new Date(nextBillingDate);
-    periodEnd.setDate(periodEnd.getDate() - 1);
+    const oldNextBillingDate = new Date(subscription.nextBillingDate);
+    const newPeriodStart = oldNextBillingDate < now ? now : oldNextBillingDate;
+    const { periodEnd, nextBillingDate } = calculateBillingPeriod(newPeriodStart);
 
     return await this.subscriptionRepository.update(subscription.id, {
       status: 'ACTIVE',
-      currentPeriodStart: subscription.nextBillingDate,
+      currentPeriodStart: newPeriodStart,
       currentPeriodEnd: periodEnd,
       nextBillingDate,
-      cancelledAt: null, // Reactivate if cancelled
+      cancelledAt: null,
     });
   }
 
   /**
-   * Process monthly subscription charge
+   * Processes a monthly subscription charge for a tenant
    */
   async processMonthlySubscription(tenantId) {
     const subscription = await this.subscriptionRepository.findByTenantId(tenantId);
-    
+
     if (!subscription) {
       throw new Error('Subscription not found');
     }
 
-    // Don't charge if subscription is cancelled
     if (subscription.status === 'CANCELLED') {
       throw new Error('Subscription is cancelled. No further charges will be processed.');
     }
@@ -177,7 +221,6 @@ export class PaymentService {
       throw new Error('Subscription is not due for renewal yet');
     }
 
-    // Get tenant owner
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
       include: { owner: true },
@@ -187,63 +230,55 @@ export class PaymentService {
       throw new Error('Tenant not found');
     }
 
-    // Create payment record
     const payment = await this.createPayment(
       tenant.ownerId,
       tenantId,
       'MONTHLY_SUBSCRIPTION',
-      49.0
+      PRICING.MONTHLY_SUBSCRIPTION
     );
 
-    // Process payment (mock for now)
     await this.processMockPayment(payment.id);
 
     return payment;
   }
 
   /**
-   * Cancel subscription
-   * End-of-period cancellation: marks subscription as cancelled but keeps tenant active
-   * until currentPeriodEnd. Tenant will be deactivated when period ends.
+   * Cancels subscription with end-of-period cancellation.
+   * Tenant remains active until currentPeriodEnd.
    */
   async cancelSubscription(tenantId) {
     const subscription = await this.subscriptionRepository.findByTenantId(tenantId);
-    
+
     if (!subscription) {
       throw new Error('Subscription not found');
     }
 
     if (subscription.status === 'CANCELLED') {
-      return subscription; // Already cancelled
+      return subscription;
     }
 
-    // Mark as cancelled but keep tenant active until currentPeriodEnd
-    // The tenant will be deactivated when the period ends (checked in tenantResolver)
     return await this.subscriptionRepository.update(subscription.id, {
       status: 'CANCELLED',
       cancelledAt: new Date(),
-      // Keep currentPeriodStart, currentPeriodEnd, nextBillingDate unchanged
-      // Tenant remains active until currentPeriodEnd
     });
   }
 
   /**
-   * Reactivate subscription
-   * - If cancelled but period hasn't ended: Just reactivate without new payment (resume current period)
-   * - If expired: Create new payment and start new period
+   * Reactivates a cancelled or expired subscription.
+   * If cancelled but period not ended: resumes without payment.
+   * If expired: creates new payment and starts new period.
    */
   async reactivateSubscription(tenantId) {
     const subscription = await this.subscriptionRepository.findByTenantId(tenantId);
-    
+
     if (!subscription) {
       throw new Error('Subscription not found');
     }
 
     if (subscription.status === 'ACTIVE') {
-      return subscription; // Already active
+      return subscription;
     }
 
-    // Get tenant and owner
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
       include: { owner: true },
@@ -257,16 +292,13 @@ export class PaymentService {
     const periodEnd = new Date(subscription.currentPeriodEnd);
     const isPeriodExpired = periodEnd < now;
 
-    // If subscription is cancelled but period hasn't expired, just reactivate without new payment
+    // Resume without payment if still within period
     if (subscription.status === 'CANCELLED' && !isPeriodExpired) {
-      // Resume current period - no new payment needed
       const reactivatedSubscription = await this.subscriptionRepository.update(subscription.id, {
         status: 'ACTIVE',
-        cancelledAt: null, // Clear cancellation
-        // Keep existing period dates
+        cancelledAt: null,
       });
 
-      // Ensure tenant is active
       if (!tenant.isActive) {
         await prisma.tenant.update({
           where: { id: tenantId },
@@ -277,35 +309,18 @@ export class PaymentService {
       return reactivatedSubscription;
     }
 
-    // If subscription is expired or period has ended, create new payment and start new period
-    // Create payment for monthly subscription
+    // Expired: require new payment
     const payment = await this.createPayment(
       tenant.ownerId,
       tenantId,
       'MONTHLY_SUBSCRIPTION',
-      49.0
+      PRICING.MONTHLY_SUBSCRIPTION
     );
 
-    // Process payment
     await this.processMockPayment(payment.id);
 
-    // Calculate new period dates
-    const nextBillingDate = new Date(now);
-    nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+    const updatedSubscription = await this.subscriptionRepository.findByTenantId(tenantId);
 
-    const newPeriodEnd = new Date(nextBillingDate);
-    newPeriodEnd.setDate(newPeriodEnd.getDate() - 1);
-
-    // Reactivate subscription with new period
-    const reactivatedSubscription = await this.subscriptionRepository.update(subscription.id, {
-      status: 'ACTIVE',
-      currentPeriodStart: now,
-      currentPeriodEnd: newPeriodEnd,
-      nextBillingDate,
-      cancelledAt: null, // Clear cancellation
-    });
-
-    // Activate tenant if it was inactive
     if (!tenant.isActive) {
       await prisma.tenant.update({
         where: { id: tenantId },
@@ -313,18 +328,104 @@ export class PaymentService {
       });
     }
 
-    return reactivatedSubscription;
+    return updatedSubscription;
   }
 
   /**
-   * Get payment by ID
+   * Handles subscription expiry by deactivating tenant and marking subscription as expired.
+   * Called by scheduled job for cancelled subscriptions past their period end.
+   */
+  async handleSubscriptionExpiry(tenantId) {
+    return await prisma.$transaction(async (tx) => {
+      const subscription = await tx.subscription.findUnique({
+        where: { tenantId },
+      });
+
+      if (!subscription) {
+        return null;
+      }
+
+      const now = new Date();
+      const periodEnd = new Date(subscription.currentPeriodEnd);
+
+      if (subscription.status === 'CANCELLED' && periodEnd < now) {
+        await tx.tenant.update({
+          where: { id: tenantId },
+          data: { isActive: false },
+        });
+
+        return await tx.subscription.update({
+          where: { id: subscription.id },
+          data: { status: 'EXPIRED' },
+        });
+      }
+
+      return subscription;
+    });
+  }
+
+  /**
+   * Recovers a missing subscription for a tenant that paid setup fee.
+   * Handles edge case where subscription creation failed after payment.
+   */
+  async recoverSubscription(tenantId, userId) {
+    const existingSubscription = await this.subscriptionRepository.findByTenantId(tenantId);
+    if (existingSubscription) {
+      return existingSubscription;
+    }
+
+    const payments = await this.paymentRepository.findMany({
+      where: {
+        tenantId,
+        userId,
+        type: 'SETUP_FEE',
+        status: 'PAID',
+      },
+    });
+
+    if (payments.length === 0) {
+      return null;
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const { periodStart, periodEnd, nextBillingDate } = calculateBillingPeriod();
+
+      const checkAgain = await tx.subscription.findUnique({
+        where: { tenantId },
+      });
+
+      if (checkAgain) {
+        return checkAgain;
+      }
+
+      const subscription = await tx.subscription.create({
+        data: {
+          tenantId,
+          status: 'ACTIVE',
+          currentPeriodStart: periodStart,
+          currentPeriodEnd: periodEnd,
+          nextBillingDate,
+        },
+      });
+
+      await tx.tenant.update({
+        where: { id: tenantId },
+        data: { isActive: true },
+      });
+
+      return subscription;
+    });
+  }
+
+  /**
+   * Gets a payment by ID
    */
   async getPaymentById(paymentId) {
     return await this.paymentRepository.findById(paymentId);
   }
 
   /**
-   * Get payments for a user
+   * Gets all payments for a user
    */
   async getUserPayments(userId, params = {}) {
     return await this.paymentRepository.findMany({
@@ -335,7 +436,7 @@ export class PaymentService {
   }
 
   /**
-   * Get payments for a tenant
+   * Gets all payments for a tenant
    */
   async getTenantPayments(tenantId, params = {}) {
     return await this.paymentRepository.findMany({

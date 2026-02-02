@@ -4,7 +4,9 @@ import { ApiResponse } from '../utils/responseFormatter.js';
 const cartService = new CartService();
 
 const cartController = {
-  // Get cart by session ID
+  /**
+   * Gets cart by session ID
+   */
   async getCart(req, res) {
     try {
       const { sessionId } = req.params;
@@ -19,7 +21,9 @@ const cartController = {
     }
   },
 
-  // Add item to cart
+  /**
+   * Adds an item to cart
+   */
   async addToCart(req, res) {
     try {
       const { sessionId } = req.params;
@@ -44,7 +48,9 @@ const cartController = {
     }
   },
 
-  // Update cart item quantity
+  /**
+   * Updates cart item quantity
+   */
   async updateCartItem(req, res) {
     try {
       const { sessionId, itemId } = req.params;
@@ -66,7 +72,9 @@ const cartController = {
     }
   },
 
-  // Remove item from cart
+  /**
+   * Removes an item from cart
+   */
   async removeFromCart(req, res) {
     try {
       const { sessionId, itemId } = req.params;
@@ -84,7 +92,9 @@ const cartController = {
     }
   },
 
-  // Clear cart
+  /**
+   * Clears all items from cart
+   */
   async clearCart(req, res) {
     try {
       const { sessionId } = req.params;

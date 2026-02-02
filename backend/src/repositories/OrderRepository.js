@@ -7,36 +7,59 @@ export class OrderRepository extends BaseRepository {
     super(prisma.order);
   }
 
+  /**
+   * Finds orders by tenant ID
+   */
   async findByTenant(tenantId, options = {}) {
     return await this.findMany({ tenantId }, options);
   }
 
+  /**
+   * Finds an order by ID and tenant ID
+   */
   async findByIdAndTenant(id, tenantId, includeItems = true) {
     const options = includeItems ? orderIncludes.full : {};
     return await this.findFirst({ id, tenantId }, options);
   }
 
+  /**
+   * Creates a new order
+   */
   async createOrder(orderData) {
     return await this.create(orderData);
   }
 
+  /**
+   * Updates order status
+   */
   async updateOrderStatus(id, status) {
     return await this.update(id, { status });
   }
 
+  /**
+   * Updates payment status
+   */
   async updatePaymentStatus(id, paymentStatus) {
     return await this.update(id, { paymentStatus });
   }
 
+  /**
+   * Paginates orders by tenant ID
+   */
   async paginateByTenant(tenantId, where = {}, page = 1, limit = 10, options = {}) {
     return await this.paginate({ tenantId, ...where }, page, limit, options);
   }
 
-  // Statistics methods
+  /**
+   * Counts orders matching the where clause
+   */
   async countOrders(where = {}) {
     return await this.count(where);
   }
 
+  /**
+   * Aggregates revenue from orders
+   */
   async aggregateRevenue(where = {}) {
     return await prisma.order.aggregate({
       where,
@@ -44,6 +67,9 @@ export class OrderRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Groups orders by status
+   */
   async groupByStatus(tenantId) {
     return await prisma.order.groupBy({
       by: ['status'],
@@ -52,6 +78,9 @@ export class OrderRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Gets recent orders for a tenant
+   */
   async getRecentOrders(tenantId, limit = 5) {
     return await this.findMany(
       { tenantId },
@@ -82,6 +111,9 @@ export class OrderItemRepository extends BaseRepository {
     return await this.create(orderItemData);
   }
 
+  /**
+   * Finds order items by order ID
+   */
   async findByOrder(orderId) {
     return await this.findMany({ orderId });
   }

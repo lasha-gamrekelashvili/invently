@@ -11,6 +11,9 @@ export class AuthService {
     this.paymentService = new PaymentService();
   }
 
+  /**
+   * Generates a JWT token for a user
+   */
   generateToken(userId) {
     return jwt.sign(
       { userId },
@@ -19,26 +22,25 @@ export class AuthService {
     );
   }
 
+  /**
+   * Registers a new user with their first tenant.
+   * Creates user, tenant (inactive), and setup fee payment.
+   */
   async register(userData) {
     const { email, password, firstName, lastName, tenantName, subdomain, iban } = userData;
 
-    // Check if user already exists
     const existingUser = await this.authRepository.findByEmail(email);
     if (existingUser) {
       throw new Error('User with this email already exists');
     }
 
-    // Check if subdomain is already taken
     const existingTenant = await this.tenantRepository.findBySubdomain(subdomain);
     if (existingTenant) {
       throw new Error('Subdomain already taken');
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user and tenant in a transaction
-    // Tenant is created as inactive until payment is successful
     const result = await this.authRepository.createUserWithTenant(
       {
         email,
@@ -51,19 +53,16 @@ export class AuthService {
       {
         name: tenantName,
         subdomain,
-        isActive: false, // Tenant is inactive until payment succeeds
+        isActive: false,
       }
     );
 
-    // Create setup fee payment record
     const payment = await this.paymentService.createPayment(
       result.user.id,
       result.tenant.id,
-      'SETUP_FEE',
-      1.0 // 1 GEL setup fee
+      'SETUP_FEE'
     );
 
-    // Generate token
     const token = this.generateToken(result.user.id);
 
     return {
@@ -90,24 +89,24 @@ export class AuthService {
     };
   }
 
+  /**
+   * Authenticates a user and returns their info with JWT token
+   */
   async login(credentials) {
     const { email, password } = credentials;
 
-    // Find user with tenants
     const user = await this.authRepository.findByEmailWithTenants(email);
 
     if (!user) {
       throw new Error('Invalid credentials');
     }
 
-    // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
     }
 
-    // Generate token
     const token = this.generateToken(user.id);
 
     return {
@@ -122,12 +121,15 @@ export class AuthService {
         id: tenant.id,
         name: tenant.name,
         subdomain: tenant.subdomain,
-        isActive: tenant.isActive, // Include status so frontend can check
+        isActive: tenant.isActive,
       })),
       token,
     };
   }
 
+  /**
+   * Gets current user info with all their tenants
+   */
   async getCurrentUser(userId) {
     const user = await this.authRepository.findByIdWithTenants(userId);
 
@@ -135,7 +137,6 @@ export class AuthService {
       throw new Error('User not found');
     }
 
-    // Return ALL tenants (including inactive ones) so frontend can check status
     return {
       user: {
         id: user.id,
@@ -149,11 +150,14 @@ export class AuthService {
         id: tenant.id,
         name: tenant.name,
         subdomain: tenant.subdomain,
-        isActive: tenant.isActive, // Include inactive tenants so frontend can check
+        isActive: tenant.isActive,
       })),
     };
   }
 
+  /**
+   * Updates user's IBAN
+   */
   async updateIban(userId, iban) {
     const user = await this.authRepository.findById(userId);
 

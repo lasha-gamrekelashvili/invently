@@ -1,10 +1,12 @@
 import { TenantRepository } from '../repositories/TenantRepository.js';
 
+/**
+ * Gets all active tenants
+ */
 export const getActiveTenants = async (req, res) => {
   try {
     const tenantRepo = new TenantRepository();
     
-    // Get all active tenants with basic info only
     const tenants = await tenantRepo.findMany(
       { isActive: true },
       {

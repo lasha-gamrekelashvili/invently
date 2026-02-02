@@ -3,6 +3,9 @@ import { ApiResponse } from '../utils/responseFormatter.js';
 
 const authService = new AuthService();
 
+/**
+ * Registers a new user with their first tenant
+ */
 const register = async (req, res) => {
   try {
     const { email, password, firstName, lastName, tenantName, subdomain, iban } = req.validatedData;
@@ -40,6 +43,9 @@ const register = async (req, res) => {
   }
 };
 
+/**
+ * Authenticates a user and returns their info with JWT token
+ */
 const login = async (req, res) => {
   try {
     const { email, password } = req.validatedData;
@@ -65,6 +71,9 @@ const login = async (req, res) => {
   }
 };
 
+/**
+ * Gets current user info with all their tenants
+ */
 const me = async (req, res) => {
   try {
     const result = await authService.getCurrentUser(req.user.id);
@@ -79,6 +88,9 @@ const me = async (req, res) => {
   }
 };
 
+/**
+ * Updates user's IBAN
+ */
 const updateIban = async (req, res) => {
   try {
     const { iban } = req.validatedData;

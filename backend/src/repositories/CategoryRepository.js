@@ -15,16 +15,23 @@ export class CategoryRepository extends BaseRepository {
     return await this.findFirst({ id, tenantId }, options);
   }
 
-  // Find active (non-deleted) category by ID and tenant
+  /**
+   * Finds an active (non-deleted) category by ID and tenant ID
+   */
   async findActiveByIdAndTenant(id, tenantId, options = {}) {
     return await this.findFirst({ id, tenantId, isDeleted: false }, options);
   }
 
+  /**
+   * Finds a category by slug and tenant ID
+   */
   async findBySlugAndTenant(slug, tenantId, options = {}) {
     return await this.findFirst({ slug, tenantId, isDeleted: false }, options);
   }
 
-  // Check if slug already exists among active (non-deleted) categories
+  /**
+   * Finds an active category by slug
+   */
   async findBySlugActive(slug, tenantId, excludeCategoryId = null) {
     const where = { slug, tenantId, isDeleted: false };
     if (excludeCategoryId) {
@@ -33,7 +40,9 @@ export class CategoryRepository extends BaseRepository {
     return await this.findFirst(where);
   }
 
-  // Check if name matches a deleted category (for warning)
+  /**
+   * Finds a deleted category by name
+   */
   async findDeletedByName(name, tenantId) {
     return await this.findFirst({
       name: { equals: name, mode: 'insensitive' },
@@ -42,6 +51,9 @@ export class CategoryRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Finds a category with its children
+   */
   async findWithChildren(categoryId, tenantId) {
     return await this.findFirst(
       { id: categoryId, tenantId },
@@ -49,7 +61,9 @@ export class CategoryRepository extends BaseRepository {
     );
   }
 
-  // Find with active children only
+  /**
+   * Finds a category with active children only
+   */
   async findWithActiveChildren(categoryId, tenantId) {
     return await this.findFirst(
       { id: categoryId, tenantId, isDeleted: false },
@@ -63,6 +77,9 @@ export class CategoryRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Finds a category with its products
+   */
   async findWithProducts(categoryId, tenantId) {
     return await this.findFirst(
       { id: categoryId, tenantId },
@@ -70,6 +87,9 @@ export class CategoryRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Finds categories with product counts
+   */
   async findWithCounts(tenantId, where = {}, paginationOptions = {}) {
     return await this.findMany(
       { tenantId, ...where },
@@ -93,6 +113,9 @@ export class CategoryRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Creates a new category
+   */
   async createCategory(data, tenantId) {
     return await this.create({
       ...data,
@@ -100,11 +123,16 @@ export class CategoryRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Updates a category
+   */
   async updateCategory(id, data) {
     return await this.update(id, data);
   }
 
-  // Soft delete a category
+  /**
+   * Soft deletes a category
+   */
   async softDelete(id) {
     return await this.update(id, {
       isActive: false,
@@ -113,7 +141,9 @@ export class CategoryRepository extends BaseRepository {
     });
   }
 
-  // Restore a soft-deleted category
+  /**
+   * Restores a soft-deleted category
+   */
   async restore(id) {
     return await this.update(id, {
       isActive: true,
@@ -122,30 +152,44 @@ export class CategoryRepository extends BaseRepository {
     });
   }
 
-  // Hard delete - only for exceptional cases
+  /**
+   * Hard deletes a category
+   */
   async deleteCategory(id) {
     return await this.delete(id);
   }
 
+  /**
+   * Counts categories by tenant ID
+   */
   async countByTenant(tenantId, where = {}) {
     return await this.count({ tenantId, ...where });
   }
 
-  // Count only active (non-deleted) categories
+  /**
+   * Counts active (non-deleted) categories by tenant ID
+   */
   async countActiveByTenant(tenantId, where = {}) {
     return await this.count({ tenantId, isDeleted: false, ...where });
   }
 
+  /**
+   * Paginates categories by tenant ID
+   */
   async paginateByTenant(tenantId, where = {}, page = 1, limit = 10, options = {}) {
     return await this.paginate({ tenantId, ...where }, page, limit, options);
   }
 
-  // Paginate only active (non-deleted) categories
+  /**
+   * Paginates active (non-deleted) categories by tenant ID
+   */
   async paginateActiveByTenant(tenantId, where = {}, page = 1, limit = 10, options = {}) {
     return await this.paginate({ tenantId, isDeleted: false, ...where }, page, limit, options);
   }
 
-  // Get all child category IDs for cascading operations
+  /**
+   * Gets all child category IDs recursively for cascading operations
+   */
   async getAllChildIds(categoryId, tenantId) {
     const category = await this.findFirst(
       { id: categoryId, tenantId },

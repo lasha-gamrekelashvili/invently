@@ -5,10 +5,12 @@ export class SettingsService {
     this.settingsRepository = new SettingsRepository();
   }
 
+  /**
+   * Gets settings for a tenant, creating default ones if they don't exist
+   */
   async getSettings(tenantId) {
     let settings = await this.settingsRepository.findByTenantId(tenantId);
 
-    // If no settings exist, create default ones
     if (!settings) {
       settings = await this.settingsRepository.createDefaultSettings(tenantId);
     }
@@ -16,6 +18,9 @@ export class SettingsService {
     return settings;
   }
 
+  /**
+   * Updates settings for a tenant
+   */
   async updateSettings(tenantId, updateData) {
     const {
       aboutUs,
@@ -47,14 +52,16 @@ export class SettingsService {
     if (instagramUrl !== undefined) updatePayload.instagramUrl = instagramUrl;
     if (linkedinUrl !== undefined) updatePayload.linkedinUrl = linkedinUrl;
     if (youtubeUrl !== undefined) updatePayload.youtubeUrl = youtubeUrl;
-    if (trackOrderUrl !== undefined) updatePayload.trackOrderUrl = trackOrderUrl;
+      if (trackOrderUrl !== undefined) updatePayload.trackOrderUrl = trackOrderUrl;
 
-    // Upsert settings
     const settings = await this.settingsRepository.upsertSettings(tenantId, updatePayload);
 
     return settings;
   }
 
+  /**
+   * Gets public settings for a tenant
+   */
   async getPublicSettings(tenantId) {
     if (!tenantId) {
       throw new Error('Store not found');
@@ -62,7 +69,6 @@ export class SettingsService {
 
     const settings = await this.settingsRepository.findByTenantId(tenantId);
 
-    // Return null if no settings exist
     return settings || null;
   }
 }

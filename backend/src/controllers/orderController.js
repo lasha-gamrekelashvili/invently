@@ -4,7 +4,9 @@ import { ApiResponse } from '../utils/responseFormatter.js';
 const orderService = new OrderService();
 
 const orderController = {
-  // Create order from cart (checkout)
+  /**
+   * Creates an order from cart (checkout)
+   */
   async createOrder(req, res) {
     try {
       const {
@@ -35,7 +37,9 @@ const orderController = {
     }
   },
 
-  // Get orders (admin)
+  /**
+   * Gets orders with filtering and pagination
+   */
   async getOrders(req, res) {
     try {
       const tenantId = req.tenantId;
@@ -60,7 +64,9 @@ const orderController = {
     }
   },
 
-  // Get single order
+  /**
+   * Gets a single order by ID
+   */
   async getOrder(req, res) {
     try {
       const { id } = req.params;
@@ -78,7 +84,9 @@ const orderController = {
     }
   },
 
-  // Update order status
+  /**
+   * Updates order status
+   */
   async updateOrderStatus(req, res) {
     try {
       const { id } = req.params;
@@ -100,7 +108,9 @@ const orderController = {
     }
   },
 
-  // Get order statistics for dashboard
+  /**
+   * Gets order statistics for dashboard
+   */
   async getOrderStats(req, res) {
     try {
       const tenantId = req.tenantId;

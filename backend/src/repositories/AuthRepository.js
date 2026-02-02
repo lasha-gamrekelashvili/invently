@@ -6,8 +6,10 @@ export class AuthRepository extends BaseRepository {
     super(prisma.user);
   }
 
+  /**
+   * Finds a user by email (case-insensitive)
+   */
   async findByEmail(email, options = {}) {
-    // Case-insensitive email search
     return await this.findFirst({ 
       email: {
         equals: email,
@@ -16,8 +18,10 @@ export class AuthRepository extends BaseRepository {
     }, options);
   }
 
+  /**
+   * Finds a user by email with owned tenants (case-insensitive)
+   */
   async findByEmailWithTenants(email) {
-    // Case-insensitive email search
     return await this.findFirst(
       { 
         email: {
@@ -27,32 +31,36 @@ export class AuthRepository extends BaseRepository {
       },
       {
         include: {
-          ownedTenants: {
-            // Include all tenants (active and inactive) for frontend status checking
-          },
+          ownedTenants: {},
         },
       }
     );
   }
 
+  /**
+   * Finds a user by ID with owned tenants
+   */
   async findByIdWithTenants(id) {
     return await this.findFirst(
       { id },
       {
         include: {
-          ownedTenants: {
-            // Include ALL tenants (active and inactive) so frontend can check status
-            // Don't filter by isActive here - let frontend handle it
-          },
+          ownedTenants: {},
         },
       }
     );
   }
 
+  /**
+   * Creates a new user
+   */
   async createUser(data) {
     return await this.create(data);
   }
 
+  /**
+   * Creates a user with their first tenant in a transaction
+   */
   async createUserWithTenant(userData, tenantData) {
     return await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({

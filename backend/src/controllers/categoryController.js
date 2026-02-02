@@ -3,6 +3,9 @@ import { ApiResponse } from '../utils/responseFormatter.js';
 
 const categoryService = new CategoryService();
 
+/**
+ * Creates a new category
+ */
 const createCategory = async (req, res) => {
   try {
     const { name, slug, description, parentId, isActive = true } = req.validatedData;
@@ -13,7 +16,6 @@ const createCategory = async (req, res) => {
       tenantId
     );
 
-    // Include warning in response if category name matches deleted category
     const response = ApiResponse.created(category, 'Category created successfully');
     if (category._warning) {
       response.warning = category._warning;
@@ -36,12 +38,14 @@ const createCategory = async (req, res) => {
   }
 };
 
+/**
+ * Gets categories with pagination and filtering
+ */
 const getCategories = async (req, res) => {
   try {
     const tenantId = req.tenantId;
     const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', search, includeDeleted } = req.validatedQuery;
 
-    // Default to excluding deleted categories unless explicitly requested
     const showDeleted = includeDeleted === 'true' || includeDeleted === true;
 
     const result = await categoryService.getCategories(
@@ -59,6 +63,9 @@ const getCategories = async (req, res) => {
   }
 };
 
+/**
+ * Gets a category by ID
+ */
 const getCategoryById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -77,6 +84,9 @@ const getCategoryById = async (req, res) => {
   }
 };
 
+/**
+ * Updates a category
+ */
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,6 +121,9 @@ const updateCategory = async (req, res) => {
   }
 };
 
+/**
+ * Soft deletes a category
+ */
 const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -131,6 +144,9 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+/**
+ * Restores a soft-deleted category
+ */
 const restoreCategory = async (req, res) => {
   try {
     const { id } = req.params;

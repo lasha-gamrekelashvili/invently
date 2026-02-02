@@ -7,6 +7,9 @@ export class CartRepository extends BaseRepository {
     super(prisma.cart);
   }
 
+  /**
+   * Finds a cart by session ID and tenant ID
+   */
   async findBySessionId(sessionId, tenantId) {
     return await this.findFirst(
       { sessionId, tenantId },
@@ -18,6 +21,9 @@ export class CartRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Gets or creates a cart for a session
+   */
   async getOrCreateCart(sessionId, tenantId) {
     let cart = await this.findBySessionId(sessionId, tenantId);
 
@@ -31,6 +37,9 @@ export class CartRepository extends BaseRepository {
     return cart;
   }
 
+  /**
+   * Gets a cart with all items
+   */
   async getCartWithItems(sessionId, tenantId) {
     return await this.findFirst(
       { sessionId, tenantId },
@@ -42,6 +51,9 @@ export class CartRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Clears all items from a cart
+   */
   async clearCartItems(cartId) {
     return await prisma.cartItem.deleteMany({
       where: { cartId },
@@ -54,6 +66,9 @@ export class CartItemRepository extends BaseRepository {
     super(prisma.cartItem);
   }
 
+  /**
+   * Finds a cart item by cart, product, and variant
+   */
   async findByCartAndProduct(cartId, productId, variantId = null) {
     return await this.findFirst({
       cartId,
@@ -62,6 +77,9 @@ export class CartItemRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Finds a cart item with product and variant details
+   */
   async findByIdWithDetails(itemId) {
     return await this.findFirst(
       { id: itemId },
@@ -74,6 +92,9 @@ export class CartItemRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Creates a new cart item
+   */
   async createCartItem(cartId, productId, variantId, quantity, price) {
     return await this.create({
       cartId,
@@ -84,6 +105,9 @@ export class CartItemRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Updates cart item quantity and price
+   */
   async updateQuantity(itemId, quantity, price) {
     return await this.update(itemId, {
       quantity,
@@ -91,10 +115,16 @@ export class CartItemRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Deletes a cart item
+   */
   async deleteCartItem(itemId) {
     return await this.delete(itemId);
   }
 
+  /**
+   * Finds a cart item by ID, session ID, and tenant ID
+   */
   async findByCartWithSession(itemId, sessionId, tenantId) {
     return await prisma.cartItem.findFirst({
       where: {

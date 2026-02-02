@@ -6,6 +6,9 @@ export class SettingsRepository extends BaseRepository {
     super(prisma.storeSettings);
   }
 
+  /**
+   * Finds settings by tenant ID
+   */
   async findByTenantId(tenantId, options = {}) {
     return await this.findFirst({ tenantId }, options);
   }
@@ -21,6 +24,9 @@ export class SettingsRepository extends BaseRepository {
     });
   }
 
+  /**
+   * Creates default settings for a tenant
+   */
   async createDefaultSettings(tenantId) {
     return await this.create({ tenantId });
   }

@@ -3,6 +3,9 @@ import { ApiResponse } from '../utils/responseFormatter.js';
 
 const productService = new ProductService();
 
+/**
+ * Creates a new product
+ */
 const createProduct = async (req, res) => {
   try {
     const { title, description, slug, sku, price, stockQuantity, isActive, categoryId, attributes, variants } = req.validatedData;
@@ -13,7 +16,6 @@ const createProduct = async (req, res) => {
       tenantId
     );
 
-    // Include warning in response if product name matches deleted product
     const response = ApiResponse.created(product, 'Product created successfully');
     if (product._warning) {
       response.warning = product._warning;
@@ -39,6 +41,9 @@ const createProduct = async (req, res) => {
   }
 };
 
+/**
+ * Gets all products with filtering and pagination
+ */
 const getProducts = async (req, res) => {
   try {
     const tenantId = req.tenantId;
@@ -58,6 +63,9 @@ const getProducts = async (req, res) => {
   }
 };
 
+/**
+ * Gets a product by ID
+ */
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -76,6 +84,9 @@ const getProductById = async (req, res) => {
   }
 };
 
+/**
+ * Gets a product by slug
+ */
 const getProductBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
@@ -94,6 +105,9 @@ const getProductBySlug = async (req, res) => {
   }
 };
 
+/**
+ * Updates a product
+ */
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -131,6 +145,9 @@ const updateProduct = async (req, res) => {
   }
 };
 
+/**
+ * Soft deletes a product
+ */
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -151,6 +168,9 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+/**
+ * Restores a soft-deleted product
+ */
 const restoreProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -174,7 +194,9 @@ const restoreProduct = async (req, res) => {
   }
 };
 
-// Variant management functions
+/**
+ * Creates a variant for a product
+ */
 const createVariant = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -200,6 +222,9 @@ const createVariant = async (req, res) => {
   }
 };
 
+/**
+ * Updates a variant
+ */
 const updateVariant = async (req, res) => {
   try {
     const { productId, variantId } = req.params;
@@ -229,6 +254,9 @@ const updateVariant = async (req, res) => {
   }
 };
 
+/**
+ * Deletes a variant
+ */
 const deleteVariant = async (req, res) => {
   try {
     const { productId, variantId } = req.params;

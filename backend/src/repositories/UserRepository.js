@@ -6,10 +6,16 @@ export class UserRepository extends BaseRepository {
     super(prisma.user);
   }
 
+  /**
+   * Finds a user by email
+   */
   async findByEmail(email, options = {}) {
     return await this.findFirst({ email }, options);
   }
 
+  /**
+   * Finds users with their owned tenants
+   */
   async findWithTenants(where = {}, options = {}) {
     return await this.findMany(
       where,
@@ -35,6 +41,9 @@ export class UserRepository extends BaseRepository {
     );
   }
 
+  /**
+   * Paginates users with their owned tenants
+   */
   async paginateWithTenants(where = {}, page = 1, limit = 20, options = {}) {
     const skip = (page - 1) * limit;
 
