@@ -54,7 +54,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const savedToken = localStorage.getItem('token');
-      if (savedToken) {
+      const isLandingPage = window.location.pathname === '/';
+      if (savedToken && !isLandingPage) {
         try {
           // 2) make sure your auth API uses the token
           authAPI.setToken(savedToken);

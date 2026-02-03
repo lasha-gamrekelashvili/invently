@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { paymentAPI } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -19,12 +20,22 @@ import {
 const Billing = () => {
   const { t } = useLanguage();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
 
   const { data: subscription, isLoading: subscriptionLoading, error: subscriptionError, refetch: refetchSubscription } = useQuery({
     queryKey: ['subscription'],
     queryFn: () => paymentAPI.getSubscription(),
     retry: false,
+  });
+
+  // Always check for pending setup fee payment
+  const { data: pendingSetupFee, isLoading: pendingSetupFeeLoading } = useQuery({
+    queryKey: ['pendingSetupFee'],
+    queryFn: () => paymentAPI.getPendingSetupFee(),
+    retry: false,
+    retryOnMount: false,
   });
 
   // Try to get tenant payments first
@@ -88,6 +99,19 @@ const Billing = () => {
         return t('billing.status.trial');
       default:
         return statusValue || '';
+    }
+  };
+
+  const handleSetupPayment = async () => {
+    setIsCreatingPayment(true);
+    try {
+      // Use cached pending setup fee if available, otherwise fetch it
+      const paymentId = pendingSetupFee?.id || (await paymentAPI.getPendingSetupFee()).id;
+      // Redirect to payment page
+      navigate(`/payment/${paymentId}`);
+    } catch (error) {
+      handleApiError(error, t('billing.setupFeeError'));
+      setIsCreatingPayment(false);
     }
   };
 
@@ -295,6 +319,40 @@ const Billing = () => {
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Show setup fee payment option if no subscription */}
+          {!hasSubscription && !pendingSetupFeeLoading && (
+            <div className="bg-white rounded-lg border border-neutral-200 p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-lg font-medium text-neutral-900 mb-2">
+                    <T tKey="billing.setupFee" />
+                  </h3>
+                  <p className="text-sm text-neutral-600 mb-4">
+                    Complete your setup fee payment to activate your store and start selling.
+                  </p>
+                  <button
+                    onClick={handleSetupPayment}
+                    disabled={isCreatingPayment}
+                    className="px-4 py-2 text-sm font-medium text-white bg-neutral-900 border border-neutral-900 rounded-md hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCreatingPayment ? (
+                      <span className="flex items-center">
+                        <LoadingSpinner className="mr-2" />
+                        <T tKey="billing.creatingPayment" />
+                      </span>
+                    ) : (
+                      <T tKey="billing.paySetupFee" />
+                    )}
+                  </button>
+                </div>
+                <div className="text-right ml-4">
+                  <div className="text-2xl font-semibold text-neutral-900">1.00 GEL</div>
+                  <div className="text-xs text-neutral-500 mt-1">One-time payment</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Show payment status if setup fee was paid but no subscription */}
           {hasPaidSetupFee && !hasSubscription && subscriptionError && (subscriptionError as any)?.response?.status === 404 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -388,9 +446,23 @@ const Billing = () => {
             <div className="text-sm font-medium text-neutral-900 mb-1">
               <T tKey="billing.noSubscription" />
             </div>
-            <p className="text-neutral-500 text-xs max-w-md mx-auto">
+            <p className="text-neutral-500 text-xs max-w-md mx-auto mb-4">
               <T tKey="billing.noSubscriptionDescription" />
             </p>
+            <button
+              onClick={handleSetupPayment}
+              disabled={isCreatingPayment}
+              className="px-4 py-2 text-sm font-medium text-white bg-neutral-900 border border-neutral-900 rounded-md hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isCreatingPayment ? (
+                <span className="flex items-center justify-center">
+                  <LoadingSpinner className="mr-2" />
+                  <T tKey="billing.creatingPayment" />
+                </span>
+              ) : (
+                <T tKey="billing.paySetupFee" />
+              )}
+            </button>
           </div>
         </div>
       )}

@@ -1439,6 +1439,9 @@
     "reactivateError": "Failed to reactivate subscription",
     "expiredNotice": "Subscription Expired",
     "expiredDescription": "Your subscription has expired. Reactivate to continue using your store.",
+    "paySetupFee": "Pay Setup Fee",
+    "creatingPayment": "Creating payment...",
+    "setupFeeError": "Failed to create setup fee payment",
     "status": {
       "active": "Active",
       "cancelled": "Cancelled",

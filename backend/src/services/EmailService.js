@@ -62,6 +62,79 @@ export class EmailService {
   }
 
   /**
+   * Sends order confirmation email
+   */
+  async sendOrderConfirmation({ email, customerName, orderNumber, items = [], totalAmount }) {
+    const subject = `Order confirmation: ${orderNumber}`;
+    const html = this.getOrderConfirmationTemplate({
+      customerName,
+      orderNumber,
+      items,
+      totalAmount,
+    });
+    const text = this.getOrderConfirmationText({
+      customerName,
+      orderNumber,
+      items,
+      totalAmount,
+    });
+    const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL
+      || process.env.SMTP_FROM
+      || process.env.SMTP_USER;
+    const bcc = notificationEmail && notificationEmail !== email ? notificationEmail : undefined;
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@shopu.ge',
+        to: email,
+        bcc,
+        subject,
+        text,
+        html,
+      });
+      return true;
+    } catch (error) {
+      console.error('Error sending order confirmation email:', error);
+      throw new Error('Failed to send order confirmation email');
+    }
+  }
+
+  /**
+   * Sends order notification email to store owner
+   */
+  async sendOrderNotificationToOwner({ email, customerName, orderNumber, items = [], totalAmount, dashboardOrderUrl }) {
+    const subject = `New order received: ${orderNumber}`;
+    const html = this.getOwnerOrderNotificationTemplate({
+      customerName,
+      orderNumber,
+      items,
+      totalAmount,
+      dashboardOrderUrl,
+    });
+    const text = this.getOwnerOrderNotificationText({
+      customerName,
+      orderNumber,
+      items,
+      totalAmount,
+      dashboardOrderUrl,
+    });
+
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@shopu.ge',
+        to: email,
+        subject,
+        text,
+        html,
+      });
+      return true;
+    } catch (error) {
+      console.error('Error sending owner order notification email:', error);
+      throw new Error('Failed to send owner order notification email');
+    }
+  }
+
+  /**
    * Email confirmation template
    */
   getEmailConfirmationTemplate(code) {
@@ -124,5 +197,176 @@ export class EmailService {
       </body>
       </html>
     `;
+  }
+
+  getOrderConfirmationTemplate({ customerName, orderNumber, items, totalAmount }) {
+    const safeName = customerName || 'Customer';
+    const rows = items
+      .map((item) => {
+        const lineTotal = (item.price * item.quantity).toFixed(2);
+        return `
+          <tr>
+            <td style="padding: 8px 0;">${item.title} ${item.variantData ? `(${this.formatVariant(item.variantData)})` : ''}</td>
+            <td style="padding: 8px 0; text-align: center;">${item.quantity}</td>
+            <td style="padding: 8px 0; text-align: right;">$${lineTotal}</td>
+          </tr>
+        `;
+      })
+      .join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { margin-bottom: 16px; }
+          .summary { background: #f7f7f7; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
+          table { width: 100%; border-collapse: collapse; }
+          th { text-align: left; font-size: 12px; color: #666; border-bottom: 1px solid #e5e5e5; padding-bottom: 8px; }
+          .total { text-align: right; font-weight: bold; }
+          .footer { margin-top: 30px; font-size: 12px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>Thanks for your order, ${safeName}!</h2>
+            <p>Your order <strong>${orderNumber}</strong> has been received.</p>
+          </div>
+          <div class="summary">
+            <div><strong>Order summary</strong></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+            <div class="total">Order total: $${Number(totalAmount || 0).toFixed(2)}</div>
+          </div>
+          <div class="footer"></div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  getOrderConfirmationText({ customerName, orderNumber, items, totalAmount }) {
+    const safeName = customerName || 'Customer';
+    const lines = items.map((item) => {
+      const variant = item.variantData ? ` (${this.formatVariant(item.variantData)})` : '';
+      const lineTotal = (item.price * item.quantity).toFixed(2);
+      return `- ${item.title}${variant} x${item.quantity}: $${lineTotal}`;
+    });
+
+    return [
+      `Thanks for your order, ${safeName}!`,
+      `Order: ${orderNumber}`,
+      '',
+      'Items:',
+      ...lines,
+      '',
+      `Order total: $${Number(totalAmount || 0).toFixed(2)}`,
+      '',
+    ].join('\n');
+  }
+
+  getOwnerOrderNotificationTemplate({ customerName, orderNumber, items, totalAmount, dashboardOrderUrl }) {
+    const safeName = customerName || 'Customer';
+    const rows = items
+      .map((item) => {
+        const lineTotal = (item.price * item.quantity).toFixed(2);
+        return `
+          <tr>
+            <td style="padding: 8px 0;">${item.title} ${item.variantData ? `(${this.formatVariant(item.variantData)})` : ''}</td>
+            <td style="padding: 8px 0; text-align: center;">${item.quantity}</td>
+            <td style="padding: 8px 0; text-align: right;">$${lineTotal}</td>
+          </tr>
+        `;
+      })
+      .join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { margin-bottom: 16px; }
+          .summary { background: #f7f7f7; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
+          table { width: 100%; border-collapse: collapse; }
+          th { text-align: left; font-size: 12px; color: #666; border-bottom: 1px solid #e5e5e5; padding-bottom: 8px; }
+          .total { text-align: right; font-weight: bold; }
+          .footer { margin-top: 30px; font-size: 12px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>New order received</h2>
+            <p>Order <strong>${orderNumber}</strong> was placed by ${safeName}.</p>
+          </div>
+          <div class="summary">
+            <div><strong>Order summary</strong></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+            <div class="total">Order total: $${Number(totalAmount || 0).toFixed(2)}</div>
+          </div>
+          <div class="footer">
+            ${dashboardOrderUrl ? `<p><a href="${dashboardOrderUrl}">Open this order in your dashboard</a></p>` : '<p>Open your dashboard to view the full order details.</p>'}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  getOwnerOrderNotificationText({ customerName, orderNumber, items, totalAmount, dashboardOrderUrl }) {
+    const safeName = customerName || 'Customer';
+    const lines = items.map((item) => {
+      const variant = item.variantData ? ` (${this.formatVariant(item.variantData)})` : '';
+      const lineTotal = (item.price * item.quantity).toFixed(2);
+      return `- ${item.title}${variant} x${item.quantity}: $${lineTotal}`;
+    });
+
+    return [
+      'New order received',
+      `Order: ${orderNumber}`,
+      `Customer: ${safeName}`,
+      '',
+      'Items:',
+      ...lines,
+      '',
+      `Order total: $${Number(totalAmount || 0).toFixed(2)}`,
+      '',
+      dashboardOrderUrl ? `Open this order: ${dashboardOrderUrl}` : 'Open your dashboard to view the full order details.',
+    ].join('\n');
+  }
+
+  formatVariant(variantData) {
+    if (!variantData || typeof variantData !== 'object') return '';
+    return Object.entries(variantData)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
   }
 }

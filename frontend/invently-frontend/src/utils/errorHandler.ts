@@ -1,6 +1,10 @@
 import toast from 'react-hot-toast';
 
-export const handleApiError = (error: any, defaultMessage: string = 'An error occurred') => {
+export const handleApiError = (
+  error: any,
+  defaultMessage: string = 'An error occurred',
+  options: { toast?: boolean } = {}
+) => {
   console.error('API Error:', error);
   
   let errorMessage = defaultMessage;
@@ -51,7 +55,10 @@ export const handleApiError = (error: any, defaultMessage: string = 'An error oc
     errorMessage = error.message || defaultMessage;
   }
   
-  toast.error(errorMessage);
+  const shouldToast = options.toast !== false;
+  if (shouldToast) {
+    toast.error(errorMessage);
+  }
   return errorMessage;
 };
 

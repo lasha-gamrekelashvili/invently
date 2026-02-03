@@ -7,11 +7,11 @@ import {
   getProductsByCategory
 } from '../controllers/storefrontController.js';
 import { getPublicSettings } from '../controllers/settingsController.js';
-import tenantResolver from '../middleware/tenantResolver.js';
+import storefrontTenantResolver from '../middleware/storefrontTenantResolver.js';
 
 const router = express.Router();
 
-router.use(tenantResolver);
+router.use(storefrontTenantResolver);
 
 /**
  * @swagger
@@ -374,8 +374,6 @@ router.use(tenantResolver);
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
-
-router.use(tenantResolver);
 
 router.get('/info', getStoreInfo);
 router.get('/categories', getPublicCategories);

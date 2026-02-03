@@ -1,12 +1,14 @@
 import { OrderRepository, OrderItemRepository } from '../repositories/OrderRepository.js';
 import { CartRepository } from '../repositories/CartRepository.js';
 import prisma from '../repositories/BaseRepository.js';
+import { EmailService } from './EmailService.js';
 
 export class OrderService {
   constructor() {
     this.orderRepository = new OrderRepository();
     this.orderItemRepository = new OrderItemRepository();
     this.cartRepository = new CartRepository();
+    this.emailService = new EmailService();
   }
 
   /**
@@ -141,10 +143,15 @@ export class OrderService {
       status: 'CONFIRMED',
     });
 
-    return await this.orderRepository.findFirst(
+    const finalOrder = await this.orderRepository.findFirst(
       { id: order.id },
       {
         include: {
+          tenant: {
+            include: {
+              owner: { select: { email: true, firstName: true, lastName: true } },
+            },
+          },
           items: {
             include: {
               product: {
@@ -158,6 +165,52 @@ export class OrderService {
         },
       }
     );
+
+    const ownerEmail = finalOrder.tenant?.owner?.email;
+    if (ownerEmail) {
+      const subdomain = finalOrder.tenant?.subdomain;
+      const frontendBaseUrl = (process.env.FRONTEND_BASE_URL || '').replace(/\/$/, '');
+      const dashboardOrderUrl = frontendBaseUrl
+        ? this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, finalOrder.id)
+        : (subdomain ? `https://${subdomain}.shopu.ge/admin/orders/${finalOrder.id}` : null);
+      try {
+        await this.emailService.sendOrderNotificationToOwner({
+          email: ownerEmail,
+          customerName: finalOrder.customerName,
+          orderNumber: finalOrder.orderNumber,
+          items: finalOrder.items || [],
+          totalAmount: finalOrder.totalAmount,
+          dashboardOrderUrl,
+        });
+      } catch (error) {
+        console.error('Order confirmation email failed:', error);
+      }
+    } else {
+      console.warn('Order confirmation email skipped: store owner email missing.');
+    }
+
+    try {
+      await this.emailService.sendOrderConfirmation({
+        email: finalOrder.customerEmail,
+        customerName: finalOrder.customerName,
+        orderNumber: finalOrder.orderNumber,
+        items: finalOrder.items || [],
+        totalAmount: finalOrder.totalAmount,
+      });
+    } catch (error) {
+      console.error('Customer order confirmation email failed:', error);
+    }
+
+    return finalOrder;
+  }
+
+  buildDashboardOrderUrl(frontendBaseUrl, subdomain, orderId) {
+    if (!frontendBaseUrl) return null;
+    const isLocalhost = frontendBaseUrl.includes('localhost');
+    if (isLocalhost && subdomain) {
+      return `http://${subdomain}.localhost:3000/admin/orders/${orderId}`;
+    }
+    return `${frontendBaseUrl}/admin/orders/${orderId}`;
   }
 
   /**

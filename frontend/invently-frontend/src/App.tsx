@@ -9,6 +9,7 @@ import { isOnSubdomain } from './utils/api';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
 import TenantStatusCheck from './components/TenantStatusCheck';
+import StorefrontProtection from './components/StorefrontProtection';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Pages
@@ -71,12 +72,12 @@ const AppRoutes = () => {
   // Subdomain - public storefront + admin dashboard
   return (
     <Routes>
-      {/* Public Storefront Routes */}
-      <Route path="/" element={<Storefront />} />
-      <Route path="/store" element={<Storefront />} />
-      <Route path="/category/*" element={<Storefront />} />
-      <Route path="/product/:slug" element={<ProductDetail />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
+      {/* Public Storefront Routes - Protected by StorefrontProtection */}
+      <Route path="/" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
+      <Route path="/store" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
+      <Route path="/category/*" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
+      <Route path="/product/:slug" element={<StorefrontProtection><ProductDetail /></StorefrontProtection>} />
+      <Route path="/checkout" element={<StorefrontProtection><CheckoutPage /></StorefrontProtection>} />
 
       {/* Protected Admin Routes */}
       <Route

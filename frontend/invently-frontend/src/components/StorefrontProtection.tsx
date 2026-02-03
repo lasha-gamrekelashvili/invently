@@ -1,22 +1,23 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
 
-interface TenantStatusCheckProps {
+interface StorefrontProtectionProps {
   children: React.ReactNode;
 }
 
 /**
- * Component that checks if the current tenant exists.
- * Allows dashboard access even if tenant is inactive (for setup fee payment).
- * Only blocks access if tenant doesn't exist.
+ * Component that protects storefront routes.
+ * Blocks access if tenant is inactive or has no subscription.
  */
-const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
+const StorefrontProtection: React.FC<StorefrontProtectionProps> = ({ children }) => {
   const { tenants, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [isChecking, setIsChecking] = React.useState(true);
 
   useEffect(() => {
-    const checkTenantStatus = async () => {
+    const checkStorefrontAccess = async () => {
       if (authLoading) return;
 
       // Get current tenant from subdomain
@@ -44,21 +45,24 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
       const tenant = tenants.find(t => t.subdomain === subdomain);
 
       if (!tenant) {
-        // No tenant found - redirect to main domain
-        const mainDomain = hostname.includes('localhost')
-          ? 'http://localhost:3000'
-          : `https://${hostname.split('.').slice(1).join('.')}`;
-        window.location.href = `${mainDomain}/login`;
+        // No tenant found - show 404 or redirect
+        setIsChecking(false);
         return;
       }
 
-      // Tenant exists - allow dashboard access (even if inactive)
-      // User can access dashboard to pay setup fee
+      // Check if tenant is active (storefront requires active tenant)
+      if (!tenant.isActive) {
+        // Tenant is inactive - redirect to admin dashboard where they can pay setup fee
+        navigate('/admin/dashboard', { replace: true });
+        return;
+      }
+
+      // Tenant is active - allow storefront access
       setIsChecking(false);
     };
 
-    checkTenantStatus();
-  }, [tenants, authLoading]);
+    checkStorefrontAccess();
+  }, [tenants, authLoading, navigate]);
 
   if (authLoading || isChecking) {
     return (
@@ -71,4 +75,4 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-export default TenantStatusCheck;
+export default StorefrontProtection;

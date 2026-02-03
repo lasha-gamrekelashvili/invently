@@ -1,13 +1,13 @@
 import express from 'express';
 import cartController from '../controllers/cartController.js';
-import tenantResolver from '../middleware/tenantResolver.js';
+import storefrontTenantResolver from '../middleware/storefrontTenantResolver.js';
 import { validate, schemas } from '../utils/validation.js';
 import Joi from 'joi';
 
 const router = express.Router();
 
-// Apply tenant middleware
-router.use(tenantResolver);
+// Apply storefront tenant middleware (requires active tenant + subscription)
+router.use(storefrontTenantResolver);
 
 // Validation schemas
 const addToCartSchema = Joi.object({

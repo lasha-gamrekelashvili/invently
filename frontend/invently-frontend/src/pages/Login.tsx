@@ -27,7 +27,7 @@ const Login = () => {
       handleSuccess(t('auth.login.successMessage'));
       // AuthContext will handle the redirect automatically
     } catch (err: any) {
-      const errorMessage = handleApiError(err, t('auth.errors.loginFailed'));
+      const errorMessage = handleApiError(err, t('auth.errors.loginFailed'), { toast: false });
       setError(errorMessage);
       setIsLoading(false);
     }
@@ -60,8 +60,12 @@ const Login = () => {
           <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-10">
             <form className="space-y-6" onSubmit={handleSubmit}>
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                  <p className="text-sm font-medium">{error}</p>
+                <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                  <div className="mt-0.5 h-2 w-2 rounded-full bg-red-500" />
+                  <div>
+                    <p className="text-sm font-semibold">Login failed</p>
+                    <p className="text-sm text-red-600">{error}</p>
+                  </div>
                 </div>
               )}
 

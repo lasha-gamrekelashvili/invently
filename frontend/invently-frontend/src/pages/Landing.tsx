@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import {
   ArrowRightIcon,
+  ArrowDownIcon,
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon
@@ -132,9 +133,10 @@ const Landing = () => {
                 </Link>
                 <a
                   href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 text-neutral-300 hover:text-white px-8 py-4 rounded-full font-medium transition-colors border border-neutral-700 hover:border-neutral-500"
+                  className="group inline-flex items-center justify-center gap-2 text-neutral-100 bg-neutral-800 hover:bg-neutral-800/90 px-8 py-4 rounded-full font-medium transition-colors border border-neutral-700 hover:border-neutral-600"
                 >
                   <T tKey="landing.hero.secondaryCta" />
+                  <ArrowDownIcon className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
                 </a>
               </div>
             </div>
@@ -226,7 +228,8 @@ const Landing = () => {
 
           {/* Time estimate */}
           <div className="text-center mt-8">
-            <span className="inline-block px-5 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-medium">
+            <span className="inline-flex items-center gap-2 text-neutral-500 text-sm font-medium tracking-wide uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
               <T tKey="landing.howItWorks.timeEstimate" />
             </span>
           </div>
@@ -278,10 +281,10 @@ const Landing = () => {
               </div>
               <Link
                 to="/register"
-                className="flex-shrink-0 inline-flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white px-6 py-3 rounded-full font-medium transition-colors"
+                className="group flex-shrink-0 inline-flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white px-6 py-3 rounded-full font-medium transition-colors"
               >
                 <T tKey="landing.whyShopu.comparison.cta" />
-                <ArrowRightIcon className="w-4 h-4" />
+                <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
@@ -314,9 +317,6 @@ const Landing = () => {
                       <T tKey="landing.pricing.currency" />
                     </span>
                   </div>
-                  <p className="text-neutral-400 text-sm">
-                    <T tKey="landing.pricing.entryPoint.title" />
-                  </p>
                 </div>
 
                 {/* Arrow */}
@@ -337,9 +337,6 @@ const Landing = () => {
                       <T tKey={monthlyPlan.period} />
                     </span>
                   </div>
-                  <p className="text-neutral-400 text-sm">
-                    <T tKey="landing.pricing.monthlyPlan.description" />
-                  </p>
                 </div>
               </div>
 
@@ -352,21 +349,15 @@ const Landing = () => {
               <div className="text-center">
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-colors text-lg"
+                  className="group inline-flex items-center gap-2 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-colors text-lg"
                 >
                   <T tKey="landing.pricing.entryPoint.cta" />
-                  <ArrowRightIcon className="w-5 h-5" />
+                  <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Trust note */}
-          <div className="text-center mt-8">
-            <p className="text-neutral-400 text-sm">
-              <T tKey="landing.pricing.trustNote" />
-            </p>
-          </div>
         </div>
       </section>
 
@@ -414,10 +405,10 @@ const Landing = () => {
           </p>
           <Link
             to="/register"
-            className="inline-flex items-center gap-3 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-colors"
+            className="group inline-flex items-center gap-3 bg-white text-neutral-900 hover:bg-neutral-100 px-8 py-4 rounded-full font-medium transition-colors"
           >
             <T tKey="landing.cta.button" />
-            <ArrowRightIcon className="w-4 h-4" />
+            <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </section>
