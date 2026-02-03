@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
+import { authAPI } from '../utils/api';
+import { useMutation } from '@tanstack/react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { T } from '../components/Translation';
 import LandingHeader from '../components/LandingHeader';
@@ -21,6 +23,9 @@ const Register = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [registrationResult, setRegistrationResult] = useState<any>(null);
 
   const { register: registerUser } = useAuth();
   const { t } = useLanguage();
@@ -61,9 +66,14 @@ const Register = () => {
 
     try {
       const { confirmPassword, ...registerData } = formData;
-      await registerUser(registerData);
-      handleSuccess('Registration successful! Welcome to Shopu!');
-      // AuthContext will handle the redirect automatically
+      const result = await registerUser(registerData) as any;
+      setRegistrationResult(result);
+      // Set token for API calls
+      if (result?.token) {
+        authAPI.setToken(result.token);
+      }
+      handleSuccess('Registration successful! Please verify your email to continue.');
+      setShowEmailVerification(true);
     } catch (err: any) {
       const errorMessage = handleApiError(err, 'Registration failed. Please try again.');
       setError(errorMessage);
@@ -72,13 +82,84 @@ const Register = () => {
     }
   };
 
+  // Email verification mutation
+  const verifyEmailMutation = useMutation({
+    mutationFn: (code: string) => {
+      // Ensure token is set
+      if (registrationResult?.token) {
+        authAPI.setToken(registrationResult.token);
+      }
+      return authAPI.verifyEmail(code);
+    },
+    onSuccess: () => {
+      handleSuccess('Email verified successfully!');
+      // Now redirect to payment if payment is pending
+      if (registrationResult?.payment && registrationResult.payment.status === 'PENDING' && registrationResult.tenant) {
+        const currentHost = window.location.hostname;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const token = registrationResult.token;
+        const paymentId = registrationResult.payment.id;
+
+        let redirectUrl: string;
+        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+          redirectUrl = `http://${registrationResult.tenant.subdomain}.localhost${port}/payment/${paymentId}#token=${encodeURIComponent(token)}`;
+        } else {
+          redirectUrl = `https://${registrationResult.tenant.subdomain}.${currentHost}/payment/${paymentId}#token=${encodeURIComponent(token)}`;
+        }
+        window.location.replace(redirectUrl);
+      } else if (registrationResult?.tenant) {
+        // Redirect to dashboard
+        const currentHost = window.location.hostname;
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const token = registrationResult.token;
+
+        let redirectUrl: string;
+        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
+          redirectUrl = `http://${registrationResult.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
+        } else {
+          redirectUrl = `https://${registrationResult.tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
+        }
+        window.location.replace(redirectUrl);
+      }
+    },
+    onError: (err: any) => {
+      handleApiError(err, 'Failed to verify email. Please check the code and try again.');
+    },
+  });
+
+  // Resend email confirmation mutation
+  const resendEmailMutation = useMutation({
+    mutationFn: () => {
+      // Ensure token is set
+      if (registrationResult?.token) {
+        authAPI.setToken(registrationResult.token);
+      }
+      return authAPI.resendEmailConfirmation();
+    },
+    onSuccess: () => {
+      handleSuccess('Verification code resent to your email');
+    },
+    onError: (err: any) => {
+      handleApiError(err, 'Failed to resend verification code');
+    },
+  });
+
+  const handleVerifyEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (verificationCode.length !== 6) {
+      handleApiError({ message: 'Please enter a valid 6-digit code' }, 'Invalid code');
+      return;
+    }
+    verifyEmailMutation.mutate(verificationCode);
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Navigation */}
       <LandingHeader />
 
       {/* Hero Section */}
-      <div className="bg-neutral-950 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="bg-neutral-900 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-6 leading-tight tracking-tight">
             <T tKey="auth.register.heroTitle" />{' '}
@@ -92,6 +173,66 @@ const Register = () => {
           </p>
         </div>
       </div>
+
+      {/* Email Verification Modal */}
+      {showEmailVerification && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-10 max-w-md w-full">
+            <h2 className="text-2xl font-medium text-neutral-900 mb-2">Verify Your Email</h2>
+            <p className="text-sm text-neutral-600 mb-6">
+              We've sent a verification code to <strong>{formData.email}</strong>. Please enter the code below to continue.
+            </p>
+            
+            <form onSubmit={handleVerifyEmail} className="space-y-4">
+              <div>
+                <label htmlFor="verificationCode" className="block text-sm font-medium text-neutral-700 mb-2">
+                  Verification Code
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <EnvelopeIcon className="h-5 w-5 text-neutral-400" />
+                  </div>
+                  <input
+                    id="verificationCode"
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="block w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all text-center text-2xl tracking-widest"
+                    placeholder="000000"
+                    maxLength={6}
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  disabled={verifyEmailMutation.isPending || verificationCode.length !== 6}
+                  className="flex-1 bg-neutral-900 text-white py-3.5 px-4 rounded-full font-medium text-base hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                >
+                  {verifyEmailMutation.isPending ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    'Verify Email'
+                  )}
+                </button>
+              </div>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => resendEmailMutation.mutate()}
+                  disabled={resendEmailMutation.isPending}
+                  className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors disabled:opacity-50"
+                >
+                  {resendEmailMutation.isPending ? 'Sending...' : "Didn't receive the code? Resend"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Form Section */}
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

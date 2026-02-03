@@ -1,8 +1,9 @@
 import express from 'express';
 const router = express.Router();
-import { getSettings, updateSettings } from '../controllers/settingsController.js';
+import { getSettings, updateSettings, updateTenantSubdomain } from '../controllers/settingsController.js';
 import { authenticateToken, requireStoreOwner } from '../middleware/auth.js';
 import tenantResolver from '../middleware/tenantResolver.js';
+import { validate, schemas } from '../utils/validation.js';
 
 /**
  * @swagger
@@ -174,5 +175,8 @@ router.get('/', getSettings);
 
 // PUT /api/settings
 router.put('/', updateSettings);
+
+// PUT /api/settings/tenant/subdomain
+router.put('/tenant/subdomain', validate(schemas.updateTenantSubdomain), updateTenantSubdomain);
 
 export default router;

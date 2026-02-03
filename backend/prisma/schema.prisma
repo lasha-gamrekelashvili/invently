@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  password     String
-  firstName    String
-  lastName     String
-  role         UserRole @default(STORE_OWNER)
-  iban         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  ownedTenants Tenant[]
-  payments     Payment[]
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole @default(STORE_OWNER)
+  iban          String?
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  ownedTenants  Tenant[]
+  payments      Payment[]
+  verificationCodes VerificationCode[]
 
   @@map("users")
 }
@@ -250,6 +252,26 @@ enum SubscriptionStatus {
   CANCELLED
   EXPIRED
   TRIAL
+}
+
+enum VerificationCodeType {
+  EMAIL_CONFIRMATION
+  PASSWORD_RESET
+}
+
+model VerificationCode {
+  id        String               @id @default(uuid())
+  userId    String
+  code      String
+  type      VerificationCodeType
+  expiresAt DateTime
+  used      Boolean              @default(false)
+  createdAt DateTime             @default(now())
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([code, type, used])
+  @@map("verification_codes")
 }
 
 model Payment {

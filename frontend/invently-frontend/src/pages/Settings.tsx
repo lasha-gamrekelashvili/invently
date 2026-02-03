@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { settingsAPI, authAPI } from '../utils/api';
+import { settingsAPI, authAPI, getCurrentSubdomain } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,9 +13,19 @@ const Settings = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links' | 'account'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links' | 'account'>('account');
   const [formData, setFormData] = useState<UpdateStoreSettingsData>({});
   const [iban, setIban] = useState(user?.iban || '');
+  const [profileData, setProfileData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+  });
+  const [subdomain, setSubdomain] = useState(getCurrentSubdomain() || '');
+  const [passwordChangeStep, setPasswordChangeStep] = useState<'idle' | 'code-sent' | 'verifying'>('idle');
+  const [passwordCode, setPasswordCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Fetch settings
   const { data: settingsResponse, isLoading } = useQuery({
@@ -29,6 +39,18 @@ const Settings = () => {
       setFormData(settingsResponse);
     }
   }, [settingsResponse]);
+
+  // Update profile data when user changes
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+      });
+      setIban(user.iban || '');
+    }
+  }, [user]);
 
   // Update settings mutation
   const updateSettingsMutation = useMutation({
@@ -56,6 +78,69 @@ const Settings = () => {
     },
   });
 
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: authAPI.updateProfile,
+    onSuccess: (data) => {
+      handleSuccess('Profile updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      // Update local state
+      setProfileData({
+        firstName: data.user.firstName || '',
+        lastName: data.user.lastName || '',
+        email: data.user.email || '',
+      });
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to update profile');
+    },
+  });
+
+  // Update tenant subdomain mutation
+  const updateSubdomainMutation = useMutation({
+    mutationFn: settingsAPI.updateTenantSubdomain,
+    onSuccess: (data) => {
+      handleSuccess('Subdomain updated successfully. Please note: You will need to access your store using the new subdomain URL.');
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      // Update local state - data is already unwrapped by interceptor
+      if (data.tenant) {
+        setSubdomain(data.tenant.subdomain || '');
+      }
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to update subdomain');
+    },
+  });
+
+  // Send password reset code mutation
+  const sendPasswordResetCodeMutation = useMutation({
+    mutationFn: authAPI.sendPasswordResetCode,
+    onSuccess: () => {
+      handleSuccess('Password reset code sent to your email');
+      setPasswordChangeStep('code-sent');
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to send password reset code');
+    },
+  });
+
+  // Change password mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: ({ code, newPassword }: { code: string; newPassword: string }) =>
+      authAPI.changePassword(code, newPassword),
+    onSuccess: () => {
+      handleSuccess('Password changed successfully');
+      setPasswordChangeStep('idle');
+      setPasswordCode('');
+      setNewPassword('');
+      setConfirmPassword('');
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to change password');
+      setPasswordChangeStep('code-sent');
+    },
+  });
+
   const handleInputChange = (field: keyof UpdateStoreSettingsData, value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -76,17 +161,45 @@ const Settings = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (activeTab === 'account') {
-      updateIbanMutation.mutate(iban);
+      // Update profile, IBAN, and subdomain if they've changed
+      const profileUpdates: { firstName?: string; lastName?: string; email?: string } = {};
+      if (profileData.firstName !== user?.firstName) profileUpdates.firstName = profileData.firstName;
+      if (profileData.lastName !== user?.lastName) profileUpdates.lastName = profileData.lastName;
+      if (profileData.email !== user?.email) profileUpdates.email = profileData.email;
+
+      const hasProfileChanges = Object.keys(profileUpdates).length > 0;
+      const hasIbanChange = iban !== (user?.iban || '');
+      const currentSubdomain = getCurrentSubdomain();
+      const hasSubdomainChange = subdomain && subdomain !== currentSubdomain;
+
+      // Collect all mutations
+      const mutations: Promise<any>[] = [];
+      
+      if (hasProfileChanges) {
+        mutations.push(updateProfileMutation.mutateAsync(profileUpdates));
+      }
+      if (hasIbanChange) {
+        mutations.push(updateIbanMutation.mutateAsync(iban));
+      }
+      if (hasSubdomainChange) {
+        mutations.push(updateSubdomainMutation.mutateAsync(subdomain));
+      }
+
+      if (mutations.length > 0) {
+        Promise.all(mutations).catch(() => {
+          // Errors are handled in individual mutations
+        });
+      }
     } else {
       updateSettingsMutation.mutate(formData);
     }
   };
 
   const tabs = [
+    { id: 'account', name: t('settings.tabs.account'), icon: UserCircleIcon },
     { id: 'content', name: t('settings.tabs.content'), icon: DocumentTextIcon },
     { id: 'social', name: t('settings.tabs.social'), icon: LinkIcon },
     { id: 'links', name: t('settings.tabs.links'), icon: BoltIcon },
-    { id: 'account', name: t('settings.tabs.account'), icon: UserCircleIcon },
   ];
 
   if (isLoading) {
@@ -130,6 +243,7 @@ const Settings = () => {
               {t('settings.content.description')}
             </p>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* About Us */}
             <div className="bg-white p-6 rounded-lg border border-gray-200">
               <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.content.aboutUs.title')}</h4>
@@ -247,6 +361,7 @@ const Settings = () => {
                   placeholder={t('settings.content.faq.placeholder')}
                 />
               </div>
+            </div>
             </div>
           </div>
         )}
@@ -366,22 +481,195 @@ const Settings = () => {
               {t('settings.account.description')}
             </p>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200">
+            <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
+              {/* Profile Information */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('settings.account.iban.label')}
-                </label>
-                <input
-                  type="text"
-                  value={iban}
-                  onChange={(e) => setIban(e.target.value)}
-                  className="input-field"
-                  placeholder={t('settings.account.iban.placeholder')}
-                  maxLength={34}
-                />
-                <p className="mt-1 text-sm text-gray-500">
-                  {t('settings.account.iban.helpText')}
-                </p>
+                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.profile.title')}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings.account.profile.firstName.label')}
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.firstName}
+                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                      className="input-field"
+                      placeholder={t('settings.account.profile.firstName.placeholder')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings.account.profile.lastName.label')}
+                    </label>
+                    <input
+                      type="text"
+                      value={profileData.lastName}
+                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                      className="input-field"
+                      placeholder={t('settings.account.profile.lastName.placeholder')}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings.account.profile.email.label')}
+                    </label>
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      className="input-field"
+                      placeholder={t('settings.account.profile.email.placeholder')}
+                    />
+                    <p className="mt-1 text-sm text-gray-500">
+                      {t('settings.account.profile.email.helpText')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shop Information */}
+              <div className="border-t pt-6">
+                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.shop.title')}</h4>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('settings.account.shop.subdomain.label')}
+                  </label>
+                  <input
+                    type="text"
+                    value={subdomain}
+                    onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                    className="input-field"
+                    placeholder={t('settings.account.shop.subdomain.placeholder')}
+                    pattern="[a-z0-9]+"
+                    minLength={3}
+                    maxLength={50}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t('settings.account.shop.subdomain.helpText')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Payment Information */}
+              <div className="border-t pt-6">
+                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.payment.title')}</h4>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('settings.account.iban.label')}
+                  </label>
+                  <input
+                    type="text"
+                    value={iban}
+                    onChange={(e) => setIban(e.target.value)}
+                    className="input-field"
+                    placeholder={t('settings.account.iban.placeholder')}
+                    maxLength={34}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t('settings.account.iban.helpText')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Password Change */}
+              <div className="border-t pt-6">
+                <h4 className="text-md font-medium text-gray-900 mb-4">Change Password</h4>
+                {passwordChangeStep === 'idle' && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      To change your password, we'll send a verification code to your email address.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => sendPasswordResetCodeMutation.mutate()}
+                      disabled={sendPasswordResetCodeMutation.isPending}
+                      className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendPasswordResetCodeMutation.isPending ? 'Sending...' : 'Send Verification Code'}
+                    </button>
+                  </div>
+                )}
+
+                {passwordChangeStep === 'code-sent' && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600">
+                      We've sent a verification code to your email. Please enter it below along with your new password.
+                    </p>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Verification Code
+                      </label>
+                      <input
+                        type="text"
+                        value={passwordCode}
+                        onChange={(e) => setPasswordCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        className="input-field"
+                        placeholder="Enter 6-digit code"
+                        maxLength={6}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="input-field"
+                        placeholder="Enter new password"
+                        minLength={8}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="input-field"
+                        placeholder="Confirm new password"
+                        minLength={8}
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (newPassword !== confirmPassword) {
+                            handleApiError({ message: 'Passwords do not match' }, 'Passwords do not match');
+                            return;
+                          }
+                          if (passwordCode.length !== 6) {
+                            handleApiError({ message: 'Please enter a valid 6-digit code' }, 'Invalid code');
+                            return;
+                          }
+                          setPasswordChangeStep('verifying');
+                          changePasswordMutation.mutate({ code: passwordCode, newPassword });
+                        }}
+                        disabled={changePasswordMutation.isPending || passwordCode.length !== 6 || !newPassword || !confirmPassword}
+                        className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {changePasswordMutation.isPending ? 'Changing Password...' : 'Change Password'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPasswordChangeStep('idle');
+                          setPasswordCode('');
+                          setNewPassword('');
+                          setConfirmPassword('');
+                        }}
+                        className="btn-secondary"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -391,10 +679,10 @@ const Settings = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={updateSettingsMutation.isPending || updateIbanMutation.isPending}
+            disabled={updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {(updateSettingsMutation.isPending || updateIbanMutation.isPending) 
+            {(updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending) 
               ? t('settings.actions.saving') 
               : t('settings.actions.saveSettings')}
           </button>

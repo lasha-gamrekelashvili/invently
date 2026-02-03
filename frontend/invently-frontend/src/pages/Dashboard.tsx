@@ -1,14 +1,11 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { categoriesAPI, productsAPI, ordersAPI, paymentAPI } from '../utils/api';
+import { useQuery } from '@tanstack/react-query';
+import { categoriesAPI, productsAPI, ordersAPI } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import { T } from '../components/Translation';
-import { handleApiError, handleSuccess } from '../utils/errorHandler';
-import ConfirmationModal from '../components/ConfirmationModal';
 import {
   PlusIcon,
   EyeIcon,
@@ -19,10 +16,6 @@ import {
   CurrencyDollarIcon,
   ClockIcon,
   ChartBarIcon,
-  CreditCardIcon,
-  CalendarIcon,
-  CheckCircleIcon,
-  XCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
@@ -30,8 +23,6 @@ const Dashboard = () => {
   const { t } = useLanguage();
   const currentTenant = tenants[0];
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const { data: orderStats, isLoading: orderStatsLoading } = useQuery({
     queryKey: ['orderStats'],
@@ -46,29 +37,6 @@ const Dashboard = () => {
   const { data: allCategories } = useQuery({
     queryKey: ['categories', 'all'],
     queryFn: () => categoriesAPI.list({ limit: 1000 }),
-  });
-
-  const { data: subscription, isLoading: subscriptionLoading } = useQuery({
-    queryKey: ['subscription'],
-    queryFn: () => paymentAPI.getSubscription(),
-    retry: false,
-  });
-
-  const { data: payments, isLoading: paymentsLoading } = useQuery({
-    queryKey: ['tenantPayments'],
-    queryFn: () => paymentAPI.getTenantPayments(),
-  });
-
-  const cancelSubscriptionMutation = useMutation({
-    mutationFn: () => paymentAPI.cancelSubscription(),
-    onSuccess: () => {
-      handleSuccess(t('billing.subscriptionCancelled'));
-      queryClient.invalidateQueries({ queryKey: ['subscription'] });
-      setShowCancelModal(false);
-    },
-    onError: (error) => {
-      handleApiError(error, t('billing.cancelError'));
-    },
   });
 
   const totalCategories = allCategories?.pagination.total || 0;
@@ -139,8 +107,8 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-light text-neutral-900 flex items-center tracking-tight">
-            <ChartBarIcon className="h-8 w-8 mr-3 text-neutral-900" />
+          <h1 className="text-2xl font-light text-stone-800 flex items-center tracking-tight">
+            <ChartBarIcon className="h-8 w-8 mr-3 text-stone-800" />
             <T tKey="dashboard.title" />
           </h1>
           <p className="text-neutral-500 mt-1">
@@ -218,7 +186,7 @@ const Dashboard = () => {
                   <stat.icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
                 <div className="ml-4">
-                  <div className="text-3xl font-light text-neutral-900">
+                  <div className="text-3xl font-light text-stone-800">
                     {stat.value}
                   </div>
                   <div className="text-sm text-neutral-500 font-medium">{stat.name}</div>
@@ -233,187 +201,6 @@ const Dashboard = () => {
           </Link>
         ))}
       </div>
-
-      {/* Billing & Subscription */}
-      <div className="bg-neutral-50 rounded-2xl border border-neutral-200 overflow-hidden">
-        <div className="bg-neutral-100 px-6 py-4 border-b border-neutral-200">
-          <h3 className="text-xl font-light text-neutral-900 flex items-center tracking-tight">
-            <CreditCardIcon className="h-6 w-6 mr-2" />
-            <T tKey="billing.title" />
-          </h3>
-        </div>
-        <div className="p-6">
-          {subscriptionLoading ? (
-            <LoadingSpinner />
-          ) : subscription ? (
-            <div className="space-y-6">
-              {/* Subscription Status */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl border border-neutral-200 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-medium text-neutral-900">
-                      <T tKey="billing.subscriptionStatus" />
-                    </h4>
-                    <StatusBadge
-                      status={subscription.status}
-                      type="subscription"
-                      showIcon={true}
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600">
-                        <T tKey="billing.monthlyFee" />
-                      </span>
-                      <span className="text-lg font-semibold text-neutral-900">49.00 GEL</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600">
-                        <T tKey="billing.currentPeriod" />
-                      </span>
-                      <span className="text-sm text-neutral-900">
-                        {new Date(subscription.currentPeriodStart).toLocaleDateString()} - {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600 flex items-center">
-                        <CalendarIcon className="h-4 w-4 mr-1" />
-                        <T tKey="billing.nextBilling" />
-                      </span>
-                      <span className="text-sm font-medium text-neutral-900">
-                        {new Date(subscription.nextBillingDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  {subscription.status === 'ACTIVE' && (
-                    <button
-                      onClick={() => setShowCancelModal(true)}
-                      className="mt-4 w-full px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      <T tKey="billing.cancelSubscription" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Payment History */}
-                <div className="bg-white rounded-xl border border-neutral-200 p-6">
-                  <h4 className="text-lg font-medium text-neutral-900 mb-4">
-                    <T tKey="billing.recentPayments" />
-                  </h4>
-                  {paymentsLoading ? (
-                    <LoadingSpinner size="sm" />
-                  ) : payments && payments.length > 0 ? (
-                    <div className="space-y-3">
-                      {payments.slice(0, 5).map((payment: any) => (
-                        <div
-                          key={payment.id}
-                          className="flex items-center justify-between p-3 rounded-lg bg-neutral-50 border border-neutral-200"
-                        >
-                          <div className="flex-1">
-                            <div className="text-sm font-medium text-neutral-900">
-                              {payment.type === 'SETUP_FEE' ? t('billing.setupFee') : t('billing.monthlySubscription')}
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              {new Date(payment.createdAt).toLocaleDateString()}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-semibold text-neutral-900">
-                              {payment.amount.toFixed(2)} GEL
-                            </div>
-                            <div className="flex items-center justify-end mt-1">
-                              {payment.status === 'PAID' ? (
-                                <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                              ) : payment.status === 'FAILED' ? (
-                                <XCircleIcon className="h-4 w-4 text-red-600" />
-                              ) : (
-                                <ClockIcon className="h-4 w-4 text-yellow-600" />
-                              )}
-                              <span className={`text-xs ml-1 ${
-                                payment.status === 'PAID' ? 'text-green-600' :
-                                payment.status === 'FAILED' ? 'text-red-600' :
-                                'text-yellow-600'
-                              }`}>
-                                {payment.status}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {payments.length > 5 && (
-                        <Link
-                          to="/admin/settings?tab=account"
-                          className="block text-center text-sm text-neutral-600 hover:text-neutral-900 mt-2"
-                        >
-                          <T tKey="billing.viewAllPayments" />
-                        </Link>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-neutral-500 text-sm">
-                      <T tKey="billing.noPayments" />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Account Info */}
-              <div className="bg-white rounded-xl border border-neutral-200 p-6">
-                <h4 className="text-lg font-medium text-neutral-900 mb-4">
-                  <T tKey="billing.accountInfo" />
-                </h4>
-                <div>
-                  <span className="text-sm text-neutral-600">
-                    <T tKey="billing.iban" />
-                  </span>
-                  <div className="mt-1 text-sm font-medium text-neutral-900">
-                    {user?.iban || (
-                      <span className="text-neutral-400 italic">
-                        <T tKey="billing.noIban" />
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {!user?.iban && (
-                  <Link
-                    to="/admin/settings?tab=account"
-                    className="mt-4 inline-block text-sm text-neutral-600 hover:text-neutral-900 font-medium"
-                  >
-                    <T tKey="billing.addIban" /> →
-                  </Link>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="bg-neutral-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-                <CreditCardIcon className="h-10 w-10 text-neutral-400" />
-              </div>
-              <div className="text-lg font-light text-neutral-900 mb-2">
-                <T tKey="billing.noSubscription" />
-              </div>
-              <p className="text-neutral-500 text-sm">
-                <T tKey="billing.noSubscriptionDescription" />
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Cancel Subscription Modal */}
-      {showCancelModal && (
-        <ConfirmationModal
-          isOpen={showCancelModal}
-          onClose={() => setShowCancelModal(false)}
-          onConfirm={() => cancelSubscriptionMutation.mutate()}
-          title={t('billing.cancelSubscription')}
-          message={t('billing.cancelConfirmation')}
-          confirmText={t('billing.confirmCancel')}
-          cancelText={t('common.cancel')}
-          type="danger"
-          isLoading={cancelSubscriptionMutation.isPending}
-        />
-      )}
 
       {/* Recent Orders */}
       <div className="bg-neutral-50 rounded-2xl border border-neutral-200 overflow-hidden">
@@ -443,7 +230,7 @@ const Dashboard = () => {
                   onClick={() => navigate(`/admin/orders/${order.id}`)}
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-neutral-900 truncate">{order.orderNumber}</div>
+                    <div className="font-medium text-stone-800 truncate">{order.orderNumber}</div>
                     <div className="text-sm text-neutral-500 mt-1">
                       <span className="font-medium">${order.totalAmount.toFixed(2)}</span> •
                       <span className="truncate ml-1">{order.customerName}</span>

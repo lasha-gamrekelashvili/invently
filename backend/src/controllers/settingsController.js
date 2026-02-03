@@ -1,7 +1,9 @@
 import { SettingsService } from '../services/SettingsService.js';
+import { TenantService } from '../services/TenantService.js';
 import { ApiResponse } from '../utils/responseFormatter.js';
 
 const settingsService = new SettingsService();
+const tenantService = new TenantService();
 
 const getSettings = async (req, res) => {
   try {
@@ -75,8 +77,38 @@ const getPublicSettings = async (req, res) => {
   }
 };
 
+const updateTenantSubdomain = async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const userId = req.user.id;
+    const { subdomain } = req.validatedData;
+
+    const result = await tenantService.updateSubdomain(tenantId, subdomain, userId);
+
+    res.json(
+      ApiResponse.updated(
+        { tenant: result.tenant },
+        'Subdomain updated successfully. Please note: You will need to access your store using the new subdomain URL.'
+      )
+    );
+  } catch (error) {
+    if (error.message === 'Tenant not found') {
+      return res.status(404).json(ApiResponse.notFound('Tenant'));
+    }
+    if (error.message === 'Unauthorized: You do not own this tenant') {
+      return res.status(403).json(ApiResponse.forbidden(error.message));
+    }
+    if (error.message === 'Subdomain already taken') {
+      return res.status(400).json(ApiResponse.error('Subdomain already taken'));
+    }
+    console.error('Update tenant subdomain error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
 export {
   getSettings,
   updateSettings,
-  getPublicSettings
+  getPublicSettings,
+  updateTenantSubdomain
 };

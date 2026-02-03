@@ -5,6 +5,7 @@ export interface User {
   lastName: string;
   role: 'PLATFORM_ADMIN' | 'STORE_OWNER';
   iban?: string;
+  emailVerified?: boolean;
 }
 
 export interface Tenant {

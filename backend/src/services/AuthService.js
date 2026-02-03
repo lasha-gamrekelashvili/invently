@@ -3,12 +3,15 @@ import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../repositories/AuthRepository.js';
 import { TenantRepository } from '../repositories/TenantRepository.js';
 import { PaymentService } from './PaymentService.js';
+import { VerificationService } from './VerificationService.js';
+import prisma from '../repositories/BaseRepository.js';
 
 export class AuthService {
   constructor() {
     this.authRepository = new AuthRepository();
     this.tenantRepository = new TenantRepository();
     this.paymentService = new PaymentService();
+    this.verificationService = new VerificationService();
   }
 
   /**
@@ -63,6 +66,13 @@ export class AuthService {
       'SETUP_FEE'
     );
 
+    // Send email confirmation code
+    await this.verificationService.createAndSendCode(
+      result.user.id,
+      email,
+      'EMAIL_CONFIRMATION'
+    );
+
     const token = this.generateToken(result.user.id);
 
     return {
@@ -73,6 +83,7 @@ export class AuthService {
         lastName: result.user.lastName,
         role: result.user.role,
         iban: result.user.iban,
+        emailVerified: result.user.emailVerified,
       },
       tenant: {
         id: result.tenant.id,
@@ -145,6 +156,7 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         iban: user.iban,
+        emailVerified: user.emailVerified,
       },
       tenants: user.ownedTenants.map(tenant => ({
         id: tenant.id,
@@ -179,5 +191,168 @@ export class AuthService {
         iban: updatedUser.iban,
       },
     };
+  }
+
+  /**
+   * Updates user's profile (firstName, lastName, email)
+   */
+  async updateProfile(userId, profileData) {
+    const user = await this.authRepository.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if email is being changed and if it's already taken
+    if (profileData.email && profileData.email !== user.email) {
+      const existingUser = await this.authRepository.findByEmail(profileData.email);
+      if (existingUser && existingUser.id !== userId) {
+        throw new Error('Email already in use');
+      }
+    }
+
+    const updateData = {};
+    if (profileData.firstName !== undefined) updateData.firstName = profileData.firstName;
+    if (profileData.lastName !== undefined) updateData.lastName = profileData.lastName;
+    if (profileData.email !== undefined) updateData.email = profileData.email;
+
+    const updatedUser = await this.authRepository.update(userId, updateData);
+
+    return {
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        role: updatedUser.role,
+        iban: updatedUser.iban,
+        emailVerified: updatedUser.emailVerified,
+      },
+    };
+  }
+
+  /**
+   * Verifies email confirmation code
+   */
+  async verifyEmail(userId, code) {
+    await this.verificationService.verifyCode(userId, code, 'EMAIL_CONFIRMATION');
+
+    // Mark email as verified
+    const updatedUser = await this.authRepository.update(userId, {
+      emailVerified: true,
+    });
+
+    return {
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        role: updatedUser.role,
+        iban: updatedUser.iban,
+        emailVerified: updatedUser.emailVerified,
+      },
+    };
+  }
+
+  /**
+   * Resends email confirmation code
+   */
+  async resendEmailConfirmation(userId) {
+    const user = await this.authRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.emailVerified) {
+      throw new Error('Email already verified');
+    }
+
+    await this.verificationService.createAndSendCode(
+      userId,
+      user.email,
+      'EMAIL_CONFIRMATION'
+    );
+
+    return { message: 'Verification code sent successfully' };
+  }
+
+  /**
+   * Requests password reset - sends code to email
+   */
+  async requestPasswordReset(email) {
+    const user = await this.authRepository.findByEmail(email);
+    if (!user) {
+      // Don't reveal if user exists for security
+      return { message: 'If the email exists, a password reset code has been sent' };
+    }
+
+    await this.verificationService.createAndSendCode(
+      user.id,
+      email,
+      'PASSWORD_RESET'
+    );
+
+    return { message: 'If the email exists, a password reset code has been sent' };
+  }
+
+  /**
+   * Resets password using verification code
+   */
+  async resetPassword(email, code, newPassword) {
+    const user = await this.authRepository.findByEmail(email);
+    if (!user) {
+      throw new Error('Invalid credentials');
+    }
+
+    // Verify the code
+    await this.verificationService.verifyCode(user.id, code, 'PASSWORD_RESET');
+
+    // Update password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await this.authRepository.update(user.id, {
+      password: hashedPassword,
+    });
+
+    return { message: 'Password reset successfully' };
+  }
+
+  /**
+   * Changes password (for authenticated users)
+   */
+  async changePassword(userId, code, newPassword) {
+    const user = await this.authRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Verify the code
+    await this.verificationService.verifyCode(user.id, code, 'PASSWORD_RESET');
+
+    // Update password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await this.authRepository.update(user.id, {
+      password: hashedPassword,
+    });
+
+    return { message: 'Password changed successfully' };
+  }
+
+  /**
+   * Sends password reset code to authenticated user's email
+   */
+  async sendPasswordResetCode(userId) {
+    const user = await this.authRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await this.verificationService.createAndSendCode(
+      userId,
+      user.email,
+      'PASSWORD_RESET'
+    );
+
+    return { message: 'Password reset code sent successfully' };
   }
 }

@@ -4,6 +4,7 @@ import type {
   LoginData,
   RegisterData,
   User,
+  Tenant,
   Category,
   Product,
   ProductVariant,
@@ -148,6 +149,27 @@ export const authAPI = {
 
   updateIban: (iban: string): Promise<{ user: User }> =>
     api.put('/auth/iban', { iban }).then(res => res.data),
+
+  updateProfile: (data: { firstName?: string; lastName?: string; email?: string }): Promise<{ user: User }> =>
+    api.put('/auth/profile', data).then(res => res.data),
+
+  verifyEmail: (code: string): Promise<{ user: User }> =>
+    api.post('/auth/verify-email', { code }).then(res => res.data),
+
+  resendEmailConfirmation: (): Promise<{ message: string }> =>
+    api.post('/auth/resend-email-confirmation').then(res => res.data),
+
+  requestPasswordReset: (email: string): Promise<{ message: string }> =>
+    api.post('/auth/password-reset/request', { email }).then(res => res.data),
+
+  resetPassword: (email: string, code: string, newPassword: string): Promise<{ message: string }> =>
+    api.post('/auth/password-reset/reset', { email, code, newPassword }).then(res => res.data),
+
+  sendPasswordResetCode: (): Promise<{ message: string }> =>
+    api.post('/auth/password-reset/send-code').then(res => res.data),
+
+  changePassword: (code: string, newPassword: string): Promise<{ message: string }> =>
+    api.post('/auth/password-reset/change', { code, newPassword }).then(res => res.data),
 };
 
 // Categories API
@@ -275,6 +297,28 @@ export const adminAPI = {
     api.get('/admin/stats').then(res => res.data),
 };
 
+// Utility function to get current subdomain from URL
+export const getCurrentSubdomain = (): string | null => {
+  const host = window.location.hostname;
+  
+  // Handle localhost subdomains (e.g., furniture.localhost)
+  if (host.includes('localhost')) {
+    const parts = host.split('.');
+    if (parts.length > 1 && parts[0] !== 'localhost') {
+      return parts[0];
+    }
+    return null;
+  }
+  
+  // Handle production subdomains (e.g., furniture.shopu.ge)
+  const parts = host.split('.');
+  if (parts.length > 2) {
+    return parts[0];
+  }
+  
+  return null;
+};
+
 // Settings API
 export const settingsAPI = {
   getSettings: (): Promise<StoreSettings> =>
@@ -282,6 +326,9 @@ export const settingsAPI = {
 
   updateSettings: (data: UpdateStoreSettingsData): Promise<{ data: StoreSettings; message: string }> =>
     api.put('/settings', data).then(res => res.data),
+
+  updateTenantSubdomain: (subdomain: string): Promise<{ tenant: Tenant }> =>
+    api.put('/settings/tenant/subdomain', { subdomain }).then(res => res.data),
 };
 
 // Cart API

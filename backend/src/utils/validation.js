@@ -103,6 +103,35 @@ const schemas = {
 
   updateIban: Joi.object({
     iban: Joi.string().max(34).required()
+  }),
+
+  updateProfile: Joi.object({
+    firstName: Joi.string().min(2).max(50).optional(),
+    lastName: Joi.string().min(2).max(50).optional(),
+    email: Joi.string().email().optional()
+  }),
+
+  updateTenantSubdomain: Joi.object({
+    subdomain: Joi.string().alphanum().min(3).max(50).required()
+  }),
+
+  verifyEmail: Joi.object({
+    code: Joi.string().length(6).pattern(/^\d+$/).required()
+  }),
+
+  requestPasswordReset: Joi.object({
+    email: Joi.string().email().required()
+  }),
+
+  resetPassword: Joi.object({
+    email: Joi.string().email().required(),
+    code: Joi.string().length(6).pattern(/^\d+$/).required(),
+    newPassword: Joi.string().min(8).required()
+  }),
+
+  changePassword: Joi.object({
+    code: Joi.string().length(6).pattern(/^\d+$/).required(),
+    newPassword: Joi.string().min(8).required()
   })
 };
 

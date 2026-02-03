@@ -903,6 +903,33 @@
     "account": {
       "title": "Account Settings",
       "description": "Manage your account information and payment details.",
+      "profile": {
+        "title": "Profile Information",
+        "firstName": {
+          "label": "First Name",
+          "placeholder": "Enter your first name"
+        },
+        "lastName": {
+          "label": "Last Name",
+          "placeholder": "Enter your last name"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email address",
+          "helpText": "Your email address is used for account login and notifications"
+        }
+      },
+      "shop": {
+        "title": "Shop Information",
+        "subdomain": {
+          "label": "Subdomain",
+          "placeholder": "yourstore",
+          "helpText": "Your store's subdomain. This is used in your store URL (e.g., yourstore.shopu.ge). Only lowercase letters and numbers are allowed."
+        }
+      },
+      "payment": {
+        "title": "Payment Information"
+      },
       "iban": {
         "label": "IBAN",
         "placeholder": "GE00XX0000000000000000",

@@ -1,6 +1,18 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { register, login, me, updateIban } from '../controllers/authController.js';
+import { 
+  register, 
+  login, 
+  me, 
+  updateIban, 
+  updateProfile,
+  verifyEmail,
+  resendEmailConfirmation,
+  requestPasswordReset,
+  resetPassword,
+  sendPasswordResetCode,
+  changePassword
+} from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { validate, schemas } from '../utils/validation.js';
 
@@ -303,5 +315,18 @@ router.post('/register', authLimiter, validate(schemas.register), register);
 router.post('/login', authLimiter, validate(schemas.login), login);
 router.get('/me', authenticateToken, me);
 router.put('/iban', authenticateToken, validate(schemas.updateIban), updateIban);
+router.put('/profile', authenticateToken, validate(schemas.updateProfile), updateProfile);
+
+// Email verification endpoints
+router.post('/verify-email', authenticateToken, validate(schemas.verifyEmail), verifyEmail);
+router.post('/resend-email-confirmation', authenticateToken, resendEmailConfirmation);
+
+// Password reset endpoints (public)
+router.post('/password-reset/request', authLimiter, validate(schemas.requestPasswordReset), requestPasswordReset);
+router.post('/password-reset/reset', authLimiter, validate(schemas.resetPassword), resetPassword);
+
+// Password change endpoints (authenticated)
+router.post('/password-reset/send-code', authenticateToken, sendPasswordResetCode);
+router.post('/password-reset/change', authenticateToken, validate(schemas.changePassword), changePassword);
 
 export default router;

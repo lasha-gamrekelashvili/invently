@@ -101,7 +101,7 @@ const Landing = () => {
       <LandingHeader showAuthButtons={true} />
 
       {/* ===== HERO SECTION ===== */}
-      <section className="relative bg-neutral-950 text-white overflow-hidden">
+      <section className="relative bg-neutral-900 text-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             {/* Left - Text Content */}
@@ -404,7 +404,7 @@ const Landing = () => {
       </section>
 
       {/* ===== CTA SECTION ===== */}
-      <section className="py-16 sm:py-20 bg-neutral-950">
+      <section className="py-16 sm:py-20 bg-neutral-900">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-light text-white mb-4 tracking-tight">
             <T tKey="landing.cta.title" />
@@ -504,7 +504,7 @@ const Landing = () => {
       {/* Lightbox Modal */}
       {lightboxOpen && (
         <div 
-          className="fixed inset-0 z-50 bg-neutral-950/95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-neutral-900/95 flex items-center justify-center p-4"
           onClick={() => setLightboxOpen(false)}
         >
           <button 

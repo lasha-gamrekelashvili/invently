@@ -163,7 +163,7 @@ const ProductDetailContent: React.FC = () => {
           <p className="text-neutral-600 mb-6">The product you're looking for doesn't exist.</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-neutral-800 text-white font-medium rounded-full hover:bg-neutral-700 transition-colors"
+            className="px-6 py-3 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition-colors"
           >
             Back to Store
           </button>
@@ -506,8 +506,8 @@ const ProductDetailContent: React.FC = () => {
                     disabled={!isInStock || (hasVariants && !selectedVariant)}
                     className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium transition-all text-xs sm:text-sm ${
                       !isInStock || (hasVariants && !selectedVariant)
-                        ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
-                        : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                        ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
+                        : 'bg-white text-neutral-900 border-2 border-neutral-800 hover:bg-neutral-100 hover:border-neutral-700'
                     }`}
                   >
                     Buy Now
