@@ -25,15 +25,9 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
   // Initialize with expandedCategoryIds
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set(expandedCategoryIds));
 
-  // Auto-expand categories when expandedCategoryIds changes
+  // Sync expanded nodes with incoming expandedCategoryIds
   useEffect(() => {
-    if (expandedCategoryIds.length > 0) {
-      setExpandedNodes(prev => {
-        const newSet = new Set(prev);
-        expandedCategoryIds.forEach(id => newSet.add(id));
-        return newSet;
-      });
-    }
+    setExpandedNodes(new Set(expandedCategoryIds));
   }, [expandedCategoryIds]);
 
   const toggleExpanded = (categoryId: string) => {
@@ -44,6 +38,10 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
       newExpanded.add(categoryId);
     }
     setExpandedNodes(newExpanded);
+  };
+
+  const handleCategorySelect = (category: Category) => {
+    onSelect?.(category.id);
   };
 
   const buildTree = (categories: Category[], parentId: string | null = null): Category[] => {
@@ -103,7 +101,7 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
 
           {/* Category Name */}
           <button
-            onClick={() => onSelect?.(category.id)}
+            onClick={() => handleCategorySelect(category)}
             className={`flex-1 text-left text-sm transition-colors ${
               level === 0 
                 ? 'font-medium' 
