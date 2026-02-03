@@ -93,22 +93,9 @@ const Register = () => {
     },
     onSuccess: () => {
       handleSuccess('Email verified successfully!');
-      // Now redirect to payment if payment is pending
-      if (registrationResult?.payment && registrationResult.payment.status === 'PENDING' && registrationResult.tenant) {
-        const currentHost = window.location.hostname;
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const token = registrationResult.token;
-        const paymentId = registrationResult.payment.id;
-
-        let redirectUrl: string;
-        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
-          redirectUrl = `http://${registrationResult.tenant.subdomain}.localhost${port}/payment/${paymentId}#token=${encodeURIComponent(token)}`;
-        } else {
-          redirectUrl = `https://${registrationResult.tenant.subdomain}.${currentHost}/payment/${paymentId}#token=${encodeURIComponent(token)}`;
-        }
-        window.location.replace(redirectUrl);
-      } else if (registrationResult?.tenant) {
-        // Redirect to dashboard
+      // Always redirect to dashboard after email verification
+      // User can pay setup fee from the billing page
+      if (registrationResult?.tenant) {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = registrationResult.token;
