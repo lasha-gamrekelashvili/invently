@@ -24,6 +24,7 @@ import ProductForm from './pages/ProductForm';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
 import Settings from './pages/Settings';
+import Appearance from './pages/Appearance';
 import BulkUpload from './pages/BulkUpload';
 import Storefront from './pages/Storefront';
 import ProductDetail from './pages/ProductDetail';
@@ -101,6 +102,7 @@ const AppRoutes = () => {
         <Route path="bulk-upload" element={<BulkUpload />} />
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<OrderDetails />} />
+        <Route path="appearance" element={<Appearance />} />
         <Route path="billing" element={<Billing />} />
         <Route path="settings" element={<Settings />} />
 

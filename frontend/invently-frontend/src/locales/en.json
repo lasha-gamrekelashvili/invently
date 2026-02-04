@@ -61,6 +61,7 @@
     "categories": "Categories",
     "bulkUpload": "Bulk Upload",
     "orders": "Orders",
+    "appearance": "Appearance",
     "billing": "Billing & Subscription",
     "settings": "Settings",
     "logs": "Logs",
@@ -935,14 +936,115 @@
         "label": "IBAN",
         "placeholder": "GE00XX0000000000000000",
         "helpText": "Your bank account IBAN for receiving payments from customer orders"
+      },
+      "password": {
+        "title": "Change Password",
+        "description": "To change your password, we'll send a verification code to your email address.",
+        "codeSent": "We've sent a verification code to your email. Please enter it below along with your new password.",
+        "sending": "Sending...",
+        "sendCode": "Send Verification Code",
+        "verificationCode": {
+          "label": "Verification Code",
+          "placeholder": "Enter 6-digit code"
+        },
+        "newPassword": {
+          "label": "New Password",
+          "placeholder": "Enter new password"
+        },
+        "confirmPassword": {
+          "label": "Confirm New Password",
+          "placeholder": "Confirm new password"
+        },
+        "changing": "Changing Password...",
+        "changeButton": "Change Password",
+        "resetCodeSent": "Password reset code sent to your email"
       }
+    },
+    "messages": {
+      "updateSettingsError": "Failed to update settings",
+      "ibanUpdated": "IBAN updated successfully",
+      "updateIbanError": "Failed to update IBAN",
+      "profileUpdated": "Profile updated successfully",
+      "updateProfileError": "Failed to update profile",
+      "subdomainUpdated": "Subdomain updated successfully. Please note: You will need to access your store using the new subdomain URL.",
+      "updateSubdomainError": "Failed to update subdomain",
+      "passwordChanged": "Password changed successfully",
+      "changePasswordError": "Failed to change password",
+      "sendResetCodeError": "Failed to send password reset code",
+      "passwordsNotMatch": "Passwords do not match",
+      "invalidCode": "Please enter a valid 6-digit code",
+      "updateAppearanceError": "Failed to update appearance settings"
     },
     "appearance": {
       "title": "Storefront Appearance",
       "description": "Customize the colors of your storefront to match your brand.",
+      "sections": {
+        "layoutBackground": "Layout & Background",
+        "headerNavigation": "Header & Navigation",
+        "sidebar": "Sidebar",
+        "products": "Products",
+        "buttons": "Buttons",
+        "footer": "Footer"
+      },
+      "preview": {
+        "storefront": "Storefront",
+        "productDetail": "Product Detail"
+      },
       "backgroundColor": {
         "label": "Background Color",
         "description": "Main background color of the storefront"
+      },
+      "cardInfoBackgroundColor": {
+        "label": "Product Card Info Background",
+        "description": "Background color for the text area below product images"
+      },
+      "headerBackground": {
+        "label": "Header Background",
+        "description": "Background color of the storefront header"
+      },
+      "headerText": {
+        "label": "Header Text",
+        "description": "Text color for header elements"
+      },
+      "headerBorder": {
+        "label": "Header Border",
+        "description": "Border color at the bottom of the header"
+      },
+      "searchBarBackground": {
+        "label": "Search Bar Background",
+        "description": "Background color of the search input field"
+      },
+      "searchBarBorder": {
+        "label": "Search Bar Border",
+        "description": "Border color around the search input field"
+      },
+      "searchBarText": {
+        "label": "Search Bar Text",
+        "description": "Text color for typed search queries"
+      },
+      "searchBarPlaceholder": {
+        "label": "Search Bar Placeholder",
+        "description": "Placeholder text color in the search field"
+      },
+      "searchBarIcon": {
+        "label": "Search Bar Icon",
+        "description": "Color of the search icon inside the search field"
+      },
+      "breadcrumbText": {
+        "label": "Breadcrumb Text",
+        "description": "Text color for breadcrumb navigation links"
+      },
+      "breadcrumbActive": {
+        "label": "Breadcrumb Active",
+        "description": "Text color for the current page in breadcrumbs"
+      },
+      "breadcrumbHover": {
+        "label": "Breadcrumb Hover",
+        "description": "Text color when hovering over breadcrumb links"
+      },
+      "breadcrumbIcon": {
+        "label": "Breadcrumb Icon",
+        "description": "Color of separator icons between breadcrumb items"
       },
       "sidebarBackgroundColor": {
         "label": "Sidebar Background Color",
@@ -956,9 +1058,105 @@
         "label": "Sidebar Hover Color",
         "description": "Background color when hovering over category items"
       },
-      "cardInfoBackgroundColor": {
-        "label": "Product Card Info Background",
-        "description": "Background color for the text area below product images"
+      "sidebarText": {
+        "label": "Sidebar Text",
+        "description": "Text color for category items in the sidebar"
+      },
+      "sidebarSelectedText": {
+        "label": "Sidebar Selected Text",
+        "description": "Text color for the currently selected category"
+      },
+      "sidebarHeading": {
+        "label": "Sidebar Heading",
+        "description": "Text color for sidebar section headings"
+      },
+      "sidebarDivider": {
+        "label": "Sidebar Divider",
+        "description": "Color of divider lines between sidebar sections"
+      },
+      "sidebarBorder": {
+        "label": "Sidebar Border",
+        "description": "Border color on the right edge of the sidebar"
+      },
+      "productCardBorder": {
+        "label": "Card Border",
+        "description": "Border color around product cards"
+      },
+      "productCardHoverBorder": {
+        "label": "Card Hover Border",
+        "description": "Border color when hovering over product cards"
+      },
+      "productCardText": {
+        "label": "Card Text",
+        "description": "Text color for product names on cards"
+      },
+      "productCardCategoryText": {
+        "label": "Card Category Text",
+        "description": "Text color for category labels on product cards"
+      },
+      "productCardPriceText": {
+        "label": "Card Price Text",
+        "description": "Text color for product prices on cards"
+      },
+      "productDetailCardBackground": {
+        "label": "Product Detail Card Background",
+        "description": "Background color of the product detail card"
+      },
+      "categorySectionTitle": {
+        "label": "Category Title",
+        "description": "Text color for category section titles"
+      },
+      "categorySectionAccent": {
+        "label": "Category Accent Bar",
+        "description": "Color of the accent bar next to category titles"
+      },
+      "categorySectionLink": {
+        "label": "View All Link",
+        "description": "Color for \"View All\" links in category sections"
+      },
+      "categorySectionLinkHover": {
+        "label": "View All Link Hover",
+        "description": "Color for \"View All\" links when hovering"
+      },
+      "categorySectionBorder": {
+        "label": "Section Border",
+        "description": "Border color separating category sections"
+      },
+      "buttonPrimaryBackground": {
+        "label": "Primary Button Background",
+        "description": "Background color for primary action buttons"
+      },
+      "buttonPrimaryText": {
+        "label": "Primary Button Text",
+        "description": "Text color for primary action buttons"
+      },
+      "buttonSecondaryBackground": {
+        "label": "Secondary Button Background",
+        "description": "Background color for secondary action buttons"
+      },
+      "buttonSecondaryText": {
+        "label": "Secondary Button Text",
+        "description": "Text color for secondary action buttons"
+      },
+      "buttonSecondaryBorder": {
+        "label": "Secondary Button Border",
+        "description": "Border color for secondary action buttons"
+      },
+      "footerBackground": {
+        "label": "Footer Background",
+        "description": "Background color of the storefront footer"
+      },
+      "footerText": {
+        "label": "Footer Text",
+        "description": "Text color for footer content"
+      },
+      "footerHeading": {
+        "label": "Footer Heading",
+        "description": "Text color for footer section headings"
+      },
+      "footerLink": {
+        "label": "Footer Link",
+        "description": "Color for links in the footer"
       }
     },
     "actions": {

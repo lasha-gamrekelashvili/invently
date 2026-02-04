@@ -61,6 +61,7 @@
     "categories": "კატეგორიები",
     "bulkUpload": "მასობრივი ატვირთვა",
     "orders": "შეკვეთები",
+    "appearance": "გარეგნობა",
     "billing": "გადახდა და გამოწერა",
     "settings": "პარამეტრები",
     "logs": "ლოგები",
@@ -928,14 +929,115 @@
         "label": "IBAN",
         "placeholder": "GE00XX0000000000000000",
         "helpText": "თქვენი საბანკო ანგარიშის IBAN მომხმარებლების შეკვეთებიდან გადახდების მისაღებად"
+      },
+      "password": {
+        "title": "პაროლის შეცვლა",
+        "description": "პაროლის შესაცვლელად, ჩვენ გამოგიგზავნით დადასტურების კოდს თქვენს ელფოსტაზე.",
+        "codeSent": "ჩვენ გამოგიგზავნეთ დადასტურების კოდი თქვენს ელფოსტაზე. გთხოვთ, შეიყვანოთ იგი ქვემოთ თქვენი ახალი პაროლით ერთად.",
+        "sending": "გაგზავნა...",
+        "sendCode": "დადასტურების კოდის გაგზავნა",
+        "verificationCode": {
+          "label": "დადასტურების კოდი",
+          "placeholder": "შეიყვანეთ 6-ნიშნა კოდი"
+        },
+        "newPassword": {
+          "label": "ახალი პაროლი",
+          "placeholder": "შეიყვანეთ ახალი პაროლი"
+        },
+        "confirmPassword": {
+          "label": "დაადასტურეთ ახალი პაროლი",
+          "placeholder": "დაადასტურეთ ახალი პაროლი"
+        },
+        "changing": "პაროლის შეცვლა...",
+        "changeButton": "პაროლის შეცვლა",
+        "resetCodeSent": "პაროლის აღდგენის კოდი გაიგზავნა თქვენს ელფოსტაზე"
       }
+    },
+    "messages": {
+      "updateSettingsError": "პარამეტრების განახლება ვერ მოხერხდა",
+      "ibanUpdated": "IBAN წარმატებით განახლდა",
+      "updateIbanError": "IBAN-ის განახლება ვერ მოხერხდა",
+      "profileUpdated": "პროფილი წარმატებით განახლდა",
+      "updateProfileError": "პროფილის განახლება ვერ მოხერხდა",
+      "subdomainUpdated": "ქვედომენი წარმატებით განახლდა. გთხოვთ გაითვალისწინოთ: თქვენ მოგიწევთ თქვენი მაღაზიის წვდომა ახალი ქვედომენის URL-ით.",
+      "updateSubdomainError": "ქვედომენის განახლება ვერ მოხერხდა",
+      "passwordChanged": "პაროლი წარმატებით შეიცვალა",
+      "changePasswordError": "პაროლის შეცვლა ვერ მოხერხდა",
+      "sendResetCodeError": "პაროლის აღდგენის კოდის გაგზავნა ვერ მოხერხდა",
+      "passwordsNotMatch": "პაროლები არ ემთხვევა",
+      "invalidCode": "გთხოვთ, შეიყვანოთ სწორი 6-ნიშნა კოდი",
+      "updateAppearanceError": "გარეგნობის პარამეტრების განახლება ვერ მოხერხდა"
     },
     "appearance": {
       "title": "მაღაზიის გარეგნობა",
       "description": "დაარეგულირეთ თქვენი მაღაზიის ფერები თქვენი ბრენდის შესაბამისად.",
+      "sections": {
+        "layoutBackground": "განლაგება და ფონი",
+        "headerNavigation": "სათაური და ნავიგაცია",
+        "sidebar": "გვერდითი პანელი",
+        "products": "პროდუქტები",
+        "buttons": "ღილაკები",
+        "footer": "ფუტერი"
+      },
+      "preview": {
+        "storefront": "მაღაზია",
+        "productDetail": "პროდუქტის დეტალები"
+      },
       "backgroundColor": {
         "label": "ფონის ფერი",
         "description": "მაღაზიის მთავარი ფონის ფერი"
+      },
+      "cardInfoBackgroundColor": {
+        "label": "პროდუქტის ბარათის ინფორმაციის ფონი",
+        "description": "პროდუქტის სურათების ქვემოთ ტექსტური არეალის ფონის ფერი"
+      },
+      "headerBackground": {
+        "label": "სათაურის ფონი",
+        "description": "მაღაზიის სათაურის ფონის ფერი"
+      },
+      "headerText": {
+        "label": "სათაურის ტექსტი",
+        "description": "სათაურის ელემენტების ტექსტის ფერი"
+      },
+      "headerBorder": {
+        "label": "სათაურის საზღვარი",
+        "description": "სათაურის ქვედა ნაწილის საზღვრის ფერი"
+      },
+      "searchBarBackground": {
+        "label": "ძიების ველის ფონი",
+        "description": "ძიების შეყვანის ველის ფონის ფერი"
+      },
+      "searchBarBorder": {
+        "label": "ძიების ველის საზღვარი",
+        "description": "ძიების შეყვანის ველის გარშემო საზღვრის ფერი"
+      },
+      "searchBarText": {
+        "label": "ძიების ველის ტექსტი",
+        "description": "შეყვანილი ძიების მოთხოვნების ტექსტის ფერი"
+      },
+      "searchBarPlaceholder": {
+        "label": "ძიების ველის placeholder",
+        "description": "ძიების ველში placeholder ტექსტის ფერი"
+      },
+      "searchBarIcon": {
+        "label": "ძიების ველის ხატულა",
+        "description": "ძიების ველის შიგნით ძიების ხატულის ფერი"
+      },
+      "breadcrumbText": {
+        "label": "Breadcrumb ტექსტი",
+        "description": "Breadcrumb ნავიგაციის ბმულების ტექსტის ფერი"
+      },
+      "breadcrumbActive": {
+        "label": "Breadcrumb აქტიური",
+        "description": "Breadcrumb-ში მიმდინარე გვერდის ტექსტის ფერი"
+      },
+      "breadcrumbHover": {
+        "label": "Breadcrumb ჰოვერი",
+        "description": "Breadcrumb ბმულებზე ჰოვერისას ტექსტის ფერი"
+      },
+      "breadcrumbIcon": {
+        "label": "Breadcrumb ხატულა",
+        "description": "Breadcrumb ელემენტებს შორის გამყოფი ხატულების ფერი"
       },
       "sidebarBackgroundColor": {
         "label": "გვერდითი პანელის ფონის ფერი",
@@ -949,9 +1051,105 @@
         "label": "გვერდითი პანელის ჰოვერის ფერი",
         "description": "კატეგორიის ელემენტებზე ჰოვერისას ფონის ფერი"
       },
-      "cardInfoBackgroundColor": {
-        "label": "პროდუქტის ბარათის ინფორმაციის ფონი",
-        "description": "პროდუქტის სურათების ქვემოთ ტექსტური არეალის ფონის ფერი"
+      "sidebarText": {
+        "label": "გვერდითი პანელის ტექსტი",
+        "description": "გვერდითი პანელში კატეგორიის ელემენტების ტექსტის ფერი"
+      },
+      "sidebarSelectedText": {
+        "label": "გვერდითი პანელის არჩეული ტექსტი",
+        "description": "ამჟამად არჩეული კატეგორიის ტექსტის ფერი"
+      },
+      "sidebarHeading": {
+        "label": "გვერდითი პანელის სათაური",
+        "description": "გვერდითი პანელის სექციების სათაურების ტექსტის ფერი"
+      },
+      "sidebarDivider": {
+        "label": "გვერდითი პანელის გამყოფი",
+        "description": "გვერდითი პანელის სექციებს შორის გამყოფი ხაზების ფერი"
+      },
+      "sidebarBorder": {
+        "label": "გვერდითი პანელის საზღვარი",
+        "description": "გვერდითი პანელის მარჯვენა კიდეზე საზღვრის ფერი"
+      },
+      "productCardBorder": {
+        "label": "ბარათის საზღვარი",
+        "description": "პროდუქტის ბარათების გარშემო საზღვრის ფერი"
+      },
+      "productCardHoverBorder": {
+        "label": "ბარათის ჰოვერის საზღვარი",
+        "description": "პროდუქტის ბარათებზე ჰოვერისას საზღვრის ფერი"
+      },
+      "productCardText": {
+        "label": "ბარათის ტექსტი",
+        "description": "ბარათებზე პროდუქტის სახელების ტექსტის ფერი"
+      },
+      "productCardCategoryText": {
+        "label": "ბარათის კატეგორიის ტექსტი",
+        "description": "პროდუქტის ბარათებზე კატეგორიის ლეიბლების ტექსტის ფერი"
+      },
+      "productCardPriceText": {
+        "label": "ბარათის ფასის ტექსტი",
+        "description": "ბარათებზე პროდუქტის ფასების ტექსტის ფერი"
+      },
+      "productDetailCardBackground": {
+        "label": "პროდუქტის დეტალების ბარათის ფონი",
+        "description": "პროდუქტის დეტალების ბარათის ფონის ფერი"
+      },
+      "categorySectionTitle": {
+        "label": "კატეგორიის სათაური",
+        "description": "კატეგორიის სექციების სათაურების ტექსტის ფერი"
+      },
+      "categorySectionAccent": {
+        "label": "კატეგორიის აქცენტის ზოლი",
+        "description": "კატეგორიის სათაურების გვერდით აქცენტის ზოლის ფერი"
+      },
+      "categorySectionLink": {
+        "label": "ყველას ნახვის ბმული",
+        "description": "კატეგორიის სექციებში \"ყველას ნახვა\" ბმულების ფერი"
+      },
+      "categorySectionLinkHover": {
+        "label": "ყველას ნახვის ბმულის ჰოვერი",
+        "description": "\"ყველას ნახვა\" ბმულებზე ჰოვერისას ფერი"
+      },
+      "categorySectionBorder": {
+        "label": "სექციის საზღვარი",
+        "description": "კატეგორიის სექციების გამყოფი საზღვრის ფერი"
+      },
+      "buttonPrimaryBackground": {
+        "label": "პირველადი ღილაკის ფონი",
+        "description": "პირველადი მოქმედების ღილაკების ფონის ფერი"
+      },
+      "buttonPrimaryText": {
+        "label": "პირველადი ღილაკის ტექსტი",
+        "description": "პირველადი მოქმედების ღილაკების ტექსტის ფერი"
+      },
+      "buttonSecondaryBackground": {
+        "label": "მეორადი ღილაკის ფონი",
+        "description": "მეორადი მოქმედების ღილაკების ფონის ფერი"
+      },
+      "buttonSecondaryText": {
+        "label": "მეორადი ღილაკის ტექსტი",
+        "description": "მეორადი მოქმედების ღილაკების ტექსტის ფერი"
+      },
+      "buttonSecondaryBorder": {
+        "label": "მეორადი ღილაკის საზღვარი",
+        "description": "მეორადი მოქმედების ღილაკების საზღვრის ფერი"
+      },
+      "footerBackground": {
+        "label": "ფუტერის ფონი",
+        "description": "მაღაზიის ფუტერის ფონის ფერი"
+      },
+      "footerText": {
+        "label": "ფუტერის ტექსტი",
+        "description": "ფუტერის შინაარსის ტექსტის ფერი"
+      },
+      "footerHeading": {
+        "label": "ფუტერის სათაური",
+        "description": "ფუტერის სექციების სათაურების ტექსტის ფერი"
+      },
+      "footerLink": {
+        "label": "ფუტერის ბმული",
+        "description": "ფუტერში ბმულების ფერი"
       }
     },
     "actions": {

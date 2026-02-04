@@ -15,6 +15,7 @@ import {
   ShoppingBagIcon,
   ArrowUpTrayIcon,
   CreditCardIcon,
+  PaintBrushIcon,
 } from '@heroicons/react/24/outline';
 
 const Layout = () => {
@@ -29,6 +30,7 @@ const Layout = () => {
     { name: t('navigation.products'), href: '/admin/products', icon: CubeIcon, section: 'Store' },
     { name: t('navigation.bulkUpload'), href: '/admin/bulk-upload', icon: ArrowUpTrayIcon, section: 'Store' },
     { name: t('navigation.orders'), href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
+    { name: t('navigation.appearance'), href: '/admin/appearance', icon: PaintBrushIcon, section: 'Store' },
     { name: t('navigation.billing'), href: '/admin/billing', icon: CreditCardIcon, section: 'Store' },
     { name: t('navigation.settings'), href: '/admin/settings', icon: CogIcon, section: 'Store' },
   ];
