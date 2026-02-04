@@ -343,7 +343,7 @@ export const StorefrontProductPreview: React.FC<StorefrontPreviewProps> = ({ col
           </div>
 
           {/* Product Card */}
-          <div className="rounded-lg border p-3" style={{ borderColor: productCardBorderColor, backgroundColor: productDetailCardBackgroundColor }}>
+          <div className="rounded-lg border p-3" style={{ borderColor: productCardBorderColor, borderWidth: '1px', backgroundColor: productDetailCardBackgroundColor }}>
             <div className="grid grid-cols-5 gap-3">
               <div className="col-span-2">
                 <div className="aspect-square bg-neutral-100 rounded-md border" style={{ borderColor: productCardBorderColor }}></div>
@@ -354,9 +354,9 @@ export const StorefrontProductPreview: React.FC<StorefrontPreviewProps> = ({ col
 
                 <div className="text-[10px] text-neutral-500">Quantity</div>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center border rounded-md" style={{ borderColor: productCardBorderColor }}>
+                  <div className="flex items-center border rounded-md" style={{ borderColor: colors.productCardHoverBorderColor || '#d4d4d4' }}>
                     <div className="px-2 py-1 text-xs text-neutral-600">-</div>
-                    <div className="px-2 py-1 text-xs border-x" style={{ borderColor: productCardBorderColor }}>1</div>
+                    <div className="px-2 py-1 text-xs border-x" style={{ borderColor: colors.productCardHoverBorderColor || '#d4d4d4' }}>1</div>
                     <div className="px-2 py-1 text-xs text-neutral-600">+</div>
                   </div>
                   <div className="text-[10px] text-neutral-500">Max: 248</div>

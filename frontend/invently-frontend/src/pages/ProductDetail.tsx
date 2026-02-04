@@ -334,7 +334,7 @@ const ProductDetailContent: React.FC = () => {
         </div>
 
         {/* Main Product Card */}
-        <div className="rounded-2xl border border-neutral-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff' }}>
+        <div className="rounded-2xl border p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff', borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Vertical Thumbnails - Desktop Only */}
@@ -441,22 +441,50 @@ const ProductDetailContent: React.FC = () => {
               <div>
                 <label className="text-xs sm:text-sm font-medium text-neutral-700 block mb-2">Quantity:</label>
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <div className="flex items-center border border-neutral-300 rounded-xl">
+                  <div 
+                    className="flex items-center border rounded-xl overflow-hidden"
+                    style={{ borderColor: storeSettings?.productCardHoverBorderColor || '#d4d4d4' }}
+                  >
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1}
-                      className="px-2 sm:px-3 py-2 hover:bg-neutral-50 disabled:opacity-50 text-base sm:text-lg"
+                      className="px-2 sm:px-3 py-2 disabled:opacity-50 text-base sm:text-lg transition-colors"
+                      style={{ 
+                        backgroundColor: 'transparent',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!e.currentTarget.disabled) {
+                          e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
                       aria-label="Decrease quantity"
                     >
                       −
                     </button>
-                    <span className="px-3 sm:px-4 py-2 font-medium border-x border-neutral-300 min-w-[45px] sm:min-w-[50px] text-center text-sm sm:text-base">
+                    <span 
+                      className="px-3 sm:px-4 py-2 font-medium border-x min-w-[45px] sm:min-w-[50px] text-center text-sm sm:text-base"
+                      style={{ borderColor: storeSettings?.productCardHoverBorderColor || '#d4d4d4' }}
+                    >
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(Math.min(displayStock, quantity + 1))}
                       disabled={quantity >= displayStock}
-                      className="px-2 sm:px-3 py-2 hover:bg-neutral-50 disabled:opacity-50 text-base sm:text-lg"
+                      className="px-2 sm:px-3 py-2 disabled:opacity-50 text-base sm:text-lg transition-colors"
+                      style={{ 
+                        backgroundColor: 'transparent',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!e.currentTarget.disabled) {
+                          e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
                       aria-label="Increase quantity"
                     >
                       +
@@ -468,7 +496,7 @@ const ProductDetailContent: React.FC = () => {
 
               {/* Description */}
               {product.description && (
-                <div className="py-2 sm:py-3 border-y border-neutral-100">
+                <div className="py-2 sm:py-3 border-y" style={{ borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed whitespace-pre-line break-words">
                     {product.description}
                   </p>
@@ -477,7 +505,7 @@ const ProductDetailContent: React.FC = () => {
 
               {/* Cart Status */}
               {cartQuantity > 0 && (
-                <div className="flex items-center gap-2 bg-neutral-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-neutral-200">
+                <div className="flex items-center gap-2 bg-neutral-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border" style={{ borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
                   <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600 flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium text-neutral-700">
                     {cartQuantity} in cart
@@ -507,8 +535,18 @@ const ProductDetailContent: React.FC = () => {
                     className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium transition-all text-xs sm:text-sm ${
                       !isInStock || (hasVariants && !selectedVariant)
                         ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
-                        : 'bg-white text-neutral-900 border-2 border-neutral-800 hover:bg-neutral-100 hover:border-neutral-700'
+                        : 'bg-white text-neutral-900 border-2 border-neutral-800 hover:bg-neutral-100'
                     }`}
+                    onMouseEnter={(e) => {
+                      if (!(!isInStock || (hasVariants && !selectedVariant))) {
+                        e.currentTarget.style.borderColor = storeSettings?.productCardHoverBorderColor || '#d4d4d4';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!(!isInStock || (hasVariants && !selectedVariant))) {
+                        e.currentTarget.style.borderColor = '';
+                      }
+                    }}
                   >
                     Buy Now
                   </button>
@@ -536,7 +574,7 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Specifications */}
         {product.attributes && Object.keys(product.attributes).length > 0 && (
-          <div className="rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-4 sm:mb-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff' }}>
+          <div className="rounded-2xl border p-4 sm:p-6 mb-4 sm:mb-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff', borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
             <h3 className="text-base sm:text-lg font-light tracking-tight text-neutral-900 mb-3 sm:mb-4">Technical Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {Object.entries(product.attributes).map(([key, value]) => (
@@ -554,7 +592,7 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (
-          <div className="rounded-2xl border border-neutral-200 p-4 sm:p-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff' }}>
+          <div className="rounded-2xl border p-4 sm:p-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff', borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h3 className="text-base sm:text-lg font-light tracking-tight text-neutral-900">
                 More from {rootCategory?.name || product.category?.name}
