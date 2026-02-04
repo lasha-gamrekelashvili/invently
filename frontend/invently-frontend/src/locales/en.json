@@ -826,7 +826,8 @@
       "content": "Page Content",
       "social": "Social Media",
       "links": "Quick Links",
-      "account": "Account"
+      "account": "Account",
+      "appearance": "Appearance"
     },
     "content": {
       "title": "Page Content",
@@ -934,6 +935,30 @@
         "label": "IBAN",
         "placeholder": "GE00XX0000000000000000",
         "helpText": "Your bank account IBAN for receiving payments from customer orders"
+      }
+    },
+    "appearance": {
+      "title": "Storefront Appearance",
+      "description": "Customize the colors of your storefront to match your brand.",
+      "backgroundColor": {
+        "label": "Background Color",
+        "description": "Main background color of the storefront"
+      },
+      "sidebarBackgroundColor": {
+        "label": "Sidebar Background Color",
+        "description": "Background color of the category sidebar"
+      },
+      "sidebarSelectedColor": {
+        "label": "Sidebar Selected Color",
+        "description": "Background color for selected category items"
+      },
+      "sidebarHoverColor": {
+        "label": "Sidebar Hover Color",
+        "description": "Background color when hovering over category items"
+      },
+      "cardInfoBackgroundColor": {
+        "label": "Product Card Info Background",
+        "description": "Background color for the text area below product images"
       }
     },
     "actions": {

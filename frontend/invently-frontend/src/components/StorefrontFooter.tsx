@@ -4,9 +4,23 @@ import { StoreSettings } from '../types';
 
 interface StorefrontFooterProps {
   settings?: StoreSettings | null;
+  footerBackgroundColor?: string;
+  footerTextColor?: string;
+  footerHeadingColor?: string;
+  footerLinkColor?: string;
 }
 
-const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
+const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ 
+  settings,
+  footerBackgroundColor,
+  footerTextColor,
+  footerHeadingColor,
+  footerLinkColor,
+}) => {
+  const bgColor = footerBackgroundColor || settings?.footerBackgroundColor || '#ffffff';
+  const textColor = footerTextColor || settings?.footerTextColor || '#171717';
+  const headingColor = footerHeadingColor || settings?.footerHeadingColor || '#171717';
+  const linkColor = footerLinkColor || settings?.footerLinkColor || '#525252';
   const [activePopup, setActivePopup] = useState<string | null>(null);
 
   const handlePopupOpen = (popupType: string) => {
@@ -40,7 +54,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
   );
 
   return (
-    <footer className="bg-neutral-50 border-t border-neutral-200 mt-auto">
+    <footer className="border-t mt-auto" style={{ backgroundColor: bgColor, borderColor: '#e5e5e5' }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Links and Social Media Section */}
         <div className="flex flex-col items-center">
@@ -48,13 +62,16 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
             {/* Quick Links */}
             {(settings?.aboutUs?.content || settings?.privacyPolicy?.content || settings?.termsOfService?.content) && (
               <div className="text-center sm:text-left">
-                <h3 className="text-sm font-medium text-neutral-900 mb-4 tracking-wide uppercase">Quick Links</h3>
+                <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Quick Links</h3>
                 <ul className="space-y-3">
                   {settings?.aboutUs?.content && (
                     <li>
                       <button
                         onClick={() => handlePopupOpen('aboutUs')}
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         About Us
                       </button>
@@ -64,7 +81,10 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                     <li>
                       <button
                         onClick={() => handlePopupOpen('privacyPolicy')}
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Privacy Policy
                       </button>
@@ -74,7 +94,10 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                     <li>
                       <button
                         onClick={() => handlePopupOpen('termsOfService')}
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Terms of Service
                       </button>
@@ -87,13 +110,16 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
             {/* Customer Service */}
             {(settings?.shippingInfo?.content || settings?.returns?.content || settings?.faq?.content || settings?.trackOrderUrl) && (
               <div className="text-center sm:text-left">
-                <h3 className="text-sm font-medium text-neutral-900 mb-4 tracking-wide uppercase">Customer Service</h3>
+                <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Customer Service</h3>
                 <ul className="space-y-3">
                   {settings?.shippingInfo?.content && (
                     <li>
                       <button
                         onClick={() => handlePopupOpen('shippingInfo')}
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Shipping Info
                       </button>
@@ -103,7 +129,10 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                     <li>
                       <button
                         onClick={() => handlePopupOpen('returns')}
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Returns
                       </button>
@@ -113,7 +142,10 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                     <li>
                       <button
                         onClick={() => handlePopupOpen('faq')}
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         FAQ
                       </button>
@@ -125,7 +157,10 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
                         href={settings.trackOrderUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                        className="text-sm transition-colors"
+                        style={{ color: linkColor }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = textColor}
+                        onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Track Order
                       </a>
@@ -140,7 +175,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
               {/* Social Media */}
               {(settings?.facebookUrl || settings?.twitterUrl || settings?.instagramUrl || settings?.linkedinUrl || settings?.youtubeUrl) && (
                 <div className="mb-8">
-                  <h3 className="text-sm font-medium text-neutral-900 mb-4 tracking-wide uppercase">Follow Us</h3>
+                  <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Follow Us</h3>
                   <div className="flex items-center justify-center sm:justify-start space-x-3">
                     {/* Facebook */}
                     {settings?.facebookUrl && (
@@ -219,8 +254,8 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
               {/* Contact Information */}
               {settings?.contact?.content && (
                 <div>
-                  <h3 className="text-sm font-medium text-neutral-900 mb-4 tracking-wide uppercase">Contact</h3>
-                  <div className="text-sm text-neutral-600 whitespace-pre-wrap leading-relaxed">
+                  <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Contact</h3>
+                  <div className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: textColor }}>
                     {settings.contact.content}
                   </div>
                 </div>
@@ -229,8 +264,8 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({ settings }) => {
           </div>
 
           {/* Copyright */}
-          <div className="mt-12 pt-8 border-t border-neutral-200 w-full">
-            <p className="text-xs text-neutral-500 text-center">
+          <div className="mt-12 pt-8 border-t w-full" style={{ borderColor: '#e5e5e5' }}>
+            <p className="text-xs text-center" style={{ color: textColor, opacity: 0.7 }}>
               © {new Date().getFullYear()} Powered by Shopu.ge. All rights reserved.
             </p>
           </div>

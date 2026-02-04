@@ -130,7 +130,7 @@ const StorefrontContent = () => {
           const data = await storefrontAPI.getProducts({
             categoryId: category.id,
             page: 1,
-            limit: 6, // Get 6 products per category
+            limit: 6, // Get 6 products per category (one line only)
             minPrice: priceRange.min ? parseFloat(priceRange.min) : undefined,
             maxPrice: priceRange.max ? parseFloat(priceRange.max) : undefined,
           });
@@ -332,28 +332,48 @@ const StorefrontContent = () => {
             <>
           {/* Category Breadcrumb & Grid Controls */}
           {selectedCategory && (
-            <div className="mb-4 sm:mb-6">
-              <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 min-h-[42px]">
+            <div className="mb-3 sm:mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                 {/* Breadcrumb */}
-                <nav className="overflow-x-auto scrollbar-hide py-2 sm:py-2.5">
-                  <div className="flex items-center text-xs sm:text-sm text-neutral-600 whitespace-nowrap min-w-max">
+                <nav className="overflow-x-auto scrollbar-hide">
+                  <div className="flex items-center text-xs sm:text-sm whitespace-nowrap min-w-max" style={{ color: storeSettings?.breadcrumbTextColor || '#525252' }}>
                     <button
                       onClick={handleAllProductsClick}
-                      className="hover:text-neutral-900 transition-colors flex-shrink-0 px-1"
+                      className="transition-colors flex-shrink-0 px-1"
+                      style={{ color: storeSettings?.breadcrumbTextColor || '#525252' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = storeSettings?.breadcrumbHoverColor || '#171717';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = storeSettings?.breadcrumbTextColor || '#525252';
+                      }}
                     >
                       Home
                     </button>
                     
                     {categoryHierarchy.map((cat, index) => (
                       <React.Fragment key={cat.id}>
-                        <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0 text-neutral-400" />
+                        <ChevronRightIcon className="w-3 h-3 mx-1 sm:mx-2 flex-shrink-0" style={{ color: storeSettings?.breadcrumbIconColor || '#a3a3a3' }} />
                         <button
                           onClick={() => handleCategorySelect(cat.id)}
                           className={`transition-colors flex-shrink-0 px-1 ${
-                            index === categoryHierarchy.length - 1
-                              ? 'text-neutral-900 font-medium'
-                              : 'hover:text-neutral-900'
+                            index === categoryHierarchy.length - 1 ? 'font-medium' : ''
                           }`}
+                          style={{
+                            color: index === categoryHierarchy.length - 1
+                              ? (storeSettings?.breadcrumbActiveTextColor || '#171717')
+                              : (storeSettings?.breadcrumbTextColor || '#525252')
+                          }}
+                          onMouseEnter={(e) => {
+                            if (index !== categoryHierarchy.length - 1) {
+                              e.currentTarget.style.color = storeSettings?.breadcrumbHoverColor || '#171717';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (index !== categoryHierarchy.length - 1) {
+                              e.currentTarget.style.color = storeSettings?.breadcrumbTextColor || '#525252';
+                            }
+                          }}
                         >
                           {cat.name}
                         </button>
@@ -364,7 +384,7 @@ const StorefrontContent = () => {
 
                 {/* Grid Layout Controls - Available on all screen sizes */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-xs sm:text-sm text-neutral-600 px-1">View:</span>
+                <span className="text-xs sm:text-sm px-1" style={{ color: storeSettings?.breadcrumbTextColor || '#525252' }}>View:</span>
                 {/* 2 columns */}
                 <button
                   onClick={() => handleGridLayoutChange(2)}
@@ -450,7 +470,7 @@ const StorefrontContent = () => {
                 ))}
               </div>
             ) : categoryProductsQueries.data && categoryProductsQueries.data.length > 0 ? (
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {categoryProductsQueries.data
                   .filter((cat: any) => cat.products.length > 0)
                   .map((categoryData: any) => (
@@ -461,6 +481,17 @@ const StorefrontContent = () => {
                       onViewAll={() => handleCategorySelect(categoryData.categoryId)}
                       onCategoryClick={() => handleCategorySelect(categoryData.categoryId)}
                       getCartItemQuantity={getCartItemQuantity}
+                      cardInfoBackgroundColor={storeSettings?.cardInfoBackgroundColor}
+                      productCardBorderColor={storeSettings?.productCardBorderColor}
+                      productCardHoverBorderColor={storeSettings?.productCardHoverBorderColor}
+                      productCardTextColor={storeSettings?.productCardTextColor}
+                      productCardCategoryTextColor={storeSettings?.productCardCategoryTextColor}
+                      productCardPriceTextColor={storeSettings?.productCardPriceTextColor}
+                      categorySectionTitleColor={storeSettings?.categorySectionTitleColor}
+                      categorySectionAccentColor={storeSettings?.categorySectionAccentColor}
+                      categorySectionLinkColor={storeSettings?.categorySectionLinkColor}
+                      categorySectionLinkHoverColor={storeSettings?.categorySectionLinkHoverColor}
+                      categorySectionBorderColor={storeSettings?.categorySectionBorderColor}
                     />
                   ))}
               </div>
@@ -494,7 +525,7 @@ const StorefrontContent = () => {
           ) : (
             /* Filtered view - show products in grid */
             productsLoading ? (
-              <div className={`grid gap-3 sm:gap-4 md:gap-6 ${
+              <div className={`grid gap-4 sm:gap-5 lg:gap-6 ${
                 gridLayout === 2 
                   ? 'grid-cols-2' 
                   : gridLayout === 3 
@@ -507,20 +538,29 @@ const StorefrontContent = () => {
               </div>
             ) : displayProducts?.products?.length ? (
               <>
-                <div className={`grid gap-3 sm:gap-4 md:gap-6 ${
-                  gridLayout === 2 
-                    ? 'grid-cols-2' 
-                    : gridLayout === 3 
-                    ? 'grid-cols-3' 
-                    : 'grid-cols-4'
-                }`}>
-                  {displayProducts.products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      cartQuantity={getCartItemQuantity(product.id)}
-                    />
-                  ))}
+                {/* Filtered products */}
+                <div className="py-6 sm:py-8">
+                  <div className={`grid gap-4 sm:gap-5 lg:gap-6 ${
+                    gridLayout === 2 
+                      ? 'grid-cols-2' 
+                      : gridLayout === 3 
+                      ? 'grid-cols-3' 
+                      : 'grid-cols-4'
+                  }`}>
+                    {displayProducts.products.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        cartQuantity={getCartItemQuantity(product.id)}
+                        cardInfoBackgroundColor={storeSettings?.cardInfoBackgroundColor}
+                        productCardBorderColor={storeSettings?.productCardBorderColor}
+                        productCardHoverBorderColor={storeSettings?.productCardHoverBorderColor}
+                        productCardTextColor={storeSettings?.productCardTextColor}
+                        productCardCategoryTextColor={storeSettings?.productCardCategoryTextColor}
+                        productCardPriceTextColor={storeSettings?.productCardPriceTextColor}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 {/* Pagination */}

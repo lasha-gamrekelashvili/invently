@@ -14,6 +14,11 @@ interface StorefrontCategoryListProps {
   onSelect?: (categoryId: string) => void;
   selectedCategoryId?: string;
   expandedCategoryIds?: string[];
+  sidebarSelectedColor?: string;
+  sidebarHoverColor?: string;
+  sidebarTextColor?: string;
+  sidebarSelectedTextColor?: string;
+  sidebarDividerColor?: string;
 }
 
 const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
@@ -21,6 +26,11 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
   onSelect,
   selectedCategoryId,
   expandedCategoryIds = [],
+  sidebarSelectedColor = '#e5e5e5',
+  sidebarHoverColor = '#e5e5e580',
+  sidebarTextColor = '#525252',
+  sidebarSelectedTextColor = '#171717',
+  sidebarDividerColor = '#e5e5e5',
 }) => {
   // Initialize with expandedCategoryIds
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set(expandedCategoryIds));
@@ -68,11 +78,25 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
       <div key={category.id}>
         <div
           className={`group flex items-center py-2.5 px-3 rounded-lg transition-all ${
-            isSelected
-              ? 'bg-neutral-100 text-neutral-900'
-              : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+            isSelected ? 'font-medium' : ''
           }`}
-          style={{ marginLeft: `${level * 20}px` }}
+          style={{
+            marginLeft: `${level * 20}px`,
+            backgroundColor: isSelected ? sidebarSelectedColor : 'transparent',
+            color: isSelected ? sidebarSelectedTextColor : sidebarTextColor,
+          }}
+          onMouseEnter={(e) => {
+            if (!isSelected) {
+              e.currentTarget.style.backgroundColor = sidebarHoverColor;
+              e.currentTarget.style.color = sidebarSelectedTextColor;
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isSelected) {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = sidebarTextColor;
+            }
+          }}
         >
           {/* Expand/Collapse Button */}
           {hasChildren ? (
@@ -83,8 +107,8 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
               }}
               className={`w-5 h-5 flex items-center justify-center mr-2.5 rounded transition-all ${
                 isExpanded
-                  ? 'text-neutral-700 bg-neutral-100'
-                  : 'text-neutral-400 group-hover:text-neutral-600 group-hover:bg-neutral-100'
+                  ? 'text-neutral-700 bg-neutral-200'
+                  : 'text-neutral-400 group-hover:text-neutral-600 group-hover:bg-neutral-200'
               }`}
             >
               {isExpanded ? (
@@ -116,7 +140,7 @@ const StorefrontCategoryList: React.FC<StorefrontCategoryListProps> = ({
 
         {/* Children */}
         {hasChildren && isExpanded && (
-          <div className="mt-1 ml-2 border-l border-neutral-200 pl-2">
+          <div className="mt-1 ml-2 border-l pl-2" style={{ borderColor: sidebarDividerColor }}>
             {category.children!.map(child => renderCategoryNode(child, level + 1))}
           </div>
         )}

@@ -7,9 +7,25 @@ interface ProductCardProps {
   product: Product;
   cartQuantity: number;
   hideDescription?: boolean;
+  cardInfoBackgroundColor?: string;
+  productCardBorderColor?: string;
+  productCardHoverBorderColor?: string;
+  productCardTextColor?: string;
+  productCardCategoryTextColor?: string;
+  productCardPriceTextColor?: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, hideDescription = false }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  product, 
+  cartQuantity, 
+  hideDescription = false, 
+  cardInfoBackgroundColor = '#fafafa',
+  productCardBorderColor = '#e5e5e5',
+  productCardHoverBorderColor = '#d4d4d4',
+  productCardTextColor = '#171717',
+  productCardCategoryTextColor = '#737373',
+  productCardPriceTextColor = '#171717',
+}) => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant] = useState<ProductVariant | null>(null);
@@ -50,11 +66,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, hideDe
 
   return (
     <div
-      className="group bg-white rounded-2xl overflow-hidden border border-neutral-200 hover:border-neutral-300 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col h-full"
+      className="group bg-white overflow-hidden rounded-lg border shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col h-full"
+      style={{ borderColor: productCardBorderColor }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = productCardHoverBorderColor;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = productCardBorderColor;
+      }}
       onClick={handleProductClick}
     >
       {/* Product Image */}
-      <div className="relative aspect-square bg-neutral-50 overflow-hidden">
+      <div className="relative aspect-square bg-neutral-100 overflow-hidden rounded-t-lg">
         {currentImage ? (
           <img
             src={currentImage.url}
@@ -114,22 +137,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, hideDe
       </div>
 
       {/* Product Info */}
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-4 sm:p-5 flex flex-col flex-1" style={{ backgroundColor: cardInfoBackgroundColor }}>
         {/* Category */}
         {product.category && (
-          <span className="text-xs text-neutral-500 font-medium uppercase tracking-wider mb-1.5">
+          <span className="text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: productCardCategoryTextColor }}>
             {product.category.name}
           </span>
         )}
 
         {/* Title */}
-        <h3 className="text-sm sm:text-base font-medium text-neutral-900 line-clamp-2 mb-2 leading-snug">
+        <h3 className="text-sm sm:text-base font-medium line-clamp-2 mb-2 leading-snug" style={{ color: productCardTextColor }}>
           {product.title}
         </h3>
 
         {/* Description - Show on desktop when cards are large enough, unless explicitly hidden */}
         {!hideDescription && product.description && (
-          <p className="hidden md:block text-sm text-neutral-600 line-clamp-2 mb-3 leading-relaxed">
+          <p className="hidden md:block text-sm line-clamp-2 mb-3 leading-relaxed" style={{ color: productCardTextColor, opacity: 0.7 }}>
             {product.description}
           </p>
         )}
@@ -137,7 +160,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, hideDe
         {/* Variant indicator */}
         {priceInfo.hasVariants && product.variants && product.variants.length > 0 && (
           <div className="mb-2">
-            <span className="text-xs text-neutral-500">
+            <span className="text-xs" style={{ color: productCardCategoryTextColor }}>
               {product.variants.filter(v => v.isActive).length} options
             </span>
           </div>
@@ -146,12 +169,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, cartQuantity, hideDe
         {/* Price */}
         <div className="mt-auto pt-2">
           {priceInfo.hasVariants && !selectedVariant ? (
-            <p className="text-lg sm:text-xl font-light tracking-tight text-neutral-900">
+            <p className="text-lg sm:text-xl font-light tracking-tight" style={{ color: productCardPriceTextColor }}>
               ${priceInfo.minPrice.toFixed(2)}
-              {priceInfo.minPrice !== priceInfo.maxPrice && <span className="text-sm font-normal text-neutral-500"> +</span>}
+              {priceInfo.minPrice !== priceInfo.maxPrice && <span className="text-sm font-normal" style={{ color: productCardCategoryTextColor }}> +</span>}
             </p>
           ) : (
-            <p className="text-lg sm:text-xl font-light tracking-tight text-neutral-900">${displayPrice.toFixed(2)}</p>
+            <p className="text-lg sm:text-xl font-light tracking-tight" style={{ color: productCardPriceTextColor }}>${displayPrice.toFixed(2)}</p>
           )}
         </div>
       </div>

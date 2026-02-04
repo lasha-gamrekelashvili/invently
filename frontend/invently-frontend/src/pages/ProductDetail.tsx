@@ -334,7 +334,7 @@ const ProductDetailContent: React.FC = () => {
         </div>
 
         {/* Main Product Card */}
-        <div className="bg-white rounded-2xl border border-neutral-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
+        <div className="rounded-2xl border border-neutral-200 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff' }}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             
             {/* Vertical Thumbnails - Desktop Only */}
@@ -536,7 +536,7 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Specifications */}
         {product.attributes && Object.keys(product.attributes).length > 0 && (
-          <div className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-4 sm:mb-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff' }}>
             <h3 className="text-base sm:text-lg font-light tracking-tight text-neutral-900 mb-3 sm:mb-4">Technical Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {Object.entries(product.attributes).map(([key, value]) => (
@@ -554,7 +554,7 @@ const ProductDetailContent: React.FC = () => {
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (
-          <div className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6">
+          <div className="rounded-2xl border border-neutral-200 p-4 sm:p-6" style={{ backgroundColor: storeSettings?.productDetailCardBackgroundColor || '#ffffff' }}>
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h3 className="text-base sm:text-lg font-light tracking-tight text-neutral-900">
                 More from {rootCategory?.name || product.category?.name}

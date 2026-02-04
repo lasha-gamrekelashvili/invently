@@ -14,6 +14,9 @@ interface LandingHeaderProps {
   mobileSearchContent?: React.ReactNode;
   mobileSearchButton?: React.ReactNode;
   showLogo?: boolean;
+  headerBackgroundColor?: string;
+  headerTextColor?: string;
+  headerBorderColor?: string;
 }
 
 const LandingHeader: React.FC<LandingHeaderProps> = ({
@@ -27,9 +30,11 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
   mobileSearchContent,
   mobileSearchButton,
   showLogo = true,
+  headerBackgroundColor = '#ffffff',
+  headerBorderColor = '#e5e5e5',
 }) => {
   return (
-    <nav className="bg-white border-b border-neutral-200 sticky top-0 z-50 w-full">
+    <nav className="border-b sticky top-0 z-50 w-full" style={{ backgroundColor: headerBackgroundColor, borderColor: headerBorderColor }}>
       <div className="w-full px-2 sm:px-4 lg:px-12">
         <div className="flex justify-between items-center h-14 sm:h-16 md:h-20 gap-1 sm:gap-2 md:gap-4">
           {/* Mobile Search Expanded View */}

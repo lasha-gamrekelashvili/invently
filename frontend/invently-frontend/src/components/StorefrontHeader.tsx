@@ -18,6 +18,10 @@ interface StorefrontHeaderProps {
   searchQuery?: string;
   isCartOpen?: boolean;
   isSidebarOpen?: boolean;
+  headerBackgroundColor?: string;
+  headerTextColor?: string;
+  headerBorderColor?: string;
+  storeSettings?: any;
 }
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
@@ -26,10 +30,20 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   onSearchChange,
   searchQuery = '',
   isCartOpen = false,
-  isSidebarOpen = false
+  isSidebarOpen = false,
+  headerBackgroundColor = '#ffffff',
+  headerTextColor = '#171717',
+  headerBorderColor = '#e5e5e5',
+  storeSettings,
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const { cartItemCount } = useCart();
+
+  const searchBarBackgroundColor = storeSettings?.searchBarBackgroundColor || '#ffffff';
+  const searchBarBorderColor = storeSettings?.searchBarBorderColor || '#d4d4d4';
+  const searchBarTextColor = storeSettings?.searchBarTextColor || '#171717';
+  const searchBarPlaceholderColor = storeSettings?.searchBarPlaceholderColor || '#a3a3a3';
+  const searchBarIconColor = storeSettings?.searchBarIconColor || '#a3a3a3';
 
   // Sync with parent when prop changes
   React.useEffect(() => {
@@ -46,14 +60,18 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
     <LandingHeader 
       showAuthButtons={false}
       showLogo={false}
+      headerBackgroundColor={headerBackgroundColor}
+      headerTextColor={headerTextColor}
+      headerBorderColor={headerBorderColor}
       mobileMenuButton={
         <button
           onClick={onMenuClick}
           className={`p-2 rounded-md transition-all ${
             isSidebarOpen
-              ? 'text-neutral-900 bg-neutral-100 ring-1 ring-neutral-300'
-              : 'text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100'
+              ? 'bg-neutral-100 ring-1 ring-neutral-300'
+              : 'hover:bg-neutral-100'
           }`}
+          style={{ color: headerTextColor }}
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
@@ -63,15 +81,28 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           {/* Search Bar - Always visible on all screens */}
           <div className="relative flex-1 min-w-0">
             <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 md:pl-4 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 text-neutral-400" />
+              <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: searchBarIconColor }} />
             </div>
             <input
               type="text"
               placeholder="Search..."
               value={localSearchQuery}
               onChange={handleSearchChange}
-              className="block w-full pl-8 sm:pl-10 md:pl-12 pr-2 sm:pr-3 md:pr-4 py-1.5 sm:py-2 md:py-2.5 border border-neutral-300 rounded-xl text-xs sm:text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
+              className="block w-full pl-8 sm:pl-10 md:pl-12 pr-2 sm:pr-3 md:pr-4 py-1.5 sm:py-2 md:py-2.5 border rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
+              style={{
+                backgroundColor: searchBarBackgroundColor,
+                borderColor: searchBarBorderColor,
+                color: searchBarTextColor,
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = searchBarBorderColor;
+              }}
             />
+            <style>{`
+              input::placeholder {
+                color: ${searchBarPlaceholderColor} !important;
+              }
+            `}</style>
           </div>
         </div>
       }
@@ -80,9 +111,10 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
           onClick={onCartClick}
           className={`relative p-2 rounded-xl transition-all group ${
             isCartOpen
-              ? 'text-neutral-900 bg-neutral-100 ring-1 ring-neutral-300'
-              : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+              ? 'bg-neutral-100 ring-1 ring-neutral-300'
+              : 'hover:bg-neutral-100'
           }`}
+          style={{ color: headerTextColor }}
           aria-label="Shopping cart"
         >
           <ShoppingBagIcon className={`h-6 w-6 transition-transform ${isCartOpen ? 'scale-110' : ''}`} />
