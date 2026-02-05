@@ -8,7 +8,7 @@ import { useMutation } from '@tanstack/react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { T } from '../components/Translation';
 import LandingHeader from '../components/LandingHeader';
-import { EnvelopeIcon, LockClosedIcon, UserIcon, BuildingStorefrontIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, LockClosedIcon, BuildingStorefrontIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 
 const Register = () => {
   const [formData, setFormData] = useState({
