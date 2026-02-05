@@ -39,8 +39,6 @@ export class TenantRepository extends BaseRepository {
             select: {
               id: true,
               email: true,
-              firstName: true,
-              lastName: true,
             },
           },
           ...options.include,
@@ -62,8 +60,6 @@ export class TenantRepository extends BaseRepository {
             select: {
               id: true,
               email: true,
-              firstName: true,
-              lastName: true,
               createdAt: true,
             },
           },
@@ -112,8 +108,6 @@ export class TenantRepository extends BaseRepository {
             select: {
               id: true,
               email: true,
-              firstName: true,
-              lastName: true,
             },
           },
           _count: {

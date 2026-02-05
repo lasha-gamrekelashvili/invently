@@ -65,10 +65,6 @@ const router = express.Router();
  *                               email:
  *                                 type: string
  *                                 format: email
- *                               firstName:
- *                                 type: string
- *                               lastName:
- *                                 type: string
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
@@ -128,10 +124,6 @@ const router = express.Router();
  *                               email:
  *                                 type: string
  *                                 format: email
- *                               firstName:
- *                                 type: string
- *                               lastName:
- *                                 type: string
  *                           _count:
  *                             type: object
  *                             properties:
@@ -192,10 +184,6 @@ const router = express.Router();
  *                         email:
  *                           type: string
  *                           format: email
- *                         firstName:
- *                           type: string
- *                         lastName:
- *                           type: string
  *                         createdAt:
  *                           type: string
  *                           format: date-time
@@ -462,10 +450,6 @@ const router = express.Router();
  *                               email:
  *                                 type: string
  *                                 format: email
- *                               firstName:
- *                                 type: string
- *                               lastName:
- *                                 type: string
  *                           tenant:
  *                             type: object
  *                             properties:

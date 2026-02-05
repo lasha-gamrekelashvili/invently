@@ -8,16 +8,13 @@ const authService = new AuthService();
  */
 const register = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, tenantName, subdomain, iban } = req.validatedData;
+    const { email, password, tenantName, subdomain } = req.validatedData;
 
     const result = await authService.register({
       email,
       password,
-      firstName,
-      lastName,
       tenantName,
       subdomain,
-      iban: iban || null,
     });
 
     res.status(201).json(
@@ -112,7 +109,7 @@ const updateIban = async (req, res) => {
 };
 
 /**
- * Updates user's profile (firstName, lastName, email)
+ * Updates user's profile (email)
  */
 const updateProfile = async (req, res) => {
   try {

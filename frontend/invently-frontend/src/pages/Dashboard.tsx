@@ -112,7 +112,7 @@ const Dashboard = () => {
             <T tKey="dashboard.title" />
           </h1>
           <p className="text-neutral-500 mt-1">
-            <T tKey="dashboard.welcome" params={{ name: user?.firstName || '' }} />
+            <T tKey="dashboard.welcome" params={{ name: user?.email || '' }} />
           </p>
         </div>
       </div>

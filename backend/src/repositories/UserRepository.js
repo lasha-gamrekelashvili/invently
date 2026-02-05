@@ -23,8 +23,6 @@ export class UserRepository extends BaseRepository {
         select: {
           id: true,
           email: true,
-          firstName: true,
-          lastName: true,
           role: true,
           createdAt: true,
           ownedTenants: {

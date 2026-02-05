@@ -22,8 +22,6 @@ const authenticateToken = async (req, res, next) => {
       select: {
         id: true,
         email: true,
-        firstName: true,
-        lastName: true,
         role: true,
         ownedTenants: {},
       }

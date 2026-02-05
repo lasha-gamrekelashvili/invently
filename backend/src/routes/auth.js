@@ -34,8 +34,6 @@ const router = express.Router();
  *             required:
  *               - email
  *               - password
- *               - firstName
- *               - lastName
  *               - tenantName
  *               - subdomain
  *             properties:
@@ -49,18 +47,6 @@ const router = express.Router();
  *                 minLength: 8
  *                 description: User password (minimum 8 characters)
  *                 example: password123
- *               firstName:
- *                 type: string
- *                 minLength: 2
- *                 maxLength: 50
- *                 description: User first name
- *                 example: John
- *               lastName:
- *                 type: string
- *                 minLength: 2
- *                 maxLength: 50
- *                 description: User last name
- *                 example: Doe
  *               tenantName:
  *                 type: string
  *                 minLength: 2
@@ -74,12 +60,6 @@ const router = express.Router();
  *                 maxLength: 50
  *                 description: Unique subdomain for the store
  *                 example: johnstore
- *               iban:
- *                 type: string
- *                 maxLength: 34
- *                 nullable: true
- *                 description: International Bank Account Number (optional during registration)
- *                 example: GE00XX0000000000000000
  *     responses:
  *       201:
  *         description: User and store created successfully

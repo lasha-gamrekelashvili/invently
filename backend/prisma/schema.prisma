@@ -11,8 +11,6 @@ model User {
   id            String   @id @default(uuid())
   email         String   @unique
   password      String
-  firstName     String
-  lastName      String
   role          UserRole @default(STORE_OWNER)
   iban          String?
   emailVerified Boolean  @default(false)

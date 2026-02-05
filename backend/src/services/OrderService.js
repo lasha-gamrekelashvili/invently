@@ -149,7 +149,7 @@ export class OrderService {
         include: {
           tenant: {
             include: {
-              owner: { select: { email: true, firstName: true, lastName: true } },
+              owner: { select: { email: true } },
             },
           },
           items: {

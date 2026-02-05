@@ -16,8 +16,6 @@ export class PaymentRepository extends BaseRepository {
           select: {
             id: true,
             email: true,
-            firstName: true,
-            lastName: true,
           },
         },
         tenant: {
@@ -50,8 +48,6 @@ export class PaymentRepository extends BaseRepository {
           select: {
             id: true,
             email: true,
-            firstName: true,
-            lastName: true,
           },
         },
         tenant: {

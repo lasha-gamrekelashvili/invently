@@ -6,11 +6,8 @@ const schemas = {
   register: Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
-    firstName: Joi.string().min(2).max(50).required(),
-    lastName: Joi.string().min(2).max(50).required(),
     tenantName: Joi.string().min(2).max(100).required(),
-    subdomain: Joi.string().alphanum().min(3).max(50).required(),
-    iban: Joi.string().max(34).optional().allow(null, '') 
+    subdomain: Joi.string().alphanum().min(3).max(50).required()
   }),
 
   login: Joi.object({
@@ -106,8 +103,6 @@ const schemas = {
   }),
 
   updateProfile: Joi.object({
-    firstName: Joi.string().min(2).max(50).optional(),
-    lastName: Joi.string().min(2).max(50).optional(),
     email: Joi.string().email().optional()
   }),
 

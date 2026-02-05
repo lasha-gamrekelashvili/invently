@@ -18,8 +18,6 @@ const Settings = () => {
   const [formData, setFormData] = useState<UpdateStoreSettingsData>({});
   const [iban, setIban] = useState(user?.iban || '');
   const [profileData, setProfileData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
     email: user?.email || '',
   });
   const [subdomain, setSubdomain] = useState(getCurrentSubdomain() || '');
@@ -45,8 +43,6 @@ const Settings = () => {
   useEffect(() => {
     if (user) {
       setProfileData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
         email: user.email || '',
       });
       setIban(user.iban || '');
@@ -87,8 +83,6 @@ const Settings = () => {
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       // Update local state
       setProfileData({
-        firstName: data.user.firstName || '',
-        lastName: data.user.lastName || '',
         email: data.user.email || '',
       });
     },
@@ -164,9 +158,7 @@ const Settings = () => {
     e.preventDefault();
     if (activeTab === 'account') {
       // Update profile, IBAN, and subdomain if they've changed
-      const profileUpdates: { firstName?: string; lastName?: string; email?: string } = {};
-      if (profileData.firstName !== user?.firstName) profileUpdates.firstName = profileData.firstName;
-      if (profileData.lastName !== user?.lastName) profileUpdates.lastName = profileData.lastName;
+      const profileUpdates: { email?: string } = {};
       if (profileData.email !== user?.email) profileUpdates.email = profileData.email;
 
       const hasProfileChanges = Object.keys(profileUpdates).length > 0;
@@ -487,46 +479,20 @@ const Settings = () => {
               {/* Profile Information */}
               <div>
                 <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.profile.title')}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings.account.profile.firstName.label')}
-                    </label>
-                    <input
-                      type="text"
-                      value={profileData.firstName}
-                      onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-                      className="input-field"
-                      placeholder={t('settings.account.profile.firstName.placeholder')}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings.account.profile.lastName.label')}
-                    </label>
-                    <input
-                      type="text"
-                      value={profileData.lastName}
-                      onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-                      className="input-field"
-                      placeholder={t('settings.account.profile.lastName.placeholder')}
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings.account.profile.email.label')}
-                    </label>
-                    <input
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                      className="input-field"
-                      placeholder={t('settings.account.profile.email.placeholder')}
-                    />
-                    <p className="mt-1 text-sm text-gray-500">
-                      {t('settings.account.profile.email.helpText')}
-                    </p>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('settings.account.profile.email.label')}
+                  </label>
+                  <input
+                    type="email"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                    className="input-field"
+                    placeholder={t('settings.account.profile.email.placeholder')}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t('settings.account.profile.email.helpText')}
+                  </p>
                 </div>
               </div>
 

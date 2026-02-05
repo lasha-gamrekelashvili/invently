@@ -93,8 +93,6 @@ export class AdminService {
     if (search) {
       where.OR = [
         { email: { contains: search } },
-        { firstName: { contains: search } },
-        { lastName: { contains: search } },
       ];
     }
 
@@ -167,8 +165,6 @@ export class AdminService {
             owner: {
               select: {
                 email: true,
-                firstName: true,
-                lastName: true,
               },
             },
           },

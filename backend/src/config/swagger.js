@@ -138,14 +138,6 @@ const options = {
               format: 'email',
               description: 'User email address'
             },
-            firstName: { 
-              type: 'string',
-              description: 'User first name'
-            },
-            lastName: { 
-              type: 'string',
-              description: 'User last name'
-            },
             role: { 
               type: 'string', 
               enum: ['PLATFORM_ADMIN', 'STORE_OWNER'],
@@ -166,8 +158,6 @@ const options = {
           example: {
             id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
             email: 'john@example.com',
-            firstName: 'John',
-            lastName: 'Doe',
             role: 'STORE_OWNER',
             iban: 'GE00XX0000000000000000',
             createdAt: '2023-09-27T10:30:00Z'

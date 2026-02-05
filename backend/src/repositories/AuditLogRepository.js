@@ -18,8 +18,6 @@ export class AuditLogRepository extends BaseRepository {
             select: {
               id: true,
               email: true,
-              firstName: true,
-              lastName: true,
             },
           },
           tenant: {

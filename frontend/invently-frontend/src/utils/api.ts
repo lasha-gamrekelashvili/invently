@@ -156,7 +156,7 @@ export const authAPI = {
   updateIban: (iban: string): Promise<{ user: User }> =>
     api.put('/auth/iban', { iban }).then(res => res.data),
 
-  updateProfile: (data: { firstName?: string; lastName?: string; email?: string }): Promise<{ user: User }> =>
+  updateProfile: (data: { email?: string }): Promise<{ user: User }> =>
     api.put('/auth/profile', data).then(res => res.data),
 
   verifyEmail: (code: string): Promise<{ user: User }> =>

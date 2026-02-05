@@ -1,8 +1,6 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
   role: 'PLATFORM_ADMIN' | 'STORE_OWNER';
   iban?: string;
   emailVerified?: boolean;
@@ -174,11 +172,8 @@ export interface CreateCategoryData {
 export interface RegisterData {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
   tenantName: string;
   subdomain: string;
-  iban?: string;
 }
 
 export interface Payment {
@@ -196,8 +191,6 @@ export interface Payment {
   user?: {
     id: string;
     email: string;
-    firstName: string;
-    lastName: string;
   };
   tenant?: {
     id: string;

@@ -12,14 +12,11 @@ import { EnvelopeIcon, LockClosedIcon, UserIcon, BuildingStorefrontIcon, GlobeAl
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
     tenantName: '',
     subdomain: '',
-    iban: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -233,51 +230,6 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-2">
-                    <T tKey="auth.register.firstName" />
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <UserIcon className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="block w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
-                      placeholder={t('auth.register.firstName')}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-neutral-700 mb-2">
-                    <T tKey="auth.register.lastName" />
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <UserIcon className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      required
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="block w-full pl-11 pr-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
-                      placeholder={t('auth.register.lastName')}
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
@@ -399,26 +351,6 @@ const Register = () => {
                     placeholder={t('auth.register.confirmPassword')}
                   />
                 </div>
-              </div>
-
-              {/* IBAN (Optional) */}
-              <div>
-                <label htmlFor="iban" className="block text-sm font-medium text-neutral-700 mb-2">
-                  <T tKey="auth.register.iban" /> <span className="text-neutral-500 font-normal text-xs">(<T tKey="auth.register.optional" />)</span>
-                </label>
-                <input
-                  id="iban"
-                  name="iban"
-                  type="text"
-                  value={formData.iban}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
-                  placeholder={t('auth.register.ibanPlaceholder')}
-                  maxLength={34}
-                />
-                <p className="mt-2 text-xs text-neutral-500">
-                  <T tKey="auth.register.ibanHelp" />
-                </p>
               </div>
 
               <div className="pt-2">

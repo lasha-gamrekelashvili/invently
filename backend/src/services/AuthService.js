@@ -30,7 +30,7 @@ export class AuthService {
    * Creates user, tenant (inactive), and setup fee payment.
    */
   async register(userData) {
-    const { email, password, firstName, lastName, tenantName, subdomain, iban } = userData;
+    const { email, password, tenantName, subdomain } = userData;
 
     const existingUser = await this.authRepository.findByEmail(email);
     if (existingUser) {
@@ -48,10 +48,7 @@ export class AuthService {
       {
         email,
         password: hashedPassword,
-        firstName,
-        lastName,
         role: 'STORE_OWNER',
-        iban: iban || null,
       },
       {
         name: tenantName,
@@ -79,8 +76,6 @@ export class AuthService {
       user: {
         id: result.user.id,
         email: result.user.email,
-        firstName: result.user.firstName,
-        lastName: result.user.lastName,
         role: result.user.role,
         iban: result.user.iban,
         emailVerified: result.user.emailVerified,
@@ -124,8 +119,6 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
         role: user.role,
       },
       tenants: user.ownedTenants.map(tenant => ({
@@ -152,8 +145,6 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
         role: user.role,
         iban: user.iban,
         emailVerified: user.emailVerified,
@@ -185,8 +176,6 @@ export class AuthService {
       user: {
         id: updatedUser.id,
         email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
         role: updatedUser.role,
         iban: updatedUser.iban,
       },
@@ -194,7 +183,7 @@ export class AuthService {
   }
 
   /**
-   * Updates user's profile (firstName, lastName, email)
+   * Updates user's profile (email)
    */
   async updateProfile(userId, profileData) {
     const user = await this.authRepository.findById(userId);
@@ -212,8 +201,6 @@ export class AuthService {
     }
 
     const updateData = {};
-    if (profileData.firstName !== undefined) updateData.firstName = profileData.firstName;
-    if (profileData.lastName !== undefined) updateData.lastName = profileData.lastName;
     if (profileData.email !== undefined) updateData.email = profileData.email;
 
     const updatedUser = await this.authRepository.update(userId, updateData);
@@ -222,8 +209,6 @@ export class AuthService {
       user: {
         id: updatedUser.id,
         email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
         role: updatedUser.role,
         iban: updatedUser.iban,
         emailVerified: updatedUser.emailVerified,
@@ -246,8 +231,6 @@ export class AuthService {
       user: {
         id: updatedUser.id,
         email: updatedUser.email,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
         role: updatedUser.role,
         iban: updatedUser.iban,
         emailVerified: updatedUser.emailVerified,

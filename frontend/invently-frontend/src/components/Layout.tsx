@@ -133,14 +133,14 @@ const Layout = () => {
             <div className="flex items-center mb-3">
               <div className="w-8 h-8 bg-neutral-900 rounded-full flex items-center justify-center mr-3">
                 <span className="text-xs font-medium text-white">
-                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
                 </span>
               </div>
               <div className="flex-1">
                 <div className="font-medium text-neutral-900 text-sm">
-                  {user?.firstName} {user?.lastName}
+                  {user?.email}
                 </div>
-                <div className="text-xs text-neutral-500">{user?.email}</div>
+                <div className="text-xs text-neutral-500">{user?.role}</div>
               </div>
             </div>
             
