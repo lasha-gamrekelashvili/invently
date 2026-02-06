@@ -67,9 +67,9 @@ export const setAuthToken = (token: string | null) => {
 };
 
 
-// Function to check if we're on a subdomain
+// Function to check if we're on a subdomain or custom domain
 export const isOnSubdomain = () => {
-  const host = window.location.hostname; // furniture.localhost OR furniture.shopu.ge
+  const host = window.location.hostname; // furniture.localhost OR furniture.shopu.ge OR www.mystore.com
   
   // Not a subdomain if it's localhost or an IP address
   if (host === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return false;
@@ -77,10 +77,16 @@ export const isOnSubdomain = () => {
   // localhost special-case: foo.localhost is treated as subdomain
   if (host.endsWith('.localhost')) return true;
   
-  // For production domains - check if it's a subdomain of shopu.ge
-  if (host.endsWith('.shopu.ge') && host !== 'shopu.ge') return true;
+  // Check if it's the main domain (not a subdomain)
+  const mainDomains = ['shopu.ge', 'momigvare.ge'];
+  if (mainDomains.includes(host)) return false;
   
-  // General case: at least 3 labels = subdomain (e.g., tenant.example.com)
+  // For production domains - check if it's a subdomain of shopu.ge or momigvare.ge
+  if ((host.endsWith('.shopu.ge') || host.endsWith('.momigvare.ge')) && !mainDomains.includes(host)) {
+    return true;
+  }
+  
+  // General case: at least 3 labels = subdomain or custom domain (e.g., tenant.example.com, www.mystore.com)
   return host.split('.').length >= 3;
 };
 
@@ -335,6 +341,9 @@ export const settingsAPI = {
 
   updateTenantSubdomain: (subdomain: string): Promise<{ tenant: Tenant }> =>
     api.put('/settings/tenant/subdomain', { subdomain }).then(res => res.data),
+
+  updateTenantCustomDomain: (customDomain: string | null): Promise<{ tenant: Tenant }> =>
+    api.put('/settings/tenant/custom-domain', { customDomain }).then(res => res.data),
 };
 
 // Cart API

@@ -110,6 +110,31 @@ const schemas = {
     subdomain: Joi.string().alphanum().min(3).max(50).required()
   }),
 
+  updateTenantCustomDomain: Joi.object({
+    customDomain: Joi.string()
+      .hostname()
+      .max(255)
+      .optional()
+      .allow(null, '')
+      .custom((value, helpers) => {
+        if (!value || value === '') return value;
+        // Validate domain format
+        const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+        if (!domainRegex.test(value)) {
+          return helpers.error('any.invalid');
+        }
+        // Don't allow shopu.ge or momigvare.ge domains
+        if (value.includes('shopu.ge') || value.includes('momigvare.ge')) {
+          return helpers.error('any.invalid');
+        }
+        return value;
+      })
+      .messages({
+        'any.invalid': 'Invalid domain format. Please enter a valid domain (e.g., www.mystore.com)',
+        'string.hostname': 'Invalid domain format'
+      })
+  }),
+
   verifyEmail: Joi.object({
     code: Joi.string().length(6).pattern(/^\d+$/).required()
   }),

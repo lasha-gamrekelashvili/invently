@@ -32,34 +32,61 @@ const prisma = new PrismaClient();
 let subscriptionJobId = null;
 
 app.use(cors({
-  origin: function (origin, callback) {
+  origin: async function (origin, callback) {
     if (!origin) return callback(null, true);
     
+    // Allow localhost for development
     if (origin.includes('localhost')) return callback(null, true);
     
-    const allowedDomains = [
+    // Allow main domains
+    const mainDomains = [
       'https://shopu.ge',
       'http://shopu.ge',
+      'https://momigvare.ge',
+      'http://momigvare.ge'
+    ];
+    
+    if (mainDomains.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow subdomains of main domains
+    const subdomainPatterns = [
       /^https:\/\/[a-zA-Z0-9-]+\.shopu\.ge$/,
       /^http:\/\/[a-zA-Z0-9-]+\.shopu\.ge$/,
       /^https:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/,
       /^http:\/\/[a-zA-Z0-9-]+\.momigvare\.ge$/
     ];
     
-    const isAllowed = allowedDomains.some(domain => {
-      if (typeof domain === 'string') {
-        return origin === domain;
-      } else if (domain instanceof RegExp) {
-        return domain.test(origin);
-      }
-      return false;
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    const isSubdomain = subdomainPatterns.some(pattern => pattern.test(origin));
+    if (isSubdomain) {
+      return callback(null, true);
     }
+    
+    // For custom domains, check if they're registered in database
+    try {
+      const hostname = new URL(origin).hostname.toLowerCase();
+      const tenant = await prisma.tenant.findFirst({
+        where: {
+          OR: [
+            { customDomain: hostname },
+            { customDomain: `www.${hostname}` },
+            { customDomain: hostname.replace(/^www\./, '') }
+          ],
+          customDomain: { not: null }
+        }
+      });
+      
+      if (tenant) {
+        return callback(null, true);
+      }
+    } catch (error) {
+      // If URL parsing fails or database query fails, reject
+      console.error('CORS verification error:', error);
+    }
+    
+    // Reject if not verified
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));

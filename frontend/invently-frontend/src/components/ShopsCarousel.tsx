@@ -54,26 +54,31 @@ const ShopsCarousel: React.FC = () => {
               className="flex items-center animate-scroll" 
               style={{ animationDuration: `${animationDuration}s` }}
             >
-              {displayShops.map((shop, index) => (
-                <a
-                  key={`${shop.id}-${index}`}
-                  href={`http://${shop.subdomain}.${window.location.hostname.includes('localhost') ? 'localhost:3000' : 'shopu.ge'}/store`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-shrink-0 px-6 sm:px-8 lg:px-12 group"
-                >
-                  <div className="flex flex-col items-center">
-                    <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 tracking-tight transition-all duration-300 whitespace-nowrap bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 bg-clip-text group-hover:text-transparent">
-                      {shop.name}
-                    </span>
-                    <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium italic mt-1 sm:mt-1.5 lg:mt-2 transition-colors duration-300">
-                      <span className="text-gray-400 group-hover:text-gray-600">{shop.subdomain}</span>
-                      <span className="text-gray-600 group-hover:text-gray-700">.shopu</span>
-                      <span className="text-primary-500 group-hover:text-primary-600">.ge</span>
-                    </span>
-                  </div>
-                </a>
-              ))}
+              {displayShops.map((shop, index) => {
+                const shopUrl = (shop as any).customDomain
+                  ? `https://${(shop as any).customDomain}/store`
+                  : `http://${shop.subdomain}.${window.location.hostname.includes('localhost') ? 'localhost:3000' : 'shopu.ge'}/store`;
+                const displayDomain = (shop as any).customDomain || `${shop.subdomain}.shopu.ge`;
+                
+                return (
+                  <a
+                    key={`${shop.id}-${index}`}
+                    href={shopUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-shrink-0 px-6 sm:px-8 lg:px-12 group"
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 tracking-tight transition-all duration-300 whitespace-nowrap bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 bg-clip-text group-hover:text-transparent">
+                        {shop.name}
+                      </span>
+                      <span className="text-xs sm:text-sm md:text-base lg:text-lg font-medium italic mt-1 sm:mt-1.5 lg:mt-2 transition-colors duration-300">
+                        <span className="text-gray-400 group-hover:text-gray-600">{displayDomain}</span>
+                      </span>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>

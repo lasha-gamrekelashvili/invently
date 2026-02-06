@@ -3,7 +3,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 /**
- * Resolves tenant from subdomain in request host header.
+ * Resolves tenant from custom domain or subdomain in request host header.
+ * Checks custom domain first, then falls back to subdomain extraction.
  * Read-only middleware - does not modify database state.
  */
 const tenantResolver = async (req, res, next) => {
@@ -14,8 +15,77 @@ const tenantResolver = async (req, res, next) => {
       return res.status(400).json({ error: 'Host header is required' });
     }
 
-    host = host.split(':')[0];
+    host = host.split(':')[0].toLowerCase();
 
+    // Step 1: Check if host matches a custom domain (exact match or www variant)
+    const tenantByCustomDomain = await prisma.tenant.findFirst({
+      where: {
+        OR: [
+          { customDomain: host },
+          { customDomain: `www.${host}` },
+          { customDomain: host.replace(/^www\./, '') }
+        ],
+        customDomain: { not: null }
+      },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            email: true,
+            role: true
+          }
+        },
+        subscription: true
+      }
+    });
+
+    if (tenantByCustomDomain) {
+      // Found tenant by custom domain - continue with existing logic
+      const tenant = tenantByCustomDomain;
+      
+      // For admin routes, allow access even if tenant is inactive or has no subscription
+      if (req.requireActiveTenant !== true) {
+        req.tenant = tenant;
+        req.tenantId = tenant.id;
+        return next();
+      }
+
+      // Storefront route - only require active tenant
+      if (!tenant.isActive) {
+        return res.status(403).json({
+          error: 'Store is currently inactive',
+          customDomain: tenant.customDomain,
+          isActive: false
+        });
+      }
+
+      // Handle subscription warnings (same as subdomain logic)
+      const subscription = tenant.subscription;
+      if (subscription) {
+        const now = new Date();
+        const periodEnd = new Date(subscription.currentPeriodEnd);
+
+        if (subscription.status === 'CANCELLED' && periodEnd < now) {
+          req.subscriptionWarning = {
+            expired: true,
+            periodEnd: periodEnd.toISOString()
+          };
+        } else if (subscription.status === 'CANCELLED') {
+          const daysRemaining = Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24));
+          req.subscriptionWarning = {
+            cancelled: true,
+            periodEnd: periodEnd.toISOString(),
+            daysRemaining
+          };
+        }
+      }
+
+      req.tenant = tenant;
+      req.tenantId = tenant.id;
+      return next();
+    }
+
+    // Step 2: Fall back to subdomain extraction (existing logic)
     let subdomain;
     if (host.includes('localhost')) {
       const parts = host.split('.');

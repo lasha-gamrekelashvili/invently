@@ -149,11 +149,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     handleSuccess('Logged out successfully');
 
-    // If on subdomain, redirect to main domain
+    // If on subdomain or custom domain, redirect to main domain
     if (isOnSubdomain()) {
-      const mainDomain = window.location.hostname.endsWith('.localhost')
-        ? `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}`
-        : `${window.location.protocol}//${window.location.hostname.endsWith('.shopu.ge') ? 'shopu.ge' : window.location.hostname.split('.').slice(1).join('.')}`;
+      const hostname = window.location.hostname;
+      let mainDomain;
+      
+      if (hostname.endsWith('.localhost')) {
+        mainDomain = `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}`;
+      } else if (hostname.endsWith('.shopu.ge')) {
+        mainDomain = `${window.location.protocol}//shopu.ge`;
+      } else if (hostname.endsWith('.momigvare.ge')) {
+        mainDomain = `${window.location.protocol}//momigvare.ge`;
+      } else {
+        // For custom domains, redirect to shopu.ge
+        mainDomain = `${window.location.protocol}//shopu.ge`;
+      }
+      
       window.location.href = mainDomain;
     }
   };

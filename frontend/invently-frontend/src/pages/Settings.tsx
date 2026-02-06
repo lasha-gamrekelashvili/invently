@@ -12,7 +12,7 @@ import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon, UserCircleIcon } from '@
 
 const Settings = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, tenants } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links' | 'account'>('account');
   const [formData, setFormData] = useState<UpdateStoreSettingsData>({});
@@ -21,6 +21,11 @@ const Settings = () => {
     email: user?.email || '',
   });
   const [subdomain, setSubdomain] = useState(getCurrentSubdomain() || '');
+  
+  // Get current tenant to access customDomain
+  const currentSubdomain = getCurrentSubdomain();
+  const currentTenant = tenants.find(t => t.subdomain === currentSubdomain);
+  const [customDomain, setCustomDomain] = useState(currentTenant?.customDomain || '');
   const [passwordChangeStep, setPasswordChangeStep] = useState<'idle' | 'code-sent' | 'verifying'>('idle');
   const [passwordCode, setPasswordCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -107,6 +112,22 @@ const Settings = () => {
     },
   });
 
+  // Update tenant custom domain mutation
+  const updateCustomDomainMutation = useMutation({
+    mutationFn: settingsAPI.updateTenantCustomDomain,
+    onSuccess: (data) => {
+      handleSuccess(data.message || t('settings.messages.customDomainUpdated'));
+      queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      // Update local state
+      if (data.tenant) {
+        setCustomDomain(data.tenant.customDomain || '');
+      }
+    },
+    onError: (error) => {
+      handleApiError(error, t('settings.messages.updateCustomDomainError'));
+    },
+  });
+
   // Send password reset code mutation
   const sendPasswordResetCodeMutation = useMutation({
     mutationFn: authAPI.sendPasswordResetCode,
@@ -165,6 +186,7 @@ const Settings = () => {
       const hasIbanChange = iban !== (user?.iban || '');
       const currentSubdomain = getCurrentSubdomain();
       const hasSubdomainChange = subdomain && subdomain !== currentSubdomain;
+      const hasCustomDomainChange = customDomain !== (currentTenant?.customDomain || '');
 
       // Collect all mutations
       const mutations: Promise<any>[] = [];
@@ -177,6 +199,9 @@ const Settings = () => {
       }
       if (hasSubdomainChange) {
         mutations.push(updateSubdomainMutation.mutateAsync(subdomain));
+      }
+      if (hasCustomDomainChange) {
+        mutations.push(updateCustomDomainMutation.mutateAsync(customDomain || null));
       }
 
       if (mutations.length > 0) {
@@ -517,6 +542,30 @@ const Settings = () => {
                     {t('settings.account.shop.subdomain.helpText')}
                   </p>
                 </div>
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Custom Domain (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={customDomain}
+                    onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
+                    className="input-field"
+                    placeholder="www.mystore.com"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    Enter your custom domain (e.g., www.mystore.com). After saving, configure your DNS: Add a CNAME record pointing 'www' to 'shopu.ge'. Your store will be available at your custom domain once DNS propagates (5-60 minutes).
+                  </p>
+                  {customDomain && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomDomain('')}
+                      className="mt-2 text-sm text-red-600 hover:text-red-700"
+                    >
+                      Remove custom domain
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Payment Information */}
@@ -647,10 +696,10 @@ const Settings = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending}
+            disabled={updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending || updateCustomDomainMutation.isPending}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {(updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending) 
+            {(updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending || updateCustomDomainMutation.isPending) 
               ? t('settings.actions.saving') 
               : t('settings.actions.saveSettings')}
           </button>

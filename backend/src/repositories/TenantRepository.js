@@ -14,6 +14,14 @@ export class TenantRepository extends BaseRepository {
   }
 
   /**
+   * Finds a tenant by custom domain
+   */
+  async findByCustomDomain(customDomain, options = {}) {
+    if (!customDomain) return null;
+    return await this.findFirst({ customDomain }, options);
+  }
+
+  /**
    * Finds tenants by owner ID
    */
   async findByOwner(ownerId, options = {}) {

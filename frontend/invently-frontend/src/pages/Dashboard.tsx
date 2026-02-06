@@ -154,7 +154,9 @@ const Dashboard = () => {
           </Link>
 
           <a
-            href={`http://${currentTenant?.subdomain || 'demo'}.${window.location.hostname.includes('localhost') ? 'localhost:3000' : 'shopu.ge'}/store`}
+            href={currentTenant?.customDomain 
+              ? `https://${currentTenant.customDomain}/store`
+              : `http://${currentTenant?.subdomain || 'demo'}.${window.location.hostname.includes('localhost') ? 'localhost:3000' : 'shopu.ge'}/store`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-neutral-800 text-white p-6 rounded-2xl hover:bg-neutral-700 transition-colors border border-neutral-800"

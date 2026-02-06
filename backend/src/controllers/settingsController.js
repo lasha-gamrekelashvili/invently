@@ -194,9 +194,43 @@ const updateTenantSubdomain = async (req, res) => {
   }
 };
 
+const updateTenantCustomDomain = async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const userId = req.user.id;
+    const { customDomain } = req.validatedData;
+
+    const result = await tenantService.updateCustomDomain(tenantId, customDomain, userId);
+
+    const message = customDomain
+      ? `Custom domain updated successfully. Please configure your DNS: Add a CNAME record pointing 'www' to 'shopu.ge'. Your store will be available at https://${customDomain} once DNS propagates (5-60 minutes).`
+      : 'Custom domain removed successfully. Your store will continue to work at your subdomain URL.';
+
+    res.json(
+      ApiResponse.updated(
+        { tenant: result.tenant },
+        message
+      )
+    );
+  } catch (error) {
+    if (error.message === 'Tenant not found') {
+      return res.status(404).json(ApiResponse.notFound('Tenant'));
+    }
+    if (error.message === 'Unauthorized: You do not own this tenant') {
+      return res.status(403).json(ApiResponse.forbidden(error.message));
+    }
+    if (error.message === 'Custom domain already taken') {
+      return res.status(400).json(ApiResponse.error('Custom domain already taken'));
+    }
+    console.error('Update tenant custom domain error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
 export {
   getSettings,
   updateSettings,
   getPublicSettings,
-  updateTenantSubdomain
+  updateTenantSubdomain,
+  updateTenantCustomDomain
 };

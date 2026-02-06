@@ -168,11 +168,15 @@ export class OrderService {
 
     const ownerEmail = finalOrder.tenant?.owner?.email;
     if (ownerEmail) {
-      const subdomain = finalOrder.tenant?.subdomain;
+      const tenant = finalOrder.tenant;
+      const subdomain = tenant?.subdomain;
+      const customDomain = tenant?.customDomain;
       const frontendBaseUrl = (process.env.FRONTEND_BASE_URL || '').replace(/\/$/, '');
       const dashboardOrderUrl = frontendBaseUrl
-        ? this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, finalOrder.id)
-        : (subdomain ? `https://${subdomain}.shopu.ge/admin/orders/${finalOrder.id}` : null);
+        ? this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, finalOrder.id)
+        : (customDomain 
+            ? `https://${customDomain}/admin/orders/${finalOrder.id}`
+            : (subdomain ? `https://${subdomain}.shopu.ge/admin/orders/${finalOrder.id}` : null));
       try {
         await this.emailService.sendOrderNotificationToOwner({
           email: ownerEmail,
@@ -204,12 +208,21 @@ export class OrderService {
     return finalOrder;
   }
 
-  buildDashboardOrderUrl(frontendBaseUrl, subdomain, orderId) {
+  buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, orderId) {
     if (!frontendBaseUrl) return null;
     const isLocalhost = frontendBaseUrl.includes('localhost');
+    
+    // Prefer custom domain if available
+    if (customDomain) {
+      const protocol = isLocalhost ? 'http' : 'https';
+      return `${protocol}://${customDomain}/admin/orders/${orderId}`;
+    }
+    
+    // Fall back to subdomain
     if (isLocalhost && subdomain) {
       return `http://${subdomain}.localhost:3000/admin/orders/${orderId}`;
     }
+    
     return `${frontendBaseUrl}/admin/orders/${orderId}`;
   }
 

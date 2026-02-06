@@ -27,6 +27,7 @@ model Tenant {
   id            String         @id @default(uuid())
   name          String
   subdomain     String         @unique
+  customDomain  String?        @unique
   description   String?
   ownerId       String
   isActive      Boolean        @default(true)
