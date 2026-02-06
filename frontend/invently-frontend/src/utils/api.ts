@@ -342,7 +342,7 @@ export const settingsAPI = {
   updateTenantSubdomain: (subdomain: string): Promise<{ tenant: Tenant }> =>
     api.put('/settings/tenant/subdomain', { subdomain }).then(res => res.data),
 
-  updateTenantCustomDomain: (customDomain: string | null): Promise<{ tenant: Tenant }> =>
+  updateTenantCustomDomain: (customDomain: string | null): Promise<{ tenant: Tenant; message?: string }> =>
     api.put('/settings/tenant/custom-domain', { customDomain }).then(res => res.data),
 };
 
