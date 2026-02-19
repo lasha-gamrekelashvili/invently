@@ -1,62 +1,60 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 export class EmailService {
   constructor() {
-    // For development/testing without SMTP configured, use a mock transporter
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.warn('EmailService: SMTP credentials not configured. Emails will be logged to console.');
-      this.transporter = {
-        sendMail: async (options) => {
-          console.log('=== EMAIL (MOCK) ===');
-          console.log('To:', options.to);
-          console.log('Subject:', options.subject);
-          console.log('Body:', options.text || options.html);
-          console.log('===================');
-          return { messageId: 'mock-' + Date.now() };
-        },
-      };
-      return;
-    }
+    this.resend = null;
+    this.from = null;
 
-    // Create transporter with timeouts to prevent hanging
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      connectionTimeout: 10000,  // 10s to establish connection
-      greetingTimeout: 10000,    // 10s for SMTP greeting
-      socketTimeout: 15000,     // 15s for socket inactivity
-    });
+    if (process.env.RESEND_API_KEY) {
+      this.resend = new Resend(process.env.RESEND_API_KEY);
+      this.from = process.env.EMAIL_FROM || process.env.RESEND_FROM || 'Shopu <onboarding@resend.dev>';
+      console.log('EmailService: Using Resend');
+    } else {
+      console.warn('EmailService: RESEND_API_KEY not configured. Emails will be logged to console.');
+    }
   }
 
   /**
-   * Verify SMTP connection. Use for debugging deployment issues.
+   * Verify email provider connection. Use for debugging deployment issues.
    */
   async verify() {
-    if (!this.transporter.verify) return { ok: false, reason: 'mock transporter (no SMTP configured)' };
-    try {
-      await this.transporter.verify();
-      return { ok: true };
-    } catch (err) {
-      return {
-        ok: false,
-        reason: err.message,
-        code: err.code,
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-      };
+    if (!this.resend) {
+      return { ok: false, reason: 'RESEND_API_KEY not configured' };
     }
+    return { ok: true, provider: 'resend' };
+  }
+
+  async _send({ to, subject, html, text, bcc }) {
+    const toList = Array.isArray(to) ? to : [to];
+
+    if (!this.resend) {
+      console.log('=== EMAIL (MOCK) ===');
+      console.log('To:', toList.join(', '));
+      console.log('Subject:', subject);
+      console.log('Body:', text || html);
+      console.log('===================');
+      return { id: 'mock-' + Date.now() };
+    }
+
+    const payload = {
+      from: this.from,
+      to: toList,
+      subject,
+      html: html || text,
+    };
+    if (text) payload.text = text;
+    if (bcc) payload.bcc = Array.isArray(bcc) ? bcc : [bcc];
+
+    const { data, error } = await this.resend.emails.send(payload);
+    if (error) throw new Error(error.message || JSON.stringify(error));
+    return data;
   }
 
   /**
    * Sends an email verification code
    */
   async sendVerificationCode(email, code, type = 'EMAIL_CONFIRMATION') {
-    const subject = type === 'EMAIL_CONFIRMATION' 
+    const subject = type === 'EMAIL_CONFIRMATION'
       ? 'Verify Your Email Address'
       : 'Password Reset Code';
 
@@ -69,20 +67,11 @@ export class EmailService {
       : `Your password reset code is: ${code}\n\nPlease enter this code to reset your password.`;
 
     try {
-      await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@shopu.ge',
-        to: email,
-        subject,
-        text,
-        html,
-      });
+      await this._send({ to: email, subject, html, text });
       return true;
     } catch (error) {
       console.error('[EmailService] sendVerificationCode failed:', {
         to: email,
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        code: error.code,
         message: error.message,
       });
       throw new Error('Failed to send email');
@@ -106,27 +95,15 @@ export class EmailService {
       items,
       totalAmount,
     });
-    const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL
-      || process.env.SMTP_FROM
-      || process.env.SMTP_USER;
+    const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL || process.env.EMAIL_FROM;
     const bcc = notificationEmail && notificationEmail !== email ? notificationEmail : undefined;
 
     try {
-      await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@shopu.ge',
-        to: email,
-        bcc,
-        subject,
-        text,
-        html,
-      });
+      await this._send({ to: email, subject, html, text, bcc });
       return true;
     } catch (error) {
       console.error('[EmailService] sendOrderConfirmation failed:', {
         to: email,
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        code: error.code,
         message: error.message,
       });
       throw new Error('Failed to send order confirmation email');
@@ -154,20 +131,11 @@ export class EmailService {
     });
 
     try {
-      await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@shopu.ge',
-        to: email,
-        subject,
-        text,
-        html,
-      });
+      await this._send({ to: email, subject, html, text });
       return true;
     } catch (error) {
       console.error('[EmailService] sendOrderNotificationToOwner failed:', {
         to: email,
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        code: error.code,
         message: error.message,
       });
       throw new Error('Failed to send owner order notification email');

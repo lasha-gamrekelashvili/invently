@@ -146,7 +146,7 @@ app.get('/api/health/smtp', async (req, res) => {
   const emailService = new EmailService();
   const result = await emailService.verify();
   if (result.ok) {
-    return res.json({ status: 'ok', message: 'SMTP connection verified' });
+    return res.json({ status: 'ok', message: 'Email provider ready', provider: result.provider });
   }
   return res.status(503).json({
     status: 'error',
