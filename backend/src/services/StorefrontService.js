@@ -50,19 +50,27 @@ export class StorefrontService {
       const code = details.payment_detail?.code ?? null;
       const codeDesc = details.payment_detail?.code_description ?? null;
 
-      // BOG can redirect to fail even on success — finalize order so fail page can redirect to success
-      if (statusKey !== 'rejected') {
-        if (statusKey === 'completed') {
-          try {
-            await this.orderService.finalizeOrderAfterPayment(orderId);
-          } catch (err) {
-            console.warn('[Payment failure details] Finalize failed', { orderId, err: err.message });
-          }
+      // BOG can redirect to fail even on success — finalize so fail page can redirect to success
+      if (statusKey === 'completed') {
+        try {
+          await this.orderService.finalizeOrderAfterPayment(orderId);
+        } catch (err) {
+          console.warn('[Payment failure details] Finalize failed', { orderId, err: err.message });
         }
         return { order_status: statusKey };
       }
 
-      return { order_status: statusKey, reject_reason: rejectReason, payment_code: code, code_description: codeDesc };
+      // Clean up the order if payment was rejected (callback may not have reached us)
+      if (statusKey === 'rejected') {
+        try {
+          await this.orderService.markOrderPaymentFailed(orderId);
+        } catch (err) {
+          console.warn('[Payment failure details] Cleanup failed', { orderId, err: err.message });
+        }
+        return { order_status: statusKey, reject_reason: rejectReason, payment_code: code, code_description: codeDesc };
+      }
+
+      return { order_status: statusKey };
     } catch (err) {
       console.warn('[Payment failure details] BOG API error', { orderId, err: err.message });
       return null;
