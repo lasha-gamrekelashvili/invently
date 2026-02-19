@@ -20,10 +20,22 @@ const orderController = {
       } = req.body;
       const tenantId = req.tenantId;
 
+      console.info('[createOrder] Starting', {
+        tenantId,
+        returnOrigin,
+        host: req.get('x-original-host') || req.get('host'),
+      });
+
       const result = await orderService.createOrder(
         { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes, returnOrigin },
         tenantId
       );
+
+      console.info('[createOrder] Result', {
+        orderId: result?.id,
+        hasRedirectUrl: !!result?.redirectUrl,
+        bogOrderId: result?.bogOrderId,
+      });
 
       res.status(201).json(ApiResponse.created(result, 'Order created successfully'));
     } catch (error) {

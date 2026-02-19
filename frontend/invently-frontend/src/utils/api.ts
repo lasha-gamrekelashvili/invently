@@ -48,13 +48,7 @@ const getApiBaseUrl = () => {
     return 'http://localhost:3001/api';
   }
   
-  const mainDomains = ['shopu.ge', 'momigvare.ge'];
-  const isPlatformSubdomain = mainDomains.some(d => hostname === d || hostname.endsWith('.' + d));
-  if (!isPlatformSubdomain) {
-    const platformBase = import.meta.env.VITE_PLATFORM_API_BASE || 'https://shopu.ge';
-    return `${platformBase.replace(/\/$/, '')}/api`;
-  }
-  
+  // For production - use same-origin /api (Caddy proxies to backend for all domains)
   return '/api';
 };
 
