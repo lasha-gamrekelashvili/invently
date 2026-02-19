@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { paymentAPI } from '../utils/api';
 import { useDashboardPath } from '../hooks/useDashboardPath';
+import { useLanguage } from '../contexts/LanguageContext';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { T } from '../components/Translation';
@@ -10,11 +11,51 @@ import { CreditCardIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/2
 const PaymentPage = () => {
   const { paymentId } = useParams<{ paymentId: string }>();
   const { path } = useDashboardPath();
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [payment, setPayment] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   const [error, setError] = useState('');
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollCountRef = useRef(0);
+
+  const bogReturn = searchParams.get('bog');
+
+  const pollPaymentStatus = useCallback(async () => {
+    if (!paymentId) return;
+
+    try {
+      const paymentData = await paymentAPI.verifyPayment(paymentId);
+      setPayment(paymentData);
+
+      if (paymentData.status === 'PAID') {
+        setIsPolling(false);
+        handleSuccess(t('payment.successMessage'));
+        setTimeout(() => {
+          window.location.href = window.location.origin + '/' + window.location.pathname.split('/')[1] + '/billing';
+        }, 1500);
+        return;
+      }
+
+      if (paymentData.status === 'FAILED') {
+        setIsPolling(false);
+        return;
+      }
+
+      pollCountRef.current += 1;
+      if (pollCountRef.current < 10) {
+        const delay = Math.min(2000 * Math.pow(1.5, pollCountRef.current - 1), 8000);
+        pollTimerRef.current = setTimeout(pollPaymentStatus, delay);
+      } else {
+        setIsPolling(false);
+      }
+    } catch {
+      setIsPolling(false);
+    }
+  }, [paymentId, t]);
 
   useEffect(() => {
     const loadPayment = async () => {
@@ -28,12 +69,15 @@ const PaymentPage = () => {
         const paymentData = await paymentAPI.getPayment(paymentId);
         setPayment(paymentData);
 
-        // If payment is already paid, redirect to dashboard
         if (paymentData.status === 'PAID') {
-          handleSuccess('Payment already processed!');
+          handleSuccess(t('payment.successMessage'));
           setTimeout(() => {
-            navigate(path('dashboard'));
+            window.location.href = window.location.origin + '/' + window.location.pathname.split('/')[1] + '/billing';
           }, 2000);
+        } else if (bogReturn && paymentData.status === 'PENDING') {
+          setIsPolling(true);
+          pollCountRef.current = 0;
+          pollTimerRef.current = setTimeout(pollPaymentStatus, 1000);
         }
       } catch (err: any) {
         const errorMessage = handleApiError(err, 'Failed to load payment information');
@@ -44,7 +88,11 @@ const PaymentPage = () => {
     };
 
     loadPayment();
-  }, [paymentId, navigate]);
+
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  }, [paymentId, bogReturn, pollPaymentStatus, t]);
 
   const handleProcessPayment = async () => {
     if (!paymentId) return;
@@ -53,22 +101,21 @@ const PaymentPage = () => {
     setError('');
 
     try {
-      const updatedPayment = await paymentAPI.processPayment(paymentId);
-      setPayment(updatedPayment);
+      const result = await paymentAPI.processPayment(paymentId);
 
-      handleSuccess('Payment processed successfully!');
-      
-      // Refresh auth context to get updated tenant status
-      window.location.reload();
-      
-      // Redirect to dashboard after successful payment
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl;
+        return;
+      }
+
+      setPayment(result);
+      handleSuccess(t('payment.successMessage'));
       setTimeout(() => {
-        navigate(path('dashboard'));
+        window.location.href = window.location.origin + '/' + window.location.pathname.split('/')[1] + '/billing';
       }, 2000);
     } catch (err: any) {
       const errorMessage = handleApiError(err, 'Failed to process payment');
       setError(errorMessage);
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -171,25 +218,34 @@ const PaymentPage = () => {
             </div>
           )}
 
-          {/* Payment Instructions */}
-          {isPending && (
+          {/* Polling state — returning from BOG */}
+          {isPolling && isPending && (
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
-              <h3 className="font-semibold text-blue-900 mb-2">
-                <T tKey="payment.instructions" />
-              </h3>
-              <p className="text-sm text-blue-700 mb-4">
-                <T tKey="payment.mockPaymentNote" />
+              <div className="flex items-center gap-3">
+                <LoadingSpinner size="sm" />
+                <div>
+                  <h3 className="font-semibold text-blue-900 mb-1">
+                    <T tKey="payment.verifying" />
+                  </h3>
+                  <p className="text-sm text-blue-700">
+                    <T tKey="payment.verifyingDescription" />
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Failed state after BOG return and verification */}
+          {bogReturn && isPending && !isPolling && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+              <p className="text-sm text-red-700">
+                <T tKey="payment.bogFailed" />
               </p>
-              <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
-                <li><T tKey="payment.step1" /></li>
-                <li><T tKey="payment.step2" /></li>
-                <li><T tKey="payment.step3" /></li>
-              </ul>
             </div>
           )}
 
           {/* Action Button */}
-          {isPending && (
+          {isPending && !isPolling && (
             <button
               onClick={handleProcessPayment}
               disabled={isProcessing}
@@ -198,7 +254,7 @@ const PaymentPage = () => {
               {isProcessing ? (
                 <>
                   <LoadingSpinner size="sm" />
-                  <T tKey="payment.processing" />
+                  <T tKey="payment.redirecting" />
                 </>
               ) : (
                 <>
@@ -209,13 +265,30 @@ const PaymentPage = () => {
             </button>
           )}
 
+          {/* Payment failed */}
+          {payment?.status === 'FAILED' && (
+            <div className="text-center">
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                <p className="text-sm text-red-700">
+                  <T tKey="payment.failedMessage" />
+                </p>
+              </div>
+              <button
+                onClick={() => navigate(path('billing'))}
+                className="px-6 py-3 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors"
+              >
+                <T tKey="payment.backToBilling" />
+              </button>
+            </div>
+          )}
+
           {isPaid && (
             <div className="text-center">
               <p className="text-green-700 mb-4">
                 <T tKey="payment.successMessage" />
               </p>
               <button
-                onClick={() => navigate(path('dashboard'))}
+                onClick={() => navigate(path('billing'))}
                 className="px-6 py-3 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors"
               >
                 <T tKey="payment.goToDashboard" />

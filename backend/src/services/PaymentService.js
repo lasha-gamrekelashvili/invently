@@ -1,5 +1,7 @@
+import crypto from 'crypto';
 import { PaymentRepository } from '../repositories/PaymentRepository.js';
 import { SubscriptionRepository } from '../repositories/SubscriptionRepository.js';
+import { BOGPaymentService } from './BOGPaymentService.js';
 import prisma from '../repositories/BaseRepository.js';
 import { PRICING, calculateBillingPeriod } from '../config/pricing.js';
 
@@ -7,6 +9,9 @@ export class PaymentService {
   constructor() {
     this.paymentRepository = new PaymentRepository();
     this.subscriptionRepository = new SubscriptionRepository();
+    this.bogPayment = process.env.BOG_CLIENT_ID && process.env.BOG_CLIENT_SECRET
+      ? new BOGPaymentService()
+      : null;
   }
 
   /**
@@ -114,6 +119,206 @@ export class PaymentService {
       isolationLevel: 'Serializable',
       timeout: 30000,
     });
+  }
+
+  /**
+   * Initiates a BOG payment for a billing payment (setup fee, subscription).
+   * Creates a BOG order and returns the redirect URL for the user.
+   */
+  async initiateBOGPayment(paymentId) {
+    if (!this.bogPayment) {
+      throw new Error('Payment gateway is not configured. Please contact support.');
+    }
+
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: {
+        user: { select: { id: true, email: true } },
+        tenant: { select: { id: true, subdomain: true, customDomain: true } },
+      },
+    });
+
+    if (!payment) throw new Error('Payment not found');
+    if (payment.status === 'PAID') return { payment, redirectUrl: null };
+    if (payment.status === 'FAILED') {
+      throw new Error('Payment already failed. Please create a new payment.');
+    }
+
+    const backendBase = (process.env.BACKEND_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+    const callbackUrl = `${backendBase}/api/bog/callback`;
+
+    const platformBase = (process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge').replace(/\/$/, '');
+    const tenantSlug = payment.tenant?.subdomain || '';
+    const successUrl = `${platformBase}/${tenantSlug}/payment/${paymentId}?bog=success`;
+    const failUrl = `${platformBase}/${tenantSlug}/payment/${paymentId}?bog=fail`;
+
+    const description = payment.type === 'SETUP_FEE' ? 'Store Setup Fee' : 'Monthly Subscription';
+
+    const bogResult = await this.bogPayment.createOrder({
+      callbackUrl,
+      externalOrderId: `pay_${paymentId}`,
+      totalAmount: payment.amount,
+      basket: [{
+        productId: payment.type,
+        description,
+        quantity: 1,
+        unitPrice: payment.amount,
+      }],
+      customerName: payment.user?.email?.split('@')[0] || 'Customer',
+      customerEmail: payment.user?.email || '',
+      successUrl,
+      failUrl,
+      idempotencyKey: crypto.randomUUID(),
+    });
+
+    await prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        metadata: {
+          ...(typeof payment.metadata === 'object' && payment.metadata !== null ? payment.metadata : {}),
+          bogOrderId: bogResult.bogOrderId,
+          initiatedAt: new Date().toISOString(),
+        },
+      },
+    });
+
+    return { payment, redirectUrl: bogResult.redirectUrl };
+  }
+
+  /**
+   * Finalizes a billing payment after successful BOG callback.
+   * Marks payment as PAID and handles side effects (tenant activation, subscription).
+   */
+  async finalizeBillingPayment(paymentId, transactionInfo = {}) {
+    return await prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.findUnique({ where: { id: paymentId } });
+
+      if (!payment) throw new Error('Payment not found');
+
+      const alreadyPaid = payment.status === 'PAID';
+
+      if (!alreadyPaid) {
+        await tx.payment.update({
+          where: { id: paymentId },
+          data: {
+            status: 'PAID',
+            transactionId: transactionInfo.orderId || transactionInfo.bogOrderId || null,
+            metadata: {
+              ...(typeof payment.metadata === 'object' && payment.metadata !== null ? payment.metadata : {}),
+              processedAt: new Date().toISOString(),
+              bogEvent: transactionInfo.event || null,
+              bogStatus: transactionInfo.status || null,
+            },
+          },
+        });
+      }
+
+      if (payment.type === 'SETUP_FEE') {
+        await tx.tenant.update({
+          where: { id: payment.tenantId },
+          data: { isActive: true },
+        });
+
+        const existingSubscription = await tx.subscription.findUnique({
+          where: { tenantId: payment.tenantId },
+        });
+
+        if (!existingSubscription) {
+          const { periodStart, periodEnd, nextBillingDate } = calculateBillingPeriod();
+          await tx.subscription.create({
+            data: {
+              tenantId: payment.tenantId,
+              status: 'ACTIVE',
+              currentPeriodStart: periodStart,
+              currentPeriodEnd: periodEnd,
+              nextBillingDate,
+            },
+          });
+        }
+      }
+
+      if (payment.type === 'MONTHLY_SUBSCRIPTION') {
+        await this.renewSubscriptionInTransaction(tx, payment.tenantId);
+      }
+
+      return await tx.payment.findUnique({ where: { id: paymentId } });
+    }, {
+      isolationLevel: 'Serializable',
+      timeout: 30000,
+    });
+  }
+
+  /**
+   * Marks a billing payment as failed (called from BOG callback on rejection).
+   */
+  async markBillingPaymentFailed(paymentId, failureInfo = {}) {
+    const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!payment || payment.status === 'PAID' || payment.status === 'FAILED') return payment;
+
+    return await prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: 'FAILED',
+        metadata: {
+          ...(typeof payment.metadata === 'object' && payment.metadata !== null ? payment.metadata : {}),
+          failedAt: new Date().toISOString(),
+          bogRejectReason: failureInfo.rejectReason || null,
+          bogPaymentCode: failureInfo.code || null,
+        },
+      },
+    });
+  }
+
+  /**
+   * Checks BOG directly for a billing payment's status and finalizes if completed.
+   * Used when BOG callback can't reach us (e.g. localhost) or as a fallback.
+   */
+  async verifyPaymentWithBOG(paymentId) {
+    const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!payment) throw new Error('Payment not found');
+    if (payment.status === 'FAILED') return payment;
+
+    // If PAID, ensure side effects (subscription) were completed
+    if (payment.status === 'PAID') {
+      if (payment.type === 'SETUP_FEE') {
+        const sub = await prisma.subscription.findUnique({ where: { tenantId: payment.tenantId } });
+        if (!sub) {
+          await this.finalizeBillingPayment(paymentId, { event: 'recover' });
+          return await prisma.payment.findUnique({ where: { id: paymentId } });
+        }
+      }
+      return payment;
+    }
+
+    const bogOrderId = payment.metadata?.bogOrderId;
+    if (!bogOrderId || !this.bogPayment) return payment;
+
+    try {
+      const details = await this.bogPayment.getPaymentDetails(bogOrderId);
+      if (!details) return payment;
+
+      const statusKey = details.order_status?.key;
+
+      if (statusKey === 'completed') {
+        return await this.finalizeBillingPayment(paymentId, {
+          orderId: bogOrderId,
+          status: statusKey,
+          event: 'verify_poll',
+        });
+      }
+
+      if (statusKey === 'rejected') {
+        return await this.markBillingPaymentFailed(paymentId, {
+          rejectReason: details.reject_reason ?? null,
+          code: details.payment_detail?.code ?? null,
+        });
+      }
+
+      return payment;
+    } catch (err) {
+      console.warn('[verifyPaymentWithBOG] BOG API error', { paymentId, err: err.message });
+      return payment;
+    }
   }
 
   /**

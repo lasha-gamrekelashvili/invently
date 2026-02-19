@@ -5,12 +5,12 @@ import prisma from '../repositories/BaseRepository.js';
 const paymentService = new PaymentService();
 
 /**
- * Processes a payment after verifying ownership
+ * Initiates a BOG payment for a billing payment (setup fee, subscription).
+ * Returns a redirect URL for the user to complete payment on BOG's page.
  */
 const processPayment = async (req, res) => {
   try {
     const { paymentId } = req.params;
-    const paymentData = req.validatedData || {};
 
     const existingPayment = await paymentService.getPaymentById(paymentId);
 
@@ -22,17 +22,49 @@ const processPayment = async (req, res) => {
       return res.status(403).json(ApiResponse.error('Forbidden: You do not own this payment'));
     }
 
-    const payment = await paymentService.processMockPayment(paymentId, paymentData);
+    if (existingPayment.status === 'PAID') {
+      return res.json(ApiResponse.success(existingPayment, 'Payment already processed'));
+    }
 
-    res.json(ApiResponse.success(payment, 'Payment processed successfully'));
+    const { redirectUrl } = await paymentService.initiateBOGPayment(paymentId);
+
+    res.json(ApiResponse.success({ redirectUrl, paymentId }, 'Payment initiated — redirect to complete'));
   } catch (error) {
     if (error.message === 'Payment not found') {
       return res.status(404).json(ApiResponse.error(error.message));
     }
-    if (error.message.includes('Payment processing failed')) {
+    if (error.message.includes('Payment already failed')) {
       return res.status(400).json(ApiResponse.error(error.message));
     }
+    if (error.message.includes('not configured')) {
+      return res.status(503).json(ApiResponse.error(error.message));
+    }
     console.error('Process payment error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
+/**
+ * Verifies a payment's status directly with BOG.
+ * Finalizes the payment if BOG reports it as completed.
+ */
+const verifyPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const existingPayment = await paymentService.getPaymentById(paymentId);
+
+    if (!existingPayment) {
+      return res.status(404).json(ApiResponse.error('Payment not found'));
+    }
+
+    if (existingPayment.userId !== req.user.id && req.user.role !== 'PLATFORM_ADMIN') {
+      return res.status(403).json(ApiResponse.error('Forbidden'));
+    }
+
+    const payment = await paymentService.verifyPaymentWithBOG(paymentId);
+    res.json(ApiResponse.success(payment));
+  } catch (error) {
+    console.error('Verify payment error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
   }
 };
@@ -140,34 +172,44 @@ const getSubscription = async (req, res) => {
     let tenantId = req.tenantId;
 
     if (!tenantId) {
-      const host = req.get('x-original-host') || req.get('host');
-      if (host) {
-        const hostname = host.split(':')[0];
-        let subdomain = '';
+      let subdomain = '';
 
-        if (hostname.includes('localhost')) {
-          const parts = hostname.split('.');
-          if (parts.length > 1 && parts[0] !== 'localhost') {
-            subdomain = parts[0];
-          }
-        } else {
-          const parts = hostname.split('.');
-          if (parts.length > 2) {
-            subdomain = parts[0];
+      // Check X-Tenant-Slug header (sent by frontend on path-based routing, e.g. localhost)
+      const tenantSlug = req.get('x-tenant-slug');
+      if (tenantSlug) {
+        subdomain = tenantSlug;
+      }
+
+      // Fallback: extract subdomain from host header
+      if (!subdomain) {
+        const host = req.get('x-original-host') || req.get('host');
+        if (host) {
+          const hostname = host.split(':')[0];
+
+          if (hostname.includes('localhost')) {
+            const parts = hostname.split('.');
+            if (parts.length > 1 && parts[0] !== 'localhost') {
+              subdomain = parts[0];
+            }
+          } else {
+            const parts = hostname.split('.');
+            if (parts.length > 2) {
+              subdomain = parts[0];
+            }
           }
         }
+      }
 
-        if (subdomain) {
-          const tenant = await prisma.tenant.findUnique({
-            where: { subdomain },
-            include: { owner: { select: { id: true } } }
-          });
+      if (subdomain) {
+        const tenant = await prisma.tenant.findUnique({
+          where: { subdomain },
+          include: { owner: { select: { id: true } } }
+        });
 
-          if (tenant && tenant.owner.id === req.user.id) {
-            tenantId = tenant.id;
-          } else if (tenant) {
-            return res.status(403).json(ApiResponse.error('Forbidden'));
-          }
+        if (tenant && tenant.owner.id === req.user.id) {
+          tenantId = tenant.id;
+        } else if (tenant) {
+          return res.status(403).json(ApiResponse.error('Forbidden'));
         }
       }
     }
@@ -238,6 +280,7 @@ const reactivateSubscription = async (req, res) => {
 
 export {
   processPayment,
+  verifyPayment,
   getPayment,
   getUserPayments,
   getTenantPayments,

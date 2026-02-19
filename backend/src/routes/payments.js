@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   processPayment,
+  verifyPayment,
   getPayment,
   getUserPayments,
   getTenantPayments,
@@ -29,8 +30,8 @@ router.use(authenticateToken);
  * @swagger
  * /api/payments/{paymentId}/process:
  *   post:
- *     summary: Process a payment (mock payment gateway)
- *     description: Processes a payment using the mock payment gateway. For setup fees, this activates the tenant and creates a subscription upon success. User must own the payment.
+ *     summary: Initiate payment via BOG
+ *     description: Creates a BOG payment order and returns a redirect URL for the user to complete payment on BOG's page. Payment is finalized asynchronously via BOG webhook callback. User must own the payment.
  *     tags: [Payments]
  *     security:
  *       - bearerAuth: []
@@ -42,19 +43,9 @@ router.use(authenticateToken);
  *           type: string
  *           format: uuid
  *         description: Payment ID to process
- *     requestBody:
- *       required: false
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               paymentMethod:
- *                 type: string
- *                 example: MOCK
  *     responses:
  *       200:
- *         description: Payment processed successfully
+ *         description: Payment initiated — redirect URL returned
  *         content:
  *           application/json:
  *             schema:
@@ -63,7 +54,13 @@ router.use(authenticateToken);
  *                 success:
  *                   type: boolean
  *                 data:
- *                   $ref: '#/components/schemas/Payment'
+ *                   type: object
+ *                   properties:
+ *                     redirectUrl:
+ *                       type: string
+ *                       description: BOG payment page URL
+ *                     paymentId:
+ *                       type: string
  *                 message:
  *                   type: string
  *       401:
@@ -72,10 +69,13 @@ router.use(authenticateToken);
  *         $ref: '#/components/responses/ForbiddenError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
+ *       503:
+ *         description: Payment gateway not configured
  *       500:
  *         $ref: '#/components/responses/ServerError'
  */
 router.post('/:paymentId/process', validate(schemas.processPayment), processPayment);
+router.get('/:paymentId/verify', verifyPayment);
 
 /**
  * @swagger

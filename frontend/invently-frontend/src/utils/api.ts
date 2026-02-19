@@ -457,11 +457,14 @@ export const bulkUploadAPI = {
 
 // Payment API
 export const paymentAPI = {
-  processPayment: (paymentId: string, paymentData?: any): Promise<Payment> =>
-    api.post(`/payments/${paymentId}/process`, paymentData || {}).then(res => res.data),
+  processPayment: (paymentId: string): Promise<{ redirectUrl?: string; paymentId?: string }> =>
+    api.post(`/payments/${paymentId}/process`).then(res => res.data),
 
   getPayment: (paymentId: string): Promise<Payment> =>
     api.get(`/payments/${paymentId}`).then(res => res.data),
+
+  verifyPayment: (paymentId: string): Promise<Payment> =>
+    api.get(`/payments/${paymentId}/verify`).then(res => res.data),
 
   getUserPayments: (): Promise<Payment[]> =>
     api.get('/payments/user/payments').then(res => res.data),

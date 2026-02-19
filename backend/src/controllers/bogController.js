@@ -1,12 +1,17 @@
 import { BOGPaymentService } from '../services/BOGPaymentService.js';
 import { OrderService } from '../services/OrderService.js';
+import { PaymentService } from '../services/PaymentService.js';
 
 const bogPayment = new BOGPaymentService();
 const orderService = new OrderService();
+const paymentService = new PaymentService();
+
+const BILLING_PREFIX = 'pay_';
 
 /**
  * BOG webhook — receives payment status updates via POST.
- * Verifies callback signature, then finalizes or fails the order.
+ * Handles both checkout orders and billing payments (setup fee / subscription).
+ * Billing payments use externalOrderId prefixed with "pay_".
  */
 export const handleBOGCallback = async (req, res) => {
   const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : (req.rawBody || req.body || '');
@@ -33,21 +38,35 @@ export const handleBOGCallback = async (req, res) => {
   }
 
   const { externalOrderId, status } = parsed;
+  const isBillingPayment = externalOrderId.startsWith(BILLING_PREFIX);
 
   if (status === 'rejected') {
     const reason = body?.body?.reject_reason ?? null;
     const code = body?.body?.payment_detail?.code ?? parsed.code;
     const codeDesc = body?.body?.payment_detail?.code_description ?? null;
-    console.info('[BOG callback] Payment REJECTED', { externalOrderId, reject_reason: reason, payment_code: code, code_description: codeDesc });
+    console.info('[BOG callback] Payment REJECTED', { externalOrderId, isBillingPayment, reject_reason: reason, payment_code: code, code_description: codeDesc });
   } else if (status === 'completed') {
-    console.info('[BOG callback] Payment completed', { externalOrderId });
+    console.info('[BOG callback] Payment completed', { externalOrderId, isBillingPayment });
   }
 
   try {
-    if (bogPayment.isPaymentSuccessful(parsed)) {
-      await orderService.finalizeOrderAfterPayment(externalOrderId);
-    } else if (status === 'rejected') {
-      await orderService.markOrderPaymentFailed(externalOrderId);
+    if (isBillingPayment) {
+      const paymentId = externalOrderId.slice(BILLING_PREFIX.length);
+
+      if (bogPayment.isPaymentSuccessful(parsed)) {
+        await paymentService.finalizeBillingPayment(paymentId, parsed);
+      } else if (status === 'rejected') {
+        await paymentService.markBillingPaymentFailed(paymentId, {
+          rejectReason: body?.body?.reject_reason ?? null,
+          code: body?.body?.payment_detail?.code ?? parsed.code,
+        });
+      }
+    } else {
+      if (bogPayment.isPaymentSuccessful(parsed)) {
+        await orderService.finalizeOrderAfterPayment(externalOrderId);
+      } else if (status === 'rejected') {
+        await orderService.markOrderPaymentFailed(externalOrderId);
+      }
     }
   } catch (err) {
     console.error('[BOG callback] Processing error:', err.message);

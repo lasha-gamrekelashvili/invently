@@ -91,12 +91,7 @@ const schemas = {
     maxPrice: Joi.number().min(0).optional()
   }),
 
-  processPayment: Joi.object({
-    paymentMethod: Joi.string().optional().default('MOCK'),
-    cardNumber: Joi.string().optional(),
-    expiryDate: Joi.string().optional(),
-    cvv: Joi.string().optional(),
-  }),
+  processPayment: Joi.object({}),
 
   updateIban: Joi.object({
     iban: Joi.string().max(34).required()
