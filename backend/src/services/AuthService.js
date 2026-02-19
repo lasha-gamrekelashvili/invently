@@ -125,6 +125,7 @@ export class AuthService {
         id: tenant.id,
         name: tenant.name,
         subdomain: tenant.subdomain,
+        customDomain: tenant.customDomain,
         isActive: tenant.isActive,
       })),
       token,
@@ -153,6 +154,7 @@ export class AuthService {
         id: tenant.id,
         name: tenant.name,
         subdomain: tenant.subdomain,
+        customDomain: tenant.customDomain,
         isActive: tenant.isActive,
       })),
     };

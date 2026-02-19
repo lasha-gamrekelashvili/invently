@@ -19,10 +19,23 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
     const checkTenantStatus = async () => {
       if (authLoading) return;
 
-      // Get current tenant from subdomain
       const hostname = window.location.hostname;
+
+      // 1. Check if hostname matches a tenant's custom domain
+      const tenantByCustomDomain = tenants.find(
+        t => t.customDomain && (
+          t.customDomain === hostname ||
+          t.customDomain === `www.${hostname}` ||
+          t.customDomain === hostname.replace(/^www\./, '')
+        )
+      );
+      if (tenantByCustomDomain) {
+        setIsChecking(false);
+        return;
+      }
+
+      // 2. Fall back to subdomain lookup (e.g. lashu.shopu.ge)
       let subdomain = '';
-      
       if (hostname.includes('localhost')) {
         const parts = hostname.split('.');
         if (parts.length > 1 && parts[0] !== 'localhost') {
@@ -40,20 +53,19 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
         return;
       }
 
-      // Find tenant by subdomain
       const tenant = tenants.find(t => t.subdomain === subdomain);
 
       if (!tenant) {
         // No tenant found - redirect to main domain
         const mainDomain = hostname.includes('localhost')
           ? 'http://localhost:3000'
-          : `https://${hostname.split('.').slice(1).join('.')}`;
+          : (hostname.endsWith('.shopu.ge') || hostname.endsWith('.momigvare.ge'))
+            ? 'https://shopu.ge'
+            : 'https://shopu.ge';
         window.location.href = `${mainDomain}/login`;
         return;
       }
 
-      // Tenant exists - allow dashboard access (even if inactive)
-      // User can access dashboard to pay setup fee
       setIsChecking(false);
     };
 

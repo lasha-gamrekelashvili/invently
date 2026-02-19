@@ -16,12 +16,20 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    // If on subdomain, redirect to main domain login
+    // If on subdomain or custom domain, redirect to login
     if (isOnSubdomain()) {
-      const mainDomain = window.location.hostname.includes('localhost') 
-        ? 'http://localhost:3000' 
-        : `https://${window.location.hostname.split('.').slice(1).join('.')}`;
-      window.location.href = `${mainDomain}/login`;
+      const hostname = window.location.hostname;
+      let loginUrl: string;
+      if (hostname.includes('localhost')) {
+        loginUrl = 'http://localhost:3000/login';
+      } else if (hostname.endsWith('.shopu.ge') || hostname.endsWith('.momigvare.ge')) {
+        // Platform subdomain - redirect to main domain login
+        loginUrl = 'https://shopu.ge/login';
+      } else {
+        // Custom domain - stay on same host for login (e.g. www.commercia.ge/login)
+        loginUrl = `${window.location.origin}/login`;
+      }
+      window.location.href = loginUrl;
       return <LoadingSpinner size="lg" className="min-h-screen" />;
     }
     // If on main domain, redirect to login page
