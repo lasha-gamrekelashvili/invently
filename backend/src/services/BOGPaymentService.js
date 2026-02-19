@@ -11,7 +11,8 @@ const BOG_OAUTH_URL = process.env.BOG_OAUTH_URL || 'https://oauth2-sandbox.bog.g
 const BOG_API_URL = process.env.BOG_API_URL || 'https://api-sandbox.bog.ge/payments/v1';
 
 // BOG public key for callback signature verification (SHA256withRSA)
-const BOG_CALLBACK_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+// Sandbox and production use different keys — set BOG_CALLBACK_PUBLIC_KEY env var for production
+const BOG_CALLBACK_PUBLIC_KEY = process.env.BOG_CALLBACK_PUBLIC_KEY || `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu4RUyAw3+CdkS3ZNILQh
 zHI9Hemo+vKB9U2BSabppkKjzjjkf+0Sm76hSMiu/HFtYhqWOESryoCDJoqffY0Q
 1VNt25aTxbj068QNUtnxQ7KQVLA+pG0smf+EBWlS1vBEAFbIas9d8c9b9sSEkTrr

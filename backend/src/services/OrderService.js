@@ -152,12 +152,14 @@ export class OrderService {
 
     // BOG may only accept whitelisted domains (e.g. *.shopu.ge). For custom domains (commercia.ge),
     // use subdomain.shopu.ge for redirect URLs so BOG accepts and user lands on a working page.
-    const platformBase = process.env.FRONTEND_BASE_URL || 'https://shopu.ge';
-    const platformHost = platformBase.replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/^www\./, '');
-    const isCustomDomain = tenant?.customDomain && returnOrigin && !returnOrigin.includes(platformHost);
+    // Skip this logic on localhost (dev environment).
+    const platformBase = process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge';
+    const platformHost = platformBase.replace(/^https?:\/\//, '').replace(/:\d+$/, '').replace(/\/$/, '').replace(/^www\./, '');
+    const isLocalhost = returnOrigin && returnOrigin.includes('localhost');
+    const isCustomDomain = !isLocalhost && tenant?.customDomain && returnOrigin && !returnOrigin.includes(platformHost);
     const frontendBase = isCustomDomain && tenant?.subdomain
       ? `https://${tenant.subdomain}.${platformHost}`
-      : (returnOrigin || process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
+      : (returnOrigin || platformBase).replace(/\/$/, '');
     const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}`;
     const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}`;
 
@@ -264,7 +266,7 @@ export class OrderService {
     const tenant = finalOrder.tenant;
     const subdomain = tenant?.subdomain;
     const customDomain = tenant?.customDomain;
-    const frontendBaseUrl = (process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
+    const frontendBaseUrl = (process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge').replace(/\/$/, '');
     const dashboardOrderUrl = this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, finalOrder.id);
 
     const ownerEmail = tenant?.owner?.email;
