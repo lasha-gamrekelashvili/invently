@@ -142,15 +142,31 @@ app.get('/readyz', async (req, res) => {
 });
 
 app.get('/api/domains/verify', async (req, res) => {
-  const domain = req.query.domain;
-  if (!domain) return res.status(400).end();
+  const domainRaw = req.query.domain;
+  if (!domainRaw) return res.sendStatus(400);
+
+  const domain = String(domainRaw).toLowerCase().trim();
+
+  const PLATFORM_ROOTS = ['shopu.ge'];
+
+  if (PLATFORM_ROOTS.includes(domain)) return res.sendStatus(200);
+  if (PLATFORM_ROOTS.some(root => domain.endsWith(`.${root}`))) return res.sendStatus(200);
+
+  const candidates = [
+    domain,
+    domain.startsWith('www.') ? domain.slice(4) : `www.${domain}`,
+  ];
 
   const tenant = await prisma.tenant.findFirst({
-    where: { customDomain: domain, isActive: true }
+    where: {
+      isActive: true,
+      customDomain: { in: candidates },
+    },
   });
 
-  return tenant ? res.status(200).end() : res.status(404).end();
+  return tenant ? res.sendStatus(200) : res.sendStatus(404);
 });
+
 
 app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
