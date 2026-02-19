@@ -160,8 +160,9 @@ export class OrderService {
     const frontendBase = isCustomDomain && tenant?.subdomain
       ? `https://${tenant.subdomain}.${platformHost}`
       : (returnOrigin || platformBase).replace(/\/$/, '');
-    const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}`;
-    const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}`;
+    const storeOrigin = isCustomDomain ? returnOrigin : null;
+    const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}${storeOrigin ? `&returnTo=${encodeURIComponent(storeOrigin)}` : ''}`;
+    const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}${storeOrigin ? `&returnTo=${encodeURIComponent(storeOrigin)}` : ''}`;
 
     if (isCustomDomain) {
       console.info('[OrderService] Custom domain checkout – using subdomain URLs for BOG', {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontAPI } from '../utils/api';
 import {
@@ -9,9 +9,17 @@ import {
 } from '@heroicons/react/24/outline';
 
 const CheckoutSuccess: React.FC = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const returnTo = searchParams.get('returnTo');
+
+  const goToStore = () => {
+    if (returnTo) {
+      window.location.href = returnTo;
+    } else {
+      window.location.href = '/';
+    }
+  };
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', orderId],
@@ -33,7 +41,7 @@ const CheckoutSuccess: React.FC = () => {
           <h2 className="text-xl font-light text-neutral-900 mb-2">Invalid link</h2>
           <p className="text-neutral-600 mb-6">No order ID provided.</p>
           <button
-            onClick={() => navigate('/')}
+            onClick={goToStore}
             className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white rounded-full hover:bg-neutral-700"
           >
             <ShoppingBagIcon className="w-4 h-4" />
@@ -70,7 +78,7 @@ const CheckoutSuccess: React.FC = () => {
               You will receive a confirmation email shortly.
             </p>
             <button
-              onClick={() => navigate('/')}
+              onClick={goToStore}
               className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white text-sm font-medium rounded-full hover:bg-neutral-700"
             >
               <ShoppingBagIcon className="w-4 h-4" />

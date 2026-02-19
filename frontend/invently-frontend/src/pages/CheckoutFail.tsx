@@ -8,6 +8,23 @@ const CheckoutFail: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const returnTo = searchParams.get('returnTo');
+
+  const goToStore = () => {
+    if (returnTo) {
+      window.location.href = returnTo;
+    } else {
+      window.location.href = '/';
+    }
+  };
+
+  const goToCheckout = () => {
+    if (returnTo) {
+      window.location.href = `${returnTo.replace(/\/$/, '')}/checkout`;
+    } else {
+      navigate('/checkout');
+    }
+  };
 
   const { data: failureDetails, isLoading } = useQuery({
     queryKey: ['payment-failure-details', orderId],
@@ -18,7 +35,9 @@ const CheckoutFail: React.FC = () => {
 
   React.useEffect(() => {
     if (failureDetails?.order_status === 'completed' && orderId) {
-      navigate(`/checkout/success?orderId=${orderId}`, { replace: true });
+      const params = new URLSearchParams({ orderId });
+      if (returnTo) params.set('returnTo', returnTo);
+      navigate(`/checkout/success?${params.toString()}`, { replace: true });
     }
   }, [failureDetails?.order_status, orderId, navigate]);
 
@@ -63,13 +82,13 @@ const CheckoutFail: React.FC = () => {
         )}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            onClick={() => navigate('/checkout')}
+            onClick={goToCheckout}
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-neutral-800 text-white text-sm font-medium rounded-full hover:bg-neutral-700"
           >
             Try again
           </button>
           <button
-            onClick={() => navigate('/')}
+            onClick={goToStore}
             className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-neutral-300 text-neutral-700 text-sm font-medium rounded-full hover:bg-neutral-50"
           >
             <ShoppingBagIcon className="w-4 h-4" />
