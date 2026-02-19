@@ -53,11 +53,6 @@ const CheckoutFail: React.FC = () => {
     );
   }
 
-  const reason =
-    failureDetails?.reject_reason ??
-    failureDetails?.code_description ??
-    (failureDetails?.payment_code != null ? `(code: ${failureDetails.payment_code})` : null);
-
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-6">
       <div className="max-w-lg w-full text-center">
@@ -70,16 +65,6 @@ const CheckoutFail: React.FC = () => {
         <p className="text-sm text-neutral-600 mb-6">
           Your payment could not be processed. Your order has not been charged. You can try again by returning to the checkout.
         </p>
-        {reason && (
-          <p className="text-sm text-red-700/90 mb-4 rounded-lg bg-red-50 px-4 py-2 font-medium">
-            Reason: {reason}
-          </p>
-        )}
-        {orderId && (
-          <p className="text-xs text-neutral-500 mb-4 font-mono">
-            Order ID: {orderId}
-          </p>
-        )}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={goToCheckout}

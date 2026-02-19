@@ -291,16 +291,21 @@ export class OrderService {
   }
 
   /**
-   * Delete failed order and restore stock (called from webhook when payment rejected)
+   * Mark order as failed, restore stock (called from webhook or fail page fallback)
    */
   async markOrderPaymentFailed(orderId) {
     const order = await this.orderRepository.findFirst(
       { id: orderId },
       { include: { items: true } }
     );
-    if (!order || order.paymentStatus === 'PAID') return order;
+    if (!order || order.paymentStatus === 'PAID' || order.paymentStatus === 'FAILED') return order;
 
     await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: orderId },
+        data: { paymentStatus: 'FAILED', status: 'CANCELLED' },
+      });
+
       for (const item of order.items) {
         if (item.variantId) {
           await tx.productVariant.update({
@@ -314,12 +319,9 @@ export class OrderService {
           });
         }
       }
-
-      await tx.orderItem.deleteMany({ where: { orderId } });
-      await tx.order.delete({ where: { id: orderId } });
     });
 
-    return null;
+    return { ...order, paymentStatus: 'FAILED', status: 'CANCELLED' };
   }
 
   buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, orderId) {
@@ -398,7 +400,11 @@ export class OrderService {
 
     const where = {};
 
-    if (status) where.status = status;
+    if (status) {
+      where.status = status;
+    } else {
+      where.paymentStatus = { not: 'FAILED' };
+    }
 
     if (search) {
       where.OR = [
