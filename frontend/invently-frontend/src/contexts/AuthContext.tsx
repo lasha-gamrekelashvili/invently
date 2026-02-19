@@ -92,26 +92,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
-      // Only redirect to subdomain/custom domain if we're on the main domain
+      // Redirect to subdomain dashboard if we're on the main domain
       if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
 
-        let redirectUrl: string;
-
-        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
-          // For localhost development - use subdomain
-          redirectUrl = `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        } else if (tenant.customDomain) {
-          // Tenant has custom domain - redirect there (e.g. www.commercia.ge)
-          redirectUrl = `https://${tenant.customDomain}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        } else {
-          // Production subdomain - use platform domain (shopu.ge / momigvare.ge)
-          const platformDomain = ['shopu.ge', 'momigvare.ge'].includes(currentHost) ? currentHost : 'shopu.ge';
-          redirectUrl = `https://${tenant.subdomain}.${platformDomain}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        }
+        const redirectUrl = (currentHost.includes('localhost') || currentHost === '127.0.0.1')
+          ? `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`
+          : `https://${tenant.subdomain}.shopu.ge/admin/dashboard#token=${encodeURIComponent(token)}`;
 
         window.location.replace(redirectUrl);
         return;
