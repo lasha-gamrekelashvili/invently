@@ -21,6 +21,7 @@ import paymentRoutes from './src/routes/payments.js';
 import { serve, setup } from './src/config/swagger.js';
 
 import { startSubscriptionExpiryJob, stopSubscriptionExpiryJob } from './src/jobs/subscriptionJobs.js';
+import { EmailService } from './src/services/EmailService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -139,6 +140,21 @@ app.get('/readyz', async (req, res) => {
       error: error.message
     });
   }
+});
+
+app.get('/api/health/smtp', async (req, res) => {
+  const emailService = new EmailService();
+  const result = await emailService.verify();
+  if (result.ok) {
+    return res.json({ status: 'ok', message: 'SMTP connection verified' });
+  }
+  return res.status(503).json({
+    status: 'error',
+    message: result.reason,
+    code: result.code,
+    host: result.host,
+    port: result.port,
+  });
 });
 
 app.get('/api/domains/verify', async (req, res) => {

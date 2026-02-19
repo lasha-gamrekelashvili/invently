@@ -2,18 +2,6 @@ import nodemailer from 'nodemailer';
 
 export class EmailService {
   constructor() {
-    // Create transporter - using environment variables for configuration
-    // For development, you can use a service like Ethereal Email or configure SMTP
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
     // For development/testing without SMTP configured, use a mock transporter
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
       console.warn('EmailService: SMTP credentials not configured. Emails will be logged to console.');
@@ -26,6 +14,40 @@ export class EmailService {
           console.log('===================');
           return { messageId: 'mock-' + Date.now() };
         },
+      };
+      return;
+    }
+
+    // Create transporter with timeouts to prevent hanging
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      connectionTimeout: 10000,  // 10s to establish connection
+      greetingTimeout: 10000,    // 10s for SMTP greeting
+      socketTimeout: 15000,     // 15s for socket inactivity
+    });
+  }
+
+  /**
+   * Verify SMTP connection. Use for debugging deployment issues.
+   */
+  async verify() {
+    if (!this.transporter.verify) return { ok: false, reason: 'mock transporter (no SMTP configured)' };
+    try {
+      await this.transporter.verify();
+      return { ok: true };
+    } catch (err) {
+      return {
+        ok: false,
+        reason: err.message,
+        code: err.code,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
       };
     }
   }
@@ -56,7 +78,13 @@ export class EmailService {
       });
       return true;
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('[EmailService] sendVerificationCode failed:', {
+        to: email,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        code: error.code,
+        message: error.message,
+      });
       throw new Error('Failed to send email');
     }
   }
@@ -94,7 +122,13 @@ export class EmailService {
       });
       return true;
     } catch (error) {
-      console.error('Error sending order confirmation email:', error);
+      console.error('[EmailService] sendOrderConfirmation failed:', {
+        to: email,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        code: error.code,
+        message: error.message,
+      });
       throw new Error('Failed to send order confirmation email');
     }
   }
@@ -129,7 +163,13 @@ export class EmailService {
       });
       return true;
     } catch (error) {
-      console.error('Error sending owner order notification email:', error);
+      console.error('[EmailService] sendOrderNotificationToOwner failed:', {
+        to: email,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        code: error.code,
+        message: error.message,
+      });
       throw new Error('Failed to send owner order notification email');
     }
   }
