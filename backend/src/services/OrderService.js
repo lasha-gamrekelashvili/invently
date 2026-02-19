@@ -150,9 +150,24 @@ export class OrderService {
       select: { subdomain: true, customDomain: true },
     });
 
-    const frontendBase = (returnOrigin || process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
+    // BOG may only accept whitelisted domains (e.g. *.shopu.ge). For custom domains (commercia.ge),
+    // use subdomain.shopu.ge for redirect URLs so BOG accepts and user lands on a working page.
+    const platformBase = process.env.FRONTEND_BASE_URL || 'https://shopu.ge';
+    const platformHost = platformBase.replace(/^https?:\/\//, '').replace(/\/$/, '').replace(/^www\./, '');
+    const isCustomDomain = tenant?.customDomain && returnOrigin && !returnOrigin.includes(platformHost);
+    const frontendBase = isCustomDomain && tenant?.subdomain
+      ? `https://${tenant.subdomain}.${platformHost}`
+      : (returnOrigin || process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
     const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}`;
     const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}`;
+
+    if (isCustomDomain) {
+      console.info('[OrderService] Custom domain checkout – using subdomain URLs for BOG', {
+        returnOrigin,
+        subdomain: tenant?.subdomain,
+        frontendBase,
+      });
+    }
 
     const basket = cart.items.map((item) => {
       const img = item.product?.images?.[0]?.url;
