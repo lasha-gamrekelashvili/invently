@@ -97,6 +97,7 @@ export class OrderService {
         data: {
           orderNumber,
           tenantId,
+          sessionId,
           customerEmail,
           customerName,
           totalAmount,
@@ -133,10 +134,6 @@ export class OrderService {
           });
         }
       }
-
-      await tx.cartItem.deleteMany({
-        where: { cartId: cart.id },
-      });
 
       return newOrder;
     });
@@ -251,6 +248,15 @@ export class OrderService {
       paymentStatus: 'PAID',
       status: 'CONFIRMED',
     });
+
+    if (order.sessionId) {
+      const cart = await prisma.cart.findFirst({
+        where: { sessionId: order.sessionId, tenantId: order.tenantId },
+      });
+      if (cart) {
+        await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+      }
+    }
 
     const finalOrder = { ...order, paymentStatus: 'PAID', status: 'CONFIRMED' };
     const tenant = finalOrder.tenant;

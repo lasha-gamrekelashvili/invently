@@ -165,6 +165,7 @@ model Order {
   id              String        @id @default(uuid())
   orderNumber     String        @unique
   tenantId        String
+  sessionId       String?
   customerEmail   String
   customerName    String
   status          OrderStatus   @default(PENDING)
