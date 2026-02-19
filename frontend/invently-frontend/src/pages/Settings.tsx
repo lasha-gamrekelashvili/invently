@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { settingsAPI, authAPI, getCurrentSubdomain } from '../utils/api';
+import { settingsAPI, authAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,7 +12,7 @@ import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon, UserCircleIcon } from '@
 
 const Settings = () => {
   const { t } = useLanguage();
-  const { user, tenants } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'content' | 'social' | 'links' | 'account'>('account');
   const [formData, setFormData] = useState<UpdateStoreSettingsData>({});
@@ -20,12 +20,8 @@ const Settings = () => {
   const [profileData, setProfileData] = useState({
     email: user?.email || '',
   });
-  const [subdomain, setSubdomain] = useState(getCurrentSubdomain() || '');
-  
-  // Get current tenant to access customDomain
-  const currentSubdomain = getCurrentSubdomain();
-  const currentTenant = tenants.find(t => t.subdomain === currentSubdomain);
-  const [customDomain, setCustomDomain] = useState(currentTenant?.customDomain || '');
+  const [subdomain, setSubdomain] = useState('');
+  const [customDomain, setCustomDomain] = useState('');
   const [passwordChangeStep, setPasswordChangeStep] = useState<'idle' | 'code-sent' | 'verifying'>('idle');
   const [passwordCode, setPasswordCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -37,10 +33,12 @@ const Settings = () => {
     queryFn: settingsAPI.getSettings,
   });
 
-  // Pre-fill form data when settings are loaded
+  // Pre-fill form data when settings are loaded (includes customDomain, subdomain from API)
   useEffect(() => {
     if (settingsResponse) {
       setFormData(settingsResponse);
+      if (settingsResponse.subdomain !== undefined) setSubdomain(settingsResponse.subdomain || '');
+      if (settingsResponse.customDomain !== undefined) setCustomDomain(settingsResponse.customDomain || '');
     }
   }, [settingsResponse]);
 
@@ -118,6 +116,7 @@ const Settings = () => {
     onSuccess: (data) => {
       handleSuccess(data.message || t('settings.messages.customDomainUpdated'));
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
       // Update local state
       if (data.tenant) {
         setCustomDomain(data.tenant.customDomain || '');
@@ -184,9 +183,10 @@ const Settings = () => {
 
       const hasProfileChanges = Object.keys(profileUpdates).length > 0;
       const hasIbanChange = iban !== (user?.iban || '');
-      const currentSubdomain = getCurrentSubdomain();
-      const hasSubdomainChange = subdomain && subdomain !== currentSubdomain;
-      const hasCustomDomainChange = customDomain !== (currentTenant?.customDomain || '');
+      const loadedSubdomain = settingsResponse?.subdomain || '';
+      const loadedCustomDomain = settingsResponse?.customDomain || '';
+      const hasSubdomainChange = subdomain && subdomain !== loadedSubdomain;
+      const hasCustomDomainChange = customDomain !== loadedCustomDomain;
 
       // Collect all mutations
       const mutations: Promise<any>[] = [];

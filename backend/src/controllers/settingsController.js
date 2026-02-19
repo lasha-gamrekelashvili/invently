@@ -8,10 +8,18 @@ const tenantService = new TenantService();
 const getSettings = async (req, res) => {
   try {
     const tenantId = req.tenantId;
+    const tenant = req.tenant;
 
     const settings = await settingsService.getSettings(tenantId);
 
-    res.json(ApiResponse.success(settings));
+    // Include tenant fields used on Settings page (customDomain, subdomain)
+    const response = {
+      ...settings,
+      customDomain: tenant?.customDomain ?? null,
+      subdomain: tenant?.subdomain ?? null,
+    };
+
+    res.json(ApiResponse.success(response));
   } catch (error) {
     console.error('Get settings error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));

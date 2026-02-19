@@ -356,6 +356,9 @@ export interface AuditLog {
 export interface StoreSettings {
   id: string;
   tenantId: string;
+  /** Included from tenant when fetched via GET /api/settings */
+  subdomain: string;
+  customDomain?: string | null;
   aboutUs?: {
     title: string;
     content: string;
