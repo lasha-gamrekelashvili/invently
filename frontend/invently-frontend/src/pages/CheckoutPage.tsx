@@ -359,13 +359,17 @@ const CheckoutContent: React.FC = () => {
         coordinates: formData.shippingAddress.coordinates,
       },
       notes: formData.orderNotes,
+      returnOrigin: window.location.origin,
     }),
-    onSuccess: (order) => {
-      setOrderNumber(order.orderNumber);
-      setStep('success');
-      setTimeout(() => {
+    onSuccess: (result: any) => {
+      if (result?.redirectUrl) {
         clearCart();
-      }, 1000);
+        window.location.href = result.redirectUrl;
+      } else {
+        setOrderNumber(result?.orderNumber || '');
+        setStep('success');
+        setTimeout(() => clearCart(), 1000);
+      }
     },
     onError: (error: any) => {
       setStep('form');
@@ -395,9 +399,7 @@ const CheckoutContent: React.FC = () => {
     }
 
     setStep('processing');
-    setTimeout(() => {
-      createOrderMutation.mutate();
-    }, 2000);
+    createOrderMutation.mutate();
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -745,14 +747,16 @@ const CheckoutContent: React.FC = () => {
 
                 {/* Payment Info */}
                 <div className="px-5 py-4 border-t border-gray-100">
-                  <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                    <CreditCardIcon className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                    <CreditCardIcon className="w-5 h-5 text-neutral-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs sm:text-sm font-medium text-amber-800">
-                        {t('storefront.checkout.demoCheckout')}
+                      <p className="text-xs sm:text-sm font-medium text-neutral-800">
+                        {language === 'ka' ? 'დაფარვა Bank of Georgia-ით' : 'Pay with Bank of Georgia'}
                       </p>
-                      <p className="text-xs text-amber-700 mt-0.5">
-                        {t('storefront.checkout.demoCheckoutDescription')}
+                      <p className="text-xs text-neutral-600 mt-0.5">
+                        {language === 'ka'
+                          ? 'თქვენ გადახდით ბარათით, Google Pay ან Apple Pay BOG-ის უსაფრთხო გვერდზე.'
+                          : 'You will pay by card, Google Pay or Apple Pay on BOG\'s secure page.'}
                       </p>
                     </div>
                   </div>

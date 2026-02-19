@@ -16,15 +16,16 @@ const orderController = {
         shippingAddress,
         billingAddress,
         notes,
+        returnOrigin,
       } = req.body;
       const tenantId = req.tenantId;
 
-      const order = await orderService.createOrder(
-        { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes },
+      const result = await orderService.createOrder(
+        { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes, returnOrigin },
         tenantId
       );
 
-      res.status(201).json(ApiResponse.created(order, 'Order created successfully'));
+      res.status(201).json(ApiResponse.created(result, 'Order created successfully'));
     } catch (error) {
       if (error.message === 'Cart is empty or not found') {
         return res.status(400).json(ApiResponse.error(error.message));

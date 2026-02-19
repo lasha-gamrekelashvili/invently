@@ -2,6 +2,7 @@ import { OrderRepository, OrderItemRepository } from '../repositories/OrderRepos
 import { CartRepository } from '../repositories/CartRepository.js';
 import prisma from '../repositories/BaseRepository.js';
 import { EmailService } from './EmailService.js';
+import { BOGPaymentService } from './BOGPaymentService.js';
 
 export class OrderService {
   constructor() {
@@ -9,6 +10,7 @@ export class OrderService {
     this.orderItemRepository = new OrderItemRepository();
     this.cartRepository = new CartRepository();
     this.emailService = new EmailService();
+    this.bogPayment = new BOGPaymentService();
   }
 
   /**
@@ -72,10 +74,11 @@ export class OrderService {
   }
 
   /**
-   * Creates an order from cart (checkout)
+   * Creates an order from cart (checkout) and initiates BOG payment.
+   * Returns order + redirectUrl; payment is finalized via BOG callback.
    */
   async createOrder(orderData, tenantId) {
-    const { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes } = orderData;
+    const { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes, returnOrigin } = orderData;
 
     const cart = await this.cartRepository.getCartWithItems(sessionId, tenantId);
 
@@ -138,19 +141,86 @@ export class OrderService {
       return newOrder;
     });
 
+    // Build callback URL - BOG POSTs here (must be publicly reachable)
+    const backendBase = (process.env.BACKEND_BASE_URL || process.env.API_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+    const callbackUrl = `${backendBase}/api/bog/callback`;
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { subdomain: true, customDomain: true },
+    });
+
+    const frontendBase = (returnOrigin || process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
+    const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}`;
+    const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}`;
+
+    const basket = cart.items.map((item) => {
+      const img = item.product?.images?.[0]?.url;
+      return {
+        id: item.productId,
+        productId: item.productId,
+        description: item.product.title,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        image: img ? (img.startsWith('http') ? img : `${backendUrl}${img}`) : null,
+        sku: item.product?.sku,
+      };
+    });
+
+    let bogResult;
+    try {
+      bogResult = await this.bogPayment.createOrder({
+      callbackUrl,
+      externalOrderId: order.id,
+      totalAmount,
+      basket,
+      customerName,
+      customerEmail,
+      successUrl,
+      failUrl,
+      idempotencyKey: order.id,
+    });
+    } catch (bogError) {
+      if (bogError.message?.includes('must be configured')) {
+        throw new Error('Payment gateway is not configured. Please contact support.');
+      }
+      throw bogError;
+    }
+
     await this.orderRepository.update(order.id, {
-      paymentStatus: 'PAID',
-      status: 'CONFIRMED',
+      bogOrderId: bogResult.bogOrderId,
     });
 
     const finalOrder = await this.orderRepository.findFirst(
       { id: order.id },
       {
         include: {
-          tenant: {
+          items: {
             include: {
-              owner: { select: { email: true } },
+              product: { select: { id: true, title: true } },
+              variant: true,
             },
+          },
+        },
+      }
+    );
+
+    return {
+      ...finalOrder,
+      redirectUrl: bogResult.redirectUrl,
+    };
+  }
+
+  /**
+   * Finalizes order after successful BOG payment (called from webhook)
+   */
+  async finalizeOrderAfterPayment(orderId) {
+    const order = await this.orderRepository.findFirst(
+      { id: orderId },
+      {
+        include: {
+          tenant: {
+            include: { owner: { select: { email: true } } },
           },
           items: {
             include: {
@@ -166,13 +236,24 @@ export class OrderService {
       }
     );
 
-    const ownerEmail = finalOrder.tenant?.owner?.email;
+    if (!order || order.paymentStatus === 'PAID') {
+      return order;
+    }
+
+    await this.orderRepository.update(orderId, {
+      paymentStatus: 'PAID',
+      status: 'CONFIRMED',
+    });
+
+    const finalOrder = { ...order, paymentStatus: 'PAID', status: 'CONFIRMED' };
+    const tenant = finalOrder.tenant;
+    const subdomain = tenant?.subdomain;
+    const customDomain = tenant?.customDomain;
+    const frontendBaseUrl = (process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
+    const dashboardOrderUrl = this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, finalOrder.id);
+
+    const ownerEmail = tenant?.owner?.email;
     if (ownerEmail) {
-      const tenant = finalOrder.tenant;
-      const subdomain = tenant?.subdomain;
-      const customDomain = tenant?.customDomain;
-      const frontendBaseUrl = (process.env.FRONTEND_BASE_URL || 'https://shopu.ge').replace(/\/$/, '');
-      const dashboardOrderUrl = this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, finalOrder.id);
       try {
         await this.emailService.sendOrderNotificationToOwner({
           email: ownerEmail,
@@ -185,8 +266,6 @@ export class OrderService {
       } catch (error) {
         console.error('Order confirmation email failed:', error);
       }
-    } else {
-      console.warn('Order confirmation email skipped: store owner email missing.');
     }
 
     try {
@@ -202,6 +281,16 @@ export class OrderService {
     }
 
     return finalOrder;
+  }
+
+  /**
+   * Mark order as failed (called from webhook when payment rejected)
+   */
+  async markOrderPaymentFailed(orderId) {
+    const order = await this.orderRepository.findFirst({ id: orderId });
+    if (!order || order.paymentStatus === 'PAID') return order;
+    await this.orderRepository.update(orderId, { paymentStatus: 'FAILED' });
+    return { ...order, paymentStatus: 'FAILED' };
   }
 
   buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, orderId) {

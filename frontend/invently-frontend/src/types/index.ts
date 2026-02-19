@@ -331,6 +331,7 @@ export interface CreateOrderData {
   shippingAddress?: ShippingAddress;
   billingAddress?: ShippingAddress;
   notes?: string;
+  returnOrigin?: string;
 }
 
 export interface AuditLog {

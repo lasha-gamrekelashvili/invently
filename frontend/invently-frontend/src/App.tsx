@@ -30,6 +30,8 @@ import BulkUpload from './pages/BulkUpload';
 import Storefront from './pages/Storefront';
 import ProductDetail from './pages/ProductDetail';
 import CheckoutPage from './pages/CheckoutPage';
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import CheckoutFail from './pages/CheckoutFail';
 import PlatformAdmin from './pages/PlatformAdmin';
 import LegalPage from './pages/LegalPage';
 import PaymentPage from './pages/PaymentPage';
@@ -121,7 +123,8 @@ const AppRoutes = () => {
       <Route path="/category/*" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
       <Route path="/product/:slug" element={<StorefrontProtection><ProductDetail /></StorefrontProtection>} />
       <Route path="/checkout" element={<StorefrontProtection><CheckoutPage /></StorefrontProtection>} />
-
+      <Route path="/checkout/success" element={<CheckoutSuccess />} />
+      <Route path="/checkout/fail" element={<CheckoutFail />} />
       {/* Redirect /admin/* to main-domain path-based dashboard */}
       <Route path="/admin/*" element={<AdminRedirect />} />
 

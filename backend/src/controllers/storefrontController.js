@@ -97,10 +97,45 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+const getOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await storefrontService.getOrderStatus(id, req.tenant?.id);
+    res.json(ApiResponse.success(order));
+  } catch (error) {
+    if (error.message === 'Store not found' || error.message === 'Order not found') {
+      return res.status(404).json(ApiResponse.notFound(error.message));
+    }
+    console.error('Get order status error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
+const getPaymentFailureDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tenantId = req.tenant?.id;
+    if (!tenantId) {
+      console.warn('[Payment failure details] No tenant resolved', { orderId: id, host: req.get('x-original-host') || req.get('host') });
+    }
+    const details = await storefrontService.getPaymentFailureDetails(id, tenantId);
+    res.json(ApiResponse.success(details));
+  } catch (error) {
+    if (error.message === 'Store not found' || error.message === 'Order not found') {
+      console.warn('[Payment failure details] Not found', { orderId: req.params.id, error: error.message });
+      return res.status(404).json(ApiResponse.notFound(error.message));
+    }
+    console.error('Get payment failure details error:', error);
+    res.status(500).json(ApiResponse.error('Internal server error'));
+  }
+};
+
 export {
   getStoreInfo,
   getPublicCategories,
   getPublicProducts,
   getPublicProductBySlug,
-  getProductsByCategory
+  getProductsByCategory,
+  getOrderStatus,
+  getPaymentFailureDetails,
 };

@@ -4,7 +4,9 @@ import {
   getPublicCategories,
   getPublicProducts,
   getPublicProductBySlug,
-  getProductsByCategory
+  getProductsByCategory,
+  getOrderStatus,
+  getPaymentFailureDetails,
 } from '../controllers/storefrontController.js';
 import { getPublicSettings } from '../controllers/settingsController.js';
 import storefrontTenantResolver from '../middleware/storefrontTenantResolver.js';
@@ -381,5 +383,7 @@ router.get('/products', getPublicProducts);
 router.get('/products/:slug', getPublicProductBySlug);
 router.get('/categories/:categorySlug/products', getProductsByCategory);
 router.get('/settings', getPublicSettings);
+router.get('/orders/:id/payment-details', getPaymentFailureDetails);
+router.get('/orders/:id', getOrderStatus);
 
 export default router;

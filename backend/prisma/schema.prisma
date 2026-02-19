@@ -170,6 +170,7 @@ model Order {
   status          OrderStatus   @default(PENDING)
   totalAmount     Float
   paymentStatus   PaymentStatus @default(PENDING)
+  bogOrderId      String?       @unique
   shippingAddress Json?
   billingAddress  Json?
   notes           String?

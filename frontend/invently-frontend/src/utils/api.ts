@@ -318,6 +318,19 @@ export const storefrontAPI = {
 
   getSettings: (): Promise<StoreSettings | null> =>
     api.get('/storefront/settings').then(res => res.data),
+
+  getOrder: (orderId: string): Promise<{ orderNumber: string; paymentStatus: string }> =>
+    api.get(`/storefront/orders/${orderId}`).then(res => res.data),
+
+  getPaymentFailureDetails: (
+    orderId: string
+  ): Promise<{
+    order_status?: string;
+    reject_reason?: string | null;
+    payment_code?: string | null;
+    code_description?: string | null;
+  } | null> =>
+    api.get(`/storefront/orders/${orderId}/payment-details`).then(res => res.data),
 };
 
 // Admin API (platform admin)

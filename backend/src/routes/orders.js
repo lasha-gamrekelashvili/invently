@@ -51,6 +51,7 @@ const createOrderSchema = Joi.object({
     .try(georgianAddressSchema, legacyAddressSchema)
     .optional(),
   notes: Joi.string().allow('').optional(),
+  returnOrigin: Joi.string().uri().optional(),
 });
 
 const updateOrderStatusSchema = Joi.object({

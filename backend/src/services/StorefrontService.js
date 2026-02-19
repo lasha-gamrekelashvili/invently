@@ -1,10 +1,96 @@
 import { CategoryService } from './CategoryService.js';
 import { ProductRepository } from '../repositories/ProductRepository.js';
+import { BOGPaymentService } from './BOGPaymentService.js';
+import { OrderService } from './OrderService.js';
+import prisma from '../repositories/BaseRepository.js';
 
 export class StorefrontService {
   constructor() {
     this.categoryService = new CategoryService();
     this.productRepository = new ProductRepository();
+    this.bogPayment = process.env.BOG_CLIENT_ID && process.env.BOG_CLIENT_SECRET
+      ? new BOGPaymentService()
+      : null;
+    this.orderService = new OrderService();
+  }
+
+  /**
+   * Gets order status for checkout success/fail page (public, tenant-scoped)
+   */
+  async getOrderStatus(orderId, tenantId) {
+    if (!tenantId) throw new Error('Store not found');
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, tenantId },
+      select: { orderNumber: true, paymentStatus: true },
+    });
+    if (!order) throw new Error('Order not found');
+    return order;
+  }
+
+  /**
+   * Gets BOG payment failure details for display on checkout fail page.
+   * Returns reject_reason, payment code, code_description when available.
+   */
+  async getPaymentFailureDetails(orderId, tenantId) {
+    console.info('[Payment failure details] Requested', { orderId, tenantId: tenantId ?? 'none' });
+    if (!tenantId) throw new Error('Store not found');
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, tenantId },
+      select: { bogOrderId: true, paymentStatus: true },
+    });
+    if (!order) {
+      console.warn('[Payment failure details] Order not found', { orderId, tenantId });
+      throw new Error('Order not found');
+    }
+    if (!order.bogOrderId) {
+      console.info('[Payment failure details] No bogOrderId (mock flow or non-BOG order)', { orderId });
+      return null;
+    }
+    if (!this.bogPayment) {
+      console.info('[Payment failure details] BOG not configured', { orderId });
+      return null;
+    }
+    try {
+      const details = await this.bogPayment.getPaymentDetails(order.bogOrderId);
+      if (!details) {
+        console.warn('[Payment failure details] BOG returned null/404', { orderId, bogOrderId: order.bogOrderId });
+        return null;
+      }
+      const statusKey = details.order_status?.key;
+      const rejectReason = details.reject_reason ?? null;
+      const code = details.payment_detail?.code ?? null;
+      const codeDesc = details.payment_detail?.code_description ?? null;
+      console.info('[Payment failure details] BOG status', {
+        orderId,
+        bogOrderId: order.bogOrderId,
+        order_status: statusKey,
+        reject_reason: rejectReason,
+        payment_code: code,
+        code_description: codeDesc,
+      });
+      if (statusKey !== 'rejected') {
+        console.info('[Payment failure details] Order is not rejected in BOG', { statusKey });
+        // BOG redirect can send user to fail even when payment succeeded; finalize order and let fail page redirect to success
+        if (statusKey === 'completed') {
+          try {
+            await this.orderService.finalizeOrderAfterPayment(orderId);
+            console.info('[Payment failure details] Finalized order (callback may not have reached us)', { orderId });
+          } catch (err) {
+            console.warn('[Payment failure details] Finalize failed', { orderId, err: err.message });
+          }
+        }
+        return { order_status: statusKey };
+      }
+      return {
+        order_status: statusKey,
+        reject_reason: rejectReason,
+        payment_code: code,
+        code_description: codeDesc,
+      };
+    } catch (err) {
+      console.warn('[Payment failure details] BOG API error', { orderId, bogOrderId: order.bogOrderId, err: err.message });
+      return null;
+    }
   }
 
   /**

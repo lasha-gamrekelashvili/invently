@@ -17,6 +17,7 @@ import orderRoutes from './src/routes/orders.js';
 import settingsRoutes from './src/routes/settings.js';
 import bulkUploadRoutes from './src/routes/bulkUpload.js';
 import paymentRoutes from './src/routes/payments.js';
+import bogRoutes from './src/routes/bog.js';
 
 import { serve, setup } from './src/config/swagger.js';
 
@@ -91,6 +92,9 @@ app.use(cors({
   },
   credentials: true
 }));
+
+// BOG callback needs raw body for signature verification - must be before json()
+app.use('/api/bog', express.raw({ type: 'application/json' }), bogRoutes);
 
 app.use(json({ limit: '10mb' }));
 app.use(urlencoded({ extended: true, limit: '10mb' }));
