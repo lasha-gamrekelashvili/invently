@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { productsAPI, categoriesAPI, mediaAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
@@ -15,6 +16,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const ProductForm = () => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const isEditing = !!id;
@@ -122,7 +124,7 @@ const ProductForm = () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       handleSuccess(t('products.createSuccess', { title: data.title }));
       // Navigate to the edit page of the newly created product
-      navigate(`/admin/products/${data.id}/edit`, { replace: true });
+      navigate(path(`products/${data.id}/edit`), { replace: true });
     },
     onError: (error: any) => {
       const errorMessage = handleApiError(error, t('products.createError'));
@@ -298,7 +300,7 @@ const ProductForm = () => {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Link
-          to="/admin/products"
+          to={path('products')}
           className="flex items-center text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
@@ -467,7 +469,7 @@ placeholder={t('products.form.selectStatus')}
 
           <div className="flex items-center justify-end space-x-4 pt-6">
             <Link
-              to="/admin/products"
+              to={path('products')}
               className="btn-outline"
             >
 {t('common.cancel')}

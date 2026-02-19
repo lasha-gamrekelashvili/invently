@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { categoriesAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
@@ -11,6 +12,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const CategoryForm = () => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const parentId = searchParams.get('parentId') || '';
@@ -86,7 +88,7 @@ const CategoryForm = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       handleSuccess(t('categories.createSuccess', { name: data.name }));
-      navigate('/admin/categories');
+      navigate(path('categories'));
     },
     onError: (error: any) => {
       const errorMessage = handleApiError(error, t('categories.createError'));
@@ -100,7 +102,7 @@ const CategoryForm = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       queryClient.invalidateQueries({ queryKey: ['category', id] });
       handleSuccess(t('categories.updateSuccess', { name: data.name }));
-      navigate('/admin/categories');
+      navigate(path('categories'));
     },
     onError: (error: any) => {
       const errorMessage = handleApiError(error, t('categories.updateError'));
@@ -163,7 +165,7 @@ const CategoryForm = () => {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center space-x-3 sm:space-x-4">
         <Link
-          to="/admin/categories"
+          to={path('categories')}
           className="flex items-center text-xs sm:text-sm text-gray-600 hover:text-gray-900"
         >
           <ArrowLeftIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
@@ -282,7 +284,7 @@ placeholder={t('categories.form.selectStatus')}
 
           <div className="flex items-center justify-end space-x-3 sm:space-x-4 pt-4 sm:pt-6">
             <Link
-              to="/admin/categories"
+              to={path('categories')}
               className="btn-outline"
             >
 {t('common.cancel')}

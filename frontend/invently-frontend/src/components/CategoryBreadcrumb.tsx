@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
 import { T } from './Translation';
 
@@ -21,6 +22,7 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
   currentCategoryId,
   onCategorySelect
 }) => {
+  const { path } = useDashboardPath();
   const buildBreadcrumb = (): Category[] => {
     if (!currentCategoryId) return [];
     
@@ -50,7 +52,7 @@ const CategoryBreadcrumb: React.FC<CategoryBreadcrumbProps> = ({
   return (
     <nav className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm">
       <Link
-        to="/admin/categories"
+        to={path('categories')}
         className="flex items-center text-gray-500 hover:text-gray-700"
         onClick={() => onCategorySelect?.('')}
       >

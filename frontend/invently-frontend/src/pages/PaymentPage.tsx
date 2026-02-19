@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { paymentAPI } from '../utils/api';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { T } from '../components/Translation';
@@ -8,6 +9,7 @@ import { CreditCardIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/2
 
 const PaymentPage = () => {
   const { paymentId } = useParams<{ paymentId: string }>();
+  const { path } = useDashboardPath();
   const navigate = useNavigate();
   const [payment, setPayment] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +32,7 @@ const PaymentPage = () => {
         if (paymentData.status === 'PAID') {
           handleSuccess('Payment already processed!');
           setTimeout(() => {
-            navigate('/admin/dashboard');
+            navigate(path('dashboard'));
           }, 2000);
         }
       } catch (err: any) {
@@ -61,7 +63,7 @@ const PaymentPage = () => {
       
       // Redirect to dashboard after successful payment
       setTimeout(() => {
-        navigate('/admin/dashboard');
+        navigate(path('dashboard'));
       }, 2000);
     } catch (err: any) {
       const errorMessage = handleApiError(err, 'Failed to process payment');
@@ -90,7 +92,7 @@ const PaymentPage = () => {
             </div>
             <p className="text-red-700">{error}</p>
             <button
-              onClick={() => navigate('/admin/dashboard')}
+              onClick={() => navigate(path('dashboard'))}
               className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Go to Dashboard
@@ -213,7 +215,7 @@ const PaymentPage = () => {
                 <T tKey="payment.successMessage" />
               </p>
               <button
-                onClick={() => navigate('/admin/dashboard')}
+                onClick={() => navigate(path('dashboard'))}
                 className="px-6 py-3 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors"
               >
                 <T tKey="payment.goToDashboard" />

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { productsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
@@ -35,6 +36,7 @@ const ProductsList = ({
   invalidateQueries = []
 }: ProductsListProps) => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: Product | null }>({
     isOpen: false,
     product: null,
@@ -75,7 +77,7 @@ const ProductsList = ({
   });
 
   const handleEditProduct = (product: Product) => {
-    navigate(`/admin/products/${product.id}/edit`);
+    navigate(path(`products/${product.id}/edit`));
   };
 
   const handleDeleteProduct = (product: Product) => {

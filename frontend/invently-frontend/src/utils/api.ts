@@ -77,7 +77,7 @@ export const isOnSubdomain = () => {
   // localhost special-case: foo.localhost is treated as subdomain
   if (host.endsWith('.localhost')) return true;
   
-  // Main platform domains only - landing, login, register
+  // Main platform domains only - landing, login, register, dashboard (path-based)
   const mainDomains = ['shopu.ge', 'momigvare.ge'];
   if (mainDomains.includes(host)) return false;
   
@@ -85,15 +85,47 @@ export const isOnSubdomain = () => {
   return true;
 };
 
-// Request interceptor to add auth token and original host
+// Dashboard path segments - when first path segment matches, second is tenant slug
+const DASHBOARD_PATH_SEGMENTS = ['dashboard', 'categories', 'products', 'orders', 'settings', 'appearance', 'billing', 'bulk-upload', 'platform', 'payment'];
+const MAIN_DOMAIN_PATHS = ['', 'login', 'register', 'about', 'contact', 'services', 'pricing', 'terms', 'privacy', 'refund-policy'];
+
+/**
+ * Get tenant slug from main-domain path (e.g. /commercia/dashboard -> commercia)
+ */
+export const getTenantSlugFromPath = (): string | null => {
+  const host = window.location.hostname;
+  const mainDomains = ['shopu.ge', 'momigvare.ge', 'localhost', '127.0.0.1'];
+  if (!mainDomains.includes(host)) return null;
+
+  const pathname = window.location.pathname;
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length < 2) return null;
+
+  const [first, second] = segments;
+  if (MAIN_DOMAIN_PATHS.includes(first)) return null;
+  if (DASHBOARD_PATH_SEGMENTS.includes(second)) return first;
+  if (first === 'payment' && segments.length >= 2) return null; // /payment/:id
+  return null;
+};
+
+/**
+ * Build dashboard base path for a tenant (e.g. /commercia)
+ */
+export const getDashboardBasePath = (tenantSlug: string) => `/${tenantSlug}`;
+
+// Request interceptor to add auth token, original host, and tenant slug for path-based dashboard
 api.interceptors.request.use((config) => {
   const token = authToken || localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
-  // Add the original hostname for tenant resolution
   config.headers['X-Original-Host'] = window.location.hostname;
+  
+  const tenantSlug = getTenantSlugFromPath();
+  if (tenantSlug) {
+    config.headers['X-Tenant-Slug'] = tenantSlug;
+  }
   
   return config;
 });

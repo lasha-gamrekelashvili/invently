@@ -96,14 +96,13 @@ const Register = () => {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = registrationResult.token;
-
-        let redirectUrl: string;
-        if (currentHost.includes('localhost') || currentHost === '127.0.0.1') {
-          redirectUrl = `http://${registrationResult.tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        } else {
-          redirectUrl = `https://${registrationResult.tenant.subdomain}.${currentHost}/admin/dashboard#token=${encodeURIComponent(token)}`;
-        }
-        window.location.replace(redirectUrl);
+        const baseUrl =
+          currentHost.includes('localhost') || currentHost === '127.0.0.1'
+            ? `http://localhost${port}`
+            : 'https://shopu.ge';
+        window.location.replace(
+          `${baseUrl}/${registrationResult.tenant.subdomain}/dashboard#token=${encodeURIComponent(token)}`
+        );
       }
     },
     onError: (err: any) => {

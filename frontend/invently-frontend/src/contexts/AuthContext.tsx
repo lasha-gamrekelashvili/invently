@@ -92,18 +92,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
 
-      // Redirect to subdomain dashboard if we're on the main domain
+      // Redirect to path-based dashboard if we're on the main domain
       if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
         const tenant = response.tenants[0];
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         const token = response.token;
+        const baseUrl =
+          currentHost.includes('localhost') || currentHost === '127.0.0.1'
+            ? `http://localhost${port}`
+            : 'https://shopu.ge';
 
-        const redirectUrl = (currentHost.includes('localhost') || currentHost === '127.0.0.1')
-          ? `http://${tenant.subdomain}.localhost${port}/admin/dashboard#token=${encodeURIComponent(token)}`
-          : `https://${tenant.subdomain}.shopu.ge/admin/dashboard#token=${encodeURIComponent(token)}`;
-
-        window.location.replace(redirectUrl);
+        window.location.replace(
+          `${baseUrl}/${tenant.subdomain}/dashboard#token=${encodeURIComponent(token)}`
+        );
         return;
       }
     } catch (error) {
@@ -143,8 +145,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     handleSuccess('Logged out successfully');
 
-    // If on subdomain or custom domain, redirect to main domain
-    if (isOnSubdomain()) {
+    // Redirect to main domain on logout (from subdomain storefront or path-based dashboard)
+    const isOnDashboardPath = /^\/[^/]+\/(dashboard|orders|products|categories|settings|appearance|billing|bulk-upload|platform)/.test(
+      window.location.pathname
+    );
+    if (isOnSubdomain() || isOnDashboardPath) {
       const hostname = window.location.hostname;
       let mainDomain;
       

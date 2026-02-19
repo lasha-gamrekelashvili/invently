@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { categoriesAPI, productsAPI, ordersAPI } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
@@ -21,6 +22,7 @@ import {
 const Dashboard = () => {
   const { user, tenants } = useAuth();
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const currentTenant = tenants[0];
   const navigate = useNavigate();
 
@@ -52,7 +54,7 @@ const Dashboard = () => {
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
       borderColor: 'border-neutral-200',
-      link: '/admin/orders',
+      link: path('orders'),
     },
     {
       name: t('dashboard.stats.pendingOrders'),
@@ -61,7 +63,7 @@ const Dashboard = () => {
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
       borderColor: 'border-neutral-200',
-      link: '/admin/orders',
+      link: path('orders'),
     },
     {
       name: t('dashboard.stats.totalRevenue'),
@@ -70,7 +72,7 @@ const Dashboard = () => {
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
       borderColor: 'border-neutral-200',
-      link: '/admin/orders',
+      link: path('orders'),
     },
     {
       name: t('dashboard.stats.totalProducts'),
@@ -79,7 +81,7 @@ const Dashboard = () => {
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
       borderColor: 'border-neutral-200',
-      link: '/admin/products',
+      link: path('products'),
     },
     {
       name: t('products.status.draft'),
@@ -88,7 +90,7 @@ const Dashboard = () => {
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
       borderColor: 'border-neutral-200',
-      link: '/admin/products',
+      link: path('products'),
     },
     {
       name: t('navigation.categories'),
@@ -97,7 +99,7 @@ const Dashboard = () => {
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
       borderColor: 'border-neutral-200',
-      link: '/admin/categories',
+      link: path('categories'),
     },
   ];
 
@@ -124,7 +126,7 @@ const Dashboard = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
-            to="/admin/products/new"
+            to={path('products/new')}
             className="bg-neutral-800 text-white p-6 rounded-2xl hover:bg-neutral-700 transition-colors border border-neutral-800"
           >
             <div className="flex items-center">
@@ -139,7 +141,7 @@ const Dashboard = () => {
           </Link>
 
           <Link
-            to="/admin/orders"
+            to={path('orders')}
             className="bg-neutral-800 text-white p-6 rounded-2xl hover:bg-neutral-700 transition-colors border border-neutral-800"
           >
             <div className="flex items-center">
@@ -213,7 +215,7 @@ const Dashboard = () => {
               <T tKey="dashboard.recentOrders" />
             </h3>
             <Link
-              to="/admin/orders"
+              to={path('orders')}
               className="text-neutral-300 hover:text-white text-sm font-medium transition-colors"
             >
               <T tKey="dashboard.viewAll" />
@@ -229,7 +231,7 @@ const Dashboard = () => {
                 <div
                   key={order.id}
                   className="flex items-center justify-between p-4 rounded-xl bg-white border border-neutral-200 hover:border-neutral-300 hover:shadow-sm transition-all cursor-pointer"
-                  onClick={() => navigate(`/admin/orders/${order.id}`)}
+                  onClick={() => navigate(path(`orders/${order.id}`))}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-stone-800 truncate">{order.orderNumber}</div>

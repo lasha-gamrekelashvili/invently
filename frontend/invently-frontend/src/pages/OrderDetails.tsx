@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef, useEffect, useState } from 'react';
 import { ordersAPI } from '../utils/api';
@@ -25,6 +26,7 @@ import { getRegionById, getDistrictById } from '../data/georgianRegions';
 const OrderDetails = () => {
   const { t, language } = useLanguage();
   const { id } = useParams<{ id: string }>();
+  const { path } = useDashboardPath();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
@@ -172,7 +174,7 @@ const OrderDetails = () => {
         <div className="text-lg font-medium text-gray-900 mb-2">{t('orders.orderDetails.notFound.title')}</div>
         <p className="text-gray-600 mb-4">{t('orders.orderDetails.notFound.description')}</p>
         <button
-          onClick={() => navigate('/admin/orders')}
+          onClick={() => navigate(path('orders'))}
           className="inline-flex items-center px-4 py-2 bg-neutral-800 text-white rounded-full hover:bg-neutral-700 transition-colors"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-2" />
@@ -188,7 +190,7 @@ const OrderDetails = () => {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center">
           <button
-            onClick={() => navigate('/admin/orders')}
+            onClick={() => navigate(path('orders'))}
             className="mr-3 p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <ArrowLeftIcon className="h-4 w-4" />
@@ -239,7 +241,7 @@ const OrderDetails = () => {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => canNavigate && navigate(`/admin/products/${item.productId}/edit`)}
+                      onClick={() => canNavigate && navigate(path(`products/${item.productId}/edit`))}
                       className={`flex items-center p-3 rounded-lg transition-all ${
                         canNavigate 
                           ? 'bg-neutral-50 hover:bg-neutral-100 hover:border-neutral-200 cursor-pointer border border-transparent' 

@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
  * Checks custom domain first, then falls back to subdomain extraction.
  * Read-only middleware - does not modify database state.
  */
+const MAIN_DOMAINS = ['shopu.ge', 'momigvare.ge', 'localhost', '127.0.0.1'];
+
 const tenantResolver = async (req, res, next) => {
   try {
     let host = req.get('x-original-host') || req.get('host');
@@ -16,6 +18,50 @@ const tenantResolver = async (req, res, next) => {
     }
 
     host = host.split(':')[0].toLowerCase();
+
+    // Step 0: Path-based tenant resolution (shopu.ge/:slug/dashboard)
+    const tenantSlug = req.get('x-tenant-slug');
+    if (tenantSlug && MAIN_DOMAINS.includes(host)) {
+      const tenant = await prisma.tenant.findUnique({
+        where: { subdomain: tenantSlug },
+        include: {
+          owner: { select: { id: true, email: true, role: true } },
+          subscription: true
+        }
+      });
+      if (!tenant) {
+        return res.status(404).json({ error: 'Tenant not found', subdomain: tenantSlug });
+      }
+      if (req.requireActiveTenant !== true) {
+        req.tenant = tenant;
+        req.tenantId = tenant.id;
+        return next();
+      }
+      if (!tenant.isActive) {
+        return res.status(403).json({
+          error: 'Store is currently inactive',
+          subdomain: tenantSlug,
+          isActive: false
+        });
+      }
+      const subscription = tenant.subscription;
+      if (subscription) {
+        const now = new Date();
+        const periodEnd = new Date(subscription.currentPeriodEnd);
+        if (subscription.status === 'CANCELLED' && periodEnd < now) {
+          req.subscriptionWarning = { expired: true, periodEnd: periodEnd.toISOString() };
+        } else if (subscription.status === 'CANCELLED') {
+          req.subscriptionWarning = {
+            cancelled: true,
+            periodEnd: periodEnd.toISOString(),
+            daysRemaining: Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24))
+          };
+        }
+      }
+      req.tenant = tenant;
+      req.tenantId = tenant.id;
+      return next();
+    }
 
     // Step 1: Check if host matches a custom domain (exact match or www variant)
     const tenantByCustomDomain = await prisma.tenant.findFirst({

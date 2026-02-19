@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { categoriesAPI, productsAPI } from '../utils/api';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
@@ -17,6 +18,7 @@ import type { Category } from '../types';
 
 const Categories = () => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
@@ -98,7 +100,7 @@ const Categories = () => {
   });
 
   const handleEditCategory = (category: any) => {
-    navigate(`/admin/categories/${category.id}/edit`);
+    navigate(path(`categories/${category.id}/edit`));
   };
 
   const handleDeleteCategory = (category: any) => {
@@ -114,7 +116,7 @@ const Categories = () => {
   };
 
   const handleAddChild = (parentId: string) => {
-    navigate(`/admin/categories/new?parentId=${parentId}`);
+    navigate(`${path('categories/new')}?parentId=${parentId}`);
   };
 
 
@@ -130,7 +132,7 @@ const Categories = () => {
         icon={FolderIcon}
         actionButton={{
           label: t('categories.addCategory'),
-          href: '/admin/categories/new'
+          href: path('categories/new')
         }}
       />
 
@@ -248,7 +250,7 @@ const Categories = () => {
                         <T tKey="categories.products.countInCategory" params={{ count: selectedCategory.allProducts.length }} />
                       </h3>
                       <Link
-                        to={`/admin/products?categoryId=${selectedCategory.id}`}
+                        to={`${path('products')}?categoryId=${selectedCategory.id}`}
                         className="text-sm text-neutral-900 hover:text-neutral-700 font-medium transition-colors"
                       >
                         <T tKey="categories.products.viewAllProducts" />
@@ -304,7 +306,7 @@ const Categories = () => {
               <button
                 onClick={() => {
                   setShowAddProductModal(false);
-                  navigate(`/admin/products/new?categoryId=${selectedCategory.id}`);
+                  navigate(`${path('products/new')}?categoryId=${selectedCategory.id}`);
                 }}
                 className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-full text-white bg-neutral-800 hover:bg-neutral-700 transition-colors"
               >

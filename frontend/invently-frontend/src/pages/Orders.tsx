@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { ordersAPI, debounce } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import PageHeader from '../components/PageHeader';
@@ -14,6 +15,7 @@ import type { Order } from '../types';
 
 const Orders = () => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,7 +151,7 @@ const Orders = () => {
   const hasActiveFilters = !!(statusFilter || searchQuery || startDate || endDate);
 
   const handleOrderClick = (order: Order) => {
-    navigate(`/admin/orders/${order.id}`);
+    navigate(path(`orders/${order.id}`));
   };
 
 

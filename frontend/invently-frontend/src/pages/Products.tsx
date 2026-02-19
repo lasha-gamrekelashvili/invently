@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { productsAPI, categoriesAPI, debounce } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import PageHeader from '../components/PageHeader';
@@ -11,6 +12,7 @@ import { CubeIcon } from '@heroicons/react/24/outline';
 
 const Products = () => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Read all filters from URL
@@ -173,7 +175,7 @@ const Products = () => {
         icon={CubeIcon}
         actionButton={{
           label: t('products.addProduct'),
-          href: '/admin/products/new'
+          href: path('products/new')
         }}
       />
 

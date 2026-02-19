@@ -7,6 +7,7 @@ import { isOnSubdomain } from './utils/api';
 
 // Components
 import Layout from './components/Layout';
+import AdminRedirect from './components/AdminRedirect';
 import PrivateRoute from './components/PrivateRoute';
 import TenantStatusCheck from './components/TenantStatusCheck';
 import StorefrontProtection from './components/StorefrontProtection';
@@ -50,7 +51,7 @@ const AppRoutes = () => {
 
   // Subdomains should be accessible to the public - no redirect needed
 
-  // Main domain - landing page + login/register
+  // Main domain - landing, login/register, and path-based dashboard (shopu.ge/:tenantSlug/dashboard)
   if (!onSubdomain) {
     return (
       <Routes>
@@ -65,62 +66,63 @@ const AppRoutes = () => {
         <Route path="/terms" element={<LegalPage />} />
         <Route path="/privacy" element={<LegalPage />} />
         <Route path="/refund-policy" element={<LegalPage />} />
+
+        {/* Path-based dashboard: shopu.ge/:tenantSlug/dashboard, /orders, etc. */}
+        <Route
+          path="/:tenantSlug"
+          element={
+            <PrivateRoute>
+              <TenantStatusCheck>
+                <Layout />
+              </TenantStatusCheck>
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path="categories/new" element={<CategoryForm />} />
+          <Route path="categories/:id/edit" element={<CategoryForm />} />
+          <Route path="products" element={<Products />} />
+          <Route path="products/new" element={<ProductForm />} />
+          <Route path="products/:id/edit" element={<ProductForm />} />
+          <Route path="bulk-upload" element={<BulkUpload />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="orders/:id" element={<OrderDetails />} />
+          <Route path="appearance" element={<Appearance />} />
+          <Route path="billing" element={<Billing />} />
+          <Route path="settings" element={<Settings />} />
+          {user?.role === 'PLATFORM_ADMIN' && (
+            <Route path="platform" element={<PlatformAdmin />} />
+          )}
+        </Route>
+
+        <Route
+          path="/:tenantSlug/payment/:paymentId"
+          element={
+            <PrivateRoute>
+              <PaymentPage />
+            </PrivateRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
   }
 
-  // Subdomain - public storefront + admin dashboard
+  // Subdomain/custom domain - public storefront only (dashboard moved to shopu.ge/:slug/dashboard)
   return (
     <Routes>
-      {/* Public Storefront Routes - Protected by StorefrontProtection */}
+      {/* Public Storefront Routes */}
       <Route path="/" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
       <Route path="/store" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
       <Route path="/category/*" element={<StorefrontProtection><Storefront /></StorefrontProtection>} />
       <Route path="/product/:slug" element={<StorefrontProtection><ProductDetail /></StorefrontProtection>} />
       <Route path="/checkout" element={<StorefrontProtection><CheckoutPage /></StorefrontProtection>} />
 
-      {/* Protected Admin Routes */}
-      <Route
-        path="/admin"
-        element={
-          <PrivateRoute>
-            <TenantStatusCheck>
-              <Layout />
-            </TenantStatusCheck>
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="categories" element={<Categories />} />
-        <Route path="categories/new" element={<CategoryForm />} />
-        <Route path="categories/:id/edit" element={<CategoryForm />} />
-        <Route path="products" element={<Products />} />
-        <Route path="products/new" element={<ProductForm />} />
-        <Route path="products/:id/edit" element={<ProductForm />} />
-        <Route path="bulk-upload" element={<BulkUpload />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="orders/:id" element={<OrderDetails />} />
-        <Route path="appearance" element={<Appearance />} />
-        <Route path="billing" element={<Billing />} />
-        <Route path="settings" element={<Settings />} />
-
-        {/* Platform Admin Routes */}
-        {user?.role === 'PLATFORM_ADMIN' && (
-          <Route path="platform" element={<PlatformAdmin />} />
-        )}
-      </Route>
-
-      {/* Payment Route (protected) */}
-      <Route
-        path="/payment/:paymentId"
-        element={
-          <PrivateRoute>
-            <PaymentPage />
-          </PrivateRoute>
-        }
-      />
+      {/* Redirect /admin/* to main-domain path-based dashboard */}
+      <Route path="/admin/*" element={<AdminRedirect />} />
 
       {/* Catch-all route for subdomain */}
       <Route path="*" element={<Navigate to="/" replace />} />

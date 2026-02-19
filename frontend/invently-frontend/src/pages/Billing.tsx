@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useDashboardPath } from '../hooks/useDashboardPath';
 import { paymentAPI } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -19,6 +20,7 @@ import {
 
 const Billing = () => {
   const { t } = useLanguage();
+  const { path } = useDashboardPath();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -108,7 +110,7 @@ const Billing = () => {
       // Use cached pending setup fee if available, otherwise fetch it
       const paymentId = pendingSetupFee?.id || (await paymentAPI.getPendingSetupFee()).id;
       // Redirect to payment page
-      navigate(`/payment/${paymentId}`);
+      navigate(path(`payment/${paymentId}`));
     } catch (error) {
       handleApiError(error, t('billing.setupFeeError'));
       setIsCreatingPayment(false);

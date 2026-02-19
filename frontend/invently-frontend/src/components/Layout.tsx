@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { T } from './Translation';
 import LandingHeader from './LandingHeader';
-import { getCurrentSubdomain } from '../utils/api';
+import { getCurrentSubdomain, getDashboardBasePath } from '../utils/api';
 import {
   ChartBarIcon,
   FolderIcon,
@@ -23,21 +23,23 @@ const Layout = () => {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const base = tenantSlug ? getDashboardBasePath(tenantSlug) : '/admin';
   const navigation = [
-    { name: t('navigation.dashboard'), href: '/admin/dashboard', icon: ChartBarIcon, section: 'Store' },
-    { name: t('navigation.categories'), href: '/admin/categories', icon: FolderIcon, section: 'Store' },
-    { name: t('navigation.products'), href: '/admin/products', icon: CubeIcon, section: 'Store' },
-    { name: t('navigation.bulkUpload'), href: '/admin/bulk-upload', icon: ArrowUpTrayIcon, section: 'Store' },
-    { name: t('navigation.orders'), href: '/admin/orders', icon: ShoppingBagIcon, section: 'Store' },
-    { name: t('navigation.appearance'), href: '/admin/appearance', icon: PaintBrushIcon, section: 'Store' },
-    { name: t('navigation.billing'), href: '/admin/billing', icon: CreditCardIcon, section: 'Store' },
-    { name: t('navigation.settings'), href: '/admin/settings', icon: CogIcon, section: 'Store' },
+    { name: t('navigation.dashboard'), href: `${base}/dashboard`, icon: ChartBarIcon, section: 'Store' },
+    { name: t('navigation.categories'), href: `${base}/categories`, icon: FolderIcon, section: 'Store' },
+    { name: t('navigation.products'), href: `${base}/products`, icon: CubeIcon, section: 'Store' },
+    { name: t('navigation.bulkUpload'), href: `${base}/bulk-upload`, icon: ArrowUpTrayIcon, section: 'Store' },
+    { name: t('navigation.orders'), href: `${base}/orders`, icon: ShoppingBagIcon, section: 'Store' },
+    { name: t('navigation.appearance'), href: `${base}/appearance`, icon: PaintBrushIcon, section: 'Store' },
+    { name: t('navigation.billing'), href: `${base}/billing`, icon: CreditCardIcon, section: 'Store' },
+    { name: t('navigation.settings'), href: `${base}/settings`, icon: CogIcon, section: 'Store' },
   ];
 
   if (user?.role === 'PLATFORM_ADMIN') {
-    navigation.push({ name: t('navigation.admin'), href: '/admin/platform', icon: CogIcon, section: 'Admin' });
+    navigation.push({ name: t('navigation.admin'), href: `${base}/platform`, icon: CogIcon, section: 'Admin' });
   }
 
   return (
@@ -139,16 +141,16 @@ const Layout = () => {
               </div>
               <div className="flex-1">
                 <div className="font-medium text-neutral-900 text-sm">
-                  {getCurrentSubdomain()?.toUpperCase() || user?.email}
+                  {(tenantSlug || getCurrentSubdomain())?.toUpperCase() || user?.email}
                 </div>
                 <div className="text-xs text-neutral-500">{user?.role}</div>
               </div>
             </div>
             
             
-            {/* View Store Link */}
+            {/* View Store Link - on main domain use subdomain for storefront */}
             <a
-              href="/"
+              href={tenantSlug ? (window.location.hostname.includes('localhost') ? `http://${tenantSlug}.localhost:3000/` : `https://${tenantSlug}.shopu.ge/`) : '/'}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-sm text-neutral-900 hover:text-neutral-700 transition-colors mb-3"
