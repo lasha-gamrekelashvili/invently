@@ -114,15 +114,10 @@ const getOrderStatus = async (req, res) => {
 const getPaymentFailureDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const tenantId = req.tenant?.id;
-    if (!tenantId) {
-      console.warn('[Payment failure details] No tenant resolved', { orderId: id, host: req.get('x-original-host') || req.get('host') });
-    }
-    const details = await storefrontService.getPaymentFailureDetails(id, tenantId);
+    const details = await storefrontService.getPaymentFailureDetails(id, req.tenant?.id);
     res.json(ApiResponse.success(details));
   } catch (error) {
     if (error.message === 'Store not found' || error.message === 'Order not found') {
-      console.warn('[Payment failure details] Not found', { orderId: req.params.id, error: error.message });
       return res.status(404).json(ApiResponse.notFound(error.message));
     }
     console.error('Get payment failure details error:', error);

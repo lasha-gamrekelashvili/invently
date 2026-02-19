@@ -28,67 +28,43 @@ export class StorefrontService {
   }
 
   /**
-   * Gets BOG payment failure details for display on checkout fail page.
-   * Returns reject_reason, payment code, code_description when available.
+   * Gets BOG payment failure details for the checkout fail page.
+   * If BOG reports 'completed', finalizes the order (callback may not have arrived).
    */
   async getPaymentFailureDetails(orderId, tenantId) {
-    console.info('[Payment failure details] Requested', { orderId, tenantId: tenantId ?? 'none' });
     if (!tenantId) throw new Error('Store not found');
+
     const order = await prisma.order.findFirst({
       where: { id: orderId, tenantId },
       select: { bogOrderId: true, paymentStatus: true },
     });
-    if (!order) {
-      console.warn('[Payment failure details] Order not found', { orderId, tenantId });
-      throw new Error('Order not found');
-    }
-    if (!order.bogOrderId) {
-      console.info('[Payment failure details] No bogOrderId (mock flow or non-BOG order)', { orderId });
-      return null;
-    }
-    if (!this.bogPayment) {
-      console.info('[Payment failure details] BOG not configured', { orderId });
-      return null;
-    }
+    if (!order) throw new Error('Order not found');
+    if (!order.bogOrderId || !this.bogPayment) return null;
+
     try {
       const details = await this.bogPayment.getPaymentDetails(order.bogOrderId);
-      if (!details) {
-        console.warn('[Payment failure details] BOG returned null/404', { orderId, bogOrderId: order.bogOrderId });
-        return null;
-      }
+      if (!details) return null;
+
       const statusKey = details.order_status?.key;
       const rejectReason = details.reject_reason ?? null;
       const code = details.payment_detail?.code ?? null;
       const codeDesc = details.payment_detail?.code_description ?? null;
-      console.info('[Payment failure details] BOG status', {
-        orderId,
-        bogOrderId: order.bogOrderId,
-        order_status: statusKey,
-        reject_reason: rejectReason,
-        payment_code: code,
-        code_description: codeDesc,
-      });
+
+      // BOG can redirect to fail even on success — finalize order so fail page can redirect to success
       if (statusKey !== 'rejected') {
-        console.info('[Payment failure details] Order is not rejected in BOG', { statusKey });
-        // BOG redirect can send user to fail even when payment succeeded; finalize order and let fail page redirect to success
         if (statusKey === 'completed') {
           try {
             await this.orderService.finalizeOrderAfterPayment(orderId);
-            console.info('[Payment failure details] Finalized order (callback may not have reached us)', { orderId });
           } catch (err) {
             console.warn('[Payment failure details] Finalize failed', { orderId, err: err.message });
           }
         }
         return { order_status: statusKey };
       }
-      return {
-        order_status: statusKey,
-        reject_reason: rejectReason,
-        payment_code: code,
-        code_description: codeDesc,
-      };
+
+      return { order_status: statusKey, reject_reason: rejectReason, payment_code: code, code_description: codeDesc };
     } catch (err) {
-      console.warn('[Payment failure details] BOG API error', { orderId, bogOrderId: order.bogOrderId, err: err.message });
+      console.warn('[Payment failure details] BOG API error', { orderId, err: err.message });
       return null;
     }
   }

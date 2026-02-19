@@ -141,8 +141,7 @@ export class OrderService {
       return newOrder;
     });
 
-    // Build callback URL - BOG POSTs here (must be publicly reachable)
-    const backendBase = (process.env.BACKEND_BASE_URL || process.env.API_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+    const backendBase = (process.env.BACKEND_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
     const callbackUrl = `${backendBase}/api/bog/callback`;
 
     const tenant = await prisma.tenant.findUnique({
@@ -150,37 +149,27 @@ export class OrderService {
       select: { subdomain: true, customDomain: true },
     });
 
-    // BOG may only accept whitelisted domains (e.g. *.shopu.ge). For custom domains (commercia.ge),
-    // use subdomain.shopu.ge for redirect URLs so BOG accepts and user lands on a working page.
-    // Skip this logic on localhost (dev environment).
+    // For custom domains (e.g. commercia.ge), use subdomain.shopu.ge for BOG redirect URLs
+    // since BOG only accepts whitelisted domains. Skip on localhost.
     const platformBase = process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge';
     const platformHost = platformBase.replace(/^https?:\/\//, '').replace(/:\d+$/, '').replace(/\/$/, '').replace(/^www\./, '');
-    const isLocalhost = returnOrigin && returnOrigin.includes('localhost');
+    const isLocalhost = returnOrigin?.includes('localhost');
     const isCustomDomain = !isLocalhost && tenant?.customDomain && returnOrigin && !returnOrigin.includes(platformHost);
     const frontendBase = isCustomDomain && tenant?.subdomain
       ? `https://${tenant.subdomain}.${platformHost}`
       : (returnOrigin || platformBase).replace(/\/$/, '');
-    const storeOrigin = isCustomDomain ? returnOrigin : null;
-    const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}${storeOrigin ? `&returnTo=${encodeURIComponent(storeOrigin)}` : ''}`;
-    const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}${storeOrigin ? `&returnTo=${encodeURIComponent(storeOrigin)}` : ''}`;
-
-    if (isCustomDomain) {
-      console.info('[OrderService] Custom domain checkout – using subdomain URLs for BOG', {
-        returnOrigin,
-        subdomain: tenant?.subdomain,
-        frontendBase,
-      });
-    }
+    const returnToParam = isCustomDomain ? `&returnTo=${encodeURIComponent(returnOrigin)}` : '';
+    const successUrl = `${frontendBase}/checkout/success?orderId=${order.id}${returnToParam}`;
+    const failUrl = `${frontendBase}/checkout/fail?orderId=${order.id}${returnToParam}`;
 
     const basket = cart.items.map((item) => {
       const img = item.product?.images?.[0]?.url;
       return {
-        id: item.productId,
         productId: item.productId,
         description: item.product.title,
         quantity: item.quantity,
         unitPrice: item.price,
-        image: img ? (img.startsWith('http') ? img : `${backendUrl}${img}`) : null,
+        image: img ? (img.startsWith('http') ? img : `${backendBase}${img}`) : null,
         sku: item.product?.sku,
       };
     });
@@ -188,16 +177,16 @@ export class OrderService {
     let bogResult;
     try {
       bogResult = await this.bogPayment.createOrder({
-      callbackUrl,
-      externalOrderId: order.id,
-      totalAmount,
-      basket,
-      customerName,
-      customerEmail,
-      successUrl,
-      failUrl,
-      idempotencyKey: order.id,
-    });
+        callbackUrl,
+        externalOrderId: order.id,
+        totalAmount,
+        basket,
+        customerName,
+        customerEmail,
+        successUrl,
+        failUrl,
+        idempotencyKey: order.id,
+      });
     } catch (bogError) {
       if (bogError.message?.includes('must be configured')) {
         throw new Error('Payment gateway is not configured. Please contact support.');
@@ -312,13 +301,8 @@ export class OrderService {
   }
 
   buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, orderId) {
-    if (!frontendBaseUrl) return null;
-    const isLocalhost = frontendBaseUrl.includes('localhost');
-    // Dashboard is now path-based: shopu.ge/:subdomain/orders/:id
-    if (subdomain) {
-      return `${frontendBaseUrl.replace(/\/$/, '')}/${subdomain}/orders/${orderId}`;
-    }
-    return null;
+    if (!frontendBaseUrl || !subdomain) return null;
+    return `${frontendBaseUrl.replace(/\/$/, '')}/${subdomain}/orders/${orderId}`;
   }
 
   /**

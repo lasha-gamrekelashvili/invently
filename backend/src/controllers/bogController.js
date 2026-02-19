@@ -5,11 +5,10 @@ const bogPayment = new BOGPaymentService();
 const orderService = new OrderService();
 
 /**
- * BOG webhook - receives payment status updates
- * Must return 200 to acknowledge; verify signature before processing
+ * BOG webhook — receives payment status updates via POST.
+ * Verifies callback signature, then finalizes or fails the order.
  */
 export const handleBOGCallback = async (req, res) => {
-  console.info('[BOG callback] Received request');
   const rawBody = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : (req.rawBody || req.body || '');
   const signature = req.get('Callback-Signature');
 
@@ -18,51 +17,40 @@ export const handleBOGCallback = async (req, res) => {
   }
 
   if (signature && !bogPayment.verifyCallbackSignature(rawBody, signature)) {
-    console.warn('[BOG callback] Signature verification failed – processing anyway (key mismatch sandbox/production?)');
+    console.warn('[BOG callback] Signature verification failed — processing anyway');
   }
 
   let body;
   try {
     body = JSON.parse(rawBody);
-  } catch (e) {
+  } catch {
     return res.status(400).send('Invalid JSON');
   }
 
   const parsed = bogPayment.parseCallback(body);
-  if (!parsed) {
+  if (!parsed?.externalOrderId) {
     return res.status(200).send('OK');
   }
 
-  const externalOrderId = parsed.externalOrderId;
-  if (!externalOrderId) {
-    return res.status(200).send('OK');
-  }
+  const { externalOrderId, status } = parsed;
 
-  // Log callback for debugging payment failures
-  const orderStatus = body?.body?.order_status?.key ?? parsed.status;
-  if (orderStatus === 'rejected') {
-    const rejectReason = body?.body?.reject_reason ?? null;
+  if (status === 'rejected') {
+    const reason = body?.body?.reject_reason ?? null;
     const code = body?.body?.payment_detail?.code ?? parsed.code;
     const codeDesc = body?.body?.payment_detail?.code_description ?? null;
-    console.info('[BOG callback] Payment REJECTED', {
-      externalOrderId,
-      bogOrderId: body?.body?.order_id,
-      reject_reason: rejectReason,
-      payment_code: code,
-      code_description: codeDesc,
-    });
-  } else if (orderStatus === 'completed') {
+    console.info('[BOG callback] Payment REJECTED', { externalOrderId, reject_reason: reason, payment_code: code, code_description: codeDesc });
+  } else if (status === 'completed') {
     console.info('[BOG callback] Payment completed', { externalOrderId });
   }
 
   try {
     if (bogPayment.isPaymentSuccessful(parsed)) {
       await orderService.finalizeOrderAfterPayment(externalOrderId);
-    } else if (parsed.status === 'rejected') {
+    } else if (status === 'rejected') {
       await orderService.markOrderPaymentFailed(externalOrderId);
     }
   } catch (err) {
-    console.error('BOG callback processing error:', err);
+    console.error('[BOG callback] Processing error:', err.message);
     return res.status(500).send('Processing error');
   }
 
