@@ -9,19 +9,30 @@ const CheckoutFail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
 
-  const { data: failureDetails } = useQuery({
+  const { data: failureDetails, isLoading } = useQuery({
     queryKey: ['payment-failure-details', orderId],
     queryFn: () => storefrontAPI.getPaymentFailureDetails(orderId!),
     enabled: !!orderId,
     retry: false,
   });
 
-  // BOG sometimes redirects to fail even when payment succeeded; redirect to success if BOG says completed
   React.useEffect(() => {
     if (failureDetails?.order_status === 'completed' && orderId) {
       navigate(`/checkout/success?orderId=${orderId}`, { replace: true });
     }
   }, [failureDetails?.order_status, orderId, navigate]);
+
+  // Show loading while we check if payment actually succeeded (BOG can redirect here even on success)
+  if (orderId && (isLoading || failureDetails?.order_status === 'completed')) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-full border-4 border-neutral-200 border-t-neutral-800 animate-spin" />
+          <p className="text-neutral-600 text-sm">Verifying payment status...</p>
+        </div>
+      </div>
+    );
+  }
 
   const reason =
     failureDetails?.reject_reason ??

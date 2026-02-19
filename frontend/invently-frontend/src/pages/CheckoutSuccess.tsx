@@ -2,10 +2,8 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storefrontAPI } from '../utils/api';
-import StorefrontLayout from '../components/StorefrontLayout';
 import {
   CheckCircleIcon,
-  ArrowLeftIcon,
   ShoppingBagIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
@@ -14,23 +12,6 @@ const CheckoutSuccess: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId');
-  const { data: storeInfo } = useQuery({
-    queryKey: ['store-info'],
-    queryFn: () => storefrontAPI.getStoreInfo(),
-    retry: false,
-  });
-
-  const { data: storeSettings } = useQuery({
-    queryKey: ['store-settings'],
-    queryFn: () => storefrontAPI.getSettings(),
-    retry: false,
-  });
-
-  const { data: categories } = useQuery({
-    queryKey: ['storefront-categories'],
-    queryFn: () => storefrontAPI.getCategories(),
-    retry: false,
-  });
 
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', orderId],
@@ -46,14 +27,8 @@ const CheckoutSuccess: React.FC = () => {
 
   if (!orderId) {
     return (
-      <StorefrontLayout
-        storeInfo={storeInfo}
-        storeSettings={storeSettings}
-        categories={categories}
-        onCartClick={() => {}}
-        hideSidebar
-      >
-        <div className="max-w-lg mx-auto py-16 text-center">
+      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-6">
+        <div className="max-w-lg w-full text-center">
           <ExclamationTriangleIcon className="w-16 h-16 text-amber-500 mx-auto mb-4" />
           <h2 className="text-xl font-light text-neutral-900 mb-2">Invalid link</h2>
           <p className="text-neutral-600 mb-6">No order ID provided.</p>
@@ -61,25 +36,19 @@ const CheckoutSuccess: React.FC = () => {
             onClick={() => navigate('/')}
             className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white rounded-full hover:bg-neutral-700"
           >
-            <ArrowLeftIcon className="w-4 h-4" />
+            <ShoppingBagIcon className="w-4 h-4" />
             Back to store
           </button>
         </div>
-      </StorefrontLayout>
+      </div>
     );
   }
 
   const isPaid = order?.paymentStatus === 'PAID';
 
   return (
-    <StorefrontLayout
-        storeInfo={storeInfo}
-        storeSettings={storeSettings}
-        categories={categories}
-        onCartClick={() => {}}
-        hideSidebar
-      >
-      <div className="max-w-lg mx-auto py-16 text-center">
+    <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-6">
+      <div className="max-w-lg w-full text-center">
         {isLoading && !order ? (
           <div className="flex flex-col items-center gap-4">
             <div className="w-16 h-16 rounded-full border-4 border-neutral-200 border-t-neutral-800 animate-spin" />
@@ -126,7 +95,7 @@ const CheckoutSuccess: React.FC = () => {
           </>
         )}
       </div>
-    </StorefrontLayout>
+    </div>
   );
 };
 
