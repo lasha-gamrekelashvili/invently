@@ -20,29 +20,38 @@ const StorefrontProtection: React.FC<StorefrontProtectionProps> = ({ children })
     const checkStorefrontAccess = async () => {
       if (authLoading) return;
 
-      // Get current tenant from subdomain
       const hostname = window.location.hostname;
-      let subdomain = '';
-      
-      if (hostname.includes('localhost')) {
-        const parts = hostname.split('.');
-        if (parts.length > 1 && parts[0] !== 'localhost') {
-          subdomain = parts[0];
+
+      // 1. Check if hostname matches a tenant's custom domain (commercia.ge, www.commercia.ge)
+      let tenant = tenants.find(
+        t => t.customDomain && (
+          t.customDomain === hostname ||
+          t.customDomain === `www.${hostname}` ||
+          t.customDomain === hostname.replace(/^www\./, '')
+        )
+      );
+
+      // 2. Fall back to subdomain lookup (e.g. lashu.shopu.ge)
+      if (!tenant) {
+        let subdomain = '';
+        if (hostname.includes('localhost')) {
+          const parts = hostname.split('.');
+          if (parts.length > 1 && parts[0] !== 'localhost') {
+            subdomain = parts[0];
+          }
+        } else {
+          const parts = hostname.split('.');
+          if (parts.length > 2) {
+            subdomain = parts[0];
+          }
         }
-      } else {
-        const parts = hostname.split('.');
-        if (parts.length > 2) {
-          subdomain = parts[0];
-        }
+        tenant = subdomain ? tenants.find(t => t.subdomain === subdomain) : undefined;
       }
 
-      if (!subdomain) {
+      if (!tenant) {
         setIsChecking(false);
         return;
       }
-
-      // Find tenant by subdomain
-      const tenant = tenants.find(t => t.subdomain === subdomain);
 
       if (!tenant) {
         // No tenant found - show 404 or redirect
