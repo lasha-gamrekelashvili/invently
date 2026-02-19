@@ -15,7 +15,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://momigvare.onrender.com/api',
+        url: '/api',
         description: 'Production server',
       },
     ],

@@ -49,7 +49,7 @@ const getApiBaseUrl = () => {
   }
   
   // For production - use the actual backend URL
-  return 'https://momigvare.onrender.com/api';
+  return '/api';
 };
 
 const api = axios.create({
