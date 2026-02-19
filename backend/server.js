@@ -141,6 +141,17 @@ app.get('/readyz', async (req, res) => {
   }
 });
 
+app.get('/api/domains/verify', async (req, res) => {
+  const domain = req.query.domain;
+  if (!domain) return res.status(400).end();
+
+  const tenant = await prisma.tenant.findFirst({
+    where: { customDomain: domain, isActive: true }
+  });
+
+  return tenant ? res.status(200).end() : res.status(404).end();
+});
+
 app.use('/api/public', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
