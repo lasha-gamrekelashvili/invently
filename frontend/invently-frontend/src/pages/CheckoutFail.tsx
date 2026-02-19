@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { XCircleIcon, ArrowLeftIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { XCircleIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 import { storefrontAPI } from '../utils/api';
 
 const CheckoutFail: React.FC = () => {
