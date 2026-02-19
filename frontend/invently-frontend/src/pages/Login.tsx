@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getTenantSlugFromPath } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -16,6 +17,8 @@ const Login = () => {
 
   const { login } = useAuth();
   const { t } = useLanguage();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const slug = tenantSlug ?? getTenantSlugFromPath();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +26,8 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, slug ?? undefined);
       handleSuccess(t('auth.login.successMessage'));
-      // AuthContext will handle the redirect automatically
     } catch (err: any) {
       const errorMessage = handleApiError(err, t('auth.errors.loginFailed'), { toast: false });
       setError(errorMessage);

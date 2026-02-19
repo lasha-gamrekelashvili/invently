@@ -10,6 +10,5 @@ export const useDashboardPath = () => {
   return {
     base,
     path: (segment: string) => `${base}/${segment}`.replace(/\/+/g, '/'),
-    tenantSlug: tenantSlug ?? null,
   };
 };

@@ -57,6 +57,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/:tenantSlug/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         {/* Legal Pages */}
         <Route path="/about" element={<LegalPage />} />

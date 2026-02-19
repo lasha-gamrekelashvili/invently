@@ -1,14 +1,23 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { User, Tenant } from '../types';
 import { handleSuccess } from '../utils/errorHandler';
-import { authAPI, isOnSubdomain } from '../utils/api';
+import {
+  authAPI,
+  isOnSubdomain,
+  getTenantSlugFromPath,
+  getTokenForTenant,
+  setTokenForTenant,
+  clearTokenForTenant,
+  setAuthToken,
+} from '../utils/api';
 
 interface AuthContextType {
   user: User | null;
   tenants: Tenant[];
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, tenantSlug?: string) => Promise<void>;
   register: (data: any) => Promise<any>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -29,123 +38,116 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user && !!token;
 
   useEffect(() => {
-    const initAuth = async () => {
-      // 1) one-time token handoff via URL hash
-      const hash = window.location.hash; // e.g., #token=abc
-      const hashToken = (() => {
-        if (!hash.startsWith('#')) return null;
-        const params = new URLSearchParams(hash.slice(1));
-        return params.get('token');
-      })();
+    const slug = getTenantSlugFromPath();
 
-      if (hashToken) {
-        localStorage.setItem('token', hashToken);
-        setToken(hashToken);
-        // clean the hash to avoid re-processing on reload
-        history.replaceState(null, '', window.location.pathname + window.location.search);
+    const initAuth = async () => {
+      if (!slug) {
+        setToken(null);
+        setUser(null);
+        setTenants([]);
+        setAuthToken(null);
+        setIsLoading(false);
+        return;
       }
 
-      const savedToken = localStorage.getItem('token');
-      const isLandingPage = window.location.pathname === '/';
-      if (savedToken && !isLandingPage) {
-        try {
-          // 2) make sure your auth API uses the token
-          authAPI.setToken(savedToken);
-          const response = await authAPI.me();
+      let savedToken = getTokenForTenant(slug);
 
-          // Response is already unwrapped by the interceptor
-          setUser(response.user);
-          setTenants(response.tenants || []);
-          setToken(savedToken);
-        } catch (error) {
-          // Token is invalid, clear stored data
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setToken(null);
-          setUser(null);
-          setTenants([]);
+      // Token handoff via URL hash (e.g. after login redirect)
+      const hash = window.location.hash;
+      if (hash.startsWith('#')) {
+        const params = new URLSearchParams(hash.slice(1));
+        const hashToken = params.get('token');
+        if (hashToken) {
+          setTokenForTenant(slug, hashToken);
+          savedToken = hashToken;
+          history.replaceState(null, '', window.location.pathname + window.location.search);
         }
       }
-      setIsLoading(false);
+
+      if (!savedToken) {
+        setToken(null);
+        setUser(null);
+        setTenants([]);
+        setAuthToken(null);
+        setIsLoading(false);
+        return;
+      }
+
+      setAuthToken(savedToken);
+      setToken(savedToken);
+
+      try {
+        const response = await authAPI.me();
+        setUser(response.user);
+        setTenants(response.tenants || []);
+      } catch (error) {
+        clearTokenForTenant(slug);
+        setToken(null);
+        setUser(null);
+        setTenants([]);
+        setAuthToken(null);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     initAuth();
-  }, []); // Empty dependency array to run only once
+  }, [location.pathname]);
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await authAPI.login({ email, password });
+  const login = async (email: string, password: string, targetTenantSlug?: string) => {
+    let slug = targetTenantSlug ?? getTenantSlugFromPath();
 
-      // Response is already unwrapped by the interceptor
-      setToken(response.token);
-      setUser(response.user);
-      setTenants(response.tenants || []);
+    const response = await authAPI.login({ email, password });
 
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+    if (!slug && response.tenants?.length) {
+      slug = response.tenants[0]?.subdomain;
+    }
 
-      // Redirect to path-based dashboard if we're on the main domain
-      if (!isOnSubdomain() && response.tenants && response.tenants.length > 0) {
-        const tenant = response.tenants[0];
-        const currentHost = window.location.hostname;
-        const port = window.location.port ? `:${window.location.port}` : '';
-        const token = response.token;
-        const baseUrl =
-          currentHost.includes('localhost') || currentHost === '127.0.0.1'
-            ? `http://localhost${port}`
-            : 'https://shopu.ge';
+    if (slug) {
+      setTokenForTenant(slug, response.token);
+      setAuthToken(response.token);
 
-        window.location.replace(
-          `${baseUrl}/${tenant.subdomain}/dashboard#token=${encodeURIComponent(token)}`
-        );
-        return;
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      const baseUrl =
+        window.location.hostname.includes('localhost') || window.location.hostname === '127.0.0.1'
+          ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
+          : 'https://shopu.ge';
+      window.location.replace(`${baseUrl}/${slug}/dashboard`);
     }
   };
 
   const register = async (data: any) => {
-    try {
-      const response = await authAPI.register(data);
-
-      // Response is already unwrapped by the interceptor
-      setToken(response.token);
-      setUser(response.user);
-      setTenants(response.tenant ? [response.tenant] : []);
-
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-
-      // Return response so Register component can handle email verification flow
-      // Email verification is required before redirecting to payment
-      return response;
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+    const response = await authAPI.register(data);
+    if (response.tenant) {
+      setTokenForTenant(response.tenant.subdomain, response.token);
     }
+    setToken(response.token);
+    setUser(response.user);
+    setTenants(response.tenant ? [response.tenant] : []);
+    setAuthToken(response.token);
+    return response;
   };
 
   const logout = () => {
+    const slug = getTenantSlugFromPath();
+    if (slug) {
+      clearTokenForTenant(slug);
+    }
     setToken(null);
     setUser(null);
     setTenants([]);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    authAPI.setToken(null);
+    setAuthToken(null);
 
     handleSuccess('Logged out successfully');
 
-    // Redirect to main domain on logout (from subdomain storefront or path-based dashboard)
     const isOnDashboardPath = /^\/[^/]+\/(dashboard|orders|products|categories|settings|appearance|billing|bulk-upload|platform)/.test(
       window.location.pathname
     );

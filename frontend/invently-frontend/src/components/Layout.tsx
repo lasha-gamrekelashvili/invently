@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { T } from './Translation';
 import LandingHeader from './LandingHeader';
-import { getCurrentSubdomain, getDashboardBasePath } from '../utils/api';
+import { getDashboardBasePath } from '../utils/api';
 import {
   ChartBarIcon,
   FolderIcon,
@@ -141,7 +141,7 @@ const Layout = () => {
               </div>
               <div className="flex-1">
                 <div className="font-medium text-neutral-900 text-sm">
-                  {(tenantSlug || getCurrentSubdomain())?.toUpperCase() || user?.email}
+                  {tenantSlug?.toUpperCase() || user?.email}
                 </div>
                 <div className="text-xs text-neutral-500">{user?.role}</div>
               </div>

@@ -59,11 +59,11 @@ const api = axios.create({
   },
 });
 
-// Token management
-let authToken: string | null = null;
+// Token management - per-tenant, resolved dynamically per request
+let authTokenOverride: string | null = null;
 
 export const setAuthToken = (token: string | null) => {
-  authToken = token;
+  authTokenOverride = token;
 };
 
 
@@ -85,12 +85,11 @@ export const isOnSubdomain = () => {
   return true;
 };
 
-// Dashboard path segments - when first path segment matches, second is tenant slug
-const DASHBOARD_PATH_SEGMENTS = ['dashboard', 'categories', 'products', 'orders', 'settings', 'appearance', 'billing', 'bulk-upload', 'platform', 'payment'];
-const MAIN_DOMAIN_PATHS = ['', 'login', 'register', 'about', 'contact', 'services', 'pricing', 'terms', 'privacy', 'refund-policy'];
+// Path segments that indicate first segment is tenant slug
+const TENANT_PATH_SEGMENTS = ['dashboard', 'categories', 'products', 'orders', 'settings', 'appearance', 'billing', 'bulk-upload', 'platform', 'payment', 'login'];
 
 /**
- * Get tenant slug from main-domain path (e.g. /commercia/dashboard -> commercia)
+ * Get tenant slug from main-domain path (e.g. /lasha/dashboard -> lasha, /lasha/login -> lasha)
  */
 export const getTenantSlugFromPath = (): string | null => {
   const host = window.location.hostname;
@@ -102,31 +101,37 @@ export const getTenantSlugFromPath = (): string | null => {
   if (segments.length < 2) return null;
 
   const [first, second] = segments;
-  if (MAIN_DOMAIN_PATHS.includes(first)) return null;
-  if (DASHBOARD_PATH_SEGMENTS.includes(second)) return first;
-  if (first === 'payment' && segments.length >= 2) return null; // /payment/:id
+  if (second && TENANT_PATH_SEGMENTS.includes(second)) return first;
   return null;
 };
+
+const TOKEN_KEY_PREFIX = 'token_';
+
+export const getTokenForTenant = (tenantSlug: string): string | null =>
+  localStorage.getItem(`${TOKEN_KEY_PREFIX}${tenantSlug}`);
+
+export const setTokenForTenant = (tenantSlug: string, token: string) =>
+  localStorage.setItem(`${TOKEN_KEY_PREFIX}${tenantSlug}`, token);
+
+export const clearTokenForTenant = (tenantSlug: string) =>
+  localStorage.removeItem(`${TOKEN_KEY_PREFIX}${tenantSlug}`);
 
 /**
  * Build dashboard base path for a tenant (e.g. /commercia)
  */
 export const getDashboardBasePath = (tenantSlug: string) => `/${tenantSlug}`;
 
-// Request interceptor to add auth token, original host, and tenant slug for path-based dashboard
+// Request interceptor: use token for current tenant (per-tenant auth for multi-shop login)
 api.interceptors.request.use((config) => {
-  const token = authToken || localStorage.getItem('token');
+  const tenantSlug = getTenantSlugFromPath();
+  const token = authTokenOverride ?? (tenantSlug ? getTokenForTenant(tenantSlug) : null);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  
   config.headers['X-Original-Host'] = window.location.hostname;
-  
-  const tenantSlug = getTenantSlugFromPath();
   if (tenantSlug) {
     config.headers['X-Tenant-Slug'] = tenantSlug;
   }
-  
   return config;
 });
 
@@ -159,12 +164,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const requestUrl = error.config?.url || '';
       const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
-      const isOnLoginPage = window.location.pathname.startsWith('/login');
+      const isOnLoginPage = window.location.pathname.includes('/login');
 
       if (!isAuthRequest && !isOnLoginPage) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        const slug = getTenantSlugFromPath();
+        if (slug) clearTokenForTenant(slug);
+        window.location.href = slug ? `/${slug}/login` : '/login';
       }
     }
     return Promise.reject(error);

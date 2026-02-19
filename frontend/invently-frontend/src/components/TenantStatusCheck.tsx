@@ -29,7 +29,7 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
     if (pathSlug) {
       const tenant = tenants.find((t) => t.subdomain === pathSlug);
       if (!tenant) {
-        window.location.href = `${mainDomain}/login`;
+        window.location.href = `${mainDomain}/${pathSlug}/login`;
         return;
       }
       setIsChecking(false);
