@@ -11,6 +11,7 @@ const MAIN_DOMAINS = ['shopu.ge', 'momigvare.ge', 'localhost', '127.0.0.1'];
 
 const tenantResolver = async (req, res, next) => {
   try {
+    // Prefer X-Original-Host when request is routed to platform (e.g. custom domain sends to shopu.ge/api)
     let host = req.get('x-original-host') || req.get('host');
 
     if (!host) {

@@ -48,7 +48,13 @@ const getApiBaseUrl = () => {
     return 'http://localhost:3001/api';
   }
   
-  // For production - use the actual backend URL
+  const mainDomains = ['shopu.ge', 'momigvare.ge'];
+  const isPlatformSubdomain = mainDomains.some(d => hostname === d || hostname.endsWith('.' + d));
+  if (!isPlatformSubdomain) {
+    const platformBase = import.meta.env.VITE_PLATFORM_API_BASE || 'https://shopu.ge';
+    return `${platformBase.replace(/\/$/, '')}/api`;
+  }
+  
   return '/api';
 };
 
