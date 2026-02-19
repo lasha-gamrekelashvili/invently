@@ -15,7 +15,7 @@ interface CheckoutProps {
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
-  const { cart, sessionId, clearCart } = useCart();
+  const { cart, sessionId } = useCart();
   const [step, setStep] = useState<'form' | 'processing' | 'success'>('form');
   const [orderNumber, setOrderNumber] = useState<string>('');
 
@@ -43,10 +43,6 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
     onSuccess: (order) => {
       setOrderNumber(order.orderNumber);
       setStep('success');
-      // Clear cart after successful order
-      setTimeout(() => {
-        clearCart();
-      }, 1000);
     },
     onError: (error: any) => {
       setStep('form');

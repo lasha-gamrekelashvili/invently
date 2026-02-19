@@ -30,7 +30,7 @@ declare global {
 const CheckoutContent: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const { cart, sessionId, clearCart } = useCart();
+  const { cart, sessionId } = useCart();
   const [step, setStep] = useState<'form' | 'processing' | 'success'>('form');
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [showCart, setShowCart] = useState(false);
@@ -363,12 +363,10 @@ const CheckoutContent: React.FC = () => {
     }),
     onSuccess: (result: any) => {
       if (result?.redirectUrl) {
-        clearCart();
         window.location.href = result.redirectUrl;
       } else {
         setOrderNumber(result?.orderNumber || '');
         setStep('success');
-        setTimeout(() => clearCart(), 1000);
       }
     },
     onError: (error: any) => {
