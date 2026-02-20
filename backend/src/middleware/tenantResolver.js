@@ -18,7 +18,7 @@ const tenantResolver = async (req, res, next) => {
       return res.status(400).json({ error: 'Host header is required' });
     }
 
-    host = host.split(':')[0].toLowerCase();
+    host = host.split(':')[0].toLowerCase().replace(/^www\./, '');
 
     // Step 0: Path-based tenant resolution (shopu.ge/:slug/dashboard)
     const tenantSlug = req.get('x-tenant-slug');
