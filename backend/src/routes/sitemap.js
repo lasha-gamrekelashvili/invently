@@ -52,7 +52,8 @@ router.get('/sitemap.xml', async (req, res) => {
       return res.status(404).send('Store not found');
     }
 
-    const origin = `${req.protocol}://${req.get('host')}`;
+    const protocol = req.get('x-forwarded-proto') || req.protocol || 'https';
+    const origin = `${protocol}://${req.get('host')}`;
 
     const [products, categories] = await Promise.all([
       prisma.product.findMany({
