@@ -3,4 +3,4 @@ Allow: /
 Disallow: /checkout
 Disallow: /login
 Disallow: /register
-Sitemap: /sitemap.xml
+Sitemap: /api/sitemap.xml

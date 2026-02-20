@@ -102,7 +102,7 @@ app.use(urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/api/images', expressStatic(join(__dirname, process.env.UPLOAD_PATH || './uploads')));
 
-app.use(sitemapRoutes);
+app.use('/api', sitemapRoutes);
 app.use('/api/docs', serve, setup);
 
 app.get('/healthz', async (req, res) => {
