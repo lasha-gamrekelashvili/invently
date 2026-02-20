@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { storefrontAPI } from '../utils/api';
 import { useCart, CartProvider } from '../contexts/CartContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -286,9 +287,46 @@ const ProductDetailContent: React.FC = () => {
   };
 
   const currentImage = product.images?.[currentImageIndex];
+  const canonicalUrl = `${window.location.origin}/product/${slug}`;
+  const productTitle = `${product.title} | ${storeInfo?.name || ''}`;
+  const productDescription = product.description
+    ? (typeof product.description === 'string' ? product.description.replace(/<[^>]*>/g, '').slice(0, 160) : '')
+    : `Buy ${product.title} at ${storeInfo?.name || 'our store'}`;
+  const productImage = product.images?.[0]?.url;
+
+  const productLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    ...(productDescription && { description: productDescription }),
+    ...(productImage && { image: productImage.startsWith('http') ? productImage : `${window.location.origin}${productImage}` }),
+    ...(product.sku && { sku: product.sku }),
+    ...(storeInfo?.name && { brand: { '@type': 'Brand', name: storeInfo.name } }),
+    offers: {
+      '@type': 'Offer',
+      price: displayPrice,
+      priceCurrency: 'GEL',
+      availability: isInStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      url: canonicalUrl,
+    },
+  };
 
   return (
     <>
+      <Helmet>
+        <title>{productTitle}</title>
+        <meta name="description" content={productDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={productTitle} />
+        <meta property="og:description" content={productDescription} />
+        {productImage && <meta property="og:image" content={productImage.startsWith('http') ? productImage : `${window.location.origin}${productImage}`} />}
+        <meta property="og:site_name" content={storeInfo?.name || ''} />
+        <meta property="product:price:amount" content={String(displayPrice)} />
+        <meta property="product:price:currency" content="GEL" />
+        <script type="application/ld+json">{JSON.stringify(productLd)}</script>
+      </Helmet>
       <StorefrontLayout
       storeInfo={storeInfo}
       storeSettings={storeSettings}

@@ -69,19 +69,14 @@ export const setAuthToken = (token: string | null) => {
 
 // Function to check if we're on a subdomain or custom domain
 export const isOnSubdomain = () => {
-  const host = window.location.hostname;
+  const host = window.location.hostname.replace(/^www\./, '');
   
-  // Not a subdomain if it's localhost or an IP address
   if (host === 'localhost' || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return false;
-  
-  // localhost special-case: foo.localhost is treated as subdomain
   if (host.endsWith('.localhost')) return true;
   
-  // Main platform domains only - landing, login, register, dashboard (path-based)
   const mainDomains = ['shopu.ge', 'momigvare.ge'];
   if (mainDomains.includes(host)) return false;
   
-  // Everything else = subdomain (lashu.shopu.ge) or custom domain (www.commercia.ge, commercia.ge)
   return true;
 };
 

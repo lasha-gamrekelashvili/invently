@@ -18,6 +18,7 @@ import settingsRoutes from './src/routes/settings.js';
 import bulkUploadRoutes from './src/routes/bulkUpload.js';
 import paymentRoutes from './src/routes/payments.js';
 import bogRoutes from './src/routes/bog.js';
+import sitemapRoutes from './src/routes/sitemap.js';
 
 import { serve, setup } from './src/config/swagger.js';
 
@@ -101,6 +102,7 @@ app.use(urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/api/images', expressStatic(join(__dirname, process.env.UPLOAD_PATH || './uploads')));
 
+app.use(sitemapRoutes);
 app.use('/api/docs', serve, setup);
 
 app.get('/healthz', async (req, res) => {

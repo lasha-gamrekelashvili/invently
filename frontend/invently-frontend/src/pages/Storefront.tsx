@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { storefrontAPI } from '../utils/api';
 import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
@@ -194,10 +195,25 @@ const StorefrontContent = () => {
   const displayCategories = categories;
   const displayProducts = productsData || { products: [], pagination: null };
 
-  // If store info fails, show tenant not found
   if (storeInfoError) {
     return <TenantNotFound />;
   }
+
+  const pageTitle = selectedCategory
+    ? `${selectedCategory.name} | ${storeInfo?.name || ''}`
+    : storeInfo?.name || '';
+  const pageDescription = selectedCategory
+    ? `Browse ${selectedCategory.name} at ${storeInfo?.name}`
+    : storeInfo?.description || `Shop at ${storeInfo?.name}`;
+  const canonicalUrl = window.location.origin + location.pathname;
+
+  const organizationLd = storeInfo ? {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: storeInfo.name,
+    url: window.location.origin,
+    ...(storeInfo.description && { description: storeInfo.description }),
+  } : null;
 
   // Build category URL path (including parents)
   const buildCategoryPath = (categoryId: string, categoriesList: any[] = []): string => {
@@ -299,6 +315,20 @@ const StorefrontContent = () => {
   };
 
   return (
+    <>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:site_name" content={storeInfo?.name || ''} />
+        {organizationLd && (
+          <script type="application/ld+json">{JSON.stringify(organizationLd)}</script>
+        )}
+      </Helmet>
     <StorefrontLayout
       storeInfo={storeInfo}
       storeSettings={storeSettings}
@@ -623,6 +653,7 @@ const StorefrontContent = () => {
         />
       )}
     </StorefrontLayout>
+    </>
   );
 };
 
