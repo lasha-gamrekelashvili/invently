@@ -57,7 +57,6 @@ async function processExpiredSubscriptions() {
  * Starts the subscription expiry job on an interval
  */
 function startSubscriptionExpiryJob(intervalMs = 60 * 60 * 1000) {
-
   processExpiredSubscriptions().catch(error => {
     console.error('[SubscriptionJob] Initial run failed:', error);
   });
