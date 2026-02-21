@@ -57,20 +57,12 @@ export class AuthService {
       }
     );
 
-    const payment = await this.paymentService.createPayment(
-      result.user.id,
-      result.tenant.id,
-      'SETUP_FEE'
-    );
-
     // Send email confirmation code
     await this.verificationService.createAndSendCode(
       result.user.id,
       email,
       'EMAIL_CONFIRMATION'
     );
-
-    const token = this.generateToken(result.user.id);
 
     return {
       user: {
@@ -85,13 +77,6 @@ export class AuthService {
         name: result.tenant.name,
         subdomain: result.tenant.subdomain,
       },
-      payment: {
-        id: payment.id,
-        amount: payment.amount,
-        status: payment.status,
-        type: payment.type,
-      },
-      token,
     };
   }
 
@@ -111,6 +96,10 @@ export class AuthService {
 
     if (!isValidPassword) {
       throw new Error('Invalid credentials');
+    }
+
+    if (!user.emailVerified) {
+      throw new Error('Email not verified');
     }
 
     const token = this.generateToken(user.id);
@@ -221,13 +210,25 @@ export class AuthService {
   /**
    * Verifies email confirmation code
    */
-  async verifyEmail(userId, code) {
-    await this.verificationService.verifyCode(userId, code, 'EMAIL_CONFIRMATION');
+  async verifyEmail(email, code) {
+    const user = await this.authRepository.findByEmail(email);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (user.emailVerified) {
+      throw new Error('Email already verified');
+    }
+
+    await this.verificationService.verifyCode(user.id, code, 'EMAIL_CONFIRMATION');
 
     // Mark email as verified
-    const updatedUser = await this.authRepository.update(userId, {
+    const updatedUser = await this.authRepository.update(user.id, {
       emailVerified: true,
     });
+
+    // Generate token after successful verification
+    const token = this.generateToken(user.id);
 
     return {
       user: {
@@ -237,14 +238,15 @@ export class AuthService {
         iban: updatedUser.iban,
         emailVerified: updatedUser.emailVerified,
       },
+      token,
     };
   }
 
   /**
    * Resends email confirmation code
    */
-  async resendEmailConfirmation(userId) {
-    const user = await this.authRepository.findById(userId);
+  async resendEmailConfirmation(email) {
+    const user = await this.authRepository.findByEmail(email);
     if (!user) {
       throw new Error('User not found');
     }
@@ -254,7 +256,7 @@ export class AuthService {
     }
 
     await this.verificationService.createAndSendCode(
-      userId,
+      user.id,
       user.email,
       'EMAIL_CONFIRMATION'
     );

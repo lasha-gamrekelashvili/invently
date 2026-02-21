@@ -22,10 +22,8 @@ const register = async (req, res) => {
         {
           user: result.user,
           tenant: result.tenant,
-          payment: result.payment,
-          token: result.token,
         },
-        'Registration successful'
+        'Registration successful. Please check your email to verify your account.'
       )
     );
   } catch (error) {
@@ -62,6 +60,9 @@ const login = async (req, res) => {
   } catch (error) {
     if (error.message === 'Invalid credentials') {
       return res.status(401).json(ApiResponse.error(error.message));
+    }
+    if (error.message === 'Email not verified') {
+      return res.status(403).json(ApiResponse.error(error.message));
     }
     console.error('Login error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
@@ -138,12 +139,12 @@ const updateProfile = async (req, res) => {
  */
 const verifyEmail = async (req, res) => {
   try {
-    const { code } = req.validatedData;
-    const result = await authService.verifyEmail(req.user.id, code);
+    const { email, code } = req.validatedData;
+    const result = await authService.verifyEmail(email, code);
 
     res.json(
       ApiResponse.success(
-        { user: result.user },
+        { user: result.user, token: result.token },
         'Email verified successfully'
       )
     );
@@ -153,6 +154,9 @@ const verifyEmail = async (req, res) => {
     }
     if (error.message === 'User not found') {
       return res.status(404).json(ApiResponse.notFound('User'));
+    }
+    if (error.message === 'Email already verified') {
+      return res.status(400).json(ApiResponse.error(error.message));
     }
     console.error('Verify email error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
@@ -164,7 +168,8 @@ const verifyEmail = async (req, res) => {
  */
 const resendEmailConfirmation = async (req, res) => {
   try {
-    const result = await authService.resendEmailConfirmation(req.user.id);
+    const { email } = req.validatedData;
+    const result = await authService.resendEmailConfirmation(email);
 
     res.json(ApiResponse.success(null, result.message));
   } catch (error) {

@@ -131,7 +131,12 @@ const schemas = {
   }),
 
   verifyEmail: Joi.object({
+    email: Joi.string().email().required(),
     code: Joi.string().length(6).pattern(/^\d+$/).required()
+  }),
+
+  resendEmailConfirmation: Joi.object({
+    email: Joi.string().email().required()
   }),
 
   requestPasswordReset: Joi.object({

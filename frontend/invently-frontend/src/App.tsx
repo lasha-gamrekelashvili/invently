@@ -59,7 +59,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/:tenantSlug/login" element={<Login />} />
+        <Route path="/:tenantSlug/login" element={<Navigate to="/login" replace />} />
         <Route path="/register" element={<Register />} />
         {/* Legal Pages */}
         <Route path="/about" element={<LegalPage />} />
@@ -145,23 +145,25 @@ const App = () => {
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#fff',
-                color: '#374151',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                border: '1px solid #e5e7eb',
-                borderRadius: '0.75rem',
-                padding: '16px',
+                background: '#ffffff',
+                color: '#171717',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px #e5e5e5',
+                border: 'none',
+                borderRadius: '1rem',
+                padding: '14px 16px',
+                fontSize: '0.875rem',
+                fontWeight: '450',
               },
               success: {
                 iconTheme: {
-                  primary: '#10b981',
-                  secondary: '#fff',
+                  primary: '#171717',
+                  secondary: '#ffffff',
                 },
               },
               error: {
                 iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
+                  primary: '#171717',
+                  secondary: '#ffffff',
                 },
               },
             }}

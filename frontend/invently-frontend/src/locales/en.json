@@ -131,7 +131,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome back, {{name}}! Here's what's happening with",
+    "welcome": "Here's an overview of your store's performance and activity.",
     "overview": "Store Overview",
     "stats": {
       "totalProducts": "Active products",
@@ -961,6 +961,7 @@
       }
     },
     "messages": {
+      "updateSettingsSuccess": "Settings saved",
       "updateSettingsError": "Failed to update settings",
       "ibanUpdated": "IBAN updated successfully",
       "updateIbanError": "Failed to update IBAN",

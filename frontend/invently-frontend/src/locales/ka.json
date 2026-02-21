@@ -131,7 +131,7 @@
   },
   "dashboard": {
     "title": "დაფა",
-    "welcome": "კეთილი იყოს თქვენი დაბრუნება, {{name}}!",
+    "welcome": "აქ ნახავთ თქვენი მაღაზიის მუშაობისა და აქტივობის მიმოხილვას.",
     "overview": "მაღაზიის მიმოხილვა",
     "stats": {
       "totalProducts": "სულ პროდუქტები",
@@ -954,6 +954,7 @@
       }
     },
     "messages": {
+      "updateSettingsSuccess": "პარამეტრები შენახულია",
       "updateSettingsError": "პარამეტრების განახლება ვერ მოხერხდა",
       "ibanUpdated": "IBAN წარმატებით განახლდა",
       "updateIbanError": "IBAN-ის განახლება ვერ მოხერხდა",

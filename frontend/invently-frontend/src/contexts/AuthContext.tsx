@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const response = await authAPI.login({ email, password });
 
     if (!slug && response.tenants?.length) {
-      slug = response.tenants[0]?.subdomain;
+      slug = response.tenants[0]?.id;
     }
 
     if (slug) {
@@ -120,19 +120,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.hostname.includes('localhost') || window.location.hostname === '127.0.0.1'
           ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
           : 'https://shopu.ge';
-      window.location.replace(`${baseUrl}/${slug}/dashboard`);
+      setTimeout(() => {
+        window.location.replace(`${baseUrl}/${slug}/dashboard`);
+      }, 800);
     }
   };
 
   const register = async (data: any) => {
     const response = await authAPI.register(data);
-    if (response.tenant) {
-      setTokenForTenant(response.tenant.subdomain, response.token);
-    }
-    setToken(response.token);
-    setUser(response.user);
-    setTenants(response.tenant ? [response.tenant] : []);
-    setAuthToken(response.token);
     return response;
   };
 
@@ -154,19 +149,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (isOnSubdomain() || isOnDashboardPath) {
       const hostname = window.location.hostname;
       let mainDomain;
-      
-      if (hostname.endsWith('.localhost')) {
+
+      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.localhost')) {
         mainDomain = `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}`;
       } else if (hostname.endsWith('.shopu.ge')) {
         mainDomain = `${window.location.protocol}//shopu.ge`;
       } else if (hostname.endsWith('.momigvare.ge')) {
         mainDomain = `${window.location.protocol}//momigvare.ge`;
       } else {
-        // For custom domains, redirect to shopu.ge
         mainDomain = `${window.location.protocol}//shopu.ge`;
       }
-      
-      window.location.href = mainDomain;
+
+      // Only hard-navigate if we're on a different origin (subdomain), otherwise
+      // PrivateRoute will handle the redirect to /login on the same origin.
+      if (isOnSubdomain()) {
+        setTimeout(() => {
+          window.location.href = mainDomain + '/login';
+        }, 800);
+      }
     }
   };
 

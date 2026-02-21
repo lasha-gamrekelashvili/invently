@@ -297,9 +297,9 @@ router.get('/me', authenticateToken, me);
 router.put('/iban', authenticateToken, validate(schemas.updateIban), updateIban);
 router.put('/profile', authenticateToken, validate(schemas.updateProfile), updateProfile);
 
-// Email verification endpoints
-router.post('/verify-email', authenticateToken, validate(schemas.verifyEmail), verifyEmail);
-router.post('/resend-email-confirmation', authenticateToken, resendEmailConfirmation);
+// Email verification endpoints (public)
+router.post('/verify-email', authLimiter, validate(schemas.verifyEmail), verifyEmail);
+router.post('/resend-email-confirmation', authLimiter, validate(schemas.resendEmailConfirmation), resendEmailConfirmation);
 
 // Password reset endpoints (public)
 router.post('/password-reset/request', authLimiter, validate(schemas.requestPasswordReset), requestPasswordReset);

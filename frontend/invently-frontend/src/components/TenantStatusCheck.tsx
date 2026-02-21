@@ -27,7 +27,7 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
     // Path-based dashboard: shopu.ge/:tenantSlug/dashboard
     const pathSlug = paramSlug ?? getTenantSlugFromPath();
     if (pathSlug) {
-      const tenant = tenants.find((t) => t.subdomain === pathSlug);
+      const tenant = tenants.find((t) => t.id === pathSlug);
       if (!tenant) {
         window.location.href = `${mainDomain}/${pathSlug}/login`;
         return;

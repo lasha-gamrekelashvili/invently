@@ -192,11 +192,11 @@ export const authAPI = {
   updateProfile: (data: { email?: string }): Promise<{ user: User }> =>
     api.put('/auth/profile', data).then(res => res.data),
 
-  verifyEmail: (code: string): Promise<{ user: User }> =>
-    api.post('/auth/verify-email', { code }).then(res => res.data),
+  verifyEmail: (email: string, code: string): Promise<{ user: User; token: string }> =>
+    api.post('/auth/verify-email', { email, code }).then(res => res.data),
 
-  resendEmailConfirmation: (): Promise<{ message: string }> =>
-    api.post('/auth/resend-email-confirmation').then(res => res.data),
+  resendEmailConfirmation: (email: string): Promise<{ message: string }> =>
+    api.post('/auth/resend-email-confirmation', { email }).then(res => res.data),
 
   requestPasswordReset: (email: string): Promise<{ message: string }> =>
     api.post('/auth/password-reset/request', { email }).then(res => res.data),

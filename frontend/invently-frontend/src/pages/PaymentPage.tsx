@@ -21,6 +21,7 @@ const PaymentPage = () => {
   const [error, setError] = useState('');
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollCountRef = useRef(0);
+  const successToastShownRef = useRef(false);
 
   const bogReturn = searchParams.get('bog');
 
@@ -33,7 +34,10 @@ const PaymentPage = () => {
 
       if (paymentData.status === 'PAID') {
         setIsPolling(false);
-        handleSuccess(t('payment.successMessage'));
+        if (!successToastShownRef.current) {
+          successToastShownRef.current = true;
+          handleSuccess(t('payment.successMessage'));
+        }
         setTimeout(() => {
           window.location.href = window.location.origin + '/' + window.location.pathname.split('/')[1] + '/billing';
         }, 1500);
@@ -70,7 +74,10 @@ const PaymentPage = () => {
         setPayment(paymentData);
 
         if (paymentData.status === 'PAID') {
-          handleSuccess(t('payment.successMessage'));
+          if (!successToastShownRef.current) {
+            successToastShownRef.current = true;
+            handleSuccess(t('payment.successMessage'));
+          }
           setTimeout(() => {
             window.location.href = window.location.origin + '/' + window.location.pathname.split('/')[1] + '/billing';
           }, 2000);

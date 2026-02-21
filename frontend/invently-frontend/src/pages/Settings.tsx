@@ -55,8 +55,8 @@ const Settings = () => {
   // Update settings mutation
   const updateSettingsMutation = useMutation({
     mutationFn: settingsAPI.updateSettings,
-    onSuccess: (data) => {
-      handleSuccess(data.message);
+    onSuccess: () => {
+      handleSuccess(t('settings.messages.updateSettingsSuccess'));
       queryClient.invalidateQueries({ queryKey: ['settings'] });
     },
     onError: (error) => {

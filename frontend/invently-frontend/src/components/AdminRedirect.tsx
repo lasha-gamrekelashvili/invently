@@ -13,9 +13,14 @@ const AdminRedirect = () => {
   useEffect(() => {
     const hostname = window.location.hostname;
 
-    let subdomain = getCurrentSubdomain();
+    const currentSubdomain = getCurrentSubdomain();
 
-    if (!subdomain) {
+    // Find tenant by subdomain or custom domain, then use its id as the path segment
+    let tenantId: string | null = null;
+    if (currentSubdomain) {
+      tenantId = tenants.find((t) => t.subdomain === currentSubdomain)?.id ?? null;
+    }
+    if (!tenantId) {
       const tenant = tenants.find(
         (t) =>
           t.customDomain &&
@@ -23,7 +28,7 @@ const AdminRedirect = () => {
             t.customDomain === `www.${hostname}` ||
             t.customDomain === hostname.replace(/^www\./, ''))
       );
-      subdomain = tenant?.subdomain ?? null;
+      tenantId = tenant?.id ?? null;
     }
 
     const baseUrl =
@@ -31,9 +36,9 @@ const AdminRedirect = () => {
         ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
         : 'https://shopu.ge';
 
-    if (subdomain) {
+    if (tenantId) {
       const adminPath = location.pathname.replace(/^\/admin\/?/, '') || 'dashboard';
-      const newPath = `/${subdomain}/${adminPath}`.replace(/\/+/g, '/');
+      const newPath = `/${tenantId}/${adminPath}`.replace(/\/+/g, '/');
       window.location.replace(`${baseUrl}${newPath}${location.search}${location.hash}`);
     } else {
       window.location.replace(`${baseUrl}/login`);

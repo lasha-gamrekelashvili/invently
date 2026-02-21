@@ -24,7 +24,7 @@ const tenantResolver = async (req, res, next) => {
     const tenantSlug = req.get('x-tenant-slug');
     if (tenantSlug && MAIN_DOMAINS.includes(host)) {
       const tenant = await prisma.tenant.findUnique({
-        where: { subdomain: tenantSlug },
+        where: { id: tenantSlug },
         include: {
           owner: { select: { id: true, email: true, role: true } },
           subscription: true

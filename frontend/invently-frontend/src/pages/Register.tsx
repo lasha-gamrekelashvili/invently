@@ -65,10 +65,6 @@ const Register = () => {
       const { confirmPassword, ...registerData } = formData;
       const result = await registerUser(registerData) as any;
       setRegistrationResult(result);
-      // Set token for API calls
-      if (result?.token) {
-        authAPI.setToken(result.token);
-      }
       handleSuccess('Registration successful! Please verify your email to continue.');
       setShowEmailVerification(true);
     } catch (err: any) {
@@ -81,21 +77,13 @@ const Register = () => {
 
   // Email verification mutation
   const verifyEmailMutation = useMutation({
-    mutationFn: (code: string) => {
-      // Ensure token is set
-      if (registrationResult?.token) {
-        authAPI.setToken(registrationResult.token);
-      }
-      return authAPI.verifyEmail(code);
-    },
-    onSuccess: () => {
+    mutationFn: (code: string) => authAPI.verifyEmail(formData.email, code),
+    onSuccess: (data) => {
       handleSuccess('Email verified successfully!');
-      // Always redirect to dashboard after email verification
-      // User can pay setup fee from the billing page
       if (registrationResult?.tenant) {
         const currentHost = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
-        const token = registrationResult.token;
+        const token = data.token;
         const baseUrl =
           currentHost.includes('localhost') || currentHost === '127.0.0.1'
             ? `http://localhost${port}`
@@ -112,13 +100,7 @@ const Register = () => {
 
   // Resend email confirmation mutation
   const resendEmailMutation = useMutation({
-    mutationFn: () => {
-      // Ensure token is set
-      if (registrationResult?.token) {
-        authAPI.setToken(registrationResult.token);
-      }
-      return authAPI.resendEmailConfirmation();
-    },
+    mutationFn: () => authAPI.resendEmailConfirmation(formData.email),
     onSuccess: () => {
       handleSuccess('Verification code resent to your email');
     },

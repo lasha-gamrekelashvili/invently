@@ -20,13 +20,15 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Layout = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, tenants } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const base = tenantSlug ? getDashboardBasePath(tenantSlug) : '/admin';
+  const currentTenant = tenants.find((t) => t.id === tenantSlug);
+  const storefrontSubdomain = currentTenant?.subdomain ?? tenantSlug;
   const navigation = [
     { name: t('navigation.dashboard'), href: `${base}/dashboard`, icon: ChartBarIcon, section: 'Store' },
     { name: t('navigation.categories'), href: `${base}/categories`, icon: FolderIcon, section: 'Store' },
@@ -133,24 +135,8 @@ const Layout = () => {
 
           {/* User Menu - Always at bottom */}
           <div className="p-4 border-t border-neutral-200 flex-shrink-0">
-            <div className="flex items-center mb-3">
-              <div className="w-8 h-8 bg-neutral-900 rounded-full flex items-center justify-center mr-3">
-                <span className="text-xs font-medium text-white">
-                  {user?.email?.[0]?.toUpperCase() || 'U'}
-                </span>
-              </div>
-              <div className="flex-1">
-                <div className="font-medium text-neutral-900 text-sm">
-                  {tenantSlug?.toUpperCase() || user?.email}
-                </div>
-                <div className="text-xs text-neutral-500">{user?.role}</div>
-              </div>
-            </div>
-            
-            
-            {/* View Store Link - on main domain use subdomain for storefront */}
             <a
-              href={tenantSlug ? (window.location.hostname.includes('localhost') ? `http://${tenantSlug}.localhost:3000/` : `https://${tenantSlug}.shopu.ge/`) : '/'}
+              href={storefrontSubdomain ? (window.location.hostname.includes('localhost') ? `http://${storefrontSubdomain}.localhost:3000/` : `https://${storefrontSubdomain}.shopu.ge/`) : '/'}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-sm text-neutral-900 hover:text-neutral-700 transition-colors mb-3"
@@ -158,7 +144,6 @@ const Layout = () => {
               <BuildingStorefrontIcon className="h-4 w-4 mr-2" />
               <T tKey="navigation.storefront" />
             </a>
-            
             <button
               onClick={logout}
               className="flex items-center text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
