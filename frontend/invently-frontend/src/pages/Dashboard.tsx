@@ -20,7 +20,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
-  const { user, tenants } = useAuth();
+  const {tenants } = useAuth();
   const { t } = useLanguage();
   const { path } = useDashboardPath();
   const currentTenant = tenants[0];
