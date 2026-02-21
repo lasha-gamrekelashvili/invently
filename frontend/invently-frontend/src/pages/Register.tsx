@@ -89,7 +89,7 @@ const Register = () => {
             ? `http://localhost${port}`
             : 'https://shopu.ge';
         window.location.replace(
-          `${baseUrl}/${registrationResult.tenant.subdomain}/dashboard#token=${encodeURIComponent(token)}`
+          `${baseUrl}/${registrationResult.tenant.id}/dashboard#token=${encodeURIComponent(token)}`
         );
       }
     },

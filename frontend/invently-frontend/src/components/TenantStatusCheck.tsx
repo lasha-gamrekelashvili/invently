@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getTenantSlugFromPath } from '../utils/api';
+import { getTenantIdFromPath } from '../utils/api';
 import LoadingSpinner from './LoadingSpinner';
 
 interface TenantStatusCheckProps {
@@ -24,12 +24,12 @@ const TenantStatusCheck: React.FC<TenantStatusCheckProps> = ({ children }) => {
       ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
       : 'https://shopu.ge';
 
-    // Path-based dashboard: shopu.ge/:tenantSlug/dashboard
-    const pathSlug = paramSlug ?? getTenantSlugFromPath();
-    if (pathSlug) {
-      const tenant = tenants.find((t) => t.id === pathSlug);
+    // Path-based dashboard: shopu.ge/:tenantId/dashboard (path uses tenant ID)
+    const pathTenantId = paramSlug ?? getTenantIdFromPath();
+    if (pathTenantId) {
+      const tenant = tenants.find((t) => t.id === pathTenantId);
       if (!tenant) {
-        window.location.href = `${mainDomain}/${pathSlug}/login`;
+        window.location.href = `${mainDomain}/${pathTenantId}/login`;
         return;
       }
       setIsChecking(false);

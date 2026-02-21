@@ -172,37 +172,11 @@ const getSubscription = async (req, res) => {
     let tenantId = req.tenantId;
 
     if (!tenantId) {
-      let subdomain = '';
-
-      // Check X-Tenant-Slug header (sent by frontend on path-based routing, e.g. localhost)
-      const tenantSlug = req.get('x-tenant-slug');
-      if (tenantSlug) {
-        subdomain = tenantSlug;
-      }
-
-      // Fallback: extract subdomain from host header
-      if (!subdomain) {
-        const host = req.get('x-original-host') || req.get('host');
-        if (host) {
-          const hostname = host.split(':')[0];
-
-          if (hostname.includes('localhost')) {
-            const parts = hostname.split('.');
-            if (parts.length > 1 && parts[0] !== 'localhost') {
-              subdomain = parts[0];
-            }
-          } else {
-            const parts = hostname.split('.');
-            if (parts.length > 2) {
-              subdomain = parts[0];
-            }
-          }
-        }
-      }
-
-      if (subdomain) {
+      // Check X-Tenant-Slug header (contains tenant ID, sent by frontend on path-based routing)
+      const tenantIdFromHeader = req.get('x-tenant-slug');
+      if (tenantIdFromHeader) {
         const tenant = await prisma.tenant.findUnique({
-          where: { subdomain },
+          where: { id: tenantIdFromHeader },
           include: { owner: { select: { id: true } } }
         });
 

@@ -5,7 +5,7 @@ import { handleSuccess } from '../utils/errorHandler';
 import {
   authAPI,
   isOnSubdomain,
-  getTenantSlugFromPath,
+  getTenantIdFromPath,
   getTokenForTenant,
   setTokenForTenant,
   clearTokenForTenant,
@@ -17,7 +17,7 @@ interface AuthContextType {
   tenants: Tenant[];
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string, tenantSlug?: string) => Promise<void>;
+  login: (email: string, password: string, tenantId?: string) => Promise<void>;
   register: (data: any) => Promise<any>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -47,10 +47,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user && !!token;
 
   useEffect(() => {
-    const slug = getTenantSlugFromPath();
+    const tenantId = getTenantIdFromPath();
 
     const initAuth = async () => {
-      if (!slug) {
+      if (!tenantId) {
         setToken(null);
         setUser(null);
         setTenants([]);
@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      let savedToken = getTokenForTenant(slug);
+      let savedToken = getTokenForTenant(tenantId);
 
       // Token handoff via URL hash (e.g. after login redirect)
       const hash = window.location.hash;
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const params = new URLSearchParams(hash.slice(1));
         const hashToken = params.get('token');
         if (hashToken) {
-          setTokenForTenant(slug, hashToken);
+          setTokenForTenant(tenantId, hashToken);
           savedToken = hashToken;
           history.replaceState(null, '', window.location.pathname + window.location.search);
         }
@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(response.user);
         setTenants(response.tenants || []);
       } catch (error) {
-        clearTokenForTenant(slug);
+        clearTokenForTenant(tenantId);
         setToken(null);
         setUser(null);
         setTenants([]);
@@ -103,17 +103,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, [location.pathname]);
 
-  const login = async (email: string, password: string, targetTenantSlug?: string) => {
-    let slug = targetTenantSlug ?? getTenantSlugFromPath();
+  const login = async (email: string, password: string, targetTenantId?: string) => {
+    let tenantId = targetTenantId ?? getTenantIdFromPath();
 
     const response = await authAPI.login({ email, password });
 
-    if (!slug && response.tenants?.length) {
-      slug = response.tenants[0]?.id;
+    if (!tenantId && response.tenants?.length) {
+      tenantId = response.tenants[0]?.id;
     }
 
-    if (slug) {
-      setTokenForTenant(slug, response.token);
+    if (tenantId) {
+      setTokenForTenant(tenantId, response.token);
       setAuthToken(response.token);
 
       const baseUrl =
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
           : 'https://shopu.ge';
       setTimeout(() => {
-        window.location.replace(`${baseUrl}/${slug}/dashboard`);
+        window.location.replace(`${baseUrl}/${tenantId}/dashboard`);
       }, 800);
     }
   };
@@ -132,9 +132,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    const slug = getTenantSlugFromPath();
-    if (slug) {
-      clearTokenForTenant(slug);
+    const tenantId = getTenantIdFromPath();
+    if (tenantId) {
+      clearTokenForTenant(tenantId);
     }
     setToken(null);
     setUser(null);

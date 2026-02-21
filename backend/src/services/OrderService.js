@@ -260,10 +260,10 @@ export class OrderService {
 
     const finalOrder = { ...order, paymentStatus: 'PAID', status: 'CONFIRMED' };
     const tenant = finalOrder.tenant;
-    const subdomain = tenant?.subdomain;
+    const tenantId = tenant?.id;
     const customDomain = tenant?.customDomain;
     const frontendBaseUrl = (process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge').replace(/\/$/, '');
-    const dashboardOrderUrl = this.buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, finalOrder.id);
+    const dashboardOrderUrl = this.buildDashboardOrderUrl(frontendBaseUrl, tenantId, customDomain, finalOrder.id);
 
     const ownerEmail = tenant?.owner?.email;
     if (ownerEmail) {
@@ -330,9 +330,9 @@ export class OrderService {
     return { ...order, paymentStatus: 'FAILED', status: 'CANCELLED' };
   }
 
-  buildDashboardOrderUrl(frontendBaseUrl, subdomain, customDomain, orderId) {
-    if (!frontendBaseUrl || !subdomain) return null;
-    return `${frontendBaseUrl.replace(/\/$/, '')}/${subdomain}/orders/${orderId}`;
+  buildDashboardOrderUrl(frontendBaseUrl, tenantId, customDomain, orderId) {
+    if (!frontendBaseUrl || !tenantId) return null;
+    return `${frontendBaseUrl.replace(/\/$/, '')}/${tenantId}/orders/${orderId}`;
   }
 
   /**

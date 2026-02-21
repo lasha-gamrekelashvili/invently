@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { authAPI, getTenantSlugFromPath, setTokenForTenant, setAuthToken } from '../utils/api';
+import { authAPI, getTenantIdFromPath, setTokenForTenant, setAuthToken } from '../utils/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { handleApiError, handleSuccess } from '../utils/errorHandler';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -20,8 +20,8 @@ const Login = () => {
 
   const { login } = useAuth();
   const { t } = useLanguage();
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
-  const slug = tenantSlug ?? getTenantSlugFromPath();
+  const { tenantSlug: tenantIdFromParams } = useParams<{ tenantSlug: string }>();
+  const tenantId = tenantIdFromParams ?? getTenantIdFromPath();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +29,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password, slug ?? undefined);
+      await login(email, password, tenantId ?? undefined);
       handleSuccess(t('auth.login.successMessage'));
     } catch (err: any) {
       const status = (err as any)?.response?.status;
@@ -48,21 +48,18 @@ const Login = () => {
     mutationFn: (code: string) => authAPI.verifyEmail(email, code),
     onSuccess: (data) => {
       handleSuccess('Email verified! Logging you in...');
-      let targetSlug = slug;
-      if (!targetSlug && data.user) {
-        // Will redirect after login
-      }
+      const targetTenantId = tenantId;
       // Now login with verified credentials
-      login(email, password, targetSlug ?? undefined).catch(() => {
+      login(email, password, targetTenantId ?? undefined).catch(() => {
         // fallback: store token and reload
-        if (targetSlug) {
-          setTokenForTenant(targetSlug, data.token);
+        if (targetTenantId) {
+          setTokenForTenant(targetTenantId, data.token);
           setAuthToken(data.token);
           const baseUrl =
             window.location.hostname.includes('localhost') || window.location.hostname === '127.0.0.1'
               ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
               : 'https://shopu.ge';
-          window.location.replace(`${baseUrl}/${targetSlug}/dashboard`);
+          window.location.replace(`${baseUrl}/${targetTenantId}/dashboard`);
         }
       });
     },

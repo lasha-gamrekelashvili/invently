@@ -13,8 +13,8 @@ export interface Tenant {
   customDomain?: string | null;
   description?: string;
   isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Category {

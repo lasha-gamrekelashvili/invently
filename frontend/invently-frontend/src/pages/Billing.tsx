@@ -32,12 +32,15 @@ const Billing = () => {
     retry: false,
   });
 
-  // Always check for pending setup fee payment
+  // Only fetch pending setup fee when user clicks Pay - don't run on mount.
+  // getPendingSetupFee is get-or-create; calling it on every page load would auto-create
+  // a PENDING SETUP_FEE in DB for inactive users with no subscription (and re-create after delete).
   const { data: pendingSetupFee, isLoading: pendingSetupFeeLoading } = useQuery({
     queryKey: ['pendingSetupFee'],
     queryFn: () => paymentAPI.getPendingSetupFee(),
     retry: false,
     retryOnMount: false,
+    enabled: false, // Never run automatically - only when handleSetupPayment is called
   });
 
   // Try to get tenant payments first

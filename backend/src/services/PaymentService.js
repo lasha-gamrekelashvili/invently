@@ -62,6 +62,7 @@ export class PaymentService {
           where: { id: paymentId },
           data: {
             status: 'PAID',
+            paymentMethod: 'MOCK',
             transactionId,
             metadata: {
               processedAt: new Date().toISOString(),
@@ -148,9 +149,9 @@ export class PaymentService {
     const callbackUrl = `${backendBase}/api/bog/callback`;
 
     const platformBase = (process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge').replace(/\/$/, '');
-    const tenantSlug = payment.tenant?.subdomain || '';
-    const successUrl = `${platformBase}/${tenantSlug}/payment/${paymentId}?bog=success`;
-    const failUrl = `${platformBase}/${tenantSlug}/payment/${paymentId}?bog=fail`;
+    const tenantId = payment.tenant?.id || '';
+    const successUrl = `${platformBase}/${tenantId}/payment/${paymentId}?bog=success`;
+    const failUrl = `${platformBase}/${tenantId}/payment/${paymentId}?bog=fail`;
 
     const description = payment.type === 'SETUP_FEE' ? 'Store Setup Fee' : 'Monthly Subscription';
 
@@ -202,6 +203,7 @@ export class PaymentService {
           where: { id: paymentId },
           data: {
             status: 'PAID',
+            paymentMethod: 'BOG',
             transactionId: transactionInfo.orderId || transactionInfo.bogOrderId || null,
             metadata: {
               ...(typeof payment.metadata === 'object' && payment.metadata !== null ? payment.metadata : {}),

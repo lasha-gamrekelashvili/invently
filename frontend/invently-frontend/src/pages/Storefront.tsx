@@ -196,7 +196,7 @@ const StorefrontContent = () => {
   const displayProducts = productsData || { products: [], pagination: null };
 
   if (storeInfoError) {
-    return <TenantNotFound />;
+    return <TenantNotFound error={storeInfoError as any} />;
   }
 
   const pageTitle = selectedCategory

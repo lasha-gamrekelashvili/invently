@@ -80,13 +80,14 @@ export const isOnSubdomain = () => {
   return true;
 };
 
-// Path segments that indicate first segment is tenant slug
+// Path segments that indicate first segment is tenant ID
 const TENANT_PATH_SEGMENTS = ['dashboard', 'categories', 'products', 'orders', 'settings', 'appearance', 'billing', 'bulk-upload', 'platform', 'payment', 'login'];
 
 /**
- * Get tenant slug from main-domain path (e.g. /lasha/dashboard -> lasha, /lasha/login -> lasha)
+ * Get tenant ID from main-domain path (e.g. /71ea4380-.../dashboard -> tenant UUID)
+ * Path-based dashboard always uses tenant ID.
  */
-export const getTenantSlugFromPath = (): string | null => {
+export const getTenantIdFromPath = (): string | null => {
   const host = window.location.hostname;
   const mainDomains = ['shopu.ge', 'momigvare.ge', 'localhost', '127.0.0.1'];
   if (!mainDomains.includes(host)) return null;
@@ -100,32 +101,35 @@ export const getTenantSlugFromPath = (): string | null => {
   return null;
 };
 
+/** @deprecated Use getTenantIdFromPath - kept for backward compatibility during migration */
+export const getTenantSlugFromPath = getTenantIdFromPath;
+
 const TOKEN_KEY_PREFIX = 'token_';
 
-export const getTokenForTenant = (tenantSlug: string): string | null =>
-  localStorage.getItem(`${TOKEN_KEY_PREFIX}${tenantSlug}`);
+export const getTokenForTenant = (tenantId: string): string | null =>
+  localStorage.getItem(`${TOKEN_KEY_PREFIX}${tenantId}`);
 
-export const setTokenForTenant = (tenantSlug: string, token: string) =>
-  localStorage.setItem(`${TOKEN_KEY_PREFIX}${tenantSlug}`, token);
+export const setTokenForTenant = (tenantId: string, token: string) =>
+  localStorage.setItem(`${TOKEN_KEY_PREFIX}${tenantId}`, token);
 
-export const clearTokenForTenant = (tenantSlug: string) =>
-  localStorage.removeItem(`${TOKEN_KEY_PREFIX}${tenantSlug}`);
+export const clearTokenForTenant = (tenantId: string) =>
+  localStorage.removeItem(`${TOKEN_KEY_PREFIX}${tenantId}`);
 
 /**
- * Build dashboard base path for a tenant (e.g. /commercia)
+ * Build dashboard base path for a tenant (e.g. /71ea4380-...)
  */
-export const getDashboardBasePath = (tenantSlug: string) => `/${tenantSlug}`;
+export const getDashboardBasePath = (tenantId: string) => `/${tenantId}`;
 
 // Request interceptor: use token for current tenant (per-tenant auth for multi-shop login)
 api.interceptors.request.use((config) => {
-  const tenantSlug = getTenantSlugFromPath();
-  const token = authTokenOverride ?? (tenantSlug ? getTokenForTenant(tenantSlug) : null);
+  const tenantId = getTenantIdFromPath();
+  const token = authTokenOverride ?? (tenantId ? getTokenForTenant(tenantId) : null);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   config.headers['X-Original-Host'] = window.location.hostname;
-  if (tenantSlug) {
-    config.headers['X-Tenant-Slug'] = tenantSlug;
+  if (tenantId) {
+    config.headers['X-Tenant-Slug'] = tenantId;
   }
   return config;
 });
@@ -162,9 +166,9 @@ api.interceptors.response.use(
       const isOnLoginPage = window.location.pathname.includes('/login');
 
       if (!isAuthRequest && !isOnLoginPage) {
-        const slug = getTenantSlugFromPath();
-        if (slug) clearTokenForTenant(slug);
-        window.location.href = slug ? `/${slug}/login` : '/login';
+        const tenantId = getTenantIdFromPath();
+        if (tenantId) clearTokenForTenant(tenantId);
+        window.location.href = tenantId ? `/${tenantId}/login` : '/login';
       }
     }
     return Promise.reject(error);

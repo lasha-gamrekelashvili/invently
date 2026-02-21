@@ -2,233 +2,143 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-/**
- * Resolves tenant from custom domain or subdomain in request host header.
- * Checks custom domain first, then falls back to subdomain extraction.
- * Read-only middleware - does not modify database state.
- */
 const MAIN_DOMAINS = ['shopu.ge', 'momigvare.ge', 'localhost', '127.0.0.1'];
 
+const tenantInclude = {
+  owner: { select: { id: true, email: true, role: true } },
+  subscription: true,
+};
+
+/**
+ * Applies storefront checks: tenant must be active and have valid subscription.
+ * Returns a response sender if check fails, null if OK.
+ */
+function applyStorefrontChecks(req, tenant, errorContext) {
+  if (!tenant.isActive) {
+    return (response) => response.status(403).json({
+      error: 'Store is currently inactive',
+      ...errorContext,
+      isActive: false,
+    });
+  }
+
+  const subscription = tenant.subscription;
+  if (!subscription) {
+    return (response) => response.status(403).json({
+      error: 'Subscription required. Please complete setup fee payment.',
+      ...errorContext,
+    });
+  }
+
+  const now = new Date();
+  const periodEnd = new Date(subscription.currentPeriodEnd);
+
+  if (subscription.status === 'CANCELLED' && periodEnd < now) {
+    return (response) => response.status(403).json({
+      error: 'Subscription has expired. Please renew to access the store.',
+      ...errorContext,
+    });
+  }
+
+  if (subscription.status === 'CANCELLED') {
+    req.subscriptionWarning = {
+      cancelled: true,
+      periodEnd: periodEnd.toISOString(),
+      daysRemaining: Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24)),
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Resolves tenant and attaches to req.tenant / req.tenantId.
+ * Three resolution paths: X-Tenant-Slug (path-based), custom domain, subdomain.
+ */
 const tenantResolver = async (req, res, next) => {
   try {
-    // Prefer X-Original-Host when request is routed to platform (e.g. custom domain sends to shopu.ge/api)
-    let host = req.get('x-original-host') || req.get('host');
+    const host = (req.get('x-original-host') || req.get('host') || '')
+      .split(':')[0]
+      .toLowerCase()
+      .replace(/^www\./, '');
 
     if (!host) {
       return res.status(400).json({ error: 'Host header is required' });
     }
 
-    host = host.split(':')[0].toLowerCase().replace(/^www\./, '');
+    let tenant = null;
 
-    // Step 0: Path-based tenant resolution (shopu.ge/:slug/dashboard)
-    const tenantSlug = req.get('x-tenant-slug');
-    if (tenantSlug && MAIN_DOMAINS.includes(host)) {
-      const tenant = await prisma.tenant.findUnique({
-        where: { id: tenantSlug },
-        include: {
-          owner: { select: { id: true, email: true, role: true } },
-          subscription: true
-        }
+    // 1. Path-based (main domain): X-Tenant-Slug contains tenant ID
+    const tenantIdFromPath = req.get('x-tenant-slug');
+    if (tenantIdFromPath && MAIN_DOMAINS.includes(host)) {
+      tenant = await prisma.tenant.findUnique({
+        where: { id: tenantIdFromPath },
+        include: tenantInclude,
       });
       if (!tenant) {
-        return res.status(404).json({ error: 'Tenant not found', subdomain: tenantSlug });
+        return res.status(404).json({ error: 'Tenant not found', tenantId: tenantIdFromPath });
       }
-      if (req.requireActiveTenant !== true) {
-        req.tenant = tenant;
-        req.tenantId = tenant.id;
-        return next();
-      }
-      if (!tenant.isActive) {
-        return res.status(403).json({
-          error: 'Store is currently inactive',
-          subdomain: tenantSlug,
-          isActive: false
-        });
-      }
-      const subscription = tenant.subscription;
-      if (subscription) {
-        const now = new Date();
-        const periodEnd = new Date(subscription.currentPeriodEnd);
-        if (subscription.status === 'CANCELLED' && periodEnd < now) {
-          req.subscriptionWarning = { expired: true, periodEnd: periodEnd.toISOString() };
-        } else if (subscription.status === 'CANCELLED') {
-          req.subscriptionWarning = {
-            cancelled: true,
-            periodEnd: periodEnd.toISOString(),
-            daysRemaining: Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24))
-          };
-        }
-      }
-      req.tenant = tenant;
-      req.tenantId = tenant.id;
-      return next();
     }
 
-    // Step 1: Check if host matches a custom domain (exact match or www variant)
-    const tenantByCustomDomain = await prisma.tenant.findFirst({
-      where: {
-        OR: [
-          { customDomain: host },
-          { customDomain: `www.${host}` },
-          { customDomain: host.replace(/^www\./, '') }
-        ],
-        customDomain: { not: null }
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            email: true,
-            role: true
-          }
+    // 2. Custom domain
+    if (!tenant) {
+      tenant = await prisma.tenant.findFirst({
+        where: {
+          OR: [
+            { customDomain: host },
+            { customDomain: `www.${host}` },
+            { customDomain: host.replace(/^www\./, '') },
+          ],
+          customDomain: { not: null },
         },
-        subscription: true
-      }
-    });
+        include: tenantInclude,
+      });
+    }
 
-    if (tenantByCustomDomain) {
-      // Found tenant by custom domain - continue with existing logic
-      const tenant = tenantByCustomDomain;
-      
-      // For admin routes, allow access even if tenant is inactive or has no subscription
-      if (req.requireActiveTenant !== true) {
-        req.tenant = tenant;
-        req.tenantId = tenant.id;
-        return next();
+    // 3. Subdomain (e.g. mystore.shopu.ge, mystore.localhost)
+    if (!tenant) {
+      let subdomain = null;
+      if (host.includes('localhost')) {
+        const parts = host.split('.');
+        subdomain = parts.length > 1 && parts[0] !== 'localhost' ? parts[0] : null;
+      } else {
+        const parts = host.split('.');
+        subdomain = parts.length > 2 ? parts[0] : null;
       }
 
-      // Storefront route - only require active tenant
-      if (!tenant.isActive) {
-        return res.status(403).json({
-          error: 'Store is currently inactive',
-          customDomain: tenant.customDomain,
-          isActive: false
+      if (subdomain) {
+        tenant = await prisma.tenant.findUnique({
+          where: { subdomain },
+          include: tenantInclude,
         });
-      }
-
-      // Handle subscription warnings (same as subdomain logic)
-      const subscription = tenant.subscription;
-      if (subscription) {
-        const now = new Date();
-        const periodEnd = new Date(subscription.currentPeriodEnd);
-
-        if (subscription.status === 'CANCELLED' && periodEnd < now) {
-          req.subscriptionWarning = {
-            expired: true,
-            periodEnd: periodEnd.toISOString()
-          };
-        } else if (subscription.status === 'CANCELLED') {
-          const daysRemaining = Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24));
-          req.subscriptionWarning = {
-            cancelled: true,
-            periodEnd: periodEnd.toISOString(),
-            daysRemaining
-          };
+        if (!tenant) {
+          return res.status(404).json({ error: 'Tenant not found', subdomain });
         }
       }
-
-      req.tenant = tenant;
-      req.tenantId = tenant.id;
-      return next();
     }
 
-    // Step 2: Fall back to subdomain extraction (existing logic)
-    let subdomain;
-    if (host.includes('localhost')) {
-      const parts = host.split('.');
-      if (parts.length > 1 && parts[0] !== 'localhost') {
-        subdomain = parts[0];
-      } else {
-        req.tenant = null;
-        return next();
-      }
-    } else {
-      const parts = host.split('.');
-      if (parts.length > 2) {
-        subdomain = parts[0];
-      } else {
-        req.tenant = null;
-        return next();
-      }
-    }
-
-    if (!subdomain) {
+    if (!tenant) {
       req.tenant = null;
       return next();
     }
 
-    const tenant = await prisma.tenant.findUnique({
-      where: { subdomain },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            email: true,
-            role: true
-          }
-        },
-        subscription: true
-      }
-    });
+    req.tenant = tenant;
+    req.tenantId = tenant.id;
 
-    if (!tenant) {
-      return res.status(404).json({
-        error: 'Tenant not found',
-        subdomain
-      });
-    }
-
-    // For admin routes, allow access even if tenant is inactive or has no subscription
-    // This allows users to access dashboard to pay setup fee
-    // Storefront routes use storefrontTenantResolver which requires active tenant + subscription
-    
-    // Check if this is a storefront route (by checking if req.requireActiveTenant is set)
-    // If not set, it's an admin route - allow access even without subscription
+    // Admin/dashboard routes: allow access (user can pay setup fee, manage billing)
     if (req.requireActiveTenant !== true) {
-      // Admin route - allow access even if inactive or no subscription
-      req.tenant = tenant;
-      req.tenantId = tenant.id;
       return next();
     }
 
-    // Storefront route - only require active tenant (not subscription)
-    // This allows old tenants that are active but don't have subscriptions yet
-    if (!tenant.isActive) {
-      return res.status(403).json({
-        error: 'Store is currently inactive',
-        subdomain,
-        isActive: false
-      });
+    // Storefront: require active tenant + valid subscription
+    const errorContext = tenant.customDomain
+      ? { customDomain: tenant.customDomain }
+      : { subdomain: tenant.subdomain, tenantId: tenant.id };
+
+    const sendError = applyStorefrontChecks(req, tenant, errorContext);
+    if (sendError) {
+      return sendError(res);
     }
-
-    // For storefront, we only check if tenant is active
-    // Subscription is optional for legacy tenants
-    // If subscription exists, we can add warnings but don't block access
-    const subscription = tenant.subscription;
-
-    if (subscription) {
-      const now = new Date();
-      const periodEnd = new Date(subscription.currentPeriodEnd);
-
-      if (subscription.status === 'CANCELLED' && periodEnd < now) {
-        // Subscription expired but tenant is still active - allow access
-        // (legacy tenant scenario)
-        req.subscriptionWarning = {
-          expired: true,
-          periodEnd: periodEnd.toISOString()
-        };
-      } else if (subscription.status === 'CANCELLED') {
-        const daysRemaining = Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24));
-        req.subscriptionWarning = {
-          cancelled: true,
-          periodEnd: periodEnd.toISOString(),
-          daysRemaining
-        };
-      }
-    }
-
-    req.tenant = tenant;
-    req.tenantId = tenant.id;
 
     next();
   } catch (error) {

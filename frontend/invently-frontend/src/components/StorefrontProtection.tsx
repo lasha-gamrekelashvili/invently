@@ -59,16 +59,16 @@ const StorefrontProtection: React.FC<StorefrontProtectionProps> = ({ children })
         return;
       }
 
-      // Check if tenant is active (storefront requires active tenant)
+      // Tenant inactive - redirect to dashboard (owner can renew)
       if (!tenant.isActive) {
         const baseUrl = hostname.includes('localhost')
           ? `http://localhost${window.location.port ? `:${window.location.port}` : ''}`
           : 'https://shopu.ge';
-        window.location.href = `${baseUrl}/${tenant.subdomain}/dashboard`;
+        window.location.href = `${baseUrl}/${tenant.id}/dashboard`;
         return;
       }
 
-      // Tenant is active - allow storefront access
+      // Tenant active - allow
       setIsChecking(false);
     };
 
