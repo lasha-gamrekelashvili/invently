@@ -28,12 +28,12 @@ export class EmailService {
     const toList = Array.isArray(to) ? to : [to];
 
     if (!this.resend) {
-      console.log('=== EMAIL (MOCK) ===');
+      console.log('=== EMAIL (fallback: Resend not configured) ===');
       console.log('To:', toList.join(', '));
       console.log('Subject:', subject);
       console.log('Body:', text || html);
-      console.log('===================');
-      return { id: 'mock-' + Date.now() };
+      console.log('================================================');
+      return { id: 'local-' + Date.now() };
     }
 
     const payload = {

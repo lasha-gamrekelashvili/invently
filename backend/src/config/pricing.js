@@ -6,6 +6,9 @@ export const PRICING = {
   MONTHLY_SUBSCRIPTION: 49.0,
 };
 
+/** Days after period end before store is disabled (grace period) */
+export const SUBSCRIPTION_GRACE_PERIOD_DAYS = 7;
+
 /**
  * Adds months to a date safely, handling month-end edge cases
  */

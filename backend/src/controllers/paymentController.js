@@ -213,7 +213,8 @@ const getSubscription = async (req, res) => {
       }
     }
 
-    res.json(ApiResponse.success(subscription));
+    const result = paymentService.enrichSubscriptionWithGracePeriod(subscription);
+    res.json(ApiResponse.success(result));
   } catch (error) {
     console.error('[getSubscription] Error:', error);
     res.status(500).json(ApiResponse.error('Internal server error'));
@@ -240,9 +241,12 @@ const cancelSubscription = async (req, res) => {
  * Reactivates the current tenant's subscription
  */
 const reactivateSubscription = async (req, res) => {
-  try {
-    const subscription = await paymentService.reactivateSubscription(req.tenantId);
-    res.json(ApiResponse.success(subscription, 'Subscription reactivated successfully'));
+    try {
+      const result = await paymentService.reactivateSubscription(req.tenantId);
+      const message = result.paymentRequired
+        ? 'Payment required to reactivate'
+        : 'Subscription reactivated successfully';
+      res.json(ApiResponse.success(result, message));
   } catch (error) {
     if (error.message === 'Subscription not found' || error.message === 'Tenant not found') {
       return res.status(404).json(ApiResponse.error(error.message));

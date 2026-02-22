@@ -407,7 +407,7 @@ const options = {
             paymentMethod: {
               type: 'string',
               nullable: true,
-              description: 'Payment method (e.g., MOCK, BANK_OF_GEORGIA)'
+              description: 'Payment method (e.g., BOG)'
             },
             transactionId: {
               type: 'string',
@@ -438,8 +438,8 @@ const options = {
             type: 'SETUP_FEE',
             amount: 1.0,
             status: 'PAID',
-            paymentMethod: 'MOCK',
-            transactionId: 'MOCK-1769937784380-4ob4pry2x',
+            paymentMethod: 'BOG',
+            transactionId: 'bog-1769937784380-4ob4pry2x',
             metadata: {
               processedAt: '2026-02-01T09:23:04.380Z'
             },

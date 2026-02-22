@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { StoreSettings } from '../types';
 
 interface StorefrontFooterProps {
@@ -21,37 +21,6 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
   const textColor = footerTextColor || settings?.footerTextColor || '#171717';
   const headingColor = footerHeadingColor || settings?.footerHeadingColor || '#171717';
   const linkColor = footerLinkColor || settings?.footerLinkColor || '#525252';
-  const [activePopup, setActivePopup] = useState<string | null>(null);
-
-  const handlePopupOpen = (popupType: string) => {
-    setActivePopup(popupType);
-  };
-
-  const handlePopupClose = () => {
-    setActivePopup(null);
-  };
-
-  // Popup component
-  const ContentPopup = ({ title, content, onClose }: { title: string; content: string; onClose: () => void }) => (
-    <div className="fixed inset-0 bg-neutral-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-          <h3 className="text-lg font-light tracking-tight text-neutral-900">{title}</h3>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 transition-colors"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="prose prose-sm max-w-none">
-            <div className="whitespace-pre-wrap text-neutral-700">{content}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <footer className="border-t mt-auto" style={{ backgroundColor: bgColor, borderColor: '#e5e5e5' }}>
@@ -62,45 +31,45 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
             {/* Quick Links */}
             {(settings?.aboutUs?.content || settings?.privacyPolicy?.content || settings?.termsOfService?.content) && (
               <div className="text-center sm:text-left">
-                <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Quick Links</h3>
-                <ul className="space-y-3">
+                <h3 className="text-sm font-medium mb-3 tracking-wide uppercase" style={{ color: headingColor }}>Quick Links</h3>
+                <ul className="space-y-2">
                   {settings?.aboutUs?.content && (
                     <li>
-                      <button
-                        onClick={() => handlePopupOpen('aboutUs')}
-                        className="text-sm transition-colors"
+                      <Link
+                        to="/about"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         About Us
-                      </button>
+                      </Link>
                     </li>
                   )}
                   {settings?.privacyPolicy?.content && (
                     <li>
-                      <button
-                        onClick={() => handlePopupOpen('privacyPolicy')}
-                        className="text-sm transition-colors"
+                      <Link
+                        to="/privacy"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Privacy Policy
-                      </button>
+                      </Link>
                     </li>
                   )}
                   {settings?.termsOfService?.content && (
                     <li>
-                      <button
-                        onClick={() => handlePopupOpen('termsOfService')}
-                        className="text-sm transition-colors"
+                      <Link
+                        to="/terms"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Terms of Service
-                      </button>
+                      </Link>
                     </li>
                   )}
                 </ul>
@@ -110,45 +79,45 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
             {/* Customer Service */}
             {(settings?.shippingInfo?.content || settings?.returns?.content || settings?.faq?.content || settings?.trackOrderUrl) && (
               <div className="text-center sm:text-left">
-                <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Customer Service</h3>
-                <ul className="space-y-3">
+                <h3 className="text-sm font-medium mb-3 tracking-wide uppercase" style={{ color: headingColor }}>Customer Service</h3>
+                <ul className="space-y-2">
                   {settings?.shippingInfo?.content && (
                     <li>
-                      <button
-                        onClick={() => handlePopupOpen('shippingInfo')}
-                        className="text-sm transition-colors"
+                      <Link
+                        to="/shipping"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Shipping Info
-                      </button>
+                      </Link>
                     </li>
                   )}
                   {settings?.returns?.content && (
                     <li>
-                      <button
-                        onClick={() => handlePopupOpen('returns')}
-                        className="text-sm transition-colors"
+                      <Link
+                        to="/returns"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         Returns
-                      </button>
+                      </Link>
                     </li>
                   )}
                   {settings?.faq?.content && (
                     <li>
-                      <button
-                        onClick={() => handlePopupOpen('faq')}
-                        className="text-sm transition-colors"
+                      <Link
+                        to="/faq"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
                       >
                         FAQ
-                      </button>
+                      </Link>
                     </li>
                   )}
                   {settings?.trackOrderUrl && (
@@ -157,7 +126,7 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
                         href={settings.trackOrderUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm transition-colors"
+                        className="text-xs transition-colors"
                         style={{ color: linkColor }}
                         onMouseEnter={(e) => e.currentTarget.style.color = textColor}
                         onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
@@ -170,14 +139,17 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
               </div>
             )}
 
-            {/* Social Media & Contact */}
-            <div className="text-center sm:text-left">
-              {/* Social Media */}
-              {(settings?.facebookUrl || settings?.twitterUrl || settings?.instagramUrl || settings?.linkedinUrl || settings?.youtubeUrl) && (
-                <div className="mb-8">
-                  <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Follow Us</h3>
+            {/* Contact (with social icons below) */}
+            {(settings?.contact?.content || settings?.facebookUrl || settings?.twitterUrl || settings?.instagramUrl || settings?.linkedinUrl || settings?.youtubeUrl) && (
+              <div className="text-center sm:text-left">
+                <h3 className="text-sm font-medium mb-3 tracking-wide uppercase" style={{ color: headingColor }}>Contact</h3>
+                {settings?.contact?.content && (
+                  <div className="text-xs whitespace-pre-wrap leading-relaxed mb-4" style={{ color: textColor }}>
+                    {settings.contact.content}
+                  </div>
+                )}
+                {(settings?.facebookUrl || settings?.twitterUrl || settings?.instagramUrl || settings?.linkedinUrl || settings?.youtubeUrl) && (
                   <div className="flex items-center justify-center sm:justify-start space-x-3">
-                    {/* Facebook */}
                     {settings?.facebookUrl && (
                       <a
                         href={settings.facebookUrl}
@@ -191,7 +163,6 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
                         </svg>
                       </a>
                     )}
-                    {/* Twitter */}
                     {settings?.twitterUrl && (
                       <a
                         href={settings.twitterUrl}
@@ -205,7 +176,6 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
                         </svg>
                       </a>
                     )}
-                    {/* Instagram */}
                     {settings?.instagramUrl && (
                       <a
                         href={settings.instagramUrl}
@@ -219,7 +189,6 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
                         </svg>
                       </a>
                     )}
-                    {/* LinkedIn */}
                     {settings?.linkedinUrl && (
                       <a
                         href={settings.linkedinUrl}
@@ -233,7 +202,6 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
                         </svg>
                       </a>
                     )}
-                    {/* YouTube */}
                     {settings?.youtubeUrl && (
                       <a
                         href={settings.youtubeUrl}
@@ -248,19 +216,9 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
                       </a>
                     )}
                   </div>
-                </div>
-              )}
-
-              {/* Contact Information */}
-              {settings?.contact?.content && (
-                <div>
-                  <h3 className="text-sm font-medium mb-4 tracking-wide uppercase" style={{ color: headingColor }}>Contact</h3>
-                  <div className="text-sm whitespace-pre-wrap leading-relaxed" style={{ color: textColor }}>
-                    {settings.contact.content}
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Copyright */}
@@ -271,50 +229,6 @@ const StorefrontFooter: React.FC<StorefrontFooterProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Popups */}
-      {activePopup === 'aboutUs' && settings?.aboutUs?.content && (
-        <ContentPopup
-          title="About Us"
-          content={settings.aboutUs.content}
-          onClose={handlePopupClose}
-        />
-      )}
-      {activePopup === 'privacyPolicy' && settings?.privacyPolicy?.content && (
-        <ContentPopup
-          title="Privacy Policy"
-          content={settings.privacyPolicy.content}
-          onClose={handlePopupClose}
-        />
-      )}
-      {activePopup === 'termsOfService' && settings?.termsOfService?.content && (
-        <ContentPopup
-          title="Terms of Service"
-          content={settings.termsOfService.content}
-          onClose={handlePopupClose}
-        />
-      )}
-      {activePopup === 'shippingInfo' && settings?.shippingInfo?.content && (
-        <ContentPopup
-          title="Shipping Info"
-          content={settings.shippingInfo.content}
-          onClose={handlePopupClose}
-        />
-      )}
-      {activePopup === 'returns' && settings?.returns?.content && (
-        <ContentPopup
-          title="Returns"
-          content={settings.returns.content}
-          onClose={handlePopupClose}
-        />
-      )}
-      {activePopup === 'faq' && settings?.faq?.content && (
-        <ContentPopup
-          title="FAQ"
-          content={settings.faq.content}
-          onClose={handlePopupClose}
-        />
-      )}
     </footer>
   );
 };

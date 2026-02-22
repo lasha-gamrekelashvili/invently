@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { SUBSCRIPTION_GRACE_PERIOD_DAYS } from '../config/pricing.js';
 
 const prisma = new PrismaClient();
 
@@ -32,8 +33,10 @@ function applyStorefrontChecks(req, tenant, errorContext) {
 
   const now = new Date();
   const periodEnd = new Date(subscription.currentPeriodEnd);
+  const graceEnd = new Date(periodEnd);
+  graceEnd.setDate(graceEnd.getDate() + SUBSCRIPTION_GRACE_PERIOD_DAYS);
 
-  if (subscription.status === 'CANCELLED' && periodEnd < now) {
+  if (subscription.status === 'CANCELLED' && graceEnd < now) {
     return (response) => response.status(403).json({
       error: 'Subscription has expired. Please renew to access the store.',
       ...errorContext,
@@ -41,10 +44,14 @@ function applyStorefrontChecks(req, tenant, errorContext) {
   }
 
   if (subscription.status === 'CANCELLED') {
+    const daysRemaining = periodEnd >= now
+      ? Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24))
+      : Math.ceil((graceEnd - now) / (1000 * 60 * 60 * 24));
     req.subscriptionWarning = {
       cancelled: true,
       periodEnd: periodEnd.toISOString(),
-      daysRemaining: Math.ceil((periodEnd - now) / (1000 * 60 * 60 * 24)),
+      graceEnd: graceEnd.toISOString(),
+      daysRemaining: Math.max(0, daysRemaining),
     };
   }
 

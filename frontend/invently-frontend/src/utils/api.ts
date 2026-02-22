@@ -480,7 +480,7 @@ export const paymentAPI = {
   cancelSubscription: (): Promise<Subscription> =>
     api.post('/payments/subscription/cancel').then(res => res.data),
 
-  reactivateSubscription: (): Promise<Subscription> =>
+  reactivateSubscription: (): Promise<Subscription | { subscription: null; paymentRequired: true; paymentId: string }> =>
     api.post('/payments/subscription/reactivate').then(res => res.data),
 };
 

@@ -80,11 +80,14 @@ const Billing = () => {
 
   const reactivateSubscriptionMutation = useMutation({
     mutationFn: () => paymentAPI.reactivateSubscription(),
-    onSuccess: () => {
+    onSuccess: (result: any) => {
+      if (result?.paymentRequired && result?.paymentId) {
+        navigate(path(`payment/${result.paymentId}`));
+        return;
+      }
       handleSuccess(t('billing.subscriptionReactivated'));
       queryClient.invalidateQueries({ queryKey: ['subscription'] });
       queryClient.invalidateQueries({ queryKey: ['tenantPayments'] });
-      // Reload page to refresh auth context (tenant might have been reactivated)
       window.location.reload();
     },
     onError: (error) => {
@@ -173,7 +176,41 @@ const Billing = () => {
               </div>
             </div>
 
-            {subscription.status === 'CANCELLED' && (
+            {subscription.status === 'CANCELLED' && subscription.isInGracePeriod && (
+              <div className="mt-4 pt-4 border-t border-neutral-200">
+                <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                  <div className="flex items-start">
+                    <ClockIcon className="h-5 w-5 text-amber-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-amber-900 mb-1">
+                        <T tKey="billing.overdueNotice" />
+                      </div>
+                      <div className="text-sm text-amber-800 mb-3">
+                        <T tKey="billing.gracePeriodDescription" params={{ days: subscription.daysRemainingInGrace ?? 0 }} />
+                        {' '}
+                        <T tKey="billing.gracePeriodAction" />
+                      </div>
+                      <button
+                        onClick={() => reactivateSubscriptionMutation.mutate()}
+                        disabled={reactivateSubscriptionMutation.isPending}
+                        className="px-3 py-1.5 text-xs font-medium text-white bg-amber-700 border border-amber-700 rounded-md hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {reactivateSubscriptionMutation.isPending ? (
+                          <span className="flex items-center">
+                            <LoadingSpinner className="mr-2" />
+                            <T tKey="billing.reactivating" />
+                          </span>
+                        ) : (
+                          <T tKey="billing.reactivateSubscription" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {subscription.status === 'CANCELLED' && !subscription.isInGracePeriod && (
               <div className="mt-4 pt-4 border-t border-neutral-200">
                 <div className="bg-white border border-neutral-200 rounded-md p-3">
                   <div className="flex items-start">

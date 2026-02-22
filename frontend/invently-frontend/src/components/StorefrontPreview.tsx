@@ -241,8 +241,7 @@ const StorefrontPreview: React.FC<StorefrontPreviewProps> = ({ colors, onReset }
                 </div>
               </div>
               <div className="text-center">
-                <div className="font-medium mb-1.5 uppercase" style={{ color: footerHeadingColor }}>Follow Us</div>
-                <div className="flex gap-1 mt-1.5 justify-center">
+                <div className="flex gap-1 justify-center">
                   <div className="w-3 h-3 rounded-full border" style={{ borderColor: footerLinkColor }}></div>
                   <div className="w-3 h-3 rounded-full border" style={{ borderColor: footerLinkColor }}></div>
                   <div className="w-3 h-3 rounded-full border" style={{ borderColor: footerLinkColor }}></div>

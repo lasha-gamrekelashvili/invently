@@ -3,7 +3,7 @@ import { PaymentRepository } from '../repositories/PaymentRepository.js';
 import { SubscriptionRepository } from '../repositories/SubscriptionRepository.js';
 import { BOGPaymentService } from './BOGPaymentService.js';
 import prisma from '../repositories/BaseRepository.js';
-import { PRICING, calculateBillingPeriod } from '../config/pricing.js';
+import { PRICING, calculateBillingPeriod, SUBSCRIPTION_GRACE_PERIOD_DAYS } from '../config/pricing.js';
 
 export class PaymentService {
   constructor() {
@@ -15,9 +15,10 @@ export class PaymentService {
   }
 
   /**
-   * Creates a payment record with PENDING status
+   * Creates a payment record with PENDING status.
+   * paymentMethod is null until payment completes (then set to BOG).
    */
-  async createPayment(userId, tenantId, type, amount = null, paymentMethod = 'MOCK') {
+  async createPayment(userId, tenantId, type, amount = null, paymentMethod = null) {
     const finalAmount = amount ?? (type === 'SETUP_FEE' ? PRICING.SETUP_FEE : PRICING.MONTHLY_SUBSCRIPTION);
 
     return await this.paymentRepository.create({
@@ -28,98 +29,6 @@ export class PaymentService {
       status: 'PENDING',
       paymentMethod,
     }, {});
-  }
-
-  /**
-   * Processes a payment with transaction safety and idempotency.
-   * For SETUP_FEE: activates tenant and creates subscription.
-   * For MONTHLY_SUBSCRIPTION: renews the subscription period.
-   */
-  async processMockPayment(paymentId, paymentData = {}) {
-    return await prisma.$transaction(async (tx) => {
-      const payment = await tx.payment.findUnique({
-        where: { id: paymentId },
-      });
-
-      if (!payment) {
-        throw new Error('Payment not found');
-      }
-
-      if (payment.status === 'PAID') {
-        return payment;
-      }
-
-      if (payment.status === 'FAILED') {
-        throw new Error('Payment already failed. Please create a new payment.');
-      }
-
-      try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const transactionId = `MOCK-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-
-        const updatedPayment = await tx.payment.update({
-          where: { id: paymentId },
-          data: {
-            status: 'PAID',
-            paymentMethod: 'MOCK',
-            transactionId,
-            metadata: {
-              processedAt: new Date().toISOString(),
-              ...paymentData,
-            },
-          },
-        });
-
-        if (payment.type === 'SETUP_FEE') {
-          await tx.tenant.update({
-            where: { id: payment.tenantId },
-            data: { isActive: true },
-          });
-
-          const { periodStart, periodEnd, nextBillingDate } = calculateBillingPeriod();
-
-          const existingSubscription = await tx.subscription.findUnique({
-            where: { tenantId: payment.tenantId },
-          });
-
-          if (!existingSubscription) {
-            await tx.subscription.create({
-              data: {
-                tenantId: payment.tenantId,
-                status: 'ACTIVE',
-                currentPeriodStart: periodStart,
-                currentPeriodEnd: periodEnd,
-                nextBillingDate,
-              },
-            });
-          }
-        }
-
-        if (payment.type === 'MONTHLY_SUBSCRIPTION') {
-          await this.renewSubscriptionInTransaction(tx, payment.tenantId);
-        }
-
-        return updatedPayment;
-
-      } catch (error) {
-        await tx.payment.update({
-          where: { id: paymentId },
-          data: {
-            status: 'FAILED',
-            metadata: {
-              error: error.message,
-              failedAt: new Date().toISOString(),
-            },
-          },
-        });
-
-        throw new Error(`Payment processing failed: ${error.message}`);
-      }
-    }, {
-      isolationLevel: 'Serializable',
-      timeout: 30000,
-    });
   }
 
   /**
@@ -444,8 +353,6 @@ export class PaymentService {
       PRICING.MONTHLY_SUBSCRIPTION
     );
 
-    await this.processMockPayment(payment.id);
-
     return payment;
   }
 
@@ -516,7 +423,7 @@ export class PaymentService {
       return reactivatedSubscription;
     }
 
-    // Expired: require new payment
+    // Expired: create payment and return paymentId for user to complete payment
     const payment = await this.createPayment(
       tenant.ownerId,
       tenantId,
@@ -524,23 +431,30 @@ export class PaymentService {
       PRICING.MONTHLY_SUBSCRIPTION
     );
 
-    await this.processMockPayment(payment.id);
+    return { subscription: null, paymentRequired: true, paymentId: payment.id };
+  }
 
-    const updatedSubscription = await this.subscriptionRepository.findByTenantId(tenantId);
+  /**
+   * Marks an ACTIVE subscription as CANCELLED when the period has ended without renewal payment.
+   * Called by scheduled job. After this, the subscription gets the grace period, then handleSubscriptionExpiry.
+   */
+  async markSubscriptionLapsed(tenantId) {
+    const subscription = await this.subscriptionRepository.findByTenantId(tenantId);
+    if (!subscription || subscription.status !== 'ACTIVE') return subscription;
 
-    if (!tenant.isActive) {
-      await prisma.tenant.update({
-        where: { id: tenantId },
-        data: { isActive: true },
-      });
-    }
+    const now = new Date();
+    const periodEnd = new Date(subscription.currentPeriodEnd);
+    if (periodEnd >= now) return subscription;
 
-    return updatedSubscription;
+    return await this.subscriptionRepository.update(subscription.id, {
+      status: 'CANCELLED',
+      cancelledAt: new Date(),
+    });
   }
 
   /**
    * Handles subscription expiry by deactivating tenant and marking subscription as expired.
-   * Called by scheduled job for cancelled subscriptions past their period end.
+   * Called by scheduled job for cancelled subscriptions past their grace period (period end + 7 days).
    */
   async handleSubscriptionExpiry(tenantId) {
     return await prisma.$transaction(async (tx) => {
@@ -622,6 +536,34 @@ export class PaymentService {
 
       return subscription;
     });
+  }
+
+  /**
+   * Enriches a subscription with grace period metadata for CANCELLED subscriptions past period end.
+   * Adds: isInGracePeriod, daysRemainingInGrace, graceEnd.
+   */
+  enrichSubscriptionWithGracePeriod(subscription) {
+    if (!subscription || subscription.status !== 'CANCELLED') {
+      return subscription;
+    }
+
+    const now = new Date();
+    const periodEnd = new Date(subscription.currentPeriodEnd);
+    if (periodEnd >= now) {
+      return subscription;
+    }
+
+    const graceEnd = new Date(periodEnd);
+    graceEnd.setDate(graceEnd.getDate() + SUBSCRIPTION_GRACE_PERIOD_DAYS);
+
+    const daysRemainingInGrace = Math.max(0, Math.ceil((graceEnd - now) / (1000 * 60 * 60 * 24)));
+
+    return {
+      ...subscription,
+      isInGracePeriod: graceEnd > now,
+      daysRemainingInGrace,
+      graceEnd: graceEnd.toISOString(),
+    };
   }
 
   /**

@@ -34,6 +34,7 @@ import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFail from './pages/CheckoutFail';
 import PlatformAdmin from './pages/PlatformAdmin';
 import LegalPage from './pages/LegalPage';
+import StorefrontLegalPage from './pages/StorefrontLegalPage';
 import PaymentPage from './pages/PaymentPage';
 import Billing from './pages/Billing';
 
@@ -125,6 +126,13 @@ const AppRoutes = () => {
       <Route path="/checkout" element={<StorefrontProtection><CheckoutPage /></StorefrontProtection>} />
       <Route path="/checkout/success" element={<CheckoutSuccess />} />
       <Route path="/checkout/fail" element={<CheckoutFail />} />
+      {/* Storefront legal/content pages - redirect to full page like main site */}
+      <Route path="/about" element={<StorefrontProtection><StorefrontLegalPage /></StorefrontProtection>} />
+      <Route path="/privacy" element={<StorefrontProtection><StorefrontLegalPage /></StorefrontProtection>} />
+      <Route path="/terms" element={<StorefrontProtection><StorefrontLegalPage /></StorefrontProtection>} />
+      <Route path="/shipping" element={<StorefrontProtection><StorefrontLegalPage /></StorefrontProtection>} />
+      <Route path="/returns" element={<StorefrontProtection><StorefrontLegalPage /></StorefrontProtection>} />
+      <Route path="/faq" element={<StorefrontProtection><StorefrontLegalPage /></StorefrontProtection>} />
       {/* Redirect /admin/* to main-domain path-based dashboard */}
       <Route path="/admin/*" element={<AdminRedirect />} />
 

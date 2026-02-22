@@ -4,7 +4,6 @@ import { useCart } from '../contexts/CartContext';
 import { ordersAPI } from '../utils/api';
 import {
   XMarkIcon,
-  CreditCardIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
@@ -239,20 +238,6 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                       <div className="flex justify-between font-semibold">
                         <span>Total:</span>
                         <span>${cart?.total.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mock Payment Info */}
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <CreditCardIcon className="h-5 w-5 text-gray-700 mt-0.5 mr-2" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">Mock Payment</p>
-                        <p className="text-sm text-gray-700">
-                          This is a demo checkout. No real payment will be processed.
-                          All orders will be automatically marked as paid.
-                        </p>
                       </div>
                     </div>
                   </div>

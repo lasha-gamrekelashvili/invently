@@ -208,6 +208,8 @@ export interface Subscription {
   currentPeriodEnd: string;
   nextBillingDate: string;
   cancelledAt?: string;
+  isInGracePeriod?: boolean;
+  daysRemainingInGrace?: number;
   createdAt: string;
   updatedAt: string;
   tenant?: {
