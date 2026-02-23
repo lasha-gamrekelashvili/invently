@@ -44,18 +44,28 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const result = await this.authRepository.createUserWithTenant(
-      {
-        email,
-        password: hashedPassword,
-        role: 'STORE_OWNER',
-      },
-      {
-        name: tenantName,
-        subdomain,
-        isActive: false,
+    let result;
+    try {
+      result = await this.authRepository.createUserWithTenant(
+        {
+          email,
+          password: hashedPassword,
+          role: 'STORE_OWNER',
+        },
+        {
+          name: tenantName,
+          subdomain,
+          isActive: false,
+        }
+      );
+    } catch (err) {
+      // P2002 = Prisma unique constraint violation (race condition between check and insert)
+      if (err.code === 'P2002') {
+        const field = err.meta?.target?.includes('email') ? 'email' : 'subdomain';
+        throw new Error(field === 'email' ? 'User with this email already exists' : 'Subdomain already taken');
       }
-    );
+      throw err;
+    }
 
     // Send email confirmation code
     await this.verificationService.createAndSendCode(

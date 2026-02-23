@@ -11,7 +11,8 @@ const BOG_OAUTH_URL = process.env.BOG_OAUTH_URL || 'https://oauth2-sandbox.bog.g
 const BOG_API_URL = process.env.BOG_API_URL || 'https://api-sandbox.bog.ge/payments/v1';
 
 // BOG public key for callback signature verification (SHA256withRSA)
-// Sandbox and production use different keys — set BOG_CALLBACK_PUBLIC_KEY env var for production
+// BOG uses the same public key for both sandbox and production environments.
+// Override via BOG_CALLBACK_PUBLIC_KEY env var if BOG ever rotates it.
 const BOG_CALLBACK_PUBLIC_KEY = process.env.BOG_CALLBACK_PUBLIC_KEY || `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqczfAuhtxw2iF68kS0Hy
 bGSv0ZlDAjsXh6VC8avDl3Vxa9qCn6Pzl37Tl2Z21WodiISLeXdhCtOMTeLNUBeb
@@ -67,7 +68,7 @@ export class BOGPaymentService {
       token: data.access_token,
       expiresAt: typeof data.expires_in === 'number'
         ? now + (data.expires_in * 1000)
-        : (data.expires_in || 0),
+        : now + (5 * 60 * 1000), // default 5-minute TTL if expires_in is missing
     };
 
     return this.tokenCache.token;

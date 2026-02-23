@@ -185,6 +185,31 @@ export class OrderService {
         idempotencyKey: order.id,
       });
     } catch (bogError) {
+      // BOG call failed after stock was already decremented — restore stock and cancel order
+      console.error('[OrderService] BOG createOrder failed, restoring stock for order', order.id, bogError.message);
+      try {
+        await prisma.$transaction(async (tx) => {
+          await tx.order.update({
+            where: { id: order.id },
+            data: { paymentStatus: 'FAILED', status: 'CANCELLED' },
+          });
+          for (const item of cart.items) {
+            if (item.variantId) {
+              await tx.productVariant.update({
+                where: { id: item.variantId },
+                data: { stockQuantity: { increment: item.quantity } },
+              });
+            } else {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: { stockQuantity: { increment: item.quantity } },
+              });
+            }
+          }
+        });
+      } catch (rollbackError) {
+        console.error('[OrderService] Stock restoration failed for order', order.id, rollbackError.message);
+      }
       if (bogError.message?.includes('must be configured')) {
         throw new Error('Payment gateway is not configured. Please contact support.');
       }
@@ -240,14 +265,20 @@ export class OrderService {
       }
     );
 
-    if (!order || order.paymentStatus === 'PAID') {
-      return order;
+    if (!order) {
+      return null;
     }
 
-    await this.orderRepository.update(orderId, {
-      paymentStatus: 'PAID',
-      status: 'CONFIRMED',
+    // Atomic conditional update — only succeeds if still PENDING, preventing double-processing
+    const updated = await prisma.order.updateMany({
+      where: { id: orderId, paymentStatus: { not: 'PAID' } },
+      data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
     });
+
+    if (updated.count === 0) {
+      // Already processed by a concurrent webhook call
+      return order;
+    }
 
     if (order.sessionId) {
       const cart = await prisma.cart.findFirst({
@@ -265,33 +296,28 @@ export class OrderService {
     const frontendBaseUrl = (process.env.PLATFORM_FRONTEND_URL || 'https://shopu.ge').replace(/\/$/, '');
     const dashboardOrderUrl = this.buildDashboardOrderUrl(frontendBaseUrl, tenantId, customDomain, finalOrder.id);
 
-    const ownerEmail = tenant?.owner?.email;
-    if (ownerEmail) {
-      try {
-        await this.emailService.sendOrderNotificationToOwner({
+    // Send emails asynchronously — do not block the webhook response
+    setImmediate(() => {
+      const ownerEmail = tenant?.owner?.email;
+      if (ownerEmail) {
+        this.emailService.sendOrderNotificationToOwner({
           email: ownerEmail,
           customerName: finalOrder.customerName,
           orderNumber: finalOrder.orderNumber,
           items: finalOrder.items || [],
           totalAmount: finalOrder.totalAmount,
           dashboardOrderUrl,
-        });
-      } catch (error) {
-        console.error('Order confirmation email failed:', error);
+        }).catch(error => console.error('[OrderService] Owner notification email failed:', error.message));
       }
-    }
 
-    try {
-      await this.emailService.sendOrderConfirmation({
+      this.emailService.sendOrderConfirmation({
         email: finalOrder.customerEmail,
         customerName: finalOrder.customerName,
         orderNumber: finalOrder.orderNumber,
         items: finalOrder.items || [],
         totalAmount: finalOrder.totalAmount,
-      });
-    } catch (error) {
-      console.error('Customer order confirmation email failed:', error);
-    }
+      }).catch(error => console.error('[OrderService] Customer confirmation email failed:', error.message));
+    });
 
     return finalOrder;
   }

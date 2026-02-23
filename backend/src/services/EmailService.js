@@ -28,11 +28,8 @@ export class EmailService {
     const toList = Array.isArray(to) ? to : [to];
 
     if (!this.resend) {
-      console.log('=== EMAIL (fallback: Resend not configured) ===');
-      console.log('To:', toList.join(', '));
-      console.log('Subject:', subject);
-      console.log('Body:', text || html);
-      console.log('================================================');
+      // Log only non-sensitive metadata — never log body, codes, or email addresses
+      console.log(`[EmailService] Fallback (Resend not configured) — would send: subject="${subject}" to=${toList.length} recipient(s)`);
       return { id: 'local-' + Date.now() };
     }
 

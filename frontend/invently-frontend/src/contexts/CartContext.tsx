@@ -31,7 +31,7 @@ const generateSessionId = () => {
   const existing = localStorage.getItem('cart_session_id');
   if (existing) return existing;
 
-  const newSessionId = 'session_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+  const newSessionId = 'session_' + crypto.randomUUID();
   localStorage.setItem('cart_session_id', newSessionId);
   return newSessionId;
 };

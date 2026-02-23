@@ -113,9 +113,18 @@ async function runSubscriptionJobs() {
     if (lapsedResult.processed > 0) {
       console.log(`[SubscriptionJob] Marked ${lapsedResult.processed} lapsed subscriptions (ACTIVE→CANCELLED)`);
     }
+    if (lapsedResult.errors.length > 0) {
+      console.error(`[SubscriptionJob] ALERT: ${lapsedResult.errors.length} lapsed subscription(s) failed to process:`,
+        lapsedResult.errors.map(e => `tenantId=${e.tenantId} err=${e.error}`).join('; '));
+    }
+
     const expiredResult = await processExpiredSubscriptions();
     if (expiredResult.processed > 0) {
       console.log(`[SubscriptionJob] Processed ${expiredResult.processed} expired subscriptions`);
+    }
+    if (expiredResult.errors.length > 0) {
+      console.error(`[SubscriptionJob] ALERT: ${expiredResult.errors.length} expiry subscription(s) failed to process:`,
+        expiredResult.errors.map(e => `tenantId=${e.tenantId} err=${e.error}`).join('; '));
     }
   } catch (error) {
     console.error('[SubscriptionJob] Job failed:', error);

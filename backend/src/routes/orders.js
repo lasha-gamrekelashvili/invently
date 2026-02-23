@@ -1,9 +1,18 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import orderController from '../controllers/orderController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import tenantResolver from '../middleware/tenantResolver.js';
 import { validate, schemas } from '../utils/validation.js';
 import Joi from 'joi';
+
+const checkoutLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // 5 checkout attempts per IP per minute
+  message: { error: 'Too many checkout attempts, please try again shortly' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const router = express.Router();
 
@@ -125,7 +134,7 @@ const updateOrderStatusSchema = Joi.object({
  *       500:
  *         description: Server error
  */
-router.post('/', validate(createOrderSchema), orderController.createOrder);
+router.post('/', checkoutLimiter, validate(createOrderSchema), orderController.createOrder);
 
 /**
  * @swagger

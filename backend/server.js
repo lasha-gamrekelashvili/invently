@@ -1,4 +1,13 @@
 import 'dotenv/config';
+
+// Fail fast if required environment variables are missing
+const REQUIRED_ENV_VARS = ['DATABASE_URL', 'JWT_SECRET'];
+const missingVars = REQUIRED_ENV_VARS.filter(v => !process.env[v]);
+if (missingVars.length > 0) {
+  console.error(`[Startup] Missing required environment variables: ${missingVars.join(', ')}`);
+  process.exit(1);
+}
+
 import express, { json, urlencoded, static as expressStatic } from 'express';
 import cors from 'cors';
 import { join, dirname } from 'path';
@@ -21,6 +30,7 @@ import bogRoutes from './src/routes/bog.js';
 import sitemapRoutes from './src/routes/sitemap.js';
 
 import { serve, setup } from './src/config/swagger.js';
+import { randomUUID } from 'crypto';
 
 import { startSubscriptionExpiryJob, stopSubscriptionExpiryJob } from './src/jobs/subscriptionJobs.js';
 import { EmailService } from './src/services/EmailService.js';
@@ -31,6 +41,10 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 const prisma = new PrismaClient();
+
+// In-memory cache for custom domain CORS lookups (avoids a DB hit on every request)
+const customDomainCache = new Map(); // hostname → { allowed: bool, expiresAt: number }
+const CORS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 let subscriptionJobId = null;
 
@@ -66,9 +80,14 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // For custom domains, check if they're registered in database
+    // For custom domains, check cache first then database
     try {
       const hostname = new URL(origin).hostname.toLowerCase();
+      const cached = customDomainCache.get(hostname);
+      if (cached && cached.expiresAt > Date.now()) {
+        return cached.allowed ? callback(null, true) : callback(new Error('Not allowed by CORS'));
+      }
+
       const tenant = await prisma.tenant.findFirst({
         where: {
           OR: [
@@ -79,8 +98,11 @@ app.use(cors({
           customDomain: { not: null }
         }
       });
-      
-      if (tenant) {
+
+      const allowed = !!tenant;
+      customDomainCache.set(hostname, { allowed, expiresAt: Date.now() + CORS_CACHE_TTL_MS });
+
+      if (allowed) {
         return callback(null, true);
       }
     } catch (error) {
@@ -93,6 +115,13 @@ app.use(cors({
   },
   credentials: true
 }));
+
+// Attach a unique request ID to every request for tracing
+app.use((req, res, next) => {
+  req.requestId = randomUUID();
+  res.setHeader('X-Request-Id', req.requestId);
+  next();
+});
 
 // BOG callback needs raw body for signature verification - must be before json()
 app.use('/api/bog', express.raw({ type: 'application/json' }), bogRoutes);

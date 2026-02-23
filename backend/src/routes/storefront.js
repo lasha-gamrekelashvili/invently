@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   getStoreInfo,
   getPublicCategories,
@@ -13,7 +14,16 @@ import storefrontTenantResolver from '../middleware/storefrontTenantResolver.js'
 
 const router = express.Router();
 
+const storefrontLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 120, // 120 requests per IP per minute (generous for browsing)
+  message: { error: 'Too many requests, please slow down' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 router.use(storefrontTenantResolver);
+router.use(storefrontLimiter);
 
 /**
  * @swagger

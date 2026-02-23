@@ -21,8 +21,14 @@ export const handleBOGCallback = async (req, res) => {
     return res.status(400).send('Missing body');
   }
 
-  if (signature && !bogPayment.verifyCallbackSignature(rawBody, signature)) {
-    console.warn('[BOG callback] Signature verification failed — processing anyway');
+  if (!signature) {
+    console.warn('[BOG callback] Missing Callback-Signature header — rejecting');
+    return res.status(403).send('Missing signature');
+  }
+
+  if (!bogPayment.verifyCallbackSignature(rawBody, signature)) {
+    console.error('[BOG callback] Signature verification FAILED — rejecting');
+    return res.status(403).send('Invalid signature');
   }
 
   let body;

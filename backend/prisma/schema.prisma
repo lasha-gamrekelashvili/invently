@@ -141,6 +141,7 @@ model Cart {
   items         CartItem[]
   tenant        Tenant     @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, sessionId])
   @@map("carts")
 }
 
@@ -180,6 +181,8 @@ model Order {
   items           OrderItem[]
   tenant          Tenant        @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, createdAt])
+  @@index([tenantId, paymentStatus])
   @@map("orders")
 }
 

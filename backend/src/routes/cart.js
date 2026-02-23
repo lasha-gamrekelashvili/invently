@@ -1,13 +1,23 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import cartController from '../controllers/cartController.js';
 import storefrontTenantResolver from '../middleware/storefrontTenantResolver.js';
 import { validate, schemas } from '../utils/validation.js';
 import Joi from 'joi';
 
+const cartLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // 60 cart operations per IP per minute
+  message: { error: 'Too many requests, please slow down' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const router = express.Router();
 
 // Apply storefront tenant middleware (requires active tenant + subscription)
 router.use(storefrontTenantResolver);
+router.use(cartLimiter);
 
 // Validation schemas
 const addToCartSchema = Joi.object({
