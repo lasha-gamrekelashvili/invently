@@ -379,7 +379,7 @@ const VariantManager: React.FC<VariantManagerProps> = ({
                       {/* Price and Stock info */}
                       <div className="text-sm text-gray-600">
                         <span>
-                          <T tKey="products.variants.priceLabel" />: {variant.price ? `$${variant.price.toFixed(2)}` : t('products.variants.basePrice')}
+                          <T tKey="products.variants.priceLabel" />: {variant.price ? `₾${variant.price.toFixed(2)}` : t('products.variants.basePrice')}
                         </span>
                         <span className="mx-2">•</span>
                         <span>

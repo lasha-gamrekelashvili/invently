@@ -133,7 +133,7 @@ const Orders = () => {
       header: t('common.total'),
       render: (order) => (
         <span className="text-sm text-neutral-900">
-          ${order.totalAmount.toFixed(2)}
+          ₾{order.totalAmount.toFixed(2)}
         </span>
       )
     },

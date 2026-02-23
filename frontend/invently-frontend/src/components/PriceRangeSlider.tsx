@@ -155,9 +155,9 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({
   }, [isDragging, dragIndex, sliderValues]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('ka-GE', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'GEL',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);

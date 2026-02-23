@@ -47,8 +47,8 @@
     "items": "items",
     "from": "From",
     "to": "To",
-    "minPrice": "Min $",
-    "maxPrice": "Max $",
+    "minPrice": "Min ₾",
+    "maxPrice": "Max ₾",
     "clearFilters": "Clear filters",
     "selectOption": "Select an option",
     "saveChanges": "Save changes",
@@ -336,7 +336,7 @@
       "category": "Category",
       "selectCategory": "Select a category",
       "pricing": "Pricing & Inventory",
-      "basePrice": "Base Price ($)",
+      "basePrice": "Base Price (₾)",
       "basePricePlaceholder": "0.00",
       "basePriceHelp": "Can be overridden by variant prices",
       "stockQuantity": "Base Stock Quantity",
@@ -553,7 +553,7 @@
         "description": "Product price (decimal number). For variants, each can have its own price.",
         "example1": "999.99",
         "example2": "29.99",
-        "badExample": "$29.99 (don't include currency symbol)"
+        "badExample": "₾29.99 (don't include currency symbol)"
       },
       "stock": {
         "title": "Stock",
@@ -611,7 +611,7 @@
       "phoneVariants": {
         "title": "Example 4: Phone with Storage & Color Variants",
         "comment1": "Creates: 1 product with 5 variants (different storage sizes and colors)",
-        "comment2": "Each storage upgrade increases price by $100"
+        "comment2": "Each storage upgrade increases price by ₾100"
       }
     },
     "mistakes": {
@@ -624,7 +624,7 @@
       },
       "currency": {
         "title": "Including currency symbols in price",
-        "bad": "$29.99",
+        "bad": "₾29.99",
         "good": "29.99"
       },
       "variantFormat": {

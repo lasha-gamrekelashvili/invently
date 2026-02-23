@@ -161,7 +161,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                           </div>
                         )}
                         <p className={`text-sm ${isProductGone ? 'text-neutral-400' : 'text-neutral-600'}`}>
-                          ${item.price.toFixed(2)} each
+                          ₾{item.price.toFixed(2)} each
                         </p>
                         
                         {/* Stock indicator for items with stock issues */}
@@ -221,7 +221,7 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
                       {/* Item Total */}
                       <div className="text-right">
                         <p className={`text-lg font-medium ${isUnavailable ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ₾{(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -283,14 +283,14 @@ const Cart: React.FC<CartProps> = ({ onClose, isClosing = false }) => {
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm text-neutral-600">
                 <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>₾{cartTotal.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Total */}
             <div className="flex justify-between items-center pt-3 border-t border-neutral-300">
               <span className="text-lg font-medium text-neutral-900">Total</span>
-              <span className="text-2xl font-medium text-neutral-900">${cartTotal.toFixed(2)}</span>
+              <span className="text-2xl font-medium text-neutral-900">₾{cartTotal.toFixed(2)}</span>
             </div>
 
             {/* Actions */}

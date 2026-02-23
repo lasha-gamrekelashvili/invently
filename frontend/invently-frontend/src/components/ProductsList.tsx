@@ -163,7 +163,7 @@ const ProductsList = ({
         
         return (
           <span className="text-sm text-gray-900">
-            ${product.price.toFixed(2)}
+            ₾{product.price.toFixed(2)}
           </span>
         );
       }

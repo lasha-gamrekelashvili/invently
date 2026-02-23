@@ -67,7 +67,7 @@ const Dashboard = () => {
     },
     {
       name: t('dashboard.stats.totalRevenue'),
-      value: `$${(orderStats?.monthlyRevenue || 0).toFixed(2)}`,
+      value: `₾${(orderStats?.monthlyRevenue || 0).toFixed(2)}`,
       icon: CurrencyDollarIcon,
       color: 'text-neutral-900',
       bgColor: 'bg-neutral-50',
@@ -236,7 +236,7 @@ const Dashboard = () => {
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-stone-800 truncate">{order.orderNumber}</div>
                     <div className="text-sm text-neutral-500 mt-1">
-                      <span className="font-medium">${order.totalAmount.toFixed(2)}</span> •
+                      <span className="font-medium">₾{order.totalAmount.toFixed(2)}</span> •
                       <span className="truncate ml-1">{order.customerName}</span>
                     </div>
                     <div className="text-xs text-neutral-400">

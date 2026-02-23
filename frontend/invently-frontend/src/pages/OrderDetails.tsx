@@ -276,7 +276,7 @@ const OrderDetails = () => {
                         <div className="flex items-center text-xs text-gray-500 mt-0.5">
                           <span>{t('orders.orderDetails.sections.orderItems.quantity')}: {item.quantity}</span>
                           <span className="mx-1.5">•</span>
-                          <span>{t('orders.orderDetails.sections.orderItems.unitPrice')}: ${item.price.toFixed(2)}</span>
+                          <span>{t('orders.orderDetails.sections.orderItems.unitPrice')}: ₾{item.price.toFixed(2)}</span>
                         </div>
                         {item.variantData && Object.keys(item.variantData).length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
@@ -292,7 +292,7 @@ const OrderDetails = () => {
                       {/* Item Total */}
                       <div className="text-right ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ₾{(item.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -303,7 +303,7 @@ const OrderDetails = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-700">{t('orders.orderDetails.sections.orderItems.totalAmount')}:</span>
                   <span className="text-lg font-semibold text-gray-900">
-                    ${order.totalAmount.toFixed(2)}
+                    ₾{order.totalAmount.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -471,7 +471,7 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">{t('orders.orderDetails.sections.payment.totalAmount')}:</span>
-                  <span className="text-sm font-semibold text-gray-900">${order.totalAmount.toFixed(2)}</span>
+                  <span className="text-sm font-semibold text-gray-900">₾{order.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>

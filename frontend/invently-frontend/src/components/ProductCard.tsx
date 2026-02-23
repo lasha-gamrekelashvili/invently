@@ -170,11 +170,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="mt-auto pt-2">
           {priceInfo.hasVariants && !selectedVariant ? (
             <p className="text-lg sm:text-xl font-light tracking-tight" style={{ color: productCardPriceTextColor }}>
-              ${priceInfo.minPrice.toFixed(2)}
+              ₾{priceInfo.minPrice.toFixed(2)}
               {priceInfo.minPrice !== priceInfo.maxPrice && <span className="text-sm font-normal" style={{ color: productCardCategoryTextColor }}> +</span>}
             </p>
           ) : (
-            <p className="text-lg sm:text-xl font-light tracking-tight" style={{ color: productCardPriceTextColor }}>${displayPrice.toFixed(2)}</p>
+            <p className="text-lg sm:text-xl font-light tracking-tight" style={{ color: productCardPriceTextColor }}>₾{displayPrice.toFixed(2)}</p>
           )}
         </div>
       </div>

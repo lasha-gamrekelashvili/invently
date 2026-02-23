@@ -230,14 +230,14 @@ const Checkout: React.FC<CheckoutProps> = ({ isOpen, onClose }) => {
                       {cart?.items.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm">
                           <span>{item.product.title} × {item.quantity}</span>
-                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          <span>₾{(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
                     <div className="border-t border-gray-200 mt-3 pt-3">
                       <div className="flex justify-between font-semibold">
                         <span>Total:</span>
-                        <span>${cart?.total.toFixed(2)}</span>
+                        <span>₾{cart?.total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
