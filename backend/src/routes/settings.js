@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { getSettings, updateSettings, updateTenantSubdomain, updateTenantCustomDomain } from '../controllers/settingsController.js';
+import { getSettings, updateSettings, updateTenantSubdomain, updateTenantCustomDomain, enablePayments } from '../controllers/settingsController.js';
 import { authenticateToken, requireStoreOwner } from '../middleware/auth.js';
 import tenantResolver from '../middleware/tenantResolver.js';
 import { validate, schemas } from '../utils/validation.js';
@@ -175,6 +175,9 @@ router.get('/', getSettings);
 
 // PUT /api/settings
 router.put('/', updateSettings);
+
+// PUT /api/settings/enable-payments (requires iban + businessIdentifier in body)
+router.put('/enable-payments', validate(schemas.enablePayments), enablePayments);
 
 // PUT /api/settings/tenant/subdomain
 router.put('/tenant/subdomain', validate(schemas.updateTenantSubdomain), updateTenantSubdomain);

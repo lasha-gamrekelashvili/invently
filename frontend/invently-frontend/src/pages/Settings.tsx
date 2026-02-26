@@ -26,6 +26,8 @@ const Settings = () => {
   const [passwordCode, setPasswordCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  type PaymentMode = 'catalogue' | 'orders_without_payment' | 'full';
+  const [selectedPaymentMode, setSelectedPaymentMode] = useState<PaymentMode>('catalogue');
 
   // Fetch settings
   const { data: settingsResponse, isLoading } = useQuery({
@@ -39,6 +41,10 @@ const Settings = () => {
       setFormData(settingsResponse);
       if (settingsResponse.subdomain !== undefined) setSubdomain(settingsResponse.subdomain || '');
       if (settingsResponse.customDomain !== undefined) setCustomDomain(settingsResponse.customDomain || '');
+      // Sync payment mode from server
+      if (settingsResponse.paymentsEnabled) setSelectedPaymentMode('full');
+      else if (settingsResponse.allowOrdersWithoutPayment) setSelectedPaymentMode('orders_without_payment');
+      else setSelectedPaymentMode('catalogue');
     }
   }, [settingsResponse]);
 
@@ -64,17 +70,17 @@ const Settings = () => {
     },
   });
 
-  // Update IBAN mutation
-  const updateIbanMutation = useMutation({
-    mutationFn: authAPI.updateIban,
-    onSuccess: (data) => {
-      handleSuccess(t('settings.messages.ibanUpdated'));
+  // Enable payments mutation (sets IBAN, business ID, paymentsEnabled) (IBAN + business identifier required)
+  const enablePaymentsMutation = useMutation({
+    mutationFn: (data: { iban: string; businessIdentifier: string }) => settingsAPI.enablePayments(data),
+    onSuccess: (data: { message?: string; user?: { iban?: string }; settings?: any; tenant?: any }) => {
+      handleSuccess(data.message || t('settings.messages.updateSettingsSuccess'));
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
-      // Update local state
-      setIban(data.user.iban || '');
+      if (data.user?.iban) setIban(data.user.iban);
     },
     onError: (error) => {
-      handleApiError(error, t('settings.messages.updateIbanError'));
+      handleApiError(error, t('settings.messages.updateSettingsError'));
     },
   });
 
@@ -182,20 +188,32 @@ const Settings = () => {
       if (profileData.email !== user?.email) profileUpdates.email = profileData.email;
 
       const hasProfileChanges = Object.keys(profileUpdates).length > 0;
-      const hasIbanChange = iban !== (user?.iban || '');
       const loadedSubdomain = settingsResponse?.subdomain || '';
       const loadedCustomDomain = settingsResponse?.customDomain || '';
       const hasSubdomainChange = subdomain && subdomain !== loadedSubdomain;
       const hasCustomDomainChange = customDomain !== loadedCustomDomain;
-
-      // Collect all mutations
       const mutations: Promise<any>[] = [];
-      
+
       if (hasProfileChanges) {
         mutations.push(updateProfileMutation.mutateAsync(profileUpdates));
       }
-      if (hasIbanChange) {
-        mutations.push(updateIbanMutation.mutateAsync(iban));
+      if (selectedPaymentMode === 'catalogue') {
+        mutations.push(updateSettingsMutation.mutateAsync({
+          paymentsEnabled: false,
+          allowOrdersWithoutPayment: false,
+          catalogueOnlyMessage: formData.catalogueOnlyMessage ?? null,
+        }));
+      } else if (selectedPaymentMode === 'orders_without_payment') {
+        mutations.push(updateSettingsMutation.mutateAsync({
+          paymentsEnabled: false,
+          allowOrdersWithoutPayment: true,
+        }));
+      } else if (selectedPaymentMode === 'full') {
+        if (!iban.trim() || !(formData.businessIdentifier ?? '').trim()) {
+          handleApiError({ message: 'IBAN and business identifier are required for full payments' }, t('settings.messages.updateSettingsError'));
+          return;
+        }
+        mutations.push(enablePaymentsMutation.mutateAsync({ iban: iban.trim(), businessIdentifier: (formData.businessIdentifier ?? '').trim() }));
       }
       if (hasSubdomainChange) {
         mutations.push(updateSubdomainMutation.mutateAsync(subdomain));
@@ -568,25 +586,93 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Payment Information */}
+              {/* Storefront Payments – three options, no popup */}
               <div className="border-t pt-6">
                 <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.payment.title')}</h4>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.account.iban.label')}
+                <div className="space-y-3 mb-4">
+                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      checked={selectedPaymentMode === 'catalogue'}
+                      onChange={() => setSelectedPaymentMode('catalogue')}
+                      className="mt-1 h-4 w-4 text-neutral-800 border-gray-300 focus:ring-neutral-500"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">{t('settings.account.payment.modeCatalogueOnly')}</span>
+                      <p className="text-xs text-gray-500 mt-0.5">{t('settings.account.payment.modeCatalogueOnlyDesc')}</p>
+                    </div>
                   </label>
-                  <input
-                    type="text"
-                    value={iban}
-                    onChange={(e) => setIban(e.target.value)}
-                    className="input-field"
-                    placeholder={t('settings.account.iban.placeholder')}
-                    maxLength={34}
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    {t('settings.account.iban.helpText')}
-                  </p>
+                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      checked={selectedPaymentMode === 'orders_without_payment'}
+                      onChange={() => setSelectedPaymentMode('orders_without_payment')}
+                      className="mt-1 h-4 w-4 text-neutral-800 border-gray-300 focus:ring-neutral-500"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">{t('settings.account.payment.modeOrdersWithoutPayment')}</span>
+                      <p className="text-xs text-gray-500 mt-0.5">{t('settings.account.payment.modeOrdersWithoutPaymentDesc')}</p>
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
+                    <input
+                      type="radio"
+                      name="paymentMode"
+                      checked={selectedPaymentMode === 'full'}
+                      onChange={() => setSelectedPaymentMode('full')}
+                      className="mt-1 h-4 w-4 text-neutral-800 border-gray-300 focus:ring-neutral-500"
+                    />
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">{t('settings.account.payment.modeFullPayments')}</span>
+                      <p className="text-xs text-gray-500 mt-0.5">{t('settings.account.payment.modeFullPaymentsDesc')}</p>
+                    </div>
+                  </label>
                 </div>
+                {selectedPaymentMode === 'catalogue' && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.account.payment.catalogueMessageLabel')}</label>
+                    <textarea
+                      value={formData.catalogueOnlyMessage ?? ''}
+                      onChange={(e) => handleInputChange('catalogueOnlyMessage', e.target.value)}
+                      className="input-field"
+                      rows={3}
+                      placeholder={t('settings.account.payment.catalogueMessagePlaceholder')}
+                    />
+                    <p className="mt-1 text-sm text-gray-500">{t('settings.account.payment.catalogueMessageHelp')}</p>
+                  </div>
+                )}
+                {selectedPaymentMode === 'orders_without_payment' && (
+                  <p className="text-sm text-gray-500 mb-4">{t('settings.account.payment.allowOrdersWithoutPaymentHelp')}</p>
+                )}
+                {selectedPaymentMode === 'full' && (
+                  <div className="space-y-4 rounded-lg border border-gray-200 p-4 bg-gray-50">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.account.payment.modal.iban')}</label>
+                      <input
+                        type="text"
+                        value={iban}
+                        onChange={(e) => setIban(e.target.value)}
+                        className="input-field"
+                        placeholder={t('settings.account.payment.modal.ibanPlaceholder')}
+                        maxLength={34}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">{t('settings.account.payment.modal.ibanHelp')}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.account.payment.modal.businessIdentifier')}</label>
+                      <input
+                        type="text"
+                        value={formData.businessIdentifier ?? ''}
+                        onChange={(e) => handleInputChange('businessIdentifier', e.target.value)}
+                        className="input-field"
+                        placeholder={t('settings.account.payment.modal.businessIdentifierPlaceholder')}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">{t('settings.account.payment.modal.businessIdentifierHelp')}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Password Change */}
@@ -696,11 +782,11 @@ const Settings = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending || updateCustomDomainMutation.isPending}
+            disabled={updateSettingsMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending || updateCustomDomainMutation.isPending || enablePaymentsMutation.isPending}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {(updateSettingsMutation.isPending || updateIbanMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending || updateCustomDomainMutation.isPending) 
-              ? t('settings.actions.saving') 
+            {(updateSettingsMutation.isPending || updateProfileMutation.isPending || updateSubdomainMutation.isPending || updateCustomDomainMutation.isPending || enablePaymentsMutation.isPending)
+              ? t('settings.actions.saving')
               : t('settings.actions.saveSettings')}
           </button>
         </div>

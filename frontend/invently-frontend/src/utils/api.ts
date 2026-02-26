@@ -388,6 +388,9 @@ export const settingsAPI = {
 
   updateTenantCustomDomain: (customDomain: string | null): Promise<{ tenant: Tenant; message?: string }> =>
     api.put('/settings/tenant/custom-domain', { customDomain }).then(res => res.data),
+
+  enablePayments: (data: { iban: string; businessIdentifier: string }): Promise<{ data: { settings: any; user: any; tenant: any }; message: string }> =>
+    api.put('/settings/enable-payments', data).then(res => res.data),
 };
 
 // Cart API

@@ -264,9 +264,11 @@ export interface Order {
   tenantId: string;
   customerEmail: string;
   customerName: string;
-  status: 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  customerPhone: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   totalAmount: number;
   paymentStatus: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+  bogOrderId?: string | null;
   shippingAddress?: any;
   billingAddress?: any;
   notes?: string;
@@ -330,6 +332,7 @@ export interface CreateOrderData {
   sessionId: string;
   customerEmail: string;
   customerName: string;
+  customerPhone: string;
   shippingAddress?: ShippingAddress;
   billingAddress?: ShippingAddress;
   notes?: string;
@@ -362,6 +365,11 @@ export interface StoreSettings {
   /** Included from tenant when fetched via GET /api/settings */
   subdomain: string;
   customDomain?: string | null;
+  /** Included from tenant when fetched via GET /api/settings */
+  businessIdentifier?: string | null;
+  paymentsEnabled?: boolean;
+  allowOrdersWithoutPayment?: boolean;
+  catalogueOnlyMessage?: string | null;
   aboutUs?: {
     title: string;
     content: string;
@@ -523,4 +531,9 @@ export interface UpdateStoreSettingsData {
   breadcrumbHoverColor?: string;
   breadcrumbIconColor?: string;
   productDetailCardBackgroundColor?: string;
+  paymentsEnabled?: boolean;
+  allowOrdersWithoutPayment?: boolean;
+  catalogueOnlyMessage?: string | null;
+  /** Used in Settings form for full payments; saved via enablePayments API, not updateSettings */
+  businessIdentifier?: string | null;
 }

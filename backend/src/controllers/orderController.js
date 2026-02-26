@@ -13,6 +13,7 @@ const orderController = {
         sessionId,
         customerEmail,
         customerName,
+        customerPhone,
         shippingAddress,
         billingAddress,
         notes,
@@ -21,12 +22,15 @@ const orderController = {
       const tenantId = req.tenantId;
 
       const result = await orderService.createOrder(
-        { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes, returnOrigin },
+        { sessionId, customerEmail, customerName, customerPhone, shippingAddress, billingAddress, notes, returnOrigin },
         tenantId
       );
 
       res.status(201).json(ApiResponse.created(result, 'Order created successfully'));
     } catch (error) {
+      if (error.message === 'Payments are not enabled for this store. This store is catalogue only.') {
+        return res.status(403).json(ApiResponse.error(error.message));
+      }
       if (error.message === 'Cart is empty or not found') {
         return res.status(400).json(ApiResponse.error(error.message));
       }

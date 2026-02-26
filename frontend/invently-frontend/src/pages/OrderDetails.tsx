@@ -10,6 +10,7 @@ import {
   ShoppingBagIcon,
   EnvelopeIcon,
   UserIcon,
+  PhoneIcon,
   MapPinIcon,
   CreditCardIcon,
   CheckCircleIcon,
@@ -56,6 +57,8 @@ const OrderDetails = () => {
     switch (status) {
       case 'PENDING':
         return <ClockIcon className="h-4 w-4 text-yellow-600" />;
+      case 'IN_PROGRESS':
+        return <ClockIcon className="h-4 w-4 text-blue-600" />;
       case 'CONFIRMED':
         return <CheckCircleIcon className="h-4 w-4 text-neutral-900" />;
       case 'SHIPPED':
@@ -73,6 +76,8 @@ const OrderDetails = () => {
     switch (status) {
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'CONFIRMED':
         return 'bg-neutral-100 text-neutral-900 border-neutral-200';
       case 'SHIPPED':
@@ -218,7 +223,7 @@ const OrderDetails = () => {
         <div className="flex items-center gap-2">
           {getStatusIcon(order.status)}
           <span className={`px-3 py-1.5 text-xs font-medium rounded-full border ${getStatusColor(order.status)}`}>
-            {t(`orders.status.${order.status.toLowerCase()}`)}
+            {t(`orders.status.${order.status === 'IN_PROGRESS' ? 'inProgress' : order.status.toLowerCase()}`)}
           </span>
         </div>
       </div>
@@ -334,6 +339,15 @@ const OrderDetails = () => {
                   </div>
                   <p className="text-sm text-gray-900">{order.customerEmail}</p>
                 </div>
+                {order.customerPhone && (
+                  <div>
+                    <div className="flex items-center text-gray-500 mb-1.5">
+                      <PhoneIcon className="h-3.5 w-3.5 mr-1.5" />
+                      <span className="text-xs font-medium">{t('orders.orderDetails.sections.customerInfo.phone')}</span>
+                    </div>
+                    <p className="text-sm text-gray-900">{order.customerPhone}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -461,13 +475,19 @@ const OrderDetails = () => {
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">{t('orders.orderDetails.sections.payment.paymentStatus')}:</span>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    order.paymentStatus === 'PAID'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {t(`orders.paymentStatus.${order.paymentStatus.toLowerCase()}`)}
-                  </span>
+                  {!order.bogOrderId ? (
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-neutral-100 text-neutral-700">
+                      {t('orders.orderDetails.sections.payment.orderOnly')}
+                    </span>
+                  ) : (
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      order.paymentStatus === 'PAID'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {t(`orders.paymentStatus.${order.paymentStatus.toLowerCase()}`)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">{t('orders.orderDetails.sections.payment.totalAmount')}:</span>
@@ -484,7 +504,7 @@ const OrderDetails = () => {
             </div>
             <div className="px-4 py-2 sm:px-6 sm:py-3">
               <div className="space-y-2">
-                {['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((status) => (
+                {['PENDING', 'IN_PROGRESS', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((status) => (
                   <button
                     key={status}
                     onClick={() => handleStatusUpdate(status)}
@@ -497,7 +517,7 @@ const OrderDetails = () => {
                         : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-50 hover:border-neutral-400'
                     }`}
                   >
-                    {updateOrderMutation.isPending ? t('orders.orderDetails.sections.statusManagement.updating') : t(`orders.status.${status.toLowerCase()}`)}
+                    {updateOrderMutation.isPending ? t('orders.orderDetails.sections.statusManagement.updating') : t(`orders.status.${status === 'IN_PROGRESS' ? 'inProgress' : status.toLowerCase()}`)}
                   </button>
                 ))}
               </div>

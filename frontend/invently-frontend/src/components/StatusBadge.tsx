@@ -43,6 +43,8 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
     switch (statusValue) {
       case 'PENDING':
         return <ClockIcon className={`${iconClass} text-yellow-600`} />;
+      case 'IN_PROGRESS':
+        return <ClockIcon className={`${iconClass} text-blue-600`} />;
       case 'CONFIRMED':
         return <CheckCircleIcon className={`${iconClass} text-neutral-900`} />;
       case 'SHIPPED':
@@ -72,6 +74,8 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
     switch (statusValue) {
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'CONFIRMED':
         return 'bg-neutral-100 text-neutral-900 border-neutral-200';
       case 'SHIPPED':
@@ -127,6 +131,8 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       switch (statusValue) {
         case 'PENDING':
           return t('orders.status.pending');
+        case 'IN_PROGRESS':
+          return t('orders.status.inProgress');
         case 'CONFIRMED':
           return t('orders.status.confirmed');
         case 'SHIPPED':

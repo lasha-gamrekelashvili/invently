@@ -33,6 +33,7 @@ const CheckoutContent: React.FC = () => {
   const { cart, sessionId } = useCart();
   const [step, setStep] = useState<'form' | 'processing' | 'success'>('form');
   const [orderNumber, setOrderNumber] = useState<string>('');
+  const [orderOnly, setOrderOnly] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [cartClosing, setCartClosing] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -84,6 +85,7 @@ const CheckoutContent: React.FC = () => {
   const [formData, setFormData] = useState({
     customerName: '',
     customerEmail: '',
+    customerPhone: '',
     shippingAddress: {
       region: '',
       district: '',
@@ -105,6 +107,13 @@ const CheckoutContent: React.FC = () => {
     queryFn: () => storefrontAPI.getSettings(),
     retry: false,
   });
+
+  // Catalogue-only store (no payments, no order-without-payment): redirect to home
+  useEffect(() => {
+    if (storeSettings && !storeSettings.paymentsEnabled && !storeSettings.allowOrdersWithoutPayment) {
+      navigate('/', { replace: true });
+    }
+  }, [storeSettings, navigate]);
 
   const { data: categories } = useQuery({
     queryKey: ['storefront-categories'],
@@ -346,6 +355,7 @@ const CheckoutContent: React.FC = () => {
       sessionId,
       customerEmail: formData.customerEmail,
       customerName: formData.customerName,
+      customerPhone: formData.customerPhone.trim(),
       shippingAddress: {
         region: formData.shippingAddress.region,
         regionName: selectedRegion ? { en: selectedRegion.name, ka: selectedRegion.nameKa } : undefined,
@@ -366,6 +376,7 @@ const CheckoutContent: React.FC = () => {
         window.location.href = result.redirectUrl;
       } else {
         setOrderNumber(result?.orderNumber || '');
+        setOrderOnly(!!result?.orderOnly);
         setStep('success');
       }
     },
@@ -379,6 +390,10 @@ const CheckoutContent: React.FC = () => {
     e.preventDefault();
     
     // Validate required fields
+    if (!formData.customerPhone.trim()) {
+      toast.error(t('storefront.checkout.phoneRequired'));
+      return;
+    }
     if (!formData.shippingAddress.region) {
       toast.error(t('storefront.checkout.selectRegion'));
       return;
@@ -519,6 +534,19 @@ const CheckoutContent: React.FC = () => {
                         onChange={(e) => handleInputChange('customerEmail', e.target.value)}
                         className="input-field"
                         placeholder="john@example.com"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs sm:text-sm font-medium text-neutral-700 mb-1.5">
+                        {t('storefront.checkout.phone')} <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={formData.customerPhone}
+                        onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+                        className="input-field"
+                        placeholder={t('storefront.checkout.phonePlaceholder')}
                       />
                     </div>
                   </div>
@@ -800,6 +828,15 @@ const CheckoutContent: React.FC = () => {
                   </div>
                 )}
 
+                {/* Order without payment: inform customer */}
+                {storeSettings?.allowOrdersWithoutPayment && !storeSettings?.paymentsEnabled && (
+                  <div className="px-5 py-3 bg-amber-50 border border-amber-200 rounded-lg mx-5 mb-2">
+                    <p className="text-sm text-amber-800">
+                      {t('storefront.checkout.orderOnlyMessage')}
+                    </p>
+                  </div>
+                )}
+
                 {/* Action Button */}
                 <div className="px-5 py-4 border-t border-neutral-100">
                   <button
@@ -843,17 +880,23 @@ const CheckoutContent: React.FC = () => {
             <CheckCircleIcon className="w-12 h-12 text-green-600" />
           </div>
           <h2 className="text-xl sm:text-2xl font-light tracking-tight text-neutral-900 mb-3">
-            {t('storefront.checkout.success')}
+            {orderOnly ? t('storefront.checkout.successOrderOnly') : t('storefront.checkout.success')}
           </h2>
-          <p className="text-xs sm:text-sm text-neutral-600 mb-2">
-            {language === 'ka' ? 'გმადლობთ შეკვეთისთვის. თქვენი შეკვეთის ნომერია:' : 'Thank you for your order. Your order number is:'}
-          </p>
-          <p className="text-base sm:text-lg font-medium text-neutral-900 mb-6 font-mono bg-neutral-100 inline-block px-4 py-2 rounded-lg">
-            {orderNumber}
-          </p>
-          <p className="text-xs sm:text-sm text-neutral-500 mb-8">
-            {language === 'ka' ? 'თქვენ მალე მიიღებთ დადასტურების ელ-ფოსტას.' : 'You will receive a confirmation email shortly.'}
-          </p>
+          {!orderOnly && (
+            <p className="text-xs sm:text-sm text-neutral-600 mb-2">
+              {language === 'ka' ? 'გმადლობთ შეკვეთისთვის. თქვენი შეკვეთის ნომერია:' : 'Thank you for your order. Your order number is:'}
+            </p>
+          )}
+          {orderNumber && (
+            <p className="text-base sm:text-lg font-medium text-neutral-900 mb-6 font-mono bg-neutral-100 inline-block px-4 py-2 rounded-lg">
+              {orderNumber}
+            </p>
+          )}
+          {!orderOnly && (
+            <p className="text-xs sm:text-sm text-neutral-500 mb-8">
+              {language === 'ka' ? 'თქვენ მალე მიიღებთ დადასტურების ელ-ფოსტას.' : 'You will receive a confirmation email shortly.'}
+            </p>
+          )}
           <button
             onClick={() => navigate('/')}
             className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white text-xs sm:text-sm font-medium rounded-full hover:bg-neutral-700 transition-all"

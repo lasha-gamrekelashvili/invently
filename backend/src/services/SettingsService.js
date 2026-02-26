@@ -80,6 +80,9 @@ export class SettingsService {
       breadcrumbHoverColor,
       breadcrumbIconColor,
       productDetailCardBackgroundColor,
+      paymentsEnabled,
+      allowOrdersWithoutPayment,
+      catalogueOnlyMessage,
     } = updateData;
 
     // Build update object with only provided fields
@@ -143,6 +146,9 @@ export class SettingsService {
     if (breadcrumbHoverColor !== undefined) updatePayload.breadcrumbHoverColor = breadcrumbHoverColor;
     if (breadcrumbIconColor !== undefined) updatePayload.breadcrumbIconColor = breadcrumbIconColor;
     if (productDetailCardBackgroundColor !== undefined) updatePayload.productDetailCardBackgroundColor = productDetailCardBackgroundColor;
+    if (paymentsEnabled !== undefined) updatePayload.paymentsEnabled = paymentsEnabled;
+    if (allowOrdersWithoutPayment !== undefined) updatePayload.allowOrdersWithoutPayment = allowOrdersWithoutPayment;
+    if (catalogueOnlyMessage !== undefined) updatePayload.catalogueOnlyMessage = catalogueOnlyMessage;
 
     const settings = await this.settingsRepository.upsertSettings(tenantId, updatePayload);
 

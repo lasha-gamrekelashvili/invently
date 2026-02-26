@@ -1,5 +1,6 @@
 import { OrderRepository, OrderItemRepository } from '../repositories/OrderRepository.js';
 import { CartRepository } from '../repositories/CartRepository.js';
+import { SettingsRepository } from '../repositories/SettingsRepository.js';
 import prisma from '../repositories/BaseRepository.js';
 import { EmailService } from './EmailService.js';
 import { BOGPaymentService } from './BOGPaymentService.js';
@@ -9,6 +10,7 @@ export class OrderService {
     this.orderRepository = new OrderRepository();
     this.orderItemRepository = new OrderItemRepository();
     this.cartRepository = new CartRepository();
+    this.settingsRepository = new SettingsRepository();
     this.emailService = new EmailService();
     this.bogPayment = new BOGPaymentService();
   }
@@ -78,7 +80,13 @@ export class OrderService {
    * Returns order + redirectUrl; payment is finalized via BOG callback.
    */
   async createOrder(orderData, tenantId) {
-    const { sessionId, customerEmail, customerName, shippingAddress, billingAddress, notes, returnOrigin } = orderData;
+    const { sessionId, customerEmail, customerName, customerPhone, shippingAddress, billingAddress, notes, returnOrigin } = orderData;
+
+    const storeSettings = await this.settingsRepository.findByTenantId(tenantId);
+    const canPlaceOrder = storeSettings?.paymentsEnabled || storeSettings?.allowOrdersWithoutPayment;
+    if (!canPlaceOrder) {
+      throw new Error('Payments are not enabled for this store. This store is catalogue only.');
+    }
 
     const cart = await this.cartRepository.getCartWithItems(sessionId, tenantId);
 
@@ -100,6 +108,7 @@ export class OrderService {
           sessionId,
           customerEmail,
           customerName,
+          customerPhone,
           totalAmount,
           shippingAddress,
           billingAddress,
@@ -138,6 +147,29 @@ export class OrderService {
       return newOrder;
     });
 
+    // Order without payment: create order only, no BOG; shop will contact customer
+    if (storeSettings?.allowOrdersWithoutPayment && !storeSettings?.paymentsEnabled) {
+      const finalOrder = await this.orderRepository.findFirst(
+        { id: order.id },
+        {
+          include: {
+            items: {
+              include: {
+                product: { select: { id: true, title: true } },
+                variant: true,
+              },
+            },
+          },
+        }
+      );
+      return {
+        ...finalOrder,
+        redirectUrl: null,
+        orderOnly: true,
+      };
+    }
+
+    // Full payment flow: initiate BOG
     const backendBase = (process.env.BACKEND_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
     const callbackUrl = `${backendBase}/api/bog/callback`;
 
@@ -272,7 +304,7 @@ export class OrderService {
     // Atomic conditional update — only succeeds if still PENDING, preventing double-processing
     const updated = await prisma.order.updateMany({
       where: { id: orderId, paymentStatus: { not: 'PAID' } },
-      data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
+      data: { paymentStatus: 'PAID', status: 'IN_PROGRESS' },
     });
 
     if (updated.count === 0) {
@@ -289,7 +321,7 @@ export class OrderService {
       }
     }
 
-    const finalOrder = { ...order, paymentStatus: 'PAID', status: 'CONFIRMED' };
+    const finalOrder = { ...order, paymentStatus: 'PAID', status: 'IN_PROGRESS' };
     const tenant = finalOrder.tenant;
     const tenantId = tenant?.id;
     const customDomain = tenant?.customDomain;
@@ -493,7 +525,7 @@ export class OrderService {
    * Updates order status
    */
   async updateOrderStatus(id, status, tenantId) {
-    const validStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+    const validStatuses = ['PENDING', 'IN_PROGRESS', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
       throw new Error('Invalid order status');
     }

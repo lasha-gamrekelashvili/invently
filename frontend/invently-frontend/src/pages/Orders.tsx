@@ -62,6 +62,7 @@ const Orders = () => {
       options: [
         { value: '', label: t('orders.allStatuses') },
         { value: 'PENDING', label: t('orders.status.pending') },
+        { value: 'IN_PROGRESS', label: t('orders.status.inProgress') },
         { value: 'CONFIRMED', label: t('orders.status.confirmed') },
         { value: 'SHIPPED', label: t('orders.status.shipped') },
         { value: 'DELIVERED', label: t('orders.status.delivered') },

@@ -96,6 +96,7 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         headerTextColor={headerTextColor}
         headerBorderColor={headerBorderColor}
         storeSettings={storeSettings}
+        showCartButton={!!(storeSettings?.paymentsEnabled || storeSettings?.allowOrdersWithoutPayment)}
       />
 
       <div className="flex-1 flex">

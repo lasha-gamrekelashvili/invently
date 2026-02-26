@@ -24,15 +24,16 @@ model User {
 }
 
 model Tenant {
-  id            String         @id @default(uuid())
-  name          String
-  subdomain     String         @unique
-  customDomain  String?        @unique
-  description   String?
-  ownerId       String
-  isActive      Boolean        @default(true)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                 String         @id @default(uuid())
+  name               String
+  subdomain          String         @unique
+  customDomain       String?        @unique
+  description        String?
+  businessIdentifier String?        // Private number or business ID (required when payments enabled)
+  ownerId            String
+  isActive           Boolean        @default(true)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   carts         Cart[]
   categories    Category[]
   orders        Order[]
@@ -169,6 +170,7 @@ model Order {
   sessionId       String?
   customerEmail   String
   customerName    String
+  customerPhone   String?
   status          OrderStatus   @default(PENDING)
   totalAmount     Float
   paymentStatus   PaymentStatus @default(PENDING)
@@ -263,6 +265,9 @@ model StoreSettings {
   breadcrumbHoverColor String? @default("#171717")
   breadcrumbIconColor String? @default("#a3a3a3")
   productDetailCardBackgroundColor String? @default("#ffffff")
+  paymentsEnabled Boolean @default(false)
+  allowOrdersWithoutPayment Boolean @default(false)
+  catalogueOnlyMessage String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -277,6 +282,7 @@ enum UserRole {
 
 enum OrderStatus {
   PENDING
+  IN_PROGRESS
   CONFIRMED
   SHIPPED
   DELIVERED

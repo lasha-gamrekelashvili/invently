@@ -105,6 +105,11 @@ const schemas = {
     subdomain: Joi.string().alphanum().min(3).max(50).required()
   }),
 
+  enablePayments: Joi.object({
+    iban: Joi.string().max(34).required(),
+    businessIdentifier: Joi.string().min(1).max(100).trim().required()
+  }),
+
   updateTenantCustomDomain: Joi.object({
     customDomain: Joi.string()
       .hostname()

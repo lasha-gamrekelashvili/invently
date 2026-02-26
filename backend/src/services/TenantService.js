@@ -109,4 +109,33 @@ export class TenantService {
       },
     };
   }
+
+  /**
+   * Updates tenant's business identifier (private number / business ID).
+   * Required when enabling payments for the store.
+   */
+  async updateBusinessIdentifier(tenantId, businessIdentifier, userId) {
+    const tenant = await this.tenantRepository.findById(tenantId);
+
+    if (!tenant) {
+      throw new Error('Tenant not found');
+    }
+
+    if (tenant.ownerId !== userId) {
+      throw new Error('Unauthorized: You do not own this tenant');
+    }
+
+    const updatedTenant = await this.tenantRepository.update(tenantId, {
+      businessIdentifier: businessIdentifier?.trim() || null,
+    });
+
+    return {
+      tenant: {
+        id: updatedTenant.id,
+        name: updatedTenant.name,
+        subdomain: updatedTenant.subdomain,
+        businessIdentifier: updatedTenant.businessIdentifier,
+      },
+    };
+  }
 }

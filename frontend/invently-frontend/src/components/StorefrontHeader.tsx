@@ -22,6 +22,8 @@ interface StorefrontHeaderProps {
   headerTextColor?: string;
   headerBorderColor?: string;
   storeSettings?: any;
+  /** When false, cart icon is hidden (catalogue-only store) */
+  showCartButton?: boolean;
 }
 
 const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
@@ -35,6 +37,7 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
   headerTextColor = '#171717',
   headerBorderColor = '#e5e5e5',
   storeSettings,
+  showCartButton = true,
 }) => {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const { cartItemCount } = useCart();
@@ -107,27 +110,29 @@ const StorefrontHeader: React.FC<StorefrontHeaderProps> = ({
         </div>
       }
       rightActions={
-        <button
-          onClick={onCartClick}
-          className={`relative p-2 rounded-xl transition-all group ${
-            isCartOpen
-              ? 'bg-neutral-100 ring-1 ring-neutral-300'
-              : 'hover:bg-neutral-100'
-          }`}
-          style={{ color: headerTextColor }}
-          aria-label="Shopping cart"
-        >
-          <ShoppingBagIcon className={`h-6 w-6 transition-transform ${isCartOpen ? 'scale-110' : ''}`} />
-          {cartItemCount > 0 && (
-            <span className={`absolute -top-1 -right-1 text-white text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white transition-all ${
-              isCartOpen 
-                ? 'bg-neutral-800 scale-110' 
-                : 'bg-neutral-800 group-hover:scale-110'
-            }`}>
-              {cartItemCount > 99 ? '99+' : cartItemCount}
-            </span>
-          )}
-        </button>
+        showCartButton ? (
+          <button
+            onClick={onCartClick}
+            className={`relative p-2 rounded-xl transition-all group ${
+              isCartOpen
+                ? 'bg-neutral-100 ring-1 ring-neutral-300'
+                : 'hover:bg-neutral-100'
+            }`}
+            style={{ color: headerTextColor }}
+            aria-label="Shopping cart"
+          >
+            <ShoppingBagIcon className={`h-6 w-6 transition-transform ${isCartOpen ? 'scale-110' : ''}`} />
+            {cartItemCount > 0 && (
+              <span className={`absolute -top-1 -right-1 text-white text-xs font-medium rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white transition-all ${
+                isCartOpen 
+                  ? 'bg-neutral-800 scale-110' 
+                  : 'bg-neutral-800 group-hover:scale-110'
+              }`}>
+                {cartItemCount > 99 ? '99+' : cartItemCount}
+              </span>
+            )}
+          </button>
+        ) : null
       }
       showLanguageSelector={true}
     />

@@ -645,8 +645,8 @@ const StorefrontContent = () => {
         </div>
       </div>
 
-      {/* Cart */}
-      {showCart && (
+      {/* Cart - when payments or order-without-payment enabled (catalogue-only stores hide cart) */}
+      {(storeSettings?.paymentsEnabled || storeSettings?.allowOrdersWithoutPayment) && showCart && (
         <Cart
           onClose={handleCartCloseComplete}
           isClosing={cartClosing}

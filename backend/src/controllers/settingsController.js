@@ -1,9 +1,11 @@
 import { SettingsService } from '../services/SettingsService.js';
 import { TenantService } from '../services/TenantService.js';
+import { AuthService } from '../services/AuthService.js';
 import { ApiResponse } from '../utils/responseFormatter.js';
 
 const settingsService = new SettingsService();
 const tenantService = new TenantService();
+const authService = new AuthService();
 
 const getSettings = async (req, res) => {
   try {
@@ -12,11 +14,12 @@ const getSettings = async (req, res) => {
 
     const settings = await settingsService.getSettings(tenantId);
 
-    // Include tenant fields used on Settings page (customDomain, subdomain)
+    // Include tenant fields used on Settings page (customDomain, subdomain, businessIdentifier)
     const response = {
       ...settings,
       customDomain: tenant?.customDomain ?? null,
       subdomain: tenant?.subdomain ?? null,
+      businessIdentifier: tenant?.businessIdentifier ?? null,
     };
 
     res.json(ApiResponse.success(response));
@@ -87,6 +90,9 @@ const updateSettings = async (req, res) => {
       breadcrumbHoverColor,
       breadcrumbIconColor,
       productDetailCardBackgroundColor,
+      paymentsEnabled,
+      allowOrdersWithoutPayment,
+      catalogueOnlyMessage,
     } = req.body;
 
     const settings = await settingsService.updateSettings(tenantId, {
@@ -147,6 +153,9 @@ const updateSettings = async (req, res) => {
       breadcrumbHoverColor,
       breadcrumbIconColor,
       productDetailCardBackgroundColor,
+      paymentsEnabled,
+      allowOrdersWithoutPayment,
+      catalogueOnlyMessage,
     });
 
     res.json(ApiResponse.updated(settings, 'Settings updated successfully'));
@@ -235,10 +244,46 @@ const updateTenantCustomDomain = async (req, res) => {
   }
 };
 
+/**
+ * Enable payments for the store. Requires IBAN (user) and business identifier (tenant).
+ */
+const enablePayments = async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const userId = req.user.id;
+    const { iban, businessIdentifier } = req.validatedData;
+
+    const ibanResult = await authService.updateIban(userId, iban);
+    await tenantService.updateBusinessIdentifier(tenantId, businessIdentifier, userId);
+    const settings = await settingsService.updateSettings(tenantId, { paymentsEnabled: true });
+
+    res.json(
+      ApiResponse.updated(
+        {
+          settings: { ...settings, paymentsEnabled: true },
+          user: ibanResult.user,
+          tenant: { businessIdentifier },
+        },
+        'Payments enabled successfully. Customers can now add to cart and checkout.'
+      )
+    );
+  } catch (error) {
+    if (error.message === 'Tenant not found') {
+      return res.status(404).json(ApiResponse.notFound('Tenant'));
+    }
+    if (error.message === 'Unauthorized: You do not own this tenant') {
+      return res.status(403).json(ApiResponse.forbidden(error.message));
+    }
+    console.error('Enable payments error:', error);
+    res.status(500).json(ApiResponse.error(error.message || 'Internal server error'));
+  }
+};
+
 export {
   getSettings,
   updateSettings,
   getPublicSettings,
   updateTenantSubdomain,
-  updateTenantCustomDomain
+  updateTenantCustomDomain,
+  enablePayments,
 };

@@ -53,6 +53,7 @@ const createOrderSchema = Joi.object({
   sessionId: Joi.string().required(),
   customerEmail: Joi.string().email().required(),
   customerName: Joi.string().required(),
+  customerPhone: Joi.string().required(),
   shippingAddress: Joi.alternatives()
     .try(georgianAddressSchema, legacyAddressSchema)
     .optional(),
@@ -64,7 +65,7 @@ const createOrderSchema = Joi.object({
 });
 
 const updateOrderStatusSchema = Joi.object({
-  status: Joi.string().valid('PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED').required(),
+  status: Joi.string().valid('PENDING', 'IN_PROGRESS', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED').required(),
 });
 
 /**
@@ -93,6 +94,8 @@ const updateOrderStatusSchema = Joi.object({
  *                 type: string
  *                 format: email
  *               customerName:
+ *                 type: string
+ *               customerPhone:
  *                 type: string
  *               shippingAddress:
  *                 type: object
@@ -126,6 +129,7 @@ const updateOrderStatusSchema = Joi.object({
  *               - sessionId
  *               - customerEmail
  *               - customerName
+ *               - customerPhone
  *     responses:
  *       201:
  *         description: Order created successfully
@@ -161,7 +165,7 @@ router.post('/', checkoutLimiter, validate(createOrderSchema), orderController.c
  *         name: status
  *         schema:
  *           type: string
- *           enum: [PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+ *           enum: [PENDING, IN_PROGRESS, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
  *         description: Filter by order status
  *       - in: query
  *         name: search
@@ -269,7 +273,7 @@ router.get('/:id', authenticateToken, orderController.getOrder);
  *             properties:
  *               status:
  *                 type: string
- *                 enum: [PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+ *                 enum: [PENDING, IN_PROGRESS, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
  *             required:
  *               - status
  *     responses:

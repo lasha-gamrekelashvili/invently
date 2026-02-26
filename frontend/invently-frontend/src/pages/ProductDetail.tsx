@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import { storefrontAPI } from '../utils/api';
 import { useCart, CartProvider } from '../contexts/CartContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TenantNotFound from '../components/TenantNotFound';
 import StorefrontLayout from '../components/StorefrontLayout';
@@ -22,6 +23,7 @@ import type { ProductVariant } from '../types';
 const ProductDetailContent: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { addToCart, getCartItemQuantity } = useCart();
   
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -541,8 +543,8 @@ const ProductDetailContent: React.FC = () => {
                 </div>
               )}
 
-              {/* Cart Status */}
-              {cartQuantity > 0 && (
+              {/* Cart Status - when payments or order-without-payment enabled */}
+              {(storeSettings?.paymentsEnabled || storeSettings?.allowOrdersWithoutPayment) && cartQuantity > 0 && (
                 <div className="flex items-center gap-2 bg-neutral-50 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border" style={{ borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
                   <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600 flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium text-neutral-700">
@@ -551,60 +553,71 @@ const ProductDetailContent: React.FC = () => {
                 </div>
               )}
 
-              {/* Action Buttons */}
+              {/* Action Buttons - Add to Cart / Buy Now when payments or order-without-payment enabled */}
               <div className="space-y-2 sm:space-y-3 pt-2">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!isInStock || (hasVariants && !selectedVariant)}
-                  className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 sm:px-6 rounded-full font-medium transition-all text-xs sm:text-sm ${
-                    !isInStock || (hasVariants && !selectedVariant)
-                      ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
-                      : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                  }`}
-                >
-                  <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Add to Cart
-                </button>
+                {(storeSettings?.paymentsEnabled || storeSettings?.allowOrdersWithoutPayment) ? (
+                  <>
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={!isInStock || (hasVariants && !selectedVariant)}
+                      className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 px-4 sm:px-6 rounded-full font-medium transition-all text-xs sm:text-sm ${
+                        !isInStock || (hasVariants && !selectedVariant)
+                          ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                          : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                      }`}
+                    >
+                      <ShoppingCartIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Add to Cart
+                    </button>
 
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <button
-                    onClick={handleBuyNow}
-                    disabled={!isInStock || (hasVariants && !selectedVariant)}
-                    className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium transition-all text-xs sm:text-sm ${
-                      !isInStock || (hasVariants && !selectedVariant)
-                        ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
-                        : 'bg-white text-neutral-900 border-2 border-neutral-800 hover:bg-neutral-100'
-                    }`}
-                    onMouseEnter={(e) => {
-                      if (!(!isInStock || (hasVariants && !selectedVariant))) {
-                        e.currentTarget.style.borderColor = storeSettings?.productCardHoverBorderColor || '#d4d4d4';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!(!isInStock || (hasVariants && !selectedVariant))) {
-                        e.currentTarget.style.borderColor = '';
-                      }
-                    }}
-                  >
-                    Buy Now
-                  </button>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                      <button
+                        onClick={handleBuyNow}
+                        disabled={!isInStock || (hasVariants && !selectedVariant)}
+                        className={`py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium transition-all text-xs sm:text-sm ${
+                          !isInStock || (hasVariants && !selectedVariant)
+                            ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
+                            : 'bg-white text-neutral-900 border-2 border-neutral-800 hover:bg-neutral-100'
+                        }`}
+                        onMouseEnter={(e) => {
+                          if (!(!isInStock || (hasVariants && !selectedVariant))) {
+                            e.currentTarget.style.borderColor = storeSettings?.productCardHoverBorderColor || '#d4d4d4';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!(!isInStock || (hasVariants && !selectedVariant))) {
+                            e.currentTarget.style.borderColor = '';
+                          }
+                        }}
+                      >
+                        Buy Now
+                      </button>
 
-                  <button
-                    onClick={() => {
-                      if (navigator.share) {
-                        navigator.share({
-                          title: product.title,
-                          url: window.location.href,
-                        });
-                      } else {
-                        navigator.clipboard.writeText(window.location.href);
-                      }
-                    }}
-                    className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-all text-xs sm:text-sm"
-                  >
-                    Share
-                  </button>
-                </div>
+                      <button
+                        onClick={() => {
+                          if (navigator.share) {
+                            navigator.share({
+                              title: product.title,
+                              url: window.location.href,
+                            });
+                          } else {
+                            navigator.clipboard.writeText(window.location.href);
+                          }
+                        }}
+                        className="py-2 sm:py-2.5 px-3 sm:px-4 rounded-full font-medium bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-all text-xs sm:text-sm"
+                      >
+                        Share
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="py-2 sm:py-3 px-3 sm:px-4 rounded-lg bg-neutral-50 border text-center" style={{ borderColor: storeSettings?.productCardBorderColor || '#e5e5e5' }}>
+                    <p className="text-xs sm:text-sm text-neutral-600 whitespace-pre-line">
+                      {storeSettings?.catalogueOnlyMessage?.trim() || t('storefront.checkout.catalogueOnlyFallback')}
+                    </p>
+                  </div>
+                )}
+
               </div>
             </div>
           </div>

@@ -704,6 +704,7 @@
     },
     "status": {
       "pending": "Pending",
+      "inProgress": "In progress",
       "confirmed": "Confirmed",
       "shipped": "Shipped",
       "delivered": "Delivered",
@@ -754,7 +755,8 @@
         "customerInfo": {
           "title": "Customer Information",
           "name": "Name",
-          "email": "Email"
+          "email": "Email",
+          "phone": "Phone"
         },
         "addresses": {
           "title": "Addresses",
@@ -773,6 +775,7 @@
         "payment": {
           "title": "Payment",
           "paymentStatus": "Payment Status",
+          "orderOnly": "Order without payment — manage manually",
           "totalAmount": "Total Amount"
         },
         "statusManagement": {
@@ -930,7 +933,40 @@
         }
       },
       "payment": {
-        "title": "Payment Information"
+        "title": "Storefront Payments",
+        "modeCatalogueOnly": "Catalogue only",
+        "modeCatalogueOnlyDesc": "Customers browse only. No cart or checkout.",
+        "modeOrdersWithoutPayment": "Orders without payment",
+        "modeOrdersWithoutPaymentDesc": "Customers can place orders; shop contacts them. No IBAN or ID required.",
+        "modeFullPayments": "Full payments",
+        "modeFullPaymentsDesc": "Customers pay online. IBAN and business ID required below.",
+        "catalogueOnly": "Your store is catalogue only. Customers can browse products but cannot add to cart or checkout.",
+        "catalogueMessageLabel": "Message for customers (catalogue only)",
+        "catalogueMessagePlaceholder": "e.g. Visit our store at 123 Main St, or call us to order...",
+        "catalogueMessageHelp": "Shown on product pages when your store is catalogue only. Tell customers where or how they can buy.",
+        "allowOrdersWithoutPayment": "Allow orders without payment",
+        "allowOrdersWithoutPaymentHelp": "Customers can add to cart and place orders; no online payment. The shop will contact them after the order. No IBAN or business ID required.",
+        "enablePayments": "Enable payments",
+        "paymentsEnabled": "Payments are enabled. Customers can add to cart and checkout.",
+        "ordersWithoutPaymentStatus": "Orders without payment. Customers can place orders; the shop will contact them.",
+        "switchToOrdersWithoutPayment": "Switch to orders without payment",
+        "switchToCatalogueOnly": "Switch to catalogue only",
+        "confirmSwitchToOrdersOnlyTitle": "Switch to orders without payment?",
+        "confirmSwitchToOrdersOnlyMessage": "Customers will still be able to add to cart and place orders, but no online payment. The shop will contact them after each order. You can enable full payments again anytime.",
+        "confirmSwitchToCatalogueTitle": "Switch to catalogue only?",
+        "confirmSwitchToCatalogueMessage": "Customers will only be able to browse. Cart and checkout will be hidden. You can enable orders or full payments again anytime.",
+        "modal": {
+          "title": "Enable payments",
+          "message": "Enabling payments will allow customers to add to cart and checkout. You will need to provide your IBAN and business/private identifier.",
+          "iban": "IBAN",
+          "ibanPlaceholder": "GE00XX0000000000000000",
+          "ibanHelp": "Your bank account IBAN for receiving payments from customer orders",
+          "businessIdentifier": "Private number / Business identifier",
+          "businessIdentifierPlaceholder": "e.g. 12345678901 or business ID",
+          "businessIdentifierHelp": "Your personal ID number or business identifier (required for payment processing)",
+          "cancel": "Cancel",
+          "enable": "Enable payments"
+        }
       },
       "iban": {
         "label": "IBAN",
@@ -1228,6 +1264,9 @@
       "firstName": "First Name",
       "lastName": "Last Name",
       "fullName": "Full Name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "e.g. +995 555 123 456",
+      "phoneRequired": "Please enter your phone number.",
       "shippingAddress": "Shipping Address",
       "billingAddress": "Billing Address",
       "sameAsShipping": "Same as shipping address",
@@ -1258,6 +1297,9 @@
       "goBack": "Go back",
       "cartEmpty": "Your cart is empty",
       "cartEmptyDescription": "Add some items to your cart to continue checkout.",
+      "orderOnlyMessage": "After placing your order, the shop will contact you.",
+      "successOrderOnly": "Thank you. Your order has been received. The shop will contact you.",
+      "catalogueOnlyFallback": "Catalogue only — contact store for purchase.",
       "continueShopping": "Continue Shopping",
       "demoCheckout": "Demo Checkout",
       "demoCheckoutDescription": "No real payment will be processed. Orders are auto-confirmed.",
