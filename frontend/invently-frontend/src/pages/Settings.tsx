@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { UpdateStoreSettingsData } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageHeader from '../components/PageHeader';
-import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { CogIcon, DocumentTextIcon, LinkIcon, BoltIcon, UserCircleIcon, EnvelopeIcon, BuildingStorefrontIcon, CreditCardIcon, KeyIcon } from '@heroicons/react/24/outline';
 
 
 const Settings = () => {
@@ -512,85 +512,104 @@ const Settings = () => {
 
         {/* Account Tab */}
         {activeTab === 'account' && (
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">{t('settings.account.title')}</h3>
-            <p className="text-sm text-gray-600">
-              {t('settings.account.description')}
-            </p>
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900">{t('settings.account.title')}</h3>
+              <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+                {t('settings.account.description')}
+              </p>
+            </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
-              {/* Profile Information */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.profile.title')}</h4>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('settings.account.profile.email.label')}
-                  </label>
-                  <input
-                    type="email"
-                    value={profileData.email}
-                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                    className="input-field"
-                    placeholder={t('settings.account.profile.email.placeholder')}
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    {t('settings.account.profile.email.helpText')}
-                  </p>
-                </div>
+            {/* Profile Information — card */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="border-l-4 border-neutral-800 bg-gray-50/80 px-5 py-3">
+                <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <EnvelopeIcon className="w-5 h-5 text-gray-600" />
+                  {t('settings.account.profile.title')}
+                </h4>
               </div>
+              <div className="p-5 space-y-1">
+                <label className="block text-sm font-medium text-gray-800">
+                  {t('settings.account.profile.email.label')}
+                </label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                  className="input-field mt-1"
+                  placeholder={t('settings.account.profile.email.placeholder')}
+                />
+                <p className="mt-1.5 text-xs text-gray-500 leading-relaxed">
+                  {t('settings.account.profile.email.helpText')}
+                </p>
+              </div>
+            </div>
 
-              {/* Shop Information */}
-              <div className="border-t pt-6">
-                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.shop.title')}</h4>
+            {/* Shop Information — card */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="border-l-4 border-neutral-800 bg-gray-50/80 px-5 py-3">
+                <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <BuildingStorefrontIcon className="w-5 h-5 text-gray-600" />
+                  {t('settings.account.shop.title')}
+                </h4>
+              </div>
+              <div className="p-5 space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-800">
                     {t('settings.account.shop.subdomain.label')}
                   </label>
                   <input
                     type="text"
                     value={subdomain}
                     onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
-                    className="input-field"
+                    className="input-field mt-1"
                     placeholder={t('settings.account.shop.subdomain.placeholder')}
                     pattern="[a-z0-9]+"
                     minLength={3}
                     maxLength={50}
                   />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1.5 text-xs text-gray-500 leading-relaxed">
                     {t('settings.account.shop.subdomain.helpText')}
                   </p>
                 </div>
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="pt-4 border-t border-gray-100">
+                  <label className="block text-sm font-medium text-gray-800">
                     Custom Domain (Optional)
                   </label>
                   <input
                     type="text"
                     value={customDomain}
                     onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
-                    className="input-field"
+                    className="input-field mt-1"
                     placeholder="www.mystore.com"
                   />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Enter your custom domain (e.g., www.mystore.com). After saving, configure your DNS: Add a CNAME record pointing 'www' to 'shopu.ge'. Your store will be available at your custom domain once DNS propagates (5-60 minutes).
+                  <p className="mt-1.5 text-xs text-gray-500 leading-relaxed max-w-xl">
+                    Enter your custom domain (e.g., www.mystore.com). After saving, configure your DNS: Add a CNAME record pointing &apos;www&apos; to &apos;shopu.ge&apos;. Your store will be available at your custom domain once DNS propagates (5–60 minutes).
                   </p>
                   {customDomain && (
                     <button
                       type="button"
                       onClick={() => setCustomDomain('')}
-                      className="mt-2 text-sm text-red-600 hover:text-red-700"
+                      className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
                     >
                       Remove custom domain
                     </button>
                   )}
                 </div>
               </div>
+            </div>
 
-              {/* Storefront Payments – three options, no popup */}
-              <div className="border-t pt-6">
-                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.payment.title')}</h4>
+            {/* Storefront Payments — card */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="border-l-4 border-neutral-800 bg-gray-50/80 px-5 py-3">
+                <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <CreditCardIcon className="w-5 h-5 text-gray-600" />
+                  {t('settings.account.payment.title')}
+                </h4>
+              </div>
+              <div className="p-5">
                 <div className="space-y-3 mb-4">
-                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
+                  <label className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50/50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
                     <input
                       type="radio"
                       name="paymentMode"
@@ -599,11 +618,11 @@ const Settings = () => {
                       className="mt-1 h-4 w-4 text-neutral-800 border-gray-300 focus:ring-neutral-500"
                     />
                     <div>
-                      <span className="text-sm font-medium text-gray-900">{t('settings.account.payment.modeCatalogueOnly')}</span>
-                      <p className="text-xs text-gray-500 mt-0.5">{t('settings.account.payment.modeCatalogueOnlyDesc')}</p>
+                      <span className="text-sm font-semibold text-gray-900">{t('settings.account.payment.modeCatalogueOnly')}</span>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{t('settings.account.payment.modeCatalogueOnlyDesc')}</p>
                     </div>
                   </label>
-                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
+                  <label className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50/50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
                     <input
                       type="radio"
                       name="paymentMode"
@@ -612,11 +631,11 @@ const Settings = () => {
                       className="mt-1 h-4 w-4 text-neutral-800 border-gray-300 focus:ring-neutral-500"
                     />
                     <div>
-                      <span className="text-sm font-medium text-gray-900">{t('settings.account.payment.modeOrdersWithoutPayment')}</span>
-                      <p className="text-xs text-gray-500 mt-0.5">{t('settings.account.payment.modeOrdersWithoutPaymentDesc')}</p>
+                      <span className="text-sm font-semibold text-gray-900">{t('settings.account.payment.modeOrdersWithoutPayment')}</span>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{t('settings.account.payment.modeOrdersWithoutPaymentDesc')}</p>
                     </div>
                   </label>
-                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
+                  <label className="flex items-start gap-3 p-4 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50/50 has-[:checked]:border-neutral-800 has-[:checked]:bg-neutral-50">
                     <input
                       type="radio"
                       name="paymentMode"
@@ -625,14 +644,14 @@ const Settings = () => {
                       className="mt-1 h-4 w-4 text-neutral-800 border-gray-300 focus:ring-neutral-500"
                     />
                     <div>
-                      <span className="text-sm font-medium text-gray-900">{t('settings.account.payment.modeFullPayments')}</span>
-                      <p className="text-xs text-gray-500 mt-0.5">{t('settings.account.payment.modeFullPaymentsDesc')}</p>
+                      <span className="text-sm font-semibold text-gray-900">{t('settings.account.payment.modeFullPayments')}</span>
+                      <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{t('settings.account.payment.modeFullPaymentsDesc')}</p>
                     </div>
                   </label>
                 </div>
                 {selectedPaymentMode === 'catalogue' && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('settings.account.payment.catalogueMessageLabel')}</label>
+                    <label className="block text-sm font-medium text-gray-800 mb-1">{t('settings.account.payment.catalogueMessageLabel')}</label>
                     <textarea
                       value={formData.catalogueOnlyMessage ?? ''}
                       onChange={(e) => handleInputChange('catalogueOnlyMessage', e.target.value)}
@@ -640,16 +659,16 @@ const Settings = () => {
                       rows={3}
                       placeholder={t('settings.account.payment.catalogueMessagePlaceholder')}
                     />
-                    <p className="mt-1 text-sm text-gray-500">{t('settings.account.payment.catalogueMessageHelp')}</p>
+                    <p className="mt-1.5 text-xs text-gray-500 leading-relaxed">{t('settings.account.payment.catalogueMessageHelp')}</p>
                   </div>
                 )}
                 {selectedPaymentMode === 'orders_without_payment' && (
-                  <p className="text-sm text-gray-500 mb-4">{t('settings.account.payment.allowOrdersWithoutPaymentHelp')}</p>
+                  <p className="text-xs text-gray-500 leading-relaxed mb-4">{t('settings.account.payment.allowOrdersWithoutPaymentHelp')}</p>
                 )}
                 {selectedPaymentMode === 'full' && (
-                  <div className="space-y-4 rounded-lg border border-gray-200 p-4 bg-gray-50">
+                  <div className="space-y-4 rounded-lg border border-gray-200 p-4 bg-gray-50/80">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.account.payment.modal.iban')}</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-1">{t('settings.account.payment.modal.iban')}</label>
                       <input
                         type="text"
                         value={iban}
@@ -658,10 +677,10 @@ const Settings = () => {
                         placeholder={t('settings.account.payment.modal.ibanPlaceholder')}
                         maxLength={34}
                       />
-                      <p className="mt-1 text-xs text-gray-500">{t('settings.account.payment.modal.ibanHelp')}</p>
+                      <p className="mt-1 text-xs text-gray-500 leading-relaxed">{t('settings.account.payment.modal.ibanHelp')}</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('settings.account.payment.modal.businessIdentifier')}</label>
+                      <label className="block text-sm font-medium text-gray-800 mb-1">{t('settings.account.payment.modal.businessIdentifier')}</label>
                       <input
                         type="text"
                         value={formData.businessIdentifier ?? ''}
@@ -669,18 +688,25 @@ const Settings = () => {
                         className="input-field"
                         placeholder={t('settings.account.payment.modal.businessIdentifierPlaceholder')}
                       />
-                      <p className="mt-1 text-xs text-gray-500">{t('settings.account.payment.modal.businessIdentifierHelp')}</p>
+                      <p className="mt-1 text-xs text-gray-500 leading-relaxed">{t('settings.account.payment.modal.businessIdentifierHelp')}</p>
                     </div>
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Password Change */}
-              <div className="border-t pt-6">
-                <h4 className="text-md font-medium text-gray-900 mb-4">{t('settings.account.password.title')}</h4>
+            {/* Password — card */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="border-l-4 border-neutral-800 bg-gray-50/80 px-5 py-3">
+                <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <KeyIcon className="w-5 h-5 text-gray-600" />
+                  {t('settings.account.password.title')}
+                </h4>
+              </div>
+              <div className="p-5">
                 {passwordChangeStep === 'idle' && (
                   <div>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <p className="text-sm text-gray-600 leading-relaxed mb-4">
                       {t('settings.account.password.description')}
                     </p>
                     <button
@@ -696,11 +722,11 @@ const Settings = () => {
 
                 {passwordChangeStep === 'code-sent' && (
                   <div className="space-y-4">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 leading-relaxed">
                       {t('settings.account.password.codeSent')}
                     </p>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-800 mb-1">
                         {t('settings.account.password.verificationCode.label')}
                       </label>
                       <input
@@ -713,7 +739,7 @@ const Settings = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-800 mb-1">
                         {t('settings.account.password.newPassword.label')}
                       </label>
                       <input
@@ -726,7 +752,7 @@ const Settings = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-800 mb-1">
                         {t('settings.account.password.confirmPassword.label')}
                       </label>
                       <input
@@ -738,7 +764,7 @@ const Settings = () => {
                         minLength={8}
                       />
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 pt-2">
                       <button
                         type="button"
                         onClick={() => {

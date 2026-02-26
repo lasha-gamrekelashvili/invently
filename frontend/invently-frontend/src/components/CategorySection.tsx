@@ -52,7 +52,11 @@ const CategorySection: React.FC<CategorySectionProps> = ({
           {/* Category Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-1 h-8 rounded-full" style={{ backgroundColor: categorySectionAccentColor }}></div>
+              <div className="flex flex-col gap-1.5 justify-center" style={{ color: categorySectionAccentColor }}>
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="w-1.5 h-1.5 rounded-full opacity-80" style={{ backgroundColor: 'currentColor' }} />
+                ))}
+              </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light tracking-tight" style={{ color: categorySectionTitleColor }}>
                 {categoryName}
               </h2>

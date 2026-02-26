@@ -1,6 +1,6 @@
 import React from 'react';
 import { UpdateStoreSettingsData } from '../types';
-import { ChevronRightIcon, MagnifyingGlassIcon, ShoppingBagIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, ChevronDownIcon, MagnifyingGlassIcon, ShoppingBagIcon, ShoppingCartIcon, Squares2X2Icon, FolderIcon } from '@heroicons/react/24/outline';
 
 interface StorefrontPreviewProps {
   colors: UpdateStoreSettingsData;
@@ -76,91 +76,84 @@ const StorefrontPreview: React.FC<StorefrontPreviewProps> = ({ colors, onReset }
         </div>
 
         <div className="flex flex-1 min-h-0">
-          {/* Sidebar Preview - Matches actual sidebar (320px scaled proportionally) */}
-          <div className="w-40 border-r p-4 space-y-4 overflow-y-auto" style={{ backgroundColor: sidebarBackgroundColor, borderColor: sidebarBorderColor }}>
-            {/* All Products Button */}
-            <button 
-              className="w-full px-3 py-2 rounded-lg text-[9px] font-medium transition-all"
-              style={{ backgroundColor: sidebarSelectedColor, color: sidebarSelectedTextColor }}
-            >
-              All Products
-            </button>
-            
-            {/* Categories */}
-            <div>
-              <div className="text-[8px] font-medium px-1 uppercase tracking-wider mb-3" style={{ color: sidebarHeadingColor }}>
-                Categories
+          {/* Sidebar Preview - Matches StorefrontLayout (cards, section headers, category list) */}
+          <div className="w-44 border-r p-3 space-y-3 overflow-y-auto" style={{ backgroundColor: sidebarBackgroundColor, borderColor: sidebarBorderColor }}>
+            {/* All Products — primary action card */}
+            <div className="rounded-lg border overflow-hidden" style={{ borderColor: sidebarBorderColor }}>
+              <div
+                className="w-full flex items-center gap-2 px-2.5 py-2 text-left text-[9px] font-medium rounded-lg"
+                style={{ backgroundColor: sidebarSelectedColor, color: sidebarSelectedTextColor }}
+              >
+                <span className="flex items-center justify-center w-6 h-6 rounded shrink-0" style={{ backgroundColor: 'rgba(0,0,0,0.06)' }}>
+                  <Squares2X2Icon className="w-3.5 h-3.5" style={{ color: sidebarSelectedTextColor }} />
+                </span>
+                All Products
               </div>
-              <div className="space-y-0.5">
-                <div
-                  className="group flex items-center py-2 px-2 rounded-lg text-[9px] transition-colors"
-                  style={{ color: sidebarTextColor }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.sidebarHoverColor || '#e5e5e580';
-                    e.currentTarget.style.color = sidebarSelectedTextColor;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = sidebarTextColor;
-                  }}
-                >
-                  <ChevronRightIcon className="w-3 h-3 mr-2 flex-shrink-0" style={{ color: sidebarTextColor, opacity: 0.4 }} />
-                  <span className="font-medium">Beauty & Health</span>
+            </div>
+
+            {/* Categories — section card */}
+            <div className="rounded-lg border overflow-hidden" style={{ borderColor: sidebarBorderColor, backgroundColor: 'rgba(255,255,255,0.5)' }}>
+              <div className="px-2.5 py-1.5 border-b flex items-center gap-1.5" style={{ borderColor: sidebarDividerColor, backgroundColor: 'rgba(0,0,0,0.03)' }}>
+                <FolderIcon className="w-3 h-3 shrink-0" style={{ color: sidebarTextColor }} />
+                <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: sidebarTextColor }}>
+                  Categories
+                </span>
+              </div>
+              <div className="p-2 space-y-0.5">
+                {/* Beauty & Health (expanded) */}
+                <div className="flex items-center min-h-[28px] py-1.5 px-2 rounded-md text-[9px] font-semibold" style={{ color: sidebarTextColor }}>
+                  <span className="w-5 h-5 flex items-center justify-center mr-1.5 shrink-0">
+                    <ChevronDownIcon className="w-3 h-3" style={{ color: 'inherit' }} />
+                  </span>
+                  <span>Beauty & Health</span>
                 </div>
-                <div className="ml-4 mt-1 border-l pl-2" style={{ borderColor: sidebarDividerColor }}>
-                  <div className="flex items-center py-2 px-2 rounded-lg text-[9px] font-medium" style={{ backgroundColor: sidebarSelectedColor, color: sidebarSelectedTextColor }}>
-                    <div className="w-1.5 h-1.5 rounded-full mr-2" style={{ backgroundColor: sidebarSelectedTextColor, opacity: 0.5 }}></div>
+                <div className="ml-2 pl-2 border-l-2 border-dashed" style={{ borderColor: sidebarDividerColor }}>
+                  <div
+                    className="flex items-center min-h-[28px] py-1.5 px-2 rounded-md text-[9px] font-medium border-l-2"
+                    style={{ backgroundColor: sidebarSelectedColor, color: sidebarSelectedTextColor, borderLeftColor: 'currentColor' }}
+                  >
+                    <span className="w-5 h-5 mr-1.5 flex items-center justify-center shrink-0">
+                      <span className="w-1 h-1 rounded-full opacity-60" style={{ backgroundColor: 'currentColor' }} />
+                    </span>
                     Supplements
                   </div>
                 </div>
-                <div
-                  className="group flex items-center py-2 px-2 rounded-lg text-[9px] transition-colors"
-                  style={{ color: sidebarTextColor }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.sidebarHoverColor || '#e5e5e580';
-                    e.currentTarget.style.color = sidebarSelectedTextColor;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = sidebarTextColor;
-                  }}
-                >
-                  <ChevronRightIcon className="w-3 h-3 mr-2 flex-shrink-0" style={{ color: sidebarTextColor, opacity: 0.4 }} />
-                  <span>Books & Media</span>
-                </div>
-                <div
-                  className="group flex items-center py-2 px-2 rounded-lg text-[9px] transition-colors"
-                  style={{ color: sidebarTextColor }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.sidebarHoverColor || '#e5e5e580';
-                    e.currentTarget.style.color = sidebarSelectedTextColor;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = sidebarTextColor;
-                  }}
-                >
-                  <ChevronRightIcon className="w-3 h-3 mr-2 flex-shrink-0" style={{ color: sidebarTextColor, opacity: 0.4 }} />
-                  <span>Electronics</span>
-                </div>
-                <div
-                  className="group flex items-center py-2 px-2 rounded-lg text-[9px] transition-colors"
-                  style={{ color: sidebarTextColor }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colors.sidebarHoverColor || '#e5e5e580';
-                    e.currentTarget.style.color = sidebarSelectedTextColor;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = sidebarTextColor;
-                  }}
-                >
-                  <ChevronRightIcon className="w-3 h-3 mr-2 flex-shrink-0" style={{ color: sidebarTextColor, opacity: 0.4 }} />
-                  <span>Fashion</span>
+                {/* Collapsed categories */}
+                {['Books & Media', 'Electronics', 'Fashion'].map((name) => (
+                  <div
+                    key={name}
+                    className="group flex items-center min-h-[28px] py-1.5 px-2 rounded-md text-[9px] font-semibold transition-colors"
+                    style={{ color: sidebarTextColor }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = colors.sidebarHoverColor || '#e5e5e580';
+                      e.currentTarget.style.color = sidebarSelectedTextColor;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = sidebarTextColor;
+                    }}
+                  >
+                    <span className="w-5 h-5 flex items-center justify-center mr-1.5 shrink-0">
+                      <ChevronRightIcon className="w-3 h-3" style={{ color: 'inherit' }} />
+                    </span>
+                    <span>{name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Price — section card (Min / Max inputs) */}
+            <div className="rounded-lg border overflow-hidden" style={{ borderColor: sidebarBorderColor, backgroundColor: 'rgba(255,255,255,0.5)' }}>
+              <div className="px-2.5 py-1.5 border-b" style={{ borderColor: sidebarDividerColor }}>
+                <span className="text-[8px] font-semibold uppercase tracking-wider" style={{ color: sidebarTextColor }}>Price</span>
+              </div>
+              <div className="p-2">
+                <div className="flex gap-1">
+                  <input readOnly tabIndex={-1} className="w-full h-5 rounded border text-[8px] px-1.5 outline-none pointer-events-none" style={{ borderColor: sidebarBorderColor, backgroundColor: 'white' }} placeholder="Min" />
+                  <input readOnly tabIndex={-1} className="w-full h-5 rounded border text-[8px] px-1.5 outline-none pointer-events-none" style={{ borderColor: sidebarBorderColor, backgroundColor: 'white' }} placeholder="Max" />
                 </div>
               </div>
             </div>
-            
           </div>
 
           {/* Main Content Preview - Matches actual layout with proper padding */}
@@ -171,7 +164,11 @@ const StorefrontPreview: React.FC<StorefrontPreviewProps> = ({ colors, onReset }
                 {/* Category Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-0.5 h-6 rounded-full" style={{ backgroundColor: categorySectionAccentColor }}></div>
+                    <div className="flex flex-col gap-0.5 justify-center" style={{ color: categorySectionAccentColor }}>
+                      {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="w-1 h-1 rounded-full opacity-80" style={{ backgroundColor: 'currentColor' }} />
+                      ))}
+                    </div>
                     <h2 className="text-base font-light tracking-tight" style={{ color: categorySectionTitleColor }}>
                       Beauty & Health
                     </h2>

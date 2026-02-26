@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
+import { Squares2X2Icon, FolderIcon } from '@heroicons/react/24/outline';
 import StorefrontHeader from './StorefrontHeader';
 import StorefrontFooter from './StorefrontFooter';
 import StorefrontCategoryList from './StorefrontCategoryList';
 import CategoryListSkeleton from './CategoryListSkeleton';
-import PriceRangeSlider from './PriceRangeSlider';
-import PriceRangeSliderSkeleton from './PriceRangeSliderSkeleton';
 
 interface StorefrontLayoutProps {
   children: React.ReactNode;
@@ -112,72 +111,105 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
         {!hideSidebar && (
           <aside className="hidden lg:flex lg:flex-col flex-shrink-0 border-r sticky top-14 sm:top-16 md:top-20 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]" style={{ width: '320px', backgroundColor: sidebarBackgroundColor, borderColor: sidebarBorderColor }}>
             <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                {/* All Products Button */}
-                <button
-                  onClick={onAllProductsClick}
-                  className={`w-full px-4 py-2.5 text-sm rounded-lg transition-all ${
-                    !selectedCategoryId ? 'font-medium' : ''
-                  }`}
-                  style={{
-                    backgroundColor: !selectedCategoryId ? sidebarSelectedColor : 'transparent',
-                    color: !selectedCategoryId ? sidebarSelectedTextColor : sidebarTextColor,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedCategoryId) {
-                      e.currentTarget.style.backgroundColor = sidebarHoverColor;
-                      e.currentTarget.style.color = sidebarSelectedTextColor;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedCategoryId) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = sidebarTextColor;
-                    }
-                  }}
-                >
-                  All Products
-                </button>
-
-                {/* Categories */}
-                <div>
-                  <h3 className="text-xs font-medium text-neutral-500 mb-4 px-1 uppercase tracking-wider">
-                    Categories
-                  </h3>
-                  {categoriesLoading ? (
-                    <CategoryListSkeleton />
-                  ) : categories && categories.length > 0 ? (
-                    <StorefrontCategoryList
-                      categories={categories}
-                      onSelect={onCategorySelect}
-                      selectedCategoryId={selectedCategoryId}
-                      expandedCategoryIds={expandedCategoryIds}
-                      sidebarSelectedColor={sidebarSelectedColor}
-                      sidebarHoverColor={sidebarHoverColor}
-                      sidebarTextColor={sidebarTextColor}
-                      sidebarSelectedTextColor={sidebarSelectedTextColor}
-                      sidebarDividerColor={sidebarDividerColor}
-                    />
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-sm text-neutral-500">No categories available</p>
-                    </div>
-                  )}
+              <div className="flex-1 overflow-y-auto p-4 space-y-5">
+                {/* All Products — primary action card */}
+                <div className="rounded-xl border overflow-hidden" style={{ borderColor: sidebarBorderColor }}>
+                  <button
+                    onClick={onAllProductsClick}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium rounded-xl transition-all ${
+                      !selectedCategoryId ? 'shadow-sm' : ''
+                    }`}
+                    style={{
+                      backgroundColor: !selectedCategoryId ? sidebarSelectedColor : 'transparent',
+                      color: !selectedCategoryId ? sidebarSelectedTextColor : sidebarTextColor,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedCategoryId) {
+                        e.currentTarget.style.backgroundColor = sidebarHoverColor;
+                        e.currentTarget.style.color = sidebarSelectedTextColor;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedCategoryId) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = sidebarTextColor;
+                      }
+                    }}
+                  >
+                    <span className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0" style={{ backgroundColor: !selectedCategoryId ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.04)' }}>
+                      <Squares2X2Icon className="w-5 h-5" style={{ color: !selectedCategoryId ? sidebarSelectedTextColor : sidebarTextColor }} />
+                    </span>
+                    All Products
+                  </button>
                 </div>
 
-                {/* Price Filter */}
-                <div className="pt-2">
-                  <hr className="my-4" style={{ borderColor: sidebarDividerColor }} />
-                  {priceRangeLoading ? (
-                    <PriceRangeSliderSkeleton />
-                  ) : (
-                    <PriceRangeSlider
-                      value={externalPriceRange || { min: '', max: '' }}
-                      onChange={onPriceRangeChange || (() => {})}
-                      minPrice={0}
-                      maxPrice={maxPrice}
-                    />
-                  )}
+                {/* Categories — section card */}
+                <div className="rounded-xl border overflow-hidden bg-white/50" style={{ borderColor: sidebarBorderColor }}>
+                  <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ borderColor: sidebarDividerColor, backgroundColor: 'rgba(0,0,0,0.03)' }}>
+                    <FolderIcon className="w-4 h-4 shrink-0" style={{ color: sidebarTextColor }} />
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: sidebarTextColor }}>
+                      Categories
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    {categoriesLoading ? (
+                      <CategoryListSkeleton />
+                    ) : categories && categories.length > 0 ? (
+                      <StorefrontCategoryList
+                        categories={categories}
+                        onSelect={onCategorySelect}
+                        selectedCategoryId={selectedCategoryId}
+                        expandedCategoryIds={expandedCategoryIds}
+                        sidebarSelectedColor={sidebarSelectedColor}
+                        sidebarHoverColor={sidebarHoverColor}
+                        sidebarTextColor={sidebarTextColor}
+                        sidebarSelectedTextColor={sidebarSelectedTextColor}
+                        sidebarDividerColor={sidebarDividerColor}
+                      />
+                    ) : (
+                      <div className="text-center py-6">
+                        <p className="text-sm" style={{ color: sidebarTextColor }}>No categories available</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Price Filter — Min / Max inputs */}
+                <div className="rounded-xl border overflow-hidden bg-white/50" style={{ borderColor: sidebarBorderColor }}>
+                  <div className="px-4 py-3 border-b" style={{ borderColor: sidebarDividerColor }}>
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: sidebarTextColor }}>Price</span>
+                  </div>
+                  <div className="p-4">
+                    {priceRangeLoading ? (
+                      <div className="flex gap-2">
+                        <div className="h-9 flex-1 rounded-lg bg-gray-200 animate-pulse" />
+                        <div className="h-9 flex-1 rounded-lg bg-gray-200 animate-pulse" />
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={maxPrice}
+                          placeholder="Min"
+                          value={(externalPriceRange?.min ?? '')}
+                          onChange={(e) => (onPriceRangeChange || (() => {}))(e.target.value, externalPriceRange?.max ?? '')}
+                          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
+                          style={{ borderColor: sidebarBorderColor }}
+                        />
+                        <input
+                          type="number"
+                          min={0}
+                          max={maxPrice}
+                          placeholder="Max"
+                          value={(externalPriceRange?.max ?? '')}
+                          onChange={(e) => (onPriceRangeChange || (() => {}))(externalPriceRange?.min ?? '', e.target.value)}
+                          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
+                          style={{ borderColor: sidebarBorderColor }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,77 +224,111 @@ const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({
           style={{ backgroundColor: sidebarBackgroundColor, borderColor: sidebarBorderColor }}
           >
             <div className="flex flex-col h-full">
-              <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                {/* All Products Button */}
-                <button
-                  onClick={() => {
-                    onAllProductsClick?.();
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full px-4 py-2.5 text-sm rounded-lg transition-all ${
-                    !selectedCategoryId ? 'font-medium' : ''
-                  }`}
-                  style={{
-                    backgroundColor: !selectedCategoryId ? sidebarSelectedColor : 'transparent',
-                    color: !selectedCategoryId ? sidebarSelectedTextColor : sidebarTextColor,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedCategoryId) {
-                      e.currentTarget.style.backgroundColor = sidebarHoverColor;
-                      e.currentTarget.style.color = sidebarSelectedTextColor;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedCategoryId) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = sidebarTextColor;
-                    }
-                  }}
-                >
-                  All Products
-                </button>
-
-                {/* Categories */}
-                <div>
-                  <h3 className="text-xs font-medium text-neutral-500 mb-4 px-1 uppercase tracking-wider">
-                    Categories
-                  </h3>
-                  {categoriesLoading ? (
-                    <CategoryListSkeleton />
-                  ) : categories && categories.length > 0 ? (
-                    <StorefrontCategoryList
-                      categories={categories}
-                      onSelect={(id) => {
-                        onCategorySelect?.(id);
-                        setSidebarOpen(false);
-                      }}
-                      selectedCategoryId={selectedCategoryId}
-                      expandedCategoryIds={expandedCategoryIds}
-                      sidebarSelectedColor={sidebarSelectedColor}
-                      sidebarHoverColor={sidebarHoverColor}
-                      sidebarTextColor={sidebarTextColor}
-                      sidebarSelectedTextColor={sidebarSelectedTextColor}
-                    />
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-sm text-neutral-500">No categories available</p>
-                    </div>
-                  )}
+              <div className="flex-1 overflow-y-auto p-4 space-y-5">
+                {/* All Products — primary action card */}
+                <div className="rounded-xl border overflow-hidden" style={{ borderColor: sidebarBorderColor }}>
+                  <button
+                    onClick={() => {
+                      onAllProductsClick?.();
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium rounded-xl transition-all ${
+                      !selectedCategoryId ? 'shadow-sm' : ''
+                    }`}
+                    style={{
+                      backgroundColor: !selectedCategoryId ? sidebarSelectedColor : 'transparent',
+                      color: !selectedCategoryId ? sidebarSelectedTextColor : sidebarTextColor,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedCategoryId) {
+                        e.currentTarget.style.backgroundColor = sidebarHoverColor;
+                        e.currentTarget.style.color = sidebarSelectedTextColor;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedCategoryId) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = sidebarTextColor;
+                      }
+                    }}
+                  >
+                    <span className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0" style={{ backgroundColor: !selectedCategoryId ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.04)' }}>
+                      <Squares2X2Icon className="w-5 h-5" style={{ color: !selectedCategoryId ? sidebarSelectedTextColor : sidebarTextColor }} />
+                    </span>
+                    All Products
+                  </button>
                 </div>
 
-                {/* Price Filter */}
-                <div className="pt-2">
-                  <hr className="border-neutral-200 my-3" />
-                  {priceRangeLoading ? (
-                    <PriceRangeSliderSkeleton />
-                  ) : (
-                    <PriceRangeSlider
-                      value={externalPriceRange || { min: '', max: '' }}
-                      onChange={onPriceRangeChange || (() => {})}
-                      minPrice={0}
-                      maxPrice={maxPrice}
-                    />
-                  )}
+                {/* Categories — section card */}
+                <div className="rounded-xl border overflow-hidden bg-white/50" style={{ borderColor: sidebarBorderColor }}>
+                  <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ borderColor: sidebarDividerColor, backgroundColor: 'rgba(0,0,0,0.03)' }}>
+                    <FolderIcon className="w-4 h-4 shrink-0" style={{ color: sidebarTextColor }} />
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: sidebarTextColor }}>
+                      Categories
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    {categoriesLoading ? (
+                      <CategoryListSkeleton />
+                    ) : categories && categories.length > 0 ? (
+                      <StorefrontCategoryList
+                        categories={categories}
+                        onSelect={(id) => {
+                          onCategorySelect?.(id);
+                          setSidebarOpen(false);
+                        }}
+                        selectedCategoryId={selectedCategoryId}
+                        expandedCategoryIds={expandedCategoryIds}
+                        sidebarSelectedColor={sidebarSelectedColor}
+                        sidebarHoverColor={sidebarHoverColor}
+                        sidebarTextColor={sidebarTextColor}
+                        sidebarSelectedTextColor={sidebarSelectedTextColor}
+                        sidebarDividerColor={sidebarDividerColor}
+                      />
+                    ) : (
+                      <div className="text-center py-6">
+                        <p className="text-sm" style={{ color: sidebarTextColor }}>No categories available</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Price Filter — Min / Max inputs */}
+                <div className="rounded-xl border overflow-hidden bg-white/50" style={{ borderColor: sidebarBorderColor }}>
+                  <div className="px-4 py-3 border-b" style={{ borderColor: sidebarDividerColor }}>
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: sidebarTextColor }}>Price</span>
+                  </div>
+                  <div className="p-4">
+                    {priceRangeLoading ? (
+                      <div className="flex gap-2">
+                        <div className="h-9 flex-1 rounded-lg bg-gray-200 animate-pulse" />
+                        <div className="h-9 flex-1 rounded-lg bg-gray-200 animate-pulse" />
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={maxPrice}
+                          placeholder="Min"
+                          value={(externalPriceRange?.min ?? '')}
+                          onChange={(e) => (onPriceRangeChange || (() => {}))(e.target.value, externalPriceRange?.max ?? '')}
+                          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
+                          style={{ borderColor: sidebarBorderColor }}
+                        />
+                        <input
+                          type="number"
+                          min={0}
+                          max={maxPrice}
+                          placeholder="Max"
+                          value={(externalPriceRange?.max ?? '')}
+                          onChange={(e) => (onPriceRangeChange || (() => {}))(externalPriceRange?.min ?? '', e.target.value)}
+                          className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
+                          style={{ borderColor: sidebarBorderColor }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
