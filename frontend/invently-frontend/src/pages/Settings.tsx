@@ -33,6 +33,7 @@ const Settings = () => {
   const { data: settingsResponse, isLoading } = useQuery({
     queryKey: ['settings'],
     queryFn: settingsAPI.getSettings,
+    gcTime: 0,
   });
 
   // Pre-fill form data when settings are loaded (includes customDomain, subdomain from API)
