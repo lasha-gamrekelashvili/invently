@@ -158,7 +158,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
               }}
               placeholder={t('products.imageUploader.urlUpload.urlPlaceholder')}
               className="input-field"
-              required
               disabled={isAddingByUrl}
             />
           </div>

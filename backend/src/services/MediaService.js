@@ -17,13 +17,11 @@ export class MediaService {
       throw new Error('Product not found');
     }
 
-    const { filename, path } = fileData;
+    const { filename, url } = fileData;
     const { altText = '', sortOrder = 0 } = metadata;
 
-    const imageUrl = `/api/images/${filename}`;
-
     const productImage = await this.mediaRepository.createProductImage({
-      url: imageUrl,
+      url,
       altText,
       filename,
       productId,

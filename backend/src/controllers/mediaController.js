@@ -1,20 +1,9 @@
 import multer from 'multer';
-import path from 'path';
-import crypto from 'crypto';
 import { MediaService } from '../services/MediaService.js';
 import { ApiResponse } from '../utils/responseFormatter.js';
+import { uploadImage } from '../services/SpacesService.js';
 
 const mediaService = new MediaService();
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, process.env.UPLOAD_PATH || './uploads');
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${crypto.randomUUID()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  }
-});
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -26,7 +15,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB
@@ -38,17 +27,25 @@ const uploadProductImage = async (req, res) => {
     const { productId } = req.params;
     const { altText, sortOrder = 0 } = req.body;
     const tenantId = req.tenantId;
+    const tenantSlug = req.tenant?.slug;
 
     if (!req.file) {
       return res.status(400).json(ApiResponse.error('No file uploaded'));
     }
 
+    const cdnUrl = await uploadImage(
+      req.file.buffer,
+      req.file.originalname,
+      tenantSlug,
+      req.file.mimetype
+    );
+
     const productImage = await mediaService.uploadProductImage(
       productId,
       tenantId,
       {
-        filename: req.file.filename,
-        path: req.file.path,
+        filename: req.file.originalname,
+        url: cdnUrl,
       },
       { altText, sortOrder }
     );
