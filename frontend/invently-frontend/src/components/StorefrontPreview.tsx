@@ -14,7 +14,6 @@ const StorefrontPreview: React.FC<StorefrontPreviewProps> = ({ colors, onReset }
   const sidebarSelectedColor = colors.sidebarSelectedColor || '#e5e5e5';
   const sidebarTextColor = colors.sidebarTextColor || '#525252';
   const sidebarSelectedTextColor = colors.sidebarSelectedTextColor || '#171717';
-  const sidebarHeadingColor = colors.sidebarHeadingColor || '#737373';
   const sidebarDividerColor = colors.sidebarDividerColor || '#e5e5e5';
   const sidebarBorderColor = colors.sidebarBorderColor || '#e5e5e5';
   const headerBackgroundColor = colors.headerBackgroundColor || '#ffffff';
