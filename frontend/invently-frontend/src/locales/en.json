@@ -950,6 +950,15 @@
           "label": "Subdomain",
           "placeholder": "yourstore",
           "helpText": "Your store's subdomain. This is used in your store URL (e.g., yourstore.shopu.ge). Only lowercase letters and numbers are allowed."
+        },
+        "customDomain": {
+          "label": "Custom Domain (Optional)",
+          "placeholder": "mystore.com",
+          "helpText": "Enter your custom domain (e.g., mystore.com or www.mystore.com). After saving, configure two DNS records with your domain registrar:",
+          "aRecord": "A record",
+          "cnameRecord": "CNAME record",
+          "propagation": "Your store will be available at your custom domain once DNS propagates (5–60 minutes).",
+          "remove": "Remove custom domain"
         }
       },
       "payment": {

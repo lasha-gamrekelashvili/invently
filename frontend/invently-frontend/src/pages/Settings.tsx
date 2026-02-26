@@ -574,25 +574,30 @@ const Settings = () => {
                 </div>
                 <div className="pt-4 border-t border-gray-100">
                   <label className="block text-sm font-medium text-gray-800">
-                    Custom Domain (Optional)
+                    {t('settings.account.shop.customDomain.label')}
                   </label>
                   <input
                     type="text"
                     value={customDomain}
                     onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
                     className="input-field mt-1"
-                    placeholder="www.mystore.com"
+                    placeholder={t('settings.account.shop.customDomain.placeholder')}
                   />
                   <p className="mt-1.5 text-xs text-gray-500 leading-relaxed max-w-xl">
-                    Enter your custom domain (e.g., www.mystore.com). After saving, configure your DNS: Add a CNAME record pointing &apos;www&apos; to &apos;shopu.ge&apos;. Your store will be available at your custom domain once DNS propagates (5–60 minutes).
+                    {t('settings.account.shop.customDomain.helpText')}
                   </p>
+                  <ul className="mt-1.5 text-xs text-gray-500 space-y-0.5 max-w-xl list-none">
+                    <li><span className="font-medium text-gray-600">{t('settings.account.shop.customDomain.aRecord')}</span> — name: <span className="font-mono">yourdomain.com</span>, value: <span className="font-mono">159.65.123.185</span></li>
+                    <li><span className="font-medium text-gray-600">{t('settings.account.shop.customDomain.cnameRecord')}</span> — name: <span className="font-mono">www.yourdomain.com</span>, value: <span className="font-mono">yourdomain.com</span></li>
+                  </ul>
+                  <p className="mt-1.5 text-xs text-gray-500 max-w-xl">{t('settings.account.shop.customDomain.propagation')}</p>
                   {customDomain && (
                     <button
                       type="button"
                       onClick={() => setCustomDomain('')}
                       className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium"
                     >
-                      Remove custom domain
+                      {t('settings.account.shop.customDomain.remove')}
                     </button>
                   )}
                 </div>
