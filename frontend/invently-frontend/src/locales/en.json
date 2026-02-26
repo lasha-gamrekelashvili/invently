@@ -87,6 +87,26 @@
       "signUpLink": "Sign up here",
       "successMessage": "Login successful! Welcome back."
     },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "enterEmail": "Enter your email and we'll send you a 6-digit code to reset your password.",
+      "sendCode": "Send reset code",
+      "sending": "Sending...",
+      "backToLogin": "Back to login",
+      "resetCodeSent": "If an account exists for that email, a reset code has been sent.",
+      "requestError": "Failed to send reset code. Please try again.",
+      "codeSent": "We've sent a 6-digit code to {{email}}. Enter it below with your new password.",
+      "verificationCode": "Verification code",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm new password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "resetButton": "Reset password",
+      "resetting": "Resetting...",
+      "successMessage": "Password reset successfully. You can now sign in with your new password.",
+      "resetError": "Failed to reset password. Check the code and try again.",
+      "invalidCode": "Please enter a valid 6-digit code."
+    },
     "register": {
       "title": "Create Account",
       "subtitle": "Get started with your new store",

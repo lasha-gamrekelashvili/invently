@@ -10,6 +10,8 @@ import LandingHeader from '../components/LandingHeader';
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useMutation } from '@tanstack/react-query';
 
+type ForgotStep = 'email' | 'code' | null;
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +19,12 @@ const Login = () => {
   const [error, setError] = useState('');
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotStep, setForgotStep] = useState<ForgotStep>(null);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const { login } = useAuth();
   const { t } = useLanguage();
@@ -78,6 +86,53 @@ const Login = () => {
     },
   });
 
+  const requestPasswordResetMutation = useMutation({
+    mutationFn: (emailToUse: string) => authAPI.requestPasswordReset(emailToUse),
+    onSuccess: (_, emailToUse) => {
+      handleSuccess(t('auth.forgotPassword.resetCodeSent'));
+      setForgotEmail(emailToUse);
+      setForgotStep('code');
+    },
+    onError: (err: any) => {
+      handleApiError(err, t('auth.forgotPassword.requestError'));
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: ({ emailToUse, code, newPass }: { emailToUse: string; code: string; newPass: string }) =>
+      authAPI.resetPassword(emailToUse, code, newPass),
+    onSuccess: () => {
+      handleSuccess(t('auth.forgotPassword.successMessage'));
+      setShowForgotPassword(false);
+      setForgotStep(null);
+      setForgotEmail('');
+      setResetCode('');
+      setNewPassword('');
+      setConfirmPassword('');
+    },
+    onError: (err: any) => {
+      handleApiError(err, t('auth.forgotPassword.resetError'));
+    },
+  });
+
+  const openForgotPassword = () => {
+    setShowForgotPassword(true);
+    setForgotStep('email');
+    setForgotEmail(email || '');
+    setResetCode('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
+  const closeForgotPassword = () => {
+    setShowForgotPassword(false);
+    setForgotStep(null);
+    setForgotEmail('');
+    setResetCode('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Navigation */}
@@ -103,7 +158,126 @@ const Login = () => {
         <div className="max-w-md w-full">
           {/* Form Card */}
           <div className="bg-white rounded-2xl border border-neutral-200 p-8 sm:p-10">
-            {emailNotVerified ? (
+            {showForgotPassword ? (
+              <div className="space-y-5">
+                <h2 className="text-xl font-medium text-neutral-900 mb-1">
+                  <T tKey="auth.forgotPassword.title" />
+                </h2>
+                {forgotStep === 'email' && (
+                  <>
+                    <p className="text-sm text-neutral-500">
+                      <T tKey="auth.forgotPassword.enterEmail" />
+                    </p>
+                    <div>
+                      <label htmlFor="forgot-email" className="block text-sm font-medium text-neutral-700 mb-2">
+                        <T tKey="auth.login.email" />
+                      </label>
+                      <input
+                        id="forgot-email"
+                        type="email"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="block w-full px-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+                        placeholder={t('auth.login.email')}
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => requestPasswordResetMutation.mutate(forgotEmail)}
+                        disabled={requestPasswordResetMutation.isPending || !forgotEmail.trim()}
+                        className="flex-1 bg-neutral-900 text-white py-3.5 px-4 rounded-full font-medium text-base hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                      >
+                        {requestPasswordResetMutation.isPending ? <LoadingSpinner size="sm" /> : t('auth.forgotPassword.sendCode')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={closeForgotPassword}
+                        className="px-4 py-3 border border-neutral-300 rounded-full text-neutral-700 hover:bg-neutral-50 transition-colors"
+                      >
+                        <T tKey="auth.forgotPassword.backToLogin" />
+                      </button>
+                    </div>
+                  </>
+                )}
+                {forgotStep === 'code' && (
+                  <>
+                    <p className="text-sm text-neutral-500">
+                      {t('auth.forgotPassword.codeSent', { email: forgotEmail })}
+                    </p>
+                    <div>
+                      <label htmlFor="reset-code" className="block text-sm font-medium text-neutral-700 mb-2">
+                        <T tKey="auth.forgotPassword.verificationCode" />
+                      </label>
+                      <input
+                        id="reset-code"
+                        type="text"
+                        value={resetCode}
+                        onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        className="block w-full px-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all text-center text-2xl tracking-widest"
+                        placeholder="000000"
+                        maxLength={6}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="new-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                        <T tKey="auth.forgotPassword.newPassword" />
+                      </label>
+                      <input
+                        id="new-password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="block w-full px-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+                        placeholder={t('auth.forgotPassword.newPasswordPlaceholder')}
+                        minLength={8}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                        <T tKey="auth.forgotPassword.confirmPassword" />
+                      </label>
+                      <input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="block w-full px-4 py-3 border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
+                        placeholder={t('auth.forgotPassword.confirmPasswordPlaceholder')}
+                        minLength={8}
+                      />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (newPassword !== confirmPassword) {
+                            handleApiError({ message: t('auth.errors.passwordsDoNotMatch') }, t('auth.errors.passwordsDoNotMatch'));
+                            return;
+                          }
+                          if (resetCode.length !== 6) {
+                            handleApiError({ message: t('auth.forgotPassword.invalidCode') }, t('auth.forgotPassword.invalidCode'));
+                            return;
+                          }
+                          resetPasswordMutation.mutate({ emailToUse: forgotEmail, code: resetCode, newPass: newPassword });
+                        }}
+                        disabled={resetPasswordMutation.isPending || resetCode.length !== 6 || !newPassword || !confirmPassword}
+                        className="flex-1 bg-neutral-900 text-white py-3.5 px-4 rounded-full font-medium text-base hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                      >
+                        {resetPasswordMutation.isPending ? <LoadingSpinner size="sm" /> : t('auth.forgotPassword.resetButton')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={closeForgotPassword}
+                        className="px-4 py-3 border border-neutral-300 rounded-full text-neutral-700 hover:bg-neutral-50 transition-colors"
+                      >
+                        <T tKey="auth.forgotPassword.backToLogin" />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : emailNotVerified ? (
               <div className="space-y-5">
                 <div className="mb-1">
                   <h2 className="text-xl font-medium text-neutral-900 mb-1">Verify your email</h2>
@@ -204,6 +378,15 @@ const Login = () => {
                       placeholder={t('auth.login.password')}
                     />
                   </div>
+                  <div className="flex justify-end mt-1">
+                    <button
+                      type="button"
+                      onClick={openForgotPassword}
+                      className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
+                    >
+                      <T tKey="auth.login.forgotPassword" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -223,7 +406,7 @@ const Login = () => {
             </form>
             )}
 
-            {!emailNotVerified && (
+            {!emailNotVerified && !showForgotPassword && (
               <div className="mt-6 text-center">
                 <p className="text-sm text-neutral-600">
                   <T tKey="auth.login.noAccount" />{' '}
